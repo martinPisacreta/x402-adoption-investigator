@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/pisacretamartin/x402-adoption-investigator/investigator/schemas/events.schema.json",
+  "$id": "https://github.com/martinPisacreta/x402-adoption-investigator/investigator/schemas/events.schema.json",
   "title": "run.jsonl line",
   "description": "One line of logs/<run_id>/run.jsonl (mirrored to stdout). The required payload keys per event type are listed under $defs/payloads and asserted by tests/test_run_contract.py. SPEC.md section 5.",
   "type": "object",

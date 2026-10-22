@@ -92,7 +92,7 @@ for the default run. `python` below is Python 3.11; on systems where the binary 
 (`scripts/one_command.sh` picks `python3` when it exists).
 
 ```bash
-git clone https://github.com/pisacretamartin/x402-adoption-investigator && cd x402-adoption-investigator
+git clone https://github.com/martinPisacreta/x402-adoption-investigator && cd x402-adoption-investigator
 python run.py --sample --input examples/01-seller-audit-textokit/input.json --print-output
 ```
 

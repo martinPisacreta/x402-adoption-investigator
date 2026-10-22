@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/pisacretamartin/x402-adoption-investigator/investigator/schemas/output.schema.json",
+  "$id": "https://github.com/martinPisacreta/x402-adoption-investigator/investigator/schemas/output.schema.json",
   "title": "run.py output",
   "description": "Envelope returned by run.py: {run_id, status, output} on ok/partial, {run_id, status: error, error} otherwise. Key order of output is the order of properties below (SPEC.md sections 4.3 and 4.4).",
   "type": "object",

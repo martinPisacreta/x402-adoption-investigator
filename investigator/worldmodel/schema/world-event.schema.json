@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/pisacretamartin/x402-adoption-investigator/investigator/worldmodel/schema/world-event.schema.json",
+  "$id": "https://github.com/martinPisacreta/x402-adoption-investigator/investigator/worldmodel/schema/world-event.schema.json",
   "title": "World Model event line",
   "description": "One line of world.events.jsonl (SPEC.md 9.1): append-only; seq by append order; payload shape per kind.",
   "type": "object",

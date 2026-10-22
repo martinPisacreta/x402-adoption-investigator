@@ -4,5 +4,5 @@ Package layout follows SPEC.md section 2. Runtime dependencies: the Python 3.11 
 """
 
 __version__ = "0.1.0"
-REPO_URL = "https://github.com/pisacretamartin/x402-adoption-investigator"
+REPO_URL = "https://github.com/martinPisacreta/x402-adoption-investigator"
 USER_AGENT = f"x402-adoption-investigator/{__version__} (+{REPO_URL})"

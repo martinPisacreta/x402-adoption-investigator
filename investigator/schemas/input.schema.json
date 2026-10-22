@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/pisacretamartin/x402-adoption-investigator/investigator/schemas/input.schema.json",
+  "$id": "https://github.com/martinPisacreta/x402-adoption-investigator/investigator/schemas/input.schema.json",
   "title": "run.py input",
   "description": "Request body for run.py (CLI --input file or stdin, or HTTP POST /run). SPEC.md section 4.2.",
   "type": "object",

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/pisacretamartin/x402-adoption-investigator/investigator/schemas/plan.schema.json",
+  "$id": "https://github.com/martinPisacreta/x402-adoption-investigator/investigator/schemas/plan.schema.json",
   "title": "Planner output",
   "description": "The Plan object produced by agents/planner.py (root) and the JSON the generator must return when the router is ambiguous ($defs/generator_response). SPEC.md section 6.1.",
   "type": "object",

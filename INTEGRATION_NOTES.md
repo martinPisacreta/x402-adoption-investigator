@@ -218,7 +218,8 @@ observations, asserts the accepted claims and writes `output.world.second_pass =
   a `basis` string per registry), `catalog_hosts(world)`, `registry_facts(world, registry)`, `facts(world, about=,
   predicate=)`, `neighbors_of`, `snapshot`, `timeline`. `host` uses the SAME definition as the SQL view layer
   (`zetaris/views_sqlite.host_of`: hostname without port, NULL for URI-illegal strings), so the snapshot folds to
-  2,711 hosts; the 57 NULL-host resources are counted in `catalogSize.itemsWithoutHost`, never folded under a fake host.
+  2,680 hosts (`catalogSize.hosts`, the same figure as q08; an earlier draft of this note said 2,711, the lenient
+  `urllib` count of item 19); the 57 NULL-host resources are counted in `catalogSize.itemsWithoutHost`, never folded under a fake host.
 - Critic (B4), C3: `ctx.hmem.policy_memories(derivation.fields, derivation.sources)` returns the pitfall records
   (sorted by id) whose entities contain `field:<f>` or `source:<s>`; the caveat code each requires is
   `record.caveat_codes()[0]` (the `caveat:<code>` tag). No embedding is involved, so the gate is reproducible.

@@ -231,6 +231,45 @@ outputs as they now stand, instead of keeping the first-night wording:
   committed example files byte for byte, and `scripts/memory_ablation.py` reproduced `examples/memory-ablation/`;
   in the image `--sample --input examples/ex4.json` exited 0 with status `partial`.
 
+## Day 1, demo video rebuilt around a recorded run (2026-10-22, from 18:15 UTC)
+
+The review found that the first `docs/pitch/demo.mp4` was a narrated slideshow of the 11-slide deck with no run in
+it. A Claude Code agent replaced it; the scripts are in `docs/pitch/video/`:
+
+- Recorded run: a fresh clone of 7314f62, `docker build -t x402-demo .`, then `docs/pitch/video/capture_run.py`
+  around `docker run --rm --network none x402-demo --sample --input examples/ex4.json --print-output` (18:17 UTC).
+  Exit 0, 1139 stdout lines (83 events, `---output---`, the 1055-line envelope), 0.77 s from launch to exit, empty
+  stderr. The 83 events equal `examples/04-payer-dossier-unverifiable/run.jsonl` and the envelope is byte-identical
+  to its `output.json`; `build_video.py` checks this on every build. The capture, with each line's arrival time, is
+  committed as `docs/pitch/video/run-capture.json`.
+- Narration: `docs/pitch/video/tts.ps1` speaks every segment of `docs/pitch/narration.txt` with System.Speech
+  ("Microsoft David Desktop", rate +1, 44.1 kHz). It also records the offset of each spoken word, used only to pace
+  the terminal replay. On this engine `SpeakProgress.AudioPosition` counts 16 kHz time whatever the output rate;
+  ffmpeg `silencedetect` on the sentence pauses confirmed the 16000/44100 correction. Every alphanumeric character
+  of every segment is covered by a spoken word, so the voice says the text of `narration.txt` and nothing else.
+- Terminal part (`build_video.py`): frames drawn with pymupdf in Consolas. Each line is printed verbatim, wrapped,
+  with JSON colouring and its real arrival time on the left; lines appear in their original order, slowed down so
+  that each one the narration names arrives as it is spoken (seq 1 at "first", seq 3 at "handoffs", the five
+  `fixture_miss` recoveries at "fixture ... recovery", seq 43 at "zero", seq 49 at "rejects", seq 62 at "hands",
+  seq 63 at "dropped", seq 74 at "six", seq 83 at "partial"). The header says it is a replay of captured stdout. The
+  line under the window is an annotation built only from the fields of the highlighted line. The replay stops after
+  the envelope's `answer` line and says that 1006 more lines follow.
+- Viewer part: a scratch copy of `viewer/index.html` whose `DEFAULT_URL` points at the captured envelope (the same
+  as choosing that file in the picker), served on 127.0.0.1 and captured with headless Chrome (1280 CSS px wide,
+  scale 1.5, `--lang=en-US`), then panned from the run header to the rejected claim with the sticky header kept on
+  top. It takes the narration of slide 11; the slide 11 image is not shown.
+- Order: s01-s07, the recorded run, the viewer (s11), s08, s09, s10, s12, with 0.5 s crossfades. Output: 209.6 s
+  (3 min 30 s), 1920x1080, 30 fps, H.264 High yuv420p, AAC 44.1 kHz, `+faststart` (moov before mdat), 13.6 MB. The
+  terminal part needs a wide motion search (`me=umh:merange=256`); with the default range it alone was about 14 MB.
+- Checks on the file: `ffprobe` streams as above (6288 frames); `ffmpeg -v error` decode with no output; volumedetect
+  mean -22.0 dB, max -4.1 dB; blackdetect found nothing; the only silences over 0.9 s are the gaps between segments.
+  23 frames (0.5, 16.5, 35, 60, 85, 107.6, 114.8, 121.7, 124.5, 129.6, 131.5, 134.6, 137.9, 139, 142.5, 143.6, 146,
+  151.8, 160, 175, 188, 200 and 209.4 s) were looked at for legibility, sync with the voice and cut text. Running
+  the committed scripts again produced a byte-identical file (sha256 188d4081...cfbf029).
+- Rebuild: `powershell -NoProfile -ExecutionPolicy Bypass -File docs/pitch/video/tts.ps1 -OutDir <work>/tts -Rate 1`,
+  then `python docs/pitch/video/build_video.py --work <work>` (Windows, ffmpeg, Chrome; pymupdf is used only by this
+  script, not by the investigator).
+
 ## Cursor sessions (what was actually done in Cursor)
 
 Entries are added only for work done in Cursor itself (Composer / agent sessions or edits with

@@ -30,10 +30,15 @@ committed example output (`examples/*/output.json`) or a committed live trace (`
 
 ## Pitch
 
-Demo video: [docs/pitch/demo.mp4](docs/pitch/demo.mp4), narrated with a Windows text-to-speech voice from
-[docs/pitch/narration.txt](docs/pitch/narration.txt). Slide deck: [docs/pitch/deck.pdf](docs/pitch/deck.pdf)
-(12 slides). Source: [docs/pitch/deck.html](docs/pitch/deck.html); slide images in
-[docs/pitch/slides/](docs/pitch/slides/).
+Demo video: [docs/pitch/demo.mp4](docs/pitch/demo.mp4) (3 min 30 s), narrated with a Windows text-to-speech voice
+from [docs/pitch/narration.txt](docs/pitch/narration.txt). Besides the slides it shows a recorded run of example 04:
+the stdout of `docker run --rm --network none x402-demo --sample --input examples/ex4.json --print-output` on an
+image built from a fresh clone, replayed line by line, unedited and slowed down to the narration, each line with its
+real arrival time (the run took 0.77 s; raw capture in
+[docs/pitch/video/run-capture.json](docs/pitch/video/run-capture.json)), then the report viewer opened on that run's
+output. [docs/pitch/video/](docs/pitch/video/) has the scripts that rebuild it. Slide deck:
+[docs/pitch/deck.pdf](docs/pitch/deck.pdf) (12 slides). Source: [docs/pitch/deck.html](docs/pitch/deck.html); slide
+images in [docs/pitch/slides/](docs/pitch/slides/).
 
 ## Overview
 

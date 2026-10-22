@@ -126,6 +126,17 @@ Entries are added only for work done in Cursor itself (Composer / agent sessions
 - **Rules that mattered:** rule 1 (no runtime deps / no CDN), rule 2 (no invented numbers or demo fields — only
   schema-backed keys), English UI copy.
 
+### 2026-10-22 — Cursor Agent CLI: Pitch section in README
+
+- **Tool:** Cursor Agent CLI session under `.cursor/rules/project.mdc`.
+- **Prompt (summary):** Add a short Pitch section to `README.md` right after the opening paragraphs (before
+  Overview), linking the demo video `docs/pitch/demo.mp4` (3 min 26 s, Windows TTS narration;
+  `docs/pitch/narration.txt`), the slide deck `docs/pitch/deck.pdf` (11 slides; source `docs/pitch/deck.html`,
+  images in `docs/pitch/slides/`). Keep to 4–6 lines; no new claims or numbers beyond video length and slide
+  count. Add this Cursor sessions entry. Touch no other files; do not run git.
+- **Files changed:** `README.md` (Pitch section), `docs/BUILD_LOG.md` (this entry).
+- **Rules that mattered:** rule 2 (no invented pitch numbers), English copy, only the listed files.
+
 ## Day 2 (2026-10-23)
 
 _Pending._

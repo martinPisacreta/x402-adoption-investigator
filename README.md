@@ -20,10 +20,17 @@ Full specification: [SPEC.md](SPEC.md). Build log: [docs/BUILD_LOG.md](docs/BUIL
 Every number in this README comes from a committed fixture (`fixtures/raw/`, captured 2026-10-22 ~00:05Z) or a
 committed example output (`examples/*/output.json`).
 
+## Pitch
+
+Demo video: [docs/pitch/demo.mp4](docs/pitch/demo.mp4) (3 min 27 s, narrated with a Windows text-to-speech
+voice). Narration text: [docs/pitch/narration.txt](docs/pitch/narration.txt).
+Slide deck: [docs/pitch/deck.pdf](docs/pitch/deck.pdf) (11 slides). Source:
+[docs/pitch/deck.html](docs/pitch/deck.html); slide images in [docs/pitch/slides/](docs/pitch/slides/).
+
 ## Overview
 
-**The problem.** Ask four public registries how many paid x402 endpoints `tienda.textokit.store` has and you get
-four answers: the CDP Bazaar search returns 17 listings (`fixtures/raw/cdp-discovery-search-urlSubstring-tienda.json`),
+**The problem.** Ask four public registries and the store itself how many paid x402 endpoints `tienda.textokit.store` has and you get
+five answers: the CDP Bazaar search returns 17 listings (`fixtures/raw/cdp-discovery-search-urlSubstring-tienda.json`),
 the store's own `openapi.json` declares 17 paid operations (`store-openapi.json`), Agent402 counts 17 paid tools out
 of 34 (`agent402-index-seller-tienda.json`), vet402 lists 19 endpoints (`vet402-resolve-tienda.json`) and the
 x402-trust keyword search reports 36 matches (`x402-trust-search-tienda.json`). None of them is wrong; each

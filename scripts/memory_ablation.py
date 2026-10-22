@@ -29,7 +29,7 @@ sys.path.insert(0, str(REPO_ROOT))
 from investigator.config import build_config  # noqa: E402
 from investigator.runner import run as run_investigation  # noqa: E402
 
-EXAMPLES = ("01-seller-audit-textokit", "02-catalog-concentration", "03-payer-dossier-onchain")
+EXAMPLES = ("01-seller-audit-textokit", "02-catalog-concentration", "03-payer-dossier-onchain", "04-payer-dossier-unverifiable")
 
 
 def seed_without(memory_id: str, target: Path) -> dict[str, Any]:

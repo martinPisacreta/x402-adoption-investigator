@@ -1,4 +1,4 @@
-"""Sample-mode run of the 3 examples == committed examples/*/output.json byte for byte (SPEC.md I4, 11). Owner: B4.
+"""Sample-mode run of the 4 examples == committed examples/*/output.json byte for byte (SPEC.md I4, 11). Owner: B4.
 
 Skipped until scripts/regen_examples.py has produced the committed outputs. A fresh run writes to a temporary logs
 directory; output.json carries no wall-clock values and `report_path` is the fixed `logs/<run_id>/report.md`, so
@@ -18,7 +18,7 @@ sys.path.insert(0, str(REPO_ROOT))
 from investigator.config import build_config  # noqa: E402
 from investigator.runner import run as run_investigation  # noqa: E402
 
-EXAMPLES = ("01-seller-audit-textokit", "02-catalog-concentration", "03-payer-dossier-onchain")
+EXAMPLES = ("01-seller-audit-textokit", "02-catalog-concentration", "03-payer-dossier-onchain", "04-payer-dossier-unverifiable")
 
 
 def committed(name: str) -> Path:

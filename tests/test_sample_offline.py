@@ -46,14 +46,15 @@ class NetworkGuard(unittest.TestCase):
                 urllib.request.urlopen("https://mainnet.base.org", timeout=1)
 
     def test_full_sample_pipeline_never_touches_a_socket(self) -> None:
-        """All three examples run with the guard installed first; every source comes from a fixture (replayed),
-        every fetch event says so, and any socket use would have surfaced as E_INTERNAL (NetworkDisabledError)."""
+        """All four examples run with the guard installed first; every source comes from a fixture (replayed),
+        every fetch event says so, and any socket use would have surfaced as E_INTERNAL (NetworkDisabledError).
+        Example 04 is `partial` by design: the Critic rejects a claim its fixtures cannot support."""
         with tempfile.TemporaryDirectory() as tmp:
             config = build_config(type("Args", (), {"mode": "sample", "sample": True, "out": tmp})(), load_dotenv=False)
-            for example in ("ex1.json", "ex2.json", "ex3.json"):
+            for example, status in (("ex1.json", "ok"), ("ex2.json", "ok"), ("ex3.json", "ok"), ("ex4.json", "partial")):
                 payload = json.loads((REPO_ROOT / "examples" / example).read_text(encoding="utf-8"))
                 envelope = run_investigation(payload, config, echo_stdout=False)
-                self.assertEqual(envelope["status"], "ok", (example, envelope.get("error")))
+                self.assertEqual(envelope["status"], status, (example, envelope.get("error")))
                 output = envelope["output"]
                 self.assertEqual(output["mounts"]["fetcher"], "fixture")
                 self.assertIn("sample_mode_notice", output)

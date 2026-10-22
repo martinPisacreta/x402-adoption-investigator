@@ -1,7 +1,8 @@
 """run.py I/O contract: schemas, error codes, the partial rule, and the sample-mode end-to-end runs (SPEC.md 4). Owner: B4.
 
 Written with unittest so it runs with `python -m unittest discover tests` (no pytest needed) and under pytest.
-The three examples are `ok` in sample mode. The status rule (any rejected claim -> `partial`) and the Critic's C4
+Examples 01-03 are `ok` in sample mode and example 04 is `partial` (its Critic rejection is organic, see
+tests/test_example_04_critic.py). The status rule (any rejected claim -> `partial`) and the Critic's C4
 scope rule are exercised here with a metric registered only for the duration of one test, never shipped in the
 registry (rule 2 of .cursor/rules/project.mdc: no hardcoded demo answer).
 """
@@ -31,6 +32,7 @@ EXAMPLES = {
     "01-seller-audit-textokit": ("ex01-seller-audit", "seller_profile"),
     "02-catalog-concentration": ("ex02-catalog-concentration", "catalog_concentration"),
     "03-payer-dossier-onchain": ("ex03-payer-dossier", "payer_dossier"),
+    "04-payer-dossier-unverifiable": ("ex04-unverified", "payer_dossier"),
 }
 PITCH_NUMBERS = ("28462", "2713", "824796", "44000", "85.7")
 

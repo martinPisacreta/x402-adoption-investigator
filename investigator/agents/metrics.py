@@ -60,6 +60,8 @@ class MetricSpec:
                                           # False exists only for test-local metrics, and the Critic's C2 rejects
                                           # any claim that reaches it without an SQL value
     required_exports: tuple[str, ...] = ()  # run exports that must exist (e.g. the Verifier's settlements.json)
+    evidence_rule: Optional[str] = None   # "decoded_settlement": Critic C1 also needs >= 1 sampled settlement of the
+                                          # claim's own subject that was actually decoded (verified or failed)
 
 
 def _m(**kwargs) -> MetricSpec:
@@ -147,7 +149,8 @@ METRICS: dict[str, MetricSpec] = {spec.id: spec for spec in [
     _m(id="settlements_verified", query_id="q16_settlements_vs_receipts", reducer="reducers.settlements_verified", unit="count",
        subject_template="seller:host:{host}", statement_template="{value} sampled settlement(s) verified on Base against the receipts.",
        required_sources=("receipts", "base_rpc"), fields=("transaction", "payer", "amountAtomic"), sources=("receipts", "base_rpc"),
-       caveat_rules=("payer_from_transfer_log",), playbooks=("seller_profile", "payer_dossier"), required_exports=("settlements",)),
+       caveat_rules=("payer_from_transfer_log",), playbooks=("seller_profile", "payer_dossier"), required_exports=("settlements",),
+       evidence_rule="decoded_settlement"),
     # ---- catalog_concentration -----------------------------------------------------------------------------
     _m(id="catalog_resources", query_id="q08_catalog_size", reducer="reducers.catalog_resources", unit="count",
        subject_template="catalog:cdp-bazaar", statement_template="The Bazaar catalog snapshot holds {value} unique resources.",
@@ -218,7 +221,8 @@ METRICS: dict[str, MetricSpec] = {spec.id: spec for spec in [
     _m(id="verified_tx", query_id="q16_settlements_vs_receipts", reducer="reducers.verified_tx", unit="count",
        subject_template="wallet:base:{wallet}", statement_template="{value} settlement(s) of this payer verified on Base.",
        required_sources=("receipts", "base_rpc"), fields=("transaction",), sources=("receipts", "base_rpc"),
-       caveat_rules=("payer_from_transfer_log",), playbooks=("payer_dossier",), required_exports=("settlements",)),
+       caveat_rules=("payer_from_transfer_log",), playbooks=("payer_dossier",), required_exports=("settlements",),
+       evidence_rule="decoded_settlement"),
     _m(id="usdc_balance_atomic", query_id="q22_payer_chain_facts", reducer="reducers.usdc_balance_atomic", unit="atomic_usdc",
        subject_template="wallet:base:{wallet}", statement_template="USDC balance at capture: {value} atomic ({usdc} USDC).",
        required_sources=("base_rpc",), fields=("balanceOf",), sources=("base_rpc",),

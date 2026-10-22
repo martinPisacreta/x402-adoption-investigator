@@ -1,0 +1,23 @@
+{
+  "run_id": "ex04-unverified",
+  "input": {
+    "question": "What do we know about the payer 0xA1d1C0cf717402ff3651aA4873CcF96410B01978: what it bought from tienda.textokit.store, and can its settlement be verified on Base?",
+    "focus": {
+      "host": "tienda.textokit.store",
+      "wallet": "0xa1d1c0cf717402ff3651aa4873ccf96410b01978",
+      "service": null,
+      "query": null
+    },
+    "budget": {
+      "max_seconds": 180,
+      "max_fetches": 40,
+      "max_tx_verifications": 5,
+      "max_critic_rounds": 2,
+      "bazaar_pages": 3
+    },
+    "options": {
+      "catalog": "snapshot",
+      "zetaris_source": "captured"
+    }
+  }
+}

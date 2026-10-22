@@ -5,30 +5,35 @@
 A bounded multi-agent investigator that answers "how real is x402 adoption?" (who sells, who buys, what is bought,
 how concentrated it is, whether buyers come back) with numbers it can prove. Every claim links to a URL with the
 sha256 of the bytes fetched, a Base transaction decoded from its receipt logs, or a line of the run's own JSONL log.
-Where public registries disagree, the disagreement is a first-class `Conflict` with the measurement basis of each
-number and a rule-written explanation of why they differ.
+Where sources disagree, the disagreement is a first-class `Conflict` with the measurement basis of each number and
+a rule-written explanation of why they differ. (x402 is pay-per-call over HTTP `402 Payment Required`, settled in
+USDC, here on Base; the CDP Bazaar is Coinbase's x402 discovery catalog.)
 
-Sponsor technology is structural: a Meterless **World Model** (provenance on every row, idempotent ingest) is the
-shared state; Meterless **H-MEM** pitfall memories decide which caveats every claim must carry (enforced by the
-Critic's rule C3) and are injected into the Planner and Writer prompts whenever a generator is mounted, with a trace
-in `logs/` (no committed run had a model key; `tests/test_generator_hmem.py` proves the injection offline);
-**Zetaris** Lightning SQL is the live federation layer (the live seller audit computed all 19 of its claims on it),
-and offline the same committed SQL runs on SQLite; the repository was built under the **Cursor** rules in
-`.cursor/rules/project.mdc`.
+## At a glance
+
+| | |
+|---|---|
+| **User** | The operator of an autonomous agent that sells or buys over x402 and has to decide where the real demand is. |
+| **Problem** | Ask four registries and the store itself how many paid endpoints one store has and you get five answers: 17, 17, 17, 19 and 36. Three agree, two differ, and none says why. Activity disagrees too: 60 Bazaar calls in 30 days against 77 settled sales in the receipts, 56 of them paid by the seller itself. |
+| **What the agents do** | Seven roles in a bounded loop. Planner: playbook, sources, queries. Collector: fetch and hash. Keeper: Meterless World Model. Verifier: settlements decoded on Base. Analyst: every metric twice, in committed SQL and in a Python reducer. Writer: an answer where every number cites a claim. Critic: rules C1-C7 and a narrative pass; it rejects claims or sends the answer back. |
+| **Try it** | `python run.py --sample --input examples/ex1.json` from a clean clone: offline, no keys, Python 3.11 standard library only. Docker: `docker run --rm --network none x402-investigator`. [Quick start](#quick-start-clean-clone-one-command). |
+| **Critique and recovery** | Example 04 (`examples/ex4.json`): the Critic rejects a "0 verified" count that no decoded settlement supports, the Writer's second round drops and names it, status `partial`, verdict `insufficient_evidence`. [Examples](#examples). |
+| **Sponsor tech** | Zetaris Lightning SQL is the live federation layer; Meterless World Model and H-MEM are mounted and conformance-tested; Cursor: two Cursor Agent sessions (optional since 22 Oct); NVIDIA: not used. [Summary](#sponsor-technology), machine-readable in [metadata.json](metadata.json). |
+| **Honesty** | No language model ran in any committed run: the generator-backed roles fell back to rules and templates ([Limitations](#limitations-and-honesty-notes)). Pre-existing: the author's own Automata store, used only as a data source ([declared](#pre-existing-components-declared)). |
 
 Full specification: [SPEC.md](SPEC.md). Build log: [docs/BUILD_LOG.md](docs/BUILD_LOG.md). Demo script:
 [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md). Sponsor integrations: [docs/METERLESS.md](docs/METERLESS.md),
-[docs/ZETARIS.md](docs/ZETARIS.md).
+[docs/ZETARIS.md](docs/ZETARIS.md), [metadata.json](metadata.json).
 
-Every number in this README comes from a committed fixture (`fixtures/raw/`, captured 2026-10-22 ~00:05Z) or a
-committed example output (`examples/*/output.json`).
+Every data figure in this README comes from a committed fixture (`fixtures/raw/`, captured 2026-10-22 ~00:05Z), a
+committed example output (`examples/*/output.json`) or a committed live trace (`examples/live-trace/`).
 
 ## Pitch
 
-Demo video: [docs/pitch/demo.mp4](docs/pitch/demo.mp4) (3 min 27 s, narrated with a Windows text-to-speech
-voice). Narration text: [docs/pitch/narration.txt](docs/pitch/narration.txt).
-Slide deck: [docs/pitch/deck.pdf](docs/pitch/deck.pdf) (11 slides). Source:
-[docs/pitch/deck.html](docs/pitch/deck.html); slide images in [docs/pitch/slides/](docs/pitch/slides/).
+Demo video: [docs/pitch/demo.mp4](docs/pitch/demo.mp4), narrated with a Windows text-to-speech voice from
+[docs/pitch/narration.txt](docs/pitch/narration.txt). Slide deck: [docs/pitch/deck.pdf](docs/pitch/deck.pdf)
+(12 slides). Source: [docs/pitch/deck.html](docs/pitch/deck.html); slide images in
+[docs/pitch/slides/](docs/pitch/slides/).
 
 ## Overview
 
@@ -36,10 +41,10 @@ Slide deck: [docs/pitch/deck.pdf](docs/pitch/deck.pdf) (11 slides). Source:
 five answers: the CDP Bazaar search returns 17 listings (`fixtures/raw/cdp-discovery-search-urlSubstring-tienda.json`),
 the store's own `openapi.json` declares 17 paid operations (`store-openapi.json`), Agent402 counts 17 paid tools out
 of 34 (`agent402-index-seller-tienda.json`), vet402 lists 19 endpoints (`vet402-resolve-tienda.json`) and the
-x402-trust keyword search reports 36 matches (`x402-trust-search-tienda.json`). None of them is wrong; each
-measures something different. The same happens with activity: the Bazaar's per-endpoint 30-day call counters sum to
-60 for the host while the seller's own receipts list 77 settled sales, 56 of which were paid from the seller's own
-wallets. An agent that reports one of these numbers without its basis is not explaining anything.
+x402-trust keyword search reports 36 matches (`x402-trust-search-tienda.json`). Three agree, two differ, and none
+of them is wrong: each measures something different. The same happens with activity: the Bazaar's per-endpoint
+30-day call counters sum to 60 for the host while the seller's own receipts list 77 settled sales, 56 of which were
+paid from the seller's own wallets. An agent that reports one of these numbers without its basis is not explaining anything.
 
 **What the investigator does.** It plans which sources answer the question, fetches them with retries and hashes
 the bytes, folds them into a World Model with provenance, verifies sampled settlements on Base by decoding the USDC
@@ -62,6 +67,31 @@ settlement verified on chain (block 52,841,269, payer and seller read from the T
 1,043,148 atomic and nonce 24 at capture; verdict `adoption_thin`. For a second external payer whose settlement the
 fixtures do not cover (example 04): one purchase of 1,000 atomic USDC, the "0 verified" count rejected by the
 Critic as missing evidence, verdict `insufficient_evidence`.
+
+## Sponsor technology
+
+The same facts in machine-readable form, with file paths and tests, are in [metadata.json](metadata.json).
+
+- **Zetaris (Lightning SQL, live federation layer).** In live mode the analytics queries run on Zetaris Lightning
+  2.4.3.1 (local Docker, REST API) over REST tables registered for that run from the bytes the Collector hashed,
+  flattened by SchemaStore views; a view or query that fails there falls back to SQLite with a logged recovery.
+  Code: `investigator/zetaris/`, SQL: `investigator/sql/` (22 queries). The live seller audit computed all 19 of its
+  claims on Zetaris (`examples/live-trace/live-ex01-20261022/`). Offline the same SQL runs on SQLite;
+  `tests/test_sql_dual_backend.py` proves SQLite returns the rows Zetaris returned for q01-q19
+  (`fixtures/zetaris/`). q20-q22 were added after the live session and have not run on Zetaris yet.
+  [Details](#zetaris-integration-tables-sql-fallback).
+- **Meterless (World Model and H-MEM mounted; Markovian and Scout Intent not used).** The World Model is the shared
+  state: provenance on every row, a claim policy that refuses facts without evidence, idempotent ingest proved in
+  every output. H-MEM pitfall memories add the caveats each claim must carry on top of the registry's own rules
+  (checked by Critic rule C3) and are injected into the Planner and Writer prompts when a generator is mounted, with
+  a trace in `logs/`. Conformance: 8/8 World
+  Model checks, 13/13 upstream H-MEM vectors; `tests/test_generator_hmem.py` proves the injection offline;
+  `examples/memory-ablation/` measures what one memory changes. [Details](#meterless-integration-h-mem--world-model).
+- **Cursor.** Optional since the 22 Oct rules update. Two headless Cursor Agent CLI sessions built the report viewer
+  (`viewer/index.html`) and the README Pitch section, under `.cursor/rules/project.mdc`; Claude Code wrote the rest.
+  [Details](#ai-coding-tools-claude-code-and-cursor).
+- **NVIDIA.** Not used: no NVIDIA model, API or GPU. The generator is OpenAI-compatible (`OPENAI_BASE_URL`, `MODEL`),
+  but no NVIDIA endpoint was run or tested.
 
 ## Architecture: agents and handoffs
 
@@ -102,6 +132,7 @@ for the default run. `python` below is Python 3.11; on systems where the binary 
 ```bash
 git clone https://github.com/martinPisacreta/x402-adoption-investigator && cd x402-adoption-investigator
 python run.py --sample --input examples/01-seller-audit-textokit/input.json --print-output
+python run.py --sample --input examples/ex4.json --print-output    # the Critic rejects a claim (example 04)
 ```
 
 The run is in sample mode: the first stdout line is `guard` (network disabled), then the JSONL event stream
@@ -244,10 +275,10 @@ whose `source.runId` is missing. The Keeper asserts every accepted claim as such
 (`tests/test_meterless_keeper.py`). Idempotent ingest is proven in every run: the Keeper re-ingests the same
 observations at the end and writes `output.world.second_pass = {eventsAppended: 0, changed: false}`;
 `python scripts/assert_idempotent.py logs/<run_id>` replays the run's observation manifest into a fresh model twice
-and exits 0 only when nothing differs (PASS on the three examples).
+and exits 0 only when nothing differs (PASS on the four examples).
 
 **H-MEM** (`investigator/hmem/`: `types.py`, `embeddings.py`, `ledger.py`, `store.py`, `retrieval.py`, `mining.py`,
-`sleep.py`, `conflicts.py`, `dreaming.py`, `facade.py`) is the memory that decides which caveats a claim must carry.
+`sleep.py`, `conflicts.py`, `dreaming.py`, `facade.py`) is the memory that adds the caveats a claim must carry.
 Seven committed pitfall memories (`memory/seed/memories.jsonl`, tags `pitfall` + `caveat:<code>`, entities
 `field:<name>` / `source:<family>` / `metric:<id>`) feed one deterministic index, `policy_memories(fields, sources,
 metrics)`, read twice per claim: the Analyst attaches every caveat the touching memories require, with the memory
@@ -384,7 +415,20 @@ Pitch numbers that differ from SPEC.md section 0 are the committed ones: the sna
 1,785 distinct payTo wallets under the view semantics both backends share (primary accept per listing, Java-strict
 host parsing with 57 URI-illegal resources counted but not folded under a fake host), not 2,713 and 2,177.
 
-## How Cursor was used
+## AI coding tools: Claude Code and Cursor
+
+**Claude Code** (Anthropic's coding agent, model Claude Opus 5.5) was the main coding tool. On 2026-10-22 from
+00:10 UTC one Claude Code multi-agent workflow read the Meterless and Zetaris material, produced three designs (two
+judge agents picked one and grafted parts of the others into SPEC.md and the Cursor rules), scaffolded the
+repository, ran four builders on disjoint directories (sources and chain, Meterless engines, Zetaris layer, agents
+and runner), integrated them, ran the live checks, and reviewed and fixed the result. The pitch was made from the
+same session, and so were the pre-submission verification and the fix rounds of the same afternoon. Commits carry
+`Claude-Session` trailers.
+
+**Cursor** was required when the build started and became optional on 2026-10-22 at 12:45 UTC. Two scoped tasks
+were done in headless Cursor Agent CLI sessions: the static report viewer (`viewer/index.html`) and the README
+Pitch section. The Cursor prompts said not to run git, so the commits that carry that work (901b109, e654f59) were
+made from the Claude Code session and have its trailers. OpenAI Codex was not used.
 
 `.cursor/rules/project.mdc` is the architecture contract (always applied, every file type): standard library only,
 no number in code, evidence on every claim, generator-backed roles limited to Planner / Writer / Critic second
@@ -392,30 +436,37 @@ opinion, sample mode offline with a socket guard, exactly three mount points, AN
 flattening confined to the view layer, visible `unavailable`/`recovery` instead of silent zeros, bounded loops,
 secrets from env only, one event log, shared contracts nobody edits, Meterless formulas kept exactly, per-run Zetaris
 objects, English everywhere, replayed data flagged. The rules were written on day 0 from SPEC.md before any module
-existed.
+existed, and they were given to every coding agent, Claude Code ones included.
 
-The code was developed inside the repository by AI coding agents working under those rules (Claude Code generated
-the first-hours skeleton, acted as the integrator and applied the review fixes; four parallel builder agents
-produced the sources/chain, Meterless, Zetaris and agents modules). [docs/BUILD_LOG.md](docs/BUILD_LOG.md) records,
-with UTC times, what was produced, which rules shaped decisions (rule 8 decided that an unreachable chain never
-becomes a `settlements` view with zero rows; rule 2 removed a registry metric that existed only to be rejected) and
-what the tests caught (appended logs on re-run, wall-clock milliseconds in a "reproducible" log, a tokenizer that
-flagged the numbers of a text claim). Its "Cursor sessions" section lists every piece of work done in Cursor itself
-with date, files and the rule that applied; an entry is added only for work actually done there, and the section
-says so when it is empty.
+[docs/BUILD_LOG.md](docs/BUILD_LOG.md) records, with UTC times, what was produced and with which tool, which rules
+shaped decisions (rule 8 decided that an unreachable chain never becomes a `settlements` view with zero rows; rule 2
+removed a registry metric that existed only to be rejected) and what the tests caught (appended logs on re-run,
+wall-clock milliseconds in a "reproducible" log, a tokenizer that flagged the numbers of a text claim). Its
+"Cursor sessions" section lists every piece of work done in Cursor itself with date, files and the rule that
+applied; an entry is added only for work actually done there.
 
 ## Pre-existing components declared
 
-Automata, a self-hosted agent on Base (ERC-8004 id 98748) whose x402 store at `https://tienda.textokit.store`
-publishes `receipts.json` (every settled sale with payer, amount, transaction hash and an `ownWallet` flag),
-`openapi.json`, `llms.txt` and a remote MCP at `/mcp`. It predates the hackathon and is used here only as a public
-data source: no code from it is in this repository, and its receipts are treated as self-reported (caveat
-`self_reported_receipts`, memory `mem-seed-003`) and verified against the chain rather than trusted.
+- **Automata and its x402 store `https://tienda.textokit.store`, built and operated by the author** (Martin
+  Pisacreta, Team Automata) before the build window. Automata is a self-hosted agent on Base (ERC-8004 id 98748);
+  its store publishes `receipts.json` (every settled sale with payer, amount, transaction hash and an `ownWallet`
+  flag), `openapi.json`, `llms.txt` and a remote MCP at `/mcp`. Here it is only a live, read-only public data
+  source and the subject of examples 01, 03 and 04 and of the live traces: no code from it is in this repository,
+  and its receipts are treated as self-reported (caveat `self_reported_receipts`, memory `mem-seed-003`) and
+  verified against the chain rather than trusted. Example 01's finding (56 of 77 sales self-settled) is about the
+  author's own store.
+- **Meterless H-MEM conformance vectors**: `tests/vectors/hmem-vectors.json` is a verbatim upstream copy
+  (Apache-2.0, `tests/vectors/ATTRIBUTION.md`). The engine ports were written in the window from the specs.
+- **Zetaris Lightning 2.4.3.1**, the third-party platform, run locally in Docker; none of its code is here.
+- **The Python 3.11 standard library**, the whole runtime.
+
+Everything else was written in the build window (from 2026-10-22 00:00 UTC); the fixtures were captured read-only
+on 2026-10-22 between 00:02 and 00:08 UTC.
 
 ## Tests
 
 ```
-python -m unittest discover -s tests     # 219 tests, no third-party dependency
+python -m unittest discover -s tests     # 222 tests, no third-party dependency
 python -m pytest -q                      # same suite under pytest if installed
 ```
 
@@ -426,9 +477,10 @@ pipeline, the run contract (schemas, error codes, status rule, CLI exit codes, `
 the no-hardcoded-numbers grep),
 dual computation with a deliberately broken half (C2), example 04's organic C1 rejection, H-MEM injection into the
 generator prompts through an in-process OpenAI-compatible double plus `RecordedGenerator` replay, sample-mode
-offline proof, and byte-for-byte reproducibility of the committed examples.
+offline proof, byte-for-byte reproducibility of the committed examples, and `metadata.json` (every path it names
+exists, its test count is the discovered one, and README and deck quote the same count).
 
-On 2026-10-22 the suite ran green (219 tests, 0 failures, 0 skips) in three places: a fresh Windows clone with the
+On 2026-10-22 the suite ran green (222 tests, 0 failures, 0 skips) in three places: a fresh Windows clone with the
 Git for Windows default `core.autocrlf=true`, a fresh clone with `core.autocrlf=false`, and the Docker image built
 from that clone (`docker run --network none ... -m unittest discover -s tests`, Python 3.11.17). In all three,
 `python run.py --sample` on each of the eight example inputs (`examples/exN.json` and `examples/0N-*/input.json`)
@@ -474,6 +526,11 @@ are records of live runs and are not re-run offline.
   their basis and never reconciled into one figure.
 - **Zetaris paths not exercised live**: the `direct` API style and the paginated `start/page/close` route (no query
   exceeds 1,000 rows); `CACHE TABLE` is a session cache.
+- **Zetaris coverage.** Sample mode, the one documented command, always runs on SQLite. q20-q22 and the
+  `chain_facts` view were added after the live Zetaris session: the three queries have no Zetaris recording, and
+  the Zetaris definition of `chain_facts` (`conv()` over the RPC hex) has not run on an instance. Both committed
+  example 03 live traces predate them.
+- **No NVIDIA.** No NVIDIA model, API or GPU is used.
 - **No paid probe.** The investigator never spends: it reads receipts and public settlements instead of buying.
 
 ## Dependencies and licenses

@@ -1,0 +1,187 @@
+{
+  "name": "x402 Adoption Investigator",
+  "hackathon": "Open Agent Hackathon 2026 (GenAI Works, HackOS)",
+  "track": "02 The Agent That Can Explain Why",
+  "team": {
+    "name": "Automata",
+    "members": ["Martin Pisacreta"],
+    "country": "Argentina"
+  },
+  "repo_url": "https://github.com/martinPisacreta/x402-adoption-investigator",
+  "license": "MIT",
+  "summary": "A bounded seven-role agent system that answers how real x402 adoption is (who sells, who buys, how concentrated, whether buyers return) and proves every number: each claim cites a URL plus the sha256 of the bytes fetched, a Base transaction decoded from its USDC Transfer log, or a line of the run's own JSONL log; source disagreements become explained Conflict objects.",
+  "x402": "x402 is pay-per-call over HTTP 402 Payment Required, settled in USDC (here on Base). The CDP Bazaar is Coinbase's x402 discovery catalog.",
+  "user": "The operator of an autonomous agent that sells or buys over x402 and has to decide where the real demand is.",
+  "problem": "For one store (tienda.textokit.store) four registries and the store itself give five counts of its paid endpoints (CDP Bazaar 17, the store's openapi.json 17, Agent402 17, vet402 19, x402-trust 36). Three agree, two differ, and none says why. Activity disagrees too: Bazaar 30-day counters sum to 60 calls while the seller's receipts list 77 settled sales, 56 of them paid from the seller's own wallets.",
+  "entry_points": {
+    "cli": "python run.py --sample --input examples/ex1.json",
+    "cli_contract": "python run.py --input <file|-> [--run-id ID] [--mode sample|live|auto] [--sample] [--out DIR] [--print-output] [--quiet]",
+    "http": "python run.py --serve 8080: POST /run with {run_id, input} returns {run_id, status, output} (200 for ok/partial) or a structured error envelope (422; 400 for a body that is not JSON, 413 over 1 MB); GET /health",
+    "one_command": ["scripts/one_command.sh", "scripts/one_command.ps1"],
+    "docker": "docker build -t x402-investigator . && docker run --rm --network none x402-investigator",
+    "files": ["run.py", "investigator/runner.py", "Dockerfile", "docker-compose.yml", ".env.example"]
+  },
+  "runtime": {
+    "python": "3.11",
+    "dependencies": "Python standard library only; no pip install. pytest is optional for tests.",
+    "sample_mode": "Default without credentials (or --sample / SAMPLE_MODE=1): replays fixtures/raw/ captured 2026-10-22, installs a socket guard before the first event (investigator/guard.py), runs the SQL on SQLite, no network and no keys.",
+    "live_mode": "With .env.local (copied from .env.example): live fetches with retries and fixture fallback, Zetaris as SQL executor, an OpenAI-compatible generator when OPENAI_API_KEY is set. Every missing piece degrades to a logged recovery.",
+    "logs": "logs/<run_id>/run.jsonl (mirrored to stdout) plus side files sharing one seq counter: fetch.jsonl, sql.jsonl, zetaris.jsonl (live), hmem.trace.jsonl, world.events.jsonl, world.audit.jsonl, world.observations.jsonl, generator.jsonl (when a generator is mounted); output.json and report.md"
+  },
+  "agents": [
+    {"role": "Planner", "file": "investigator/agents/planner.py", "does": "Routes the question to a playbook by rules and picks sources, query ids and metrics; with a generator mounted, one call may refine the plan (choose among the router's candidate playbooks, add hypotheses and registry metrics), validated by plan.schema.json.", "generator_backed": true},
+    {"role": "Collector", "file": "investigator/agents/collector.py", "does": "Fetches every planned source with retries (0.5 s / 1.5 s backoff in live mode), hashes the bytes, writes raw/ and exports/; a missing fixture is fixture_miss, never invented.", "generator_backed": false},
+    {"role": "Keeper", "file": "investigator/agents/keeper.py", "does": "Folds observations into the Meterless World Model with provenance, asserts accepted claims as facts, and re-ingests at the end to prove idempotency.", "generator_backed": false},
+    {"role": "Verifier", "file": "investigator/agents/verifier.py", "does": "Samples settlements and verifies them on Base JSON-RPC by decoding the USDC Transfer log (payer and seller from the log, never tx.from, which is the facilitator); exports chain facts.", "generator_backed": false},
+    {"role": "Analyst", "file": "investigator/agents/analyst.py", "does": "Computes every metric twice, with a committed SQL query (Zetaris live, SQLite offline) and a pure-Python reducer over the same exports; records Conflicts and unavailable[] entries.", "generator_backed": false},
+    {"role": "Writer", "file": "investigator/agents/writer.py", "does": "Writes the answer where every number cites a claim id; names rejected claims; revises on the Critic's issues.", "generator_backed": true},
+    {"role": "Critic", "file": "investigator/agents/critic.py", "does": "Applies rules C1-C7 (C1 evidence, C2 recomputation: SQL and reducer values must both exist and agree, C3 H-MEM pitfall caveats, C4 scope, C5 staleness, C6 memory consistency, C7 conflict citation) and narrative pass B (every number in the text maps to an accepted claim); rejects claims or sends the answer back to the Writer. A generator second opinion can only add issues.", "generator_backed": true}
+  ],
+  "sponsor_tech": {
+    "zetaris": {
+      "used": true,
+      "role": "Live SQL federation layer. In live mode the Analyst's committed analytics SQL runs on Zetaris Lightning over REST tables registered for that run; offline the same SQL runs on SQLite.",
+      "version": "Zetaris Lightning 2.4.3.1, local Docker instance, driven through its REST API (UI proxy at http://localhost:3000)",
+      "how": "Per run: a Lightning database X402_<RUN8>, one Lightning REST table per export served to the Zetaris driver by a stdlib artifact server over logs/<run_id>/exports/ (so Zetaris computes on exactly the bytes the Collector hashed), CACHE TABLE on each, and a SchemaStore container x402_<run8> with views that flatten the JSON; everything is dropped at finalize and on every error path.",
+      "registered_sources_live_seller_audit": ["receipts_raw (store receipts.json)", "bazaar_search_host (CDP Bazaar search)", "openapi_paid_ops_raw (store openapi.json)", "agent402_index", "vet402_resolve", "trust_search_raw", "trust_stats_raw", "settlements_raw (Verifier output)"],
+      "schemastore_views": ["sales", "purchases", "bazaar_resources", "bazaar_search", "catalog_resources", "openapi_paid_ops", "agent402_tools", "agent402_seller", "vet402_endpoints", "trust_search", "trust_stats", "settlements", "chain_facts"],
+      "queries": "22 ANSI-subset analytics queries with meta files (column types, parameters); the sha256 of each committed query is reported on every claim (derivation.sql_sha256).",
+      "files": [
+        "investigator/zetaris/client.py",
+        "investigator/zetaris/ddl.py",
+        "investigator/zetaris/artifact_server.py",
+        "investigator/zetaris/views_zetaris.py",
+        "investigator/zetaris/views_sqlite.py",
+        "investigator/zetaris/catalog.py",
+        "investigator/zetaris/executor.py",
+        "investigator/zetaris/fixture_exports.py",
+        "investigator/sql/analytics/",
+        "investigator/sql/views/VIEWS.md",
+        "scripts/zetaris_preflight.py",
+        "scripts/record_zetaris_results.py",
+        "scripts/zetaris_cleanup.py",
+        "docs/ZETARIS.md"
+      ],
+      "live_evidence": {
+        "examples/live-trace/live-ex01-20261022/": "Example 01 live: all 19 claims computed on Zetaris (derivation.backend zetaris), 75 REST calls in zetaris.jsonl including DDL and cleanup, queries in 157-590 ms.",
+        "examples/live-trace/live-ex03-20261022/": "Example 03 live with --require-zetaris: 7 of 9 claims on Zetaris; balance and nonce were reducer-only in that earlier build (before q22 existed).",
+        "examples/live-trace/live-nozetaris-ex03/": "Credentials withheld: recovery zetaris_unreachable, the same SQL on SQLite, status partial."
+      },
+      "offline_equivalence": {
+        "how": "Sample mode (the one documented command) always runs on SQLite. fixtures/zetaris/q01-q19 hold the result sets Zetaris 2.4.3.1 returned for the same exports; the test asserts SQLite returns the same typed rows.",
+        "fixtures": "fixtures/zetaris/",
+        "test": "tests/test_sql_dual_backend.py",
+        "not_yet_verified_on_zetaris": "q20-q22 and the chain_facts view were added after the live session; they have no Zetaris recording and the chain_facts Zetaris DDL (conv()) has not run on an instance. A failure there sends those queries to SQLite with a logged recovery."
+      },
+      "tests": ["tests/test_sql_dual_backend.py", "tests/test_zetaris_views.py", "tests/test_zetaris_executor.py"]
+    },
+    "meterless": {
+      "used": true,
+      "engines_mounted": ["World Model", "H-MEM"],
+      "engines_not_mounted": ["Markovian", "Scout Intent"],
+      "implementation": "Python 3.11 standard-library ports written in the build window from the published Meterless specifications and reference implementations (Apache-2.0 upstream; no upstream source file copied).",
+      "world_model": {
+        "files": ["investigator/worldmodel/", "investigator/worldmodel/adapters/", "investigator/agents/keeper.py", "scripts/assert_idempotent.py"],
+        "what": "The shared state of every run: entities, contexts, bitemporal relationships and facts, each with provenance {kind, at, by, url, checksum, runId}. The claim policy inside assert_fact refuses an agent fact without an https URL or a log:// line. Idempotent ingest is proved in every output (world.second_pass eventsAppended 0, changed false) and by scripts/assert_idempotent.py (PASS on the four examples).",
+        "tests": ["tests/test_worldmodel_conformance.py", "tests/test_meterless_keeper.py", "tests/test_adapters.py"]
+      },
+      "h_mem": {
+        "files": ["investigator/hmem/", "investigator/agents/pitfalls.py", "memory/seed/memories.jsonl", "investigator/generator.py"],
+        "what": "Seven pitfall memories feed one deterministic policy index: the Analyst attaches the caveats they require (with the memory id behind each), and the Critic's rule C3 re-reads the same index and revises a claim missing one. Retrieval uses the spec formula and writes hmem.trace.jsonl. When a generator is mounted, the Planner's and Writer's retrievals are injected into their prompts as a [MEMORY CONTEXT] block, logged before the call as a memory event op inject with prompt and block sha256. Feedback applies the exact ledger deltas; one record per accepted claim is mined at finalize.",
+        "measured": "examples/memory-ablation/ (scripts/memory_ablation.py): removing mem-seed-003 from example 01 drops one caveat (self_reported_receipts on settlements_verified) and the citation from fifteen claims; the verdict does not change.",
+        "tests": ["tests/test_hmem_conformance.py", "tests/test_meterless_hmem.py", "tests/test_generator_hmem.py", "tests/test_critic.py"]
+      },
+      "checklist": {
+        "single_configurable_generator": "investigator/generator.py (OPENAI_API_KEY, OPENAI_BASE_URL, MODEL)",
+        "hmem_injected_into_prompts_with_trace": "yes when a generator is mounted; proved offline by tests/test_generator_hmem.py with an in-process OpenAI-compatible double (no committed run had a model key)",
+        "markovian_for_long_tasks": "not used: runs are bounded (seconds to minutes, max_seconds budget)",
+        "world_model_idempotent_ingest": "yes, proved in every output and by scripts/assert_idempotent.py",
+        "jsonl_logs_in_logs_dir": "yes",
+        "sample_mode_without_credentials": "yes",
+        "no_ui_or_human_at_runtime": "yes (viewer/index.html is an optional read-only page for finished outputs)"
+      }
+    },
+    "cursor": {
+      "used": true,
+      "required": "No. Cursor became optional on 2026-10-22 12:45 UTC (HackOS announcement: any AI coding tool).",
+      "what_was_done": "Two headless Cursor Agent CLI (cursor-agent) sessions on 2026-10-22, both under .cursor/rules/project.mdc: the static report viewer viewer/index.html, and the Pitch section of README.md. The git commits for that work (901b109, e654f59) were made afterwards from the Claude Code session, which is why they carry Claude Code trailers.",
+      "rules": ".cursor/rules/project.mdc was written at the start of the build window as the architecture contract and given to every coding agent, Claude Code included.",
+      "not_done_in_cursor": "Everything else (engines, agents, Zetaris layer, tests, examples, pitch) was written by Claude Code.",
+      "evidence": ["docs/BUILD_LOG.md", ".cursor/rules/project.mdc", "viewer/index.html"]
+    },
+    "nvidia": {
+      "used": false,
+      "statement": "Not used. No NVIDIA model, API or GPU is part of the build or the runtime. The generator speaks the OpenAI-compatible chat-completions protocol and takes its base URL and model from OPENAI_BASE_URL and MODEL, so any OpenAI-compatible endpoint can be configured, but no NVIDIA endpoint (Nemotron or NIM) was run or tested."
+    }
+  },
+  "ai_coding_tools": [
+    {
+      "tool": "Claude Code (Anthropic, model Claude Opus 5.5)",
+      "role": "Main coding agent.",
+      "what": "On 2026-10-22 from 00:10 UTC one Claude Code multi-agent workflow read the Meterless and Zetaris material, produced three designs judged into SPEC.md and .cursor/rules/project.mdc, scaffolded the repository, ran four builders on disjoint directories (sources and chain, Meterless engines, Zetaris layer, agents and runner), integrated and ran the live checks, and reviewed and fixed the result. The pitch deck, narration and video were produced from the same Claude Code session (voice: Windows text-to-speech). The pre-submission verification and the fix rounds of the 2026-10-22 afternoon were also Claude Code agents. Commits carry Claude-Session trailers."
+    },
+    {
+      "tool": "Cursor Agent CLI (cursor-agent)",
+      "role": "Two scoped sessions.",
+      "what": "viewer/index.html and the README Pitch section (see sponsor_tech.cursor)."
+    },
+    {
+      "tool": "OpenAI Codex",
+      "role": "Not used."
+    }
+  ],
+  "llm_usage": {
+    "committed_runs": "No language model ran in any committed run. The four examples, the memory ablation and the three live traces all have mounts.generator null: the Planner routes by rules, the Writer renders templates, the Critic applies its deterministic rules only. No OPENAI_API_KEY was available during the build, and no real model output is recorded (fixtures/transcripts/ holds only its README).",
+    "generator_backed_roles": ["Planner (plan refinement among the router's candidates, validated by plan.schema.json)", "Writer (narrative sentences tagged with claim ids)", "Critic second opinion (can only add issues)"],
+    "when_a_key_is_configured": "With OPENAI_API_KEY set (OPENAI_BASE_URL and MODEL configurable, default model gpt-4.1-mini) live mode mounts OpenAIGenerator: chat completions over urllib, temperature 0, 60 s timeout, bounded by max_generator_calls, every prompt and transcript hashed in logs. Without a key live runs fall back to rules and templates with recovery generator_fallback and status partial.",
+    "never_by_a_model": "The verdict label (investigator/agents/verdict.py), claim acceptance and every number. A model can only phrase accepted claims or add Critic issues.",
+    "tested_offline": "tests/test_generator_hmem.py mounts the real OpenAIGenerator with an in-process OpenAI-compatible double: scripted replies, no network, no key. It proves the plumbing (memory injection, hashes, a second Writer round on the Critic's issue, transcript replay), not the quality of any model."
+  },
+  "pre_existing_components": [
+    {
+      "name": "Automata agent and its x402 store https://tienda.textokit.store",
+      "owner": "The author (Martin Pisacreta, Team Automata).",
+      "built": "Before the build window (before 2026-10-22).",
+      "use_here": "Only as a live, read-only public data source and the subject of examples 01, 03 and 04 and of the live traces (receipts.json, openapi.json). Its receipts are treated as self-reported (caveat self_reported_receipts, memory mem-seed-003) and checked against the chain. Example 01's finding that 56 of its 77 sales were self-settled is about the author's own store.",
+      "code_in_repo": "None."
+    },
+    {
+      "name": "Meterless H-MEM conformance vectors",
+      "use_here": "tests/vectors/hmem-vectors.json is a verbatim copy of the upstream file (Apache-2.0), replayed by tests/test_hmem_conformance.py; attribution in tests/vectors/ATTRIBUTION.md. The engine ports themselves were written in the window.",
+      "code_in_repo": "Test data only."
+    },
+    {
+      "name": "Zetaris Lightning 2.4.3.1 platform",
+      "use_here": "Third-party platform run locally in Docker and driven over its REST API in live mode.",
+      "code_in_repo": "None."
+    },
+    {
+      "name": "Python 3.11 standard library",
+      "use_here": "The whole runtime.",
+      "code_in_repo": "None."
+    }
+  ],
+  "written_in_build_window": "Everything else in this repository, from 2026-10-22 00:00 UTC; the fixtures under fixtures/raw/ were captured read-only on 2026-10-22 between 00:02 and 00:08 UTC.",
+  "examples": [
+    {"input": "examples/ex1.json", "folder": "examples/01-seller-audit-textokit/", "question": "How real is the adoption of tienda.textokit.store?", "verdict": "self_settled_mostly", "status": "ok", "accepted_claims": 19, "rejected_claims": 0, "shows": "Conflict k01 with the five endpoint counts and their bases; 56 of 77 sales self-settled; 4 external payers; 1 settlement verified on Base and 3 unverifiable fixture_miss recoveries."},
+    {"input": "examples/ex2.json", "folder": "examples/02-catalog-concentration/", "question": "Who sells on the CDP Bazaar and how concentrated are the paid calls?", "verdict": "concentrated", "status": "ok", "accepted_claims": 11, "rejected_claims": 0, "shows": "28,462 resources on 2,680 hosts; the top host has 29.5% of 824,796 calls in the 30-day counters; coverage on every catalog claim."},
+    {"input": "examples/ex3.json", "folder": "examples/03-payer-dossier-onchain/", "question": "What do we know about payer 0x097e...475a?", "verdict": "adoption_thin", "status": "ok", "accepted_claims": 9, "rejected_claims": 0, "shows": "One purchase, its settlement decoded and verified on Base (block 52,841,269); balance and nonce decoded twice (SQL view layer and Verifier)."},
+    {"input": "examples/ex4.json", "folder": "examples/04-payer-dossier-unverifiable/", "question": "The same question about payer 0xA1d1...1978, whose settlement is not in the RPC fixtures.", "verdict": "insufficient_evidence", "status": "partial", "accepted_claims": 6, "rejected_claims": 1, "shows": "The Critic's rule C1 rejects verified_tx = 0 (SQL and reducer agree) because no settlement of that wallet was decoded; pass B flags the sentences citing it; a critic-to-writer handoff starts a second Writer round that drops and names the claim (recovery narrative_trimmed); balance and nonce unavailable. The same settlement is verified in the live trace of example 01."}
+  ],
+  "examples_note": "Every committed example output is regenerated only by scripts/regen_examples.py and checked byte for byte by tests/test_examples_reproducible.py. All 45 accepted claims of the four examples are computed twice and agree.",
+  "tests": {
+    "command": "python -m unittest discover -s tests",
+    "count": 222,
+    "third_party_dependencies": "none",
+    "verified": "Green on 2026-10-22 in a fresh Windows clone with core.autocrlf=true, a clone with core.autocrlf=false and the Docker image built from it (--network none, Python 3.11.17)."
+  },
+  "docs": ["README.md", "SPEC.md", "docs/BUILD_LOG.md", "docs/METERLESS.md", "docs/ZETARIS.md", "docs/DEMO_SCRIPT.md", "examples/README.md", "examples/live-trace/README.md", "docs/pitch/deck.pdf", "docs/pitch/deck.html", "docs/pitch/narration.txt", "docs/pitch/demo.mp4"],
+  "limitations": [
+    "No language model ran in any committed run (see llm_usage).",
+    "Sample mode verifies one settlement; the fixtures do not cover the others (they are verified in the live traces).",
+    "q20-q22 and the chain_facts view have not run on Zetaris yet.",
+    "The catalog snapshot is dated 2026-10-22 and covers 28,462 of the 28,472 resources the API reported; the live catalog keeps moving.",
+    "receipts.json is self-reported by the seller; the investigator flags own-wallet rows and verifies sampled settlements on chain.",
+    "The investigator never pays: it reads receipts and public settlements instead of buying."
+  ]
+}

@@ -44,6 +44,20 @@ behind each code, the `conflicts[]` entry `endpoint_count_for_host` with five so
 `unavailable[]` (never a silent zero), `world.second_pass {eventsAppended: 0, changed: false}`, `memory.feedback`
 with the exact H-MEM deltas, `agents[]` with the generator usage per role. `report.md` renders the same envelope.
 
+## 2:30 The Critic says no (example 04)
+```
+python run.py --sample --input examples/ex4.json --print-output
+```
+The example 03 question about another external payer of the same store, whose one settlement is not in the RPC
+fixtures. Point at, in `logs/ex04-unverified/run.jsonl` (the same lines as the committed
+`examples/04-payer-dossier-unverifiable/run.jsonl`): the five `recovery{fixture_miss}` lines of the Base reads; the
+`claim` line for `c07 verified_tx` with `sql_value: 0` and `reducer_value: 0` (seq 43); `critique` round 1 `C1`
+`verdict: reject` on `c07` with the reason (seq 49); the narrative pass B `revise` lines for the sentences that
+cite `c07` or print its 0 (seq 58-61); the `handoff` critic -> writer with 5 issues (seq 62); `recovery{narrative_trimmed}` from
+the Writer naming `c07` and rule C1 (seq 63); round 2 accepting the six remaining claims; `result` with status
+`partial`, 6 accepted, 1 rejected. `output.json` has `c07` in `rejected_claims[]` with its critique trail and the
+verdict `insufficient_evidence`; the same transaction is `verified` in `examples/live-trace/live-ex01-20261022/`.
+
 ## 2:45 Same question live through Zetaris
 ```
 python run.py --mode live --require-zetaris --input examples/01-seller-audit-textokit/input.json

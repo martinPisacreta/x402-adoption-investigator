@@ -406,10 +406,17 @@ are records of live runs and are not re-run offline.
 
 ## Limitations and honesty notes
 
-- **No model transcripts.** No `OPENAI_API_KEY` was available during the build, so every committed example and
-  live trace says `generator: "null"`: the Planner routes by rules, the Writer renders templates, the Critic applies
-  its deterministic rules only. The generator client and `RecordedGenerator` are implemented and tested with
-  doubles, but no live model output was recorded or replayed. Live runs without a key are `partial` for this reason.
+- **No model ran in any committed run.** No `OPENAI_API_KEY` was available during the build, so every committed
+  example and live trace says `generator: "null"`: the Planner routes by rules, the Writer renders templates, the
+  Critic applies its deterministic rules only. The generator path is exercised by `tests/test_generator_hmem.py`
+  with an in-process OpenAI-compatible endpoint (a test double: no network, no key) as the transport of the real
+  `OpenAIGenerator`: it asserts that the Planner and Writer prompts carry the H-MEM `[MEMORY CONTEXT]` block with
+  the retrieved memories, that `hmem.trace.jsonl` and `run.jsonl` record the injection (`memory` op `inject`,
+  linked by `reinjection_sha256` and `prompt_sha256` to the retrieval and to `generator.jsonl`), that a Writer reply
+  with an unsourced number comes back in a second round with the Critic's issue, and that `RecordedGenerator`
+  replays the saved transcripts without a call. The double's replies are scripted: they prove the plumbing, not
+  the quality of a model, and no real model output was recorded. Live runs without a key are `partial` for this
+  reason.
 - **Sample mode verifies one settlement.** The fixtures cover one transaction; the other sampled hashes are
   `unverifiable: fixture_miss`. Live runs verify 4 of 4 (`examples/live-trace/`).
 - **No staged loop.** The committed sample runs finish in one Critic round with no `retry` and no rejected claim:

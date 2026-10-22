@@ -238,7 +238,8 @@ def render_with_generator(ctx: "RunContext", claims: list[Claim], conflicts: lis
         "hmem_reinjection": reinjection or "(no memory retrieved)",
         "critic_issues": json.dumps([{k: v for k, v in i.items() if k != "fix"} for i in issues], ensure_ascii=False, indent=1) if issues else "(none)",
         "verdict_label": verdict.label, "verdict_confidence": f"{verdict.confidence:.2f}"})
-    result = generate(ctx, "writer", f"writer-r{round_no}", prompt, max_tokens=WRITER_MAX_TOKENS, attempt=round_no)
+    result = generate(ctx, "writer", f"writer-r{round_no}", prompt, max_tokens=WRITER_MAX_TOKENS, attempt=round_no,
+                      reinjection=reinjection, memory_ids=list(ctx.scratch.get("writer_memory_ids", [])))
     if result is None:
         return None
     answer = parse_generated(result.text, verdict, round_no, result.recorded)

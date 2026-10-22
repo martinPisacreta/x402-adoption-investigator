@@ -37,7 +37,7 @@
       "conflict": { "type": "object", "required": ["conflict_id", "predicate", "subject", "values", "explanation"] },
       "critique": { "type": "object", "required": ["round", "rule", "verdict"] },
       "narrative_map": { "type": "object", "required": ["round", "tokens", "unsourced"] },
-      "memory": { "type": "object", "required": ["op", "actor", "memory_ids", "details"], "properties": { "op": { "enum": ["retrieve", "feedback", "mine", "sleep_preview"] } } },
+      "memory": { "type": "object", "required": ["op", "actor", "memory_ids", "details"], "properties": { "op": { "enum": ["retrieve", "inject", "feedback", "mine", "sleep_preview"] } } },
       "timeout": { "type": "object", "required": ["stage", "elapsed_s", "budget_s"] },
       "result": { "type": "object", "required": ["status", "accepted", "rejected", "conflicts", "unavailable", "executor", "generator"] },
       "error": { "type": "object", "required": ["code", "stage", "message", "retryable", "details"] }

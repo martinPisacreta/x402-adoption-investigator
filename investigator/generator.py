@@ -11,7 +11,10 @@ generate(ctx, ...) is the single entry point the agents use: it enforces budget.
 temperature 0 and a 60 s timeout, saves every transcript under logs/<run_id>/transcripts/ (and, with
 --record-transcripts, under fixtures/transcripts/<example>/), writes a generator.jsonl side line with the prompt
 and response sha256 (never the key, never headers), and turns failures into recovery{generator_fallback} unless
---require-generator is set (then E_GENERATOR).
+--require-generator is set (then E_GENERATOR). When the prompt carries an H-MEM reinjection block, generate()
+logs the injection before the call: a `memory` event {op: "inject", memory_ids, details: {prompt_id,
+prompt_sha256, reinjection_sha256}} and the same line in hmem.trace.jsonl, so the retrieval trace (its
+reinjection_sha256), the injection and the generator.jsonl line (its prompt_sha256) link up by hash.
 """
 from __future__ import annotations
 
@@ -82,12 +85,13 @@ class RecordedGenerator:
 class OpenAIGenerator:
     """Chat completions over urllib. temperature 0, timeout 60 s, prompt/response sha256 logged by the caller."""
 
-    def __init__(self, api_key: str, base_url: str, model: str) -> None:
+    def __init__(self, api_key: str, base_url: str, model: str, opener: Optional[Any] = None) -> None:
         self._api_key = api_key                  # never logged, never printed
         self.base_url = base_url.rstrip("/")
         self.model = model
         self.name = f"openai:{model}"
         self.user_agent = USER_AGENT
+        self._opener = opener                    # urlopen-compatible transport; None = urllib.request.urlopen
 
     def _post(self, body: dict[str, Any], timeout: float) -> dict[str, Any]:
         data = json.dumps(body).encode("utf-8")
@@ -95,8 +99,9 @@ class OpenAIGenerator:
             f"{self.base_url}/chat/completions", data=data, method="POST",
             headers={"Content-Type": "application/json", "Accept": "application/json",
                      "Authorization": f"Bearer {self._api_key}", "User-Agent": self.user_agent})
+        opener = self._opener or urllib.request.urlopen
         try:
-            with urllib.request.urlopen(request, timeout=timeout) as response:
+            with opener(request, timeout=timeout) as response:
                 raw = response.read()
         except urllib.error.HTTPError as exc:
             detail = ""
@@ -181,9 +186,21 @@ def load_prompt(name: str) -> str:
     return path.read_text(encoding="utf-8")
 
 
+def log_injection(ctx: "RunContext", agent: str, prompt_id: str, prompt: str, reinjection: str,
+                  memory_ids: list[str], attempt: int) -> None:
+    """Record that an H-MEM reinjection block is inside the prompt handed to the generator (run.jsonl + trace)."""
+    if not reinjection or reinjection not in prompt:
+        return
+    details = {"prompt_id": prompt_id, "attempt": attempt, "prompt_sha256": prompt_sha256(prompt),
+               "reinjection_sha256": hashlib.sha256(reinjection.encode("utf-8")).hexdigest()}
+    seq = ctx.log.emit("memory", agent, {"op": "inject", "actor": agent, "memory_ids": list(memory_ids), "details": details})
+    ctx.log.side("hmem.trace", {"seq": seq, "actor": agent, "op": "inject", "memoryIds": list(memory_ids), **details})
+
+
 def generate(ctx: "RunContext", agent: str, prompt_id: str, prompt: str, *, max_tokens: int,
-             attempt: int = 1) -> Optional[GeneratorResult]:
-    """One bounded generator call for `agent`. None means "use the deterministic fallback" (already logged)."""
+             attempt: int = 1, reinjection: str = "", memory_ids: Optional[list[str]] = None) -> Optional[GeneratorResult]:
+    """One bounded generator call for `agent`. None means "use the deterministic fallback" (already logged).
+    `reinjection` / `memory_ids`: the H-MEM block filled into the prompt, traced as an `inject` memory event."""
     generator = ctx.generator
     if generator is None or generator.name == "null":
         return None
@@ -193,6 +210,7 @@ def generate(ctx: "RunContext", agent: str, prompt_id: str, prompt: str, *, max_
     if not ctx.budget_take("generator_calls", ctx.budget.max_generator_calls, agent):
         return None
     ctx.counters["generator_attempts"] = ctx.counters.get("generator_attempts", 0) + 1
+    log_injection(ctx, agent, prompt_id, prompt, reinjection, list(memory_ids or []), attempt)
     try:
         result = generator.complete(prompt_id, prompt, max_tokens=max_tokens, temperature=GENERATOR_TEMPERATURE,
                                     timeout=GENERATOR_TIMEOUT_S)

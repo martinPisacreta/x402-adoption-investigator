@@ -96,7 +96,8 @@ The same facts in machine-readable form, with file paths and tests, are in [meta
   `examples/memory-ablation/` measures what one memory changes. [Details](#meterless-integration-h-mem--world-model).
 - **Cursor.** Optional since the 22 Oct rules update. Two headless Cursor Agent CLI sessions, under
   `.cursor/rules/project.mdc`: one built the report viewer (`viewer/index.html`), the other a first draft of the README
-  Pitch section, whose current text is Claude Code's rewrite. Claude Code wrote everything else.
+  Pitch section, whose current text is Claude Code's rewrite. The viewer session also wrote the README Viewer section.
+  Claude Code wrote everything else.
   [Details](#ai-coding-tools-claude-code-and-cursor).
 - **NVIDIA.** Not used: no NVIDIA model, API or GPU. The generator is OpenAI-compatible (`OPENAI_BASE_URL`, `MODEL`),
   but no NVIDIA endpoint was run or tested.
@@ -125,7 +126,8 @@ Every transition is a `handoff` event with the sha256 of the artifact handed ove
 run and never turns an exception into `partial`: an uncaught exception is `E_INTERNAL` naming the stage and the last
 log line. The verdict label is chosen by rules (`investigator/agents/verdict.py`), never by a model. Budgets bound
 everything: `max_seconds` (a wall-clock deadline measured with a monotonic clock in both modes and checked before
-every step and inside the loops; in sample mode the logged timestamps come from the deterministic clock, which
+every step and inside the loops, but a stage that is already running, such as folding the 32 MB catalog, is not
+interrupted, so a tight budget can end a few seconds late; in sample mode the logged timestamps come from the deterministic clock, which
 advances 1 ms per call and never reaches the deadline by itself, so the monotonic clock is what stops a slow sample
 run, `tests/test_run_contract.py`), `max_fetches`, `max_sql`,
 `max_generator_calls`, `max_critic_rounds`, `max_tx_verifications`; retries use a fixed 0.5 s / 1.5 s backoff.
@@ -331,7 +333,7 @@ the syntax facts learned on the instance are in [docs/ZETARIS.md](docs/ZETARIS.m
 - **Tables.** Each run creates its own objects: a Lightning database `X402_<RUN8>` with one REST table per export
   the playbook produced (in the live seller audit: `receipts_raw`, `bazaar_search_host`, `openapi_paid_ops_raw`,
   `agent402_index`, `vet402_resolve`, `trust_search_raw`, `trust_stats_raw`, `settlements_raw`; catalog runs add
-  the Bazaar pages and the 32 MB catalog snapshot, which registered in 2.7 s during B3's recording) served to the
+  the Bazaar pages and the 32 MB catalog snapshot, which registered in 2.7 s during B3's recording, a figure from that probe's uncommitted log) served to the
   Zetaris driver by a stdlib artifact server over `logs/<run_id>/exports/` (so Zetaris computes on exactly the
   bytes the Collector hashed), cached with `CACHE TABLE`, and a SchemaStore container `x402_<run8>` with the views
   that flatten the JSON (`sales`, `purchases`, `bazaar_resources`, `bazaar_search`, `catalog_resources`,

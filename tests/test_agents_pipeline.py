@@ -151,6 +151,22 @@ class SellerAuditPipeline(unittest.TestCase):
         self.assertTrue(conflicts["calls_30d_for_host"]["explanation"])
         self.assertEqual(claims["bazaar_listings_for_host"]["coverage"]["basis"], "search capped at 20")
 
+    def test_endpoint_conflict_names_the_routes_behind_vet402_vs_openapi(self) -> None:
+        """The explanation is computed from the fixtures: the routes vet402 lists that the openapi does not declare."""
+        from urllib.parse import urlsplit
+        openapi = json.loads((FIXTURES / "store-openapi.json").read_text(encoding="utf-8"))
+        declared = {p for p, ops in openapi["paths"].items() for op in ops.values() if isinstance(op, dict) and "x-payment-info" in op}
+        vet = json.loads((FIXTURES / "vet402-resolve-tienda.json").read_text(encoding="utf-8"))
+        listed = [e for e in vet["endpoints"] if e["catalog_status"] == "listed"]
+        extra = sorted({urlsplit(e["canonical_url"]).path for e in listed} - declared)
+        self.assertTrue(extra, "the fixtures carry routes only vet402 lists")
+        self.assertEqual(len(listed) - len(declared), len(extra))
+        explanation = {k["predicate"]: k for k in self.envelope["output"]["conflicts"]}["endpoint_count_for_host"]["explanation"]
+        for route in extra:
+            self.assertIn(route, explanation)
+        self.assertIn("accounts for the whole difference", explanation)
+        self.assertNotIn("delisted", explanation.split("x402-trust")[0], "every vet402 row in the fixtures is listed")
+
     def test_verdict_from_rules(self) -> None:
         verdict = self.envelope["output"]["verdict"]
         data = receipts()

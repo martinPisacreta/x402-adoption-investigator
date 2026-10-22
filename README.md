@@ -47,7 +47,9 @@ five answers: the CDP Bazaar search returns 17 listings (`fixtures/raw/cdp-disco
 the store's own `openapi.json` declares 17 paid operations (`store-openapi.json`), Agent402 counts 17 paid tools out
 of 34 (`agent402-index-seller-tienda.json`), vet402 lists 19 endpoints (`vet402-resolve-tienda.json`) and the
 x402-trust keyword search reports 36 matches (`x402-trust-search-tienda.json`). Three agree, two differ, and none
-of them is wrong: each measures something different. The same happens with activity: the Bazaar's per-endpoint
+of them is wrong: each measures something different (vet402, for instance, still lists `/api/maintenance-helper`
+and `/api/preparar-solicitud`, two routes the store's `openapi.json` no longer declares; Conflict k01 of example 01
+names them). The same happens with activity: the Bazaar's per-endpoint
 30-day call counters sum to 60 for the host while the seller's own receipts list 77 settled sales, 56 of which were
 paid from the seller's own wallets. An agent that reports one of these numbers without its basis is not explaining anything.
 
@@ -471,7 +473,7 @@ on 2026-10-22 between 00:02 and 00:08 UTC.
 ## Tests
 
 ```
-python -m unittest discover -s tests     # 222 tests, no third-party dependency
+python -m unittest discover -s tests     # 223 tests, no third-party dependency
 python -m pytest -q                      # same suite under pytest if installed
 ```
 
@@ -485,7 +487,8 @@ generator prompts through an in-process OpenAI-compatible double plus `RecordedG
 offline proof, byte-for-byte reproducibility of the committed examples, and `metadata.json` (every path it names
 exists, its test count is the discovered one, and README and deck quote the same count).
 
-On 2026-10-22 the suite ran green (222 tests, 0 failures, 0 skips) in three places: a fresh Windows clone with the
+On 2026-10-22 the suite ran green (0 failures, 0 skips; the tree and the test count of each verification are in
+docs/BUILD_LOG.md) in three places: a fresh Windows clone with the
 Git for Windows default `core.autocrlf=true`, a fresh clone with `core.autocrlf=false`, and the Docker image built
 from that clone (`docker run --network none ... -m unittest discover -s tests`, Python 3.11.17). In all three,
 `python run.py --sample` on each of the eight example inputs (`examples/exN.json` and `examples/0N-*/input.json`)

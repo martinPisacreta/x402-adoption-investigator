@@ -24,8 +24,8 @@ from ..zetaris.catalog import QuerySpec, load_catalog
 from ..zetaris.executor import backend_label
 from . import collector as collector_mod
 from . import reducers
-from .metrics import (CONFLICT_EXPLANATIONS, MAX_METRICS_PER_RUN, METRICS, REGISTRY_BASIS, SQL_QUERY_TIMEOUT_S,
-                      SQL_TOTAL_TIMEOUT_S, MetricSpec)
+from .metrics import (CONFLICT_DETAILS, CONFLICT_EXPLANATIONS, MAX_METRICS_PER_RUN, METRICS, REGISTRY_BASIS,
+                      SQL_QUERY_TIMEOUT_S, SQL_TOTAL_TIMEOUT_S, MetricSpec)
 from .pitfalls import required_caveats
 from .reducers import WorldExports, format_pairs, get_extractor, get_reducer, window_since
 
@@ -35,6 +35,7 @@ if TYPE_CHECKING:
 SHARE_TOLERANCE = 1e-6
 CONFIDENCE_NOT_CROSS_CHECKED = 0.7
 CONFIDENCE_BACKEND_DISAGREEMENT = 0.5
+MAX_ROUTES_NAMED = 5                 # routes named in a conflict explanation before "among others"
 WORLD_EXPORT_FILES = ("world-entities", "world-relationships", "world-facts")
 
 
@@ -535,6 +536,32 @@ def _obs_url(named: dict[str, Observation], name: str) -> tuple[str, Optional[st
     return "", None
 
 
+def _route_list(routes: list[str]) -> str:
+    shown = routes[:MAX_ROUTES_NAMED]
+    text = ", ".join(shown[:-1]) + f" and {shown[-1]}" if len(shown) > 1 else shown[0]
+    return text + (" among others" if len(routes) > len(shown) else "")
+
+
+def _endpoint_count_explanation(world: WorldExports, value: dict[str, Any]) -> str:
+    """The rule-written explanation, plus the routes that separate vet402 from the store openapi when the exports
+    show them (in the committed fixtures: two routes vet402 still lists that the openapi no longer declares)."""
+    text = CONFLICT_EXPLANATIONS["endpoint_count_for_host"]
+    diff = reducers.vet402_routes_not_declared(world)
+    if not diff or not (diff["only_vet402"] or diff["only_openapi"]):
+        return text
+    parts = []
+    if diff["only_vet402"]:
+        parts.append(CONFLICT_DETAILS["vet402_only_routes"].format(routes=_route_list(diff["only_vet402"])))
+    if diff["only_openapi"]:
+        tail = CONFLICT_DETAILS["openapi_only_routes"].format(routes=_route_list(diff["only_openapi"]))
+        parts.append(tail if parts else tail[0].upper() + tail[1:])
+    detail = "; ".join(parts)
+    vet, openapi = value.get("vet402"), value.get("store_openapi")
+    if isinstance(vet, int) and isinstance(openapi, int) and vet - openapi == len(diff["only_vet402"]) - len(diff["only_openapi"]):
+        detail += CONFLICT_DETAILS["accounts_for_difference"]
+    return f"{text} {detail}."
+
+
 def compose_conflicts(ctx: "RunContext", plan: Plan, claims: list[Claim], named: dict[str, Observation],
                       world: WorldExports, params: dict[str, Any], start_index: int) -> list[Conflict]:
     """Registry counts -> endpoint_count_for_host; Bazaar quality vs receipts -> calls_30d_for_host; ecosystem_size."""
@@ -566,7 +593,7 @@ def compose_conflicts(ctx: "RunContext", plan: Plan, claims: list[Claim], named:
             index += 1
             linked = [c.id for c in claims if c.metric in ("endpoint_count_for_host", "bazaar_listings_for_host")]
             conflicts.append(Conflict(id=kid, predicate="endpoint_count_for_host", subject=subject_host, values=values,
-                                      explanation=CONFLICT_EXPLANATIONS["endpoint_count_for_host"], status="explained",
+                                      explanation=_endpoint_count_explanation(world, endpoint.value), status="explained",
                                       claim_ids=linked))
 
     calls = by_metric.get("bazaar_calls_30d_for_host")

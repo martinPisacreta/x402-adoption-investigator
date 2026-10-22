@@ -492,6 +492,22 @@ def _openapi_paid_ops(world: WorldExports) -> Optional[int]:
     return count
 
 
+def vet402_routes_not_declared(world: WorldExports) -> Optional[dict[str, list[str]]]:
+    """Paths vet402 lists for the host (catalog_status listed) that the store's openapi does not declare as paid
+    operations, and the reverse; None when either export is missing. Feeds the endpoint_count_for_host explanation."""
+    from urllib.parse import urlsplit
+    vet = raw(world, "vet402_resolve")
+    payload = raw(world, "store_openapi")
+    if not (isinstance(vet, dict) and isinstance(vet.get("endpoints"), list)
+            and isinstance(payload, dict) and isinstance(payload.get("paths"), dict)):
+        return None
+    declared = {path for path, ops in payload["paths"].items()
+                if isinstance(ops, dict) and any(isinstance(op, dict) and "x-payment-info" in op for op in ops.values())}
+    listed = {urlsplit(e["canonical_url"]).path for e in vet["endpoints"]
+              if isinstance(e, dict) and e.get("catalog_status") == "listed" and isinstance(e.get("canonical_url"), str)}
+    return {"only_vet402": sorted(listed - declared), "only_openapi": sorted(declared - listed)}
+
+
 @reducer("endpoint_count_for_host")
 def endpoint_count_for_host(world: WorldExports, params: dict[str, Any]) -> dict[str, Any]:
     """Per-registry endpoint counts for the host (keys present only for sources that were fetched)."""

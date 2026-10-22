@@ -5,36 +5,43 @@
 <title>x402 Adoption Investigator — deck</title>
 <style>
   @page { size: 1920px 1080px; margin: 0; }
-  :root { --ink:#14161a; --muted:#5b616b; --accent:#0b6e4f; --accent2:#e8f3ee; --line:#d9dde3; }
-  * { box-sizing: border-box; }
+  :root { --ink:#14161a; --muted:#5b616b; --accent:#0b6e4f; --accent2:#e8f3ee; --line:#d9dde3; --warn:#9a3412; --warn2:#fff1e8; }
+  * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   html, body { margin:0; padding:0; background:#fff; color:var(--ink); font-family:"Segoe UI", system-ui, -apple-system, Arial, sans-serif; }
   .slide { width:1920px; height:1080px; padding:96px 120px; position:relative; page-break-after:always; overflow:hidden; display:flex; flex-direction:column; }
   .slide:last-child { page-break-after:auto; }
   .kicker { font-size:26px; letter-spacing:.12em; text-transform:uppercase; color:var(--accent); font-weight:700; margin-bottom:22px; }
   h1 { font-size:88px; line-height:1.05; margin:0 0 28px; font-weight:800; letter-spacing:-.02em; }
-  h2 { font-size:64px; line-height:1.1; margin:0 0 40px; font-weight:800; letter-spacing:-.015em; }
-  p, li { font-size:34px; line-height:1.45; }
-  p { margin:0 0 22px; color:#23262b; }
-  ul { margin:0; padding-left:40px; } li { margin:0 0 16px; }
+  h2 { font-size:60px; line-height:1.1; margin:0 0 36px; font-weight:800; letter-spacing:-.015em; }
+  p, li { font-size:32px; line-height:1.42; }
+  p { margin:0 0 20px; color:#23262b; }
+  ul { margin:0; padding-left:40px; } li { margin:0 0 14px; }
   .muted { color:var(--muted); }
+  .small { font-size:26px; }
   .foot { position:absolute; left:120px; right:120px; bottom:48px; display:flex; justify-content:space-between; font-size:22px; color:var(--muted); border-top:1px solid var(--line); padding-top:18px; }
-  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:48px; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:44px; }
   .grid3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:36px; }
-  .card { border:1px solid var(--line); border-radius:18px; padding:32px 36px; background:#fbfcfd; }
-  .card h3 { font-size:34px; margin:0 0 14px; }
-  .card p, .card li { font-size:28px; }
+  .grid4 { display:grid; grid-template-columns:1fr 1fr; gap:28px 36px; }
+  .roles { display:grid; grid-template-columns:repeat(7, 1fr); gap:14px; margin:0 0 30px; }
+  .role { background:var(--accent2); border:2px solid var(--accent); border-radius:14px; padding:16px 16px 18px; }
+  .role b { display:block; font-size:27px; margin-bottom:8px; }
+  .role span { display:block; font-size:21px; line-height:1.35; color:#23262b; }
+  .card { border:1px solid var(--line); border-radius:18px; padding:28px 34px; background:#fbfcfd; }
+  .card h3 { font-size:32px; margin:0 0 12px; }
+  .card p, .card li { font-size:27px; line-height:1.4; }
+  .card p:last-child { margin-bottom:0; }
+  .card.warn { background:var(--warn2); border-color:#f3c7a8; }
   table { border-collapse:collapse; width:100%; font-size:30px; }
-  td, th { border-bottom:1px solid var(--line); padding:16px 18px; text-align:left; }
+  td, th { border-bottom:1px solid var(--line); padding:14px 18px; text-align:left; }
   th { color:var(--muted); font-weight:600; font-size:24px; text-transform:uppercase; letter-spacing:.06em; }
   td.n { text-align:right; font-weight:800; color:var(--accent); font-variant-numeric:tabular-nums; }
-  .flow { display:flex; align-items:center; flex-wrap:wrap; gap:16px; margin:10px 0 36px; }
-  .node { background:var(--accent2); border:2px solid var(--accent); border-radius:14px; padding:16px 22px; font-size:28px; font-weight:700; }
-  .arrow { font-size:34px; color:var(--accent); font-weight:800; }
-  pre { margin:0; background:#0f1419; color:#d7e0e6; border-radius:16px; padding:28px 32px; font-family:Consolas, "Cascadia Mono", monospace; font-size:23px; line-height:1.55; white-space:pre-wrap; }
-  .t { color:#7fd4a8; } .k { color:#f0c674; } .r { color:#ff9e7a; } .c { color:#9ab8ff; }
-  .tag { display:inline-block; background:var(--accent2); color:var(--accent); border-radius:999px; padding:6px 18px; font-size:24px; font-weight:700; margin:0 10px 10px 0; }
-  .shot { border:1px solid var(--line); border-radius:16px; width:100%; max-height:720px; object-fit:cover; object-position:top; box-shadow:0 8px 30px rgba(0,0,0,.08); }
+  pre { margin:0; background:#0f1419; color:#d7e0e6; border-radius:16px; padding:26px 30px; font-family:Consolas, "Cascadia Mono", monospace; font-size:23px; line-height:1.55; white-space:pre-wrap; }
+  .t { color:#7fd4a8; } .k { color:#f0c674; } .r { color:#ff9e7a; } .c { color:#9ab8ff; } .x { color:#ff6b6b; font-weight:700; }
+  .tag { display:inline-block; background:var(--accent2); color:var(--accent); border-radius:999px; padding:6px 18px; font-size:24px; font-weight:700; margin:0 10px 12px 0; }
+  .tag.off { background:#f1f2f4; color:var(--muted); }
+  .shot { border:1px solid var(--line); border-radius:16px; width:100%; max-height:680px; object-fit:cover; object-position:top; box-shadow:0 8px 30px rgba(0,0,0,.08); }
   .center { justify-content:center; }
+  .note { border-left:6px solid var(--accent); padding:6px 0 6px 22px; }
   body.single .slide { display:none; }
   body.single .slide.on { display:flex; }
 </style>
@@ -44,16 +51,17 @@
 <section class="slide center" id="s1">
   <div class="kicker">Open Agent Hackathon 2026 · Track 02 · The Agent That Can Explain Why</div>
   <h1>x402 Adoption Investigator</h1>
-  <p style="font-size:44px; max-width:1500px;">A multi-agent system that answers "how real is x402 adoption?" and proves every number it says: each claim links to a URL with the hash of the bytes fetched, a Base transaction, or a line of its own log.</p>
-  <p class="muted" style="margin-top:30px;">Team Automata · Martin Pisacreta (solo, Argentina) · Meterless · Zetaris · Cursor</p>
+  <p style="font-size:44px; max-width:1560px;">A multi-agent system that answers "how real is x402 adoption?" and proves every number it says: each claim links to a URL with the hash of the bytes fetched, a Base transaction, or a line of its own log.</p>
+  <p class="muted" style="margin-top:18px;">x402 = pay-per-call over HTTP 402 Payment Required, settled in USDC on Base.</p>
+  <p class="muted">Team Automata · Martin Pisacreta (solo, Argentina) · Zetaris · Meterless · built with Claude Code and Cursor Agent</p>
   <div class="foot"><span>github.com/martinPisacreta/x402-adoption-investigator</span><span>1</span></div>
 </section>
 
 <section class="slide" id="s2">
   <div class="kicker">The user and the problem</div>
-  <h2>One host, five sources, five numbers</h2>
-  <p>User: the operator of an autonomous agent that sells or buys over x402 and must decide where the real demand is. Today every source gives a different answer, and none of them says why.</p>
-  <table style="margin-top:18px;">
+  <h2>One store, five sources, five answers</h2>
+  <p>User: the operator of an autonomous agent that sells or buys over x402 and must decide where the real demand is. Asked how many paid endpoints one store has, three sources say 17, two say 19 and 36, and none of them says why.</p>
+  <table style="margin-top:8px;">
     <tr><th>Source</th><th>What it measures</th><th style="text-align:right">Endpoints for tienda.textokit.store</th></tr>
     <tr><td>CDP Bazaar search</td><td>listed resources, capped at 20 results</td><td class="n">17</td></tr>
     <tr><td>Store openapi.json</td><td>declared paid operations</td><td class="n">17</td></tr>
@@ -61,7 +69,7 @@
     <tr><td>vet402</td><td>resolved endpoints</td><td class="n">19</td></tr>
     <tr><td>x402-trust</td><td>keyword search matches</td><td class="n">36</td></tr>
   </table>
-  <p class="muted" style="margin-top:26px;">Activity disagrees too: Bazaar 30-day counters sum to 60 calls, the seller's receipts list 77 settled sales, and 56 of them were paid by the seller itself.</p>
+  <p class="muted" style="margin-top:22px;">Activity disagrees too: Bazaar 30-day counters sum to 60 calls, the seller's receipts list 77 settled sales, and 56 of them were paid by the seller itself.</p>
   <div class="foot"><span>All numbers from committed fixtures captured 2026-10-22 00:05 UTC</span><span>2</span></div>
 </section>
 
@@ -92,7 +100,7 @@
     <div>
       <p class="muted">Output: one JSON envelope and a Markdown report</p>
       <ul>
-        <li><b>verdict</b> chosen by rules, not by the model</li>
+        <li><b>verdict</b> chosen by rules, never by a model</li>
         <li><b>claims[]</b> each with evidence: URL + sha256, Base tx, or log line</li>
         <li><b>conflicts[]</b> with per-source values and the explanation</li>
         <li><b>rejected_claims[]</b> with the critique trail</li>
@@ -100,35 +108,35 @@
       </ul>
     </div>
   </div>
-  <div class="foot"><span>python run.py --sample --input examples/ex1.json</span><span>4</span></div>
+  <div class="foot"><span>python run.py --sample --input examples/ex1.json · or HTTP POST /run</span><span>4</span></div>
 </section>
 
 <section class="slide" id="s5">
   <div class="kicker">Architecture</div>
   <h2>Seven roles, bounded loops, every handoff logged</h2>
-  <div class="flow">
-    <span class="node">Planner</span><span class="arrow">→</span>
-    <span class="node">Collector</span><span class="arrow">→</span>
-    <span class="node">Keeper · World Model</span><span class="arrow">→</span>
-    <span class="node">Verifier · Base RPC</span><span class="arrow">→</span>
-    <span class="node">Analyst · Zetaris SQL</span><span class="arrow">→</span>
-    <span class="node">Writer</span><span class="arrow">→</span>
-    <span class="node">Critic</span>
+  <div class="roles">
+    <div class="role"><b>Planner</b><span>picks the playbook, sources and queries</span></div>
+    <div class="role"><b>Collector</b><span>fetches every source and hashes the bytes</span></div>
+    <div class="role"><b>Keeper</b><span>folds evidence into the World Model</span></div>
+    <div class="role"><b>Verifier</b><span>decodes settlements on Base</span></div>
+    <div class="role"><b>Analyst</b><span>computes each metric in SQL and in Python</span></div>
+    <div class="role"><b>Writer</b><span>drafts an answer that cites claims</span></div>
+    <div class="role"><b>Critic</b><span>rules C1 to C7: rejects or sends back</span></div>
   </div>
-  <div class="grid3">
-    <div class="card"><h3>Computed twice</h3><p>Every metric runs as committed SQL and as a pure Python reducer over the same exports. A claim survives only if both agree.</p></div>
-    <div class="card"><h3>Critic rules C1 to C7</h3><p>Evidence, recomputation, scope, staleness, conflict citation, memory caveats, plus a narrative pass that maps every number in the text to an accepted claim.</p></div>
-    <div class="card"><h3>One event log</h3><p>handoff, fetch, sql, claim, conflict, critique, retry and recovery lines in logs/&lt;run_id&gt;/run.jsonl.</p></div>
+  <div class="grid2">
+    <div class="card"><h3>Computed twice</h3><p>Every metric has a committed SQL query and a pure Python reducer over the same exports. A number survives only if both exist and agree (rule C2); a mismatch stays as an open Conflict.</p></div>
+    <div class="card"><h3>Bounded and logged</h3><p>Deadline, fetch, SQL, model-call and critic-round budgets. Every handoff, fetch, sql, claim, conflict, critique, retry and recovery line goes to logs/&lt;run_id&gt;/run.jsonl.</p></div>
   </div>
-  <div class="foot"><span>The generator is used only by Planner, Writer and the Critic's second opinion; the rest is deterministic tooling</span><span>5</span></div>
+  <p class="muted small note" style="margin-top:26px;">Planner, Writer and the Critic's second opinion can call an OpenAI-compatible model. No model key was used in any committed run, so they ran on rules and templates.</p>
+  <div class="foot"><span>The verdict label and claim acceptance are always rules, never a model</span><span>5</span></div>
 </section>
 
 <section class="slide" id="s6">
-  <div class="kicker">A real run, line by line</div>
+  <div class="kicker">A real run, condensed</div>
   <h2>What a judge sees in run.jsonl</h2>
 <pre><span class="t">guard</span>     network disabled in sample mode (socket.connect patched)
 <span class="t">handoff</span>   planner → collector   plan (10 items, sha256 abce43a7…)
-<span class="t">handoff</span>   collector → keeper    observations (9, sha256 debfb2…)
+<span class="t">handoff</span>   collector → keeper    observations (9, sha256 debfb264…)
 <span class="r">recovery</span>  collector  fixture_miss on a Base receipt: settlement marked unverifiable
 <span class="t">handoff</span>   verifier → keeper     chain_facts (1)
 <span class="t">handoff</span>   keeper → analyst      query_ids (13)
@@ -137,70 +145,106 @@
 <span class="t">handoff</span>   writer → critic       answer
 <span class="k">critique</span>  round 1  C1…C7 accept 19 claims · narrative pass: 62 numbers mapped, 0 unsourced
 <span class="t">handoff</span>   keeper → hmem         claims (19) · memory feedback written</pre>
-  <p class="muted" style="margin-top:24px;">Example 1 emits 108 events: 11 handoffs, 17 fetches, 13 SQL queries, 8 critiques, 5 recoveries, 2 conflicts.</p>
+  <p class="muted" style="margin-top:22px;">Condensed from the 108 JSON lines of example 01: 11 handoffs, 17 fetches, 13 SQL queries, 8 critiques, 5 recoveries, 2 conflicts.</p>
   <div class="foot"><span>examples/01-seller-audit-textokit/run.jsonl</span><span>6</span></div>
 </section>
 
 <section class="slide" id="s7">
+  <div class="kicker">Critique and recovery</div>
+  <h2>The Critic says no, and the answer says why</h2>
+  <div style="display:grid; grid-template-columns:1.32fr 1fr; gap:40px; align-items:start;">
+<pre><span class="c">claim</span>     c07 verified_tx = 0   sql 0 · reducer 0
+<span class="x">critique</span>  round 1  C1 reject c07: no decoded
+          settlement of 0xa1d1…1978 (1 sampled:
+          unverifiable, fixture_miss)
+<span class="k">critique</span>  round 1  B revise: sentences cite c07
+<span class="t">handoff</span>   critic → writer   issues (5)
+<span class="r">recovery</span>  writer  narrative_trimmed: c07 left
+          out of the answer and named
+<span class="k">critique</span>  round 2  C1…C7 accept 6 · B accept
+<span class="t">result</span>    partial · 6 accepted · 1 rejected
+<span class="t">output</span>    verdict insufficient_evidence (by rules)</pre>
+    <div>
+      <div class="card warn"><h3>Why the zero is rejected</h3><p>SQL and reducer agree on 0, but nothing was decoded for this wallet. Zero verified would be a number about missing data, so the Critic reports it as unknown.</p></div>
+      <div class="card" style="margin-top:24px;"><h3>Not staged</h3><p>Same question as example 03, another external payer of the same store. Live, its settlement is verified at block 52,914,075.</p></div>
+    </div>
+  </div>
+  <p class="muted" style="margin-top:26px;">Condensed from the 83 JSON lines of example 04: 13 handoffs, 20 critiques, 6 recoveries, 2 critic rounds.</p>
+  <div class="foot"><span>examples/04-payer-dossier-unverifiable · tests/test_example_04_critic.py</span><span>7</span></div>
+</section>
+
+<section class="slide" id="s8">
   <div class="kicker">Meterless, structural</div>
   <h2>World Model as shared state, H-MEM as policy</h2>
   <div class="grid2">
     <div class="card"><h3>World Model</h3><ul>
-      <li>Entities: sellers, endpoints, payers, facilitators, settlements</li>
-      <li>Provenance on every row; facts without a URL, tx or log line are refused by the engine</li>
-      <li>Idempotent ingest, proved in every output: the second pass appends 0 events</li></ul></div>
+      <li>Entities: sellers, endpoints, wallets, facilitators, registries, with bitemporal relationships</li>
+      <li>Provenance on every row; a claim without a URL, tx or log line is refused by the engine</li>
+      <li>Idempotent ingest, proved in every output: the second pass appends 0 events</li>
+      <li>8 of 8 conformance checks</li></ul></div>
     <div class="card"><h3>H-MEM</h3><ul>
-      <li>Tiered memory store with a trust ledger and feedback per run</li>
-      <li>Pitfall memories ("never sum unique payers across endpoints", "receipts are self-reported") force caveats the Critic checks</li>
-      <li>Memory ablation committed: removing one memory changes fifteen citations, not the verdict</li></ul></div>
+      <li>Seven pitfall memories ("never sum unique payers across endpoints", "receipts are self-reported") add caveats that Critic rule C3 checks</li>
+      <li>Injected into Planner and Writer prompts when a model is mounted, logged by hash; tested offline</li>
+      <li>Ablation committed: one memory less drops a caveat and fifteen citations, not the verdict</li>
+      <li>13 of 13 upstream vectors</li></ul></div>
   </div>
-  <div class="foot"><span>docs/METERLESS.md · conformance tests for both engines</span><span>7</span></div>
-</section>
-
-<section class="slide" id="s8">
-  <div class="kicker">Zetaris, the federation layer</div>
-  <h2>Every number is computed in Lightning SQL</h2>
-  <div class="grid2">
-    <div><ul>
-      <li>Receipts, Bazaar catalog and registry snapshots registered as Zetaris sources through the local REST API</li>
-      <li>19 committed analytics queries: sales by wallet class, repeat payers, concentration, registry counts, settlements vs receipts</li>
-      <li>The same ANSI SQL runs on SQLite offline; a test asserts both backends return equal rows</li>
-      <li><b>--require-zetaris</b> turns any fallback into an error for the live demo</li></ul></div>
-    <div class="card"><h3>Logged per query</h3><p>Executor, SQL sha256, row count, time used and tables with source URLs, in sql.jsonl and zetaris.jsonl. Live traces are committed separately from the offline examples.</p></div>
-  </div>
-  <div class="foot"><span>docs/ZETARIS.md · examples/live-trace/</span><span>8</span></div>
+  <div class="foot"><span>docs/METERLESS.md · tests/test_generator_hmem.py · examples/memory-ablation/</span><span>8</span></div>
 </section>
 
 <section class="slide" id="s9">
-  <div class="kicker">Results on real data</div>
-  <h2>Three questions, three proved answers</h2>
-  <div class="grid3">
-    <div class="card"><h3>Seller audit</h3><p>Verdict <b>self_settled_mostly</b>. 77 sales, 56 paid by the seller itself; 21 external sales by 4 payers, 0.044 USDC in total.</p></div>
-    <div class="card"><h3>Catalog concentration</h3><p>Verdict <b>concentrated</b>. 28,462 Bazaar resources, 2,680 hosts, 1,785 payTo wallets; the top host holds 29.5% of 824,796 calls in 30 days.</p></div>
-    <div class="card"><h3>Payer dossier</h3><p>Verdict <b>adoption_thin</b>. One external payer, one purchase of 0.001 USDC, the settlement verified on Base against the receipts.</p></div>
+  <div class="kicker">Zetaris, the live federation layer</div>
+  <h2>Live on Lightning SQL, offline on SQLite, same rows</h2>
+  <div class="grid2">
+    <div><ul>
+      <li>Each live run registers its exports as Lightning REST tables (receipts, Bazaar, openapi, Agent402, vet402, x402-trust, settlements) and flattens them with SchemaStore views</li>
+      <li>The live seller audit computed all 19 claims on Zetaris 2.4.3.1</li>
+      <li>Offline, the same SQL runs on SQLite; a test proves equal rows against the 19 result sets Zetaris recorded</li></ul></div>
+    <div>
+      <div class="card"><h3>Logged per query</h3><p>Executor, SQL sha256, rows, time and tables with source URLs in sql.jsonl; every REST call in zetaris.jsonl. --require-zetaris turns any fallback into an error.</p></div>
+      <div class="card" style="margin-top:24px;"><h3>Not yet on Zetaris</h3><p>3 of the 22 queries (q20 to q22) were added after the live session and have run on SQLite only.</p></div>
+    </div>
   </div>
-  <p class="muted" style="margin-top:30px;">The honest finding for our own store: most of its sales were self-tests. The system says so, with the proof.</p>
-  <div class="foot"><span>examples/0*/output.json · snapshot 2026-10-22</span><span>9</span></div>
+  <div class="foot"><span>docs/ZETARIS.md · examples/live-trace/ · tests/test_sql_dual_backend.py</span><span>9</span></div>
 </section>
 
 <section class="slide" id="s10">
-  <div class="kicker">See it</div>
-  <h2>The report viewer</h2>
-  <img class="shot" src="viewer-shot.png" alt="Report viewer showing the run header, accepted claims with evidence and conflicts">
-  <div class="foot"><span>viewer/index.html · built in a Cursor Agent session</span><span>10</span></div>
+  <div class="kicker">Results on real data</div>
+  <h2>Four questions, four honest answers</h2>
+  <div class="grid4">
+    <div class="card"><h3>Seller audit · self_settled_mostly</h3><p>77 sales, 56 paid by the seller's own wallets; 21 external sales by 4 payers, 0.044 USDC in total.</p></div>
+    <div class="card"><h3>Catalog · concentrated</h3><p>28,462 Bazaar resources on 2,680 hosts; the top host holds 29.5% of 824,796 calls in 30 days.</p></div>
+    <div class="card"><h3>Payer dossier · adoption_thin</h3><p>One purchase of 0.001 USDC, its settlement decoded and verified on Base against the receipts.</p></div>
+    <div class="card"><h3>Unverifiable payer · insufficient_evidence</h3><p>One purchase of 0.001 USDC; "0 verified" rejected by the Critic, balance and nonce unavailable.</p></div>
+  </div>
+  <p class="muted" style="margin-top:26px;">The honest finding for our own store: most of its sales were paid by its own wallets. The system says so, with the proof.</p>
+  <div class="foot"><span>examples/0*/output.json · sample mode · fixtures of 2026-10-22</span><span>10</span></div>
 </section>
 
 <section class="slide" id="s11">
+  <div class="kicker">See it</div>
+  <h2>The report viewer</h2>
+  <div style="display:grid; grid-template-columns:auto 1fr; gap:44px; align-items:start;">
+    <img src="viewer-shot-04.png" alt="Report viewer on example 04: run header with verdict insufficient_evidence and the rejected claim c07 with the Critic's C1 reason" style="height:680px; border:1px solid var(--line); border-radius:16px; box-shadow:0 8px 30px rgba(0,0,0,.08);">
+    <div>
+      <div class="card"><h3>Any output.json</h3><p>Run header with the mounts, accepted claims with their evidence links, rejected claims with the Critic's reason, and conflicts with each source's value and explanation.</p></div>
+      <p class="muted small" style="margin-top:24px;">Static HTML, no build step, no CDN. Shown: example 04 in sample mode, two crops of one page (header, rejected claims).</p>
+    </div>
+  </div>
+  <div class="foot"><span>viewer/index.html · built in a Cursor Agent session</span><span>11</span></div>
+</section>
+
+<section class="slide" id="s12">
   <div class="kicker">Stack and how to try it</div>
   <h2>One command, offline, from a clean clone</h2>
 <pre>git clone https://github.com/martinPisacreta/x402-adoption-investigator
 cd x402-adoption-investigator
-python run.py --sample --input examples/ex1.json</pre>
-  <div style="margin-top:34px;">
-    <span class="tag">Python 3.11, standard library</span><span class="tag">Meterless H-MEM + World Model</span><span class="tag">Zetaris 2.4.3 Lightning SQL</span><span class="tag">Cursor rules + Cursor Agent</span><span class="tag">Base RPC</span><span class="tag">Docker</span><span class="tag">193 tests</span>
+python run.py --sample --input examples/ex4.json</pre>
+  <div style="margin-top:30px;">
+    <span class="tag">Python 3.11, standard library</span><span class="tag">Zetaris Lightning 2.4.3.1</span><span class="tag">Meterless World Model + H-MEM</span><span class="tag">Base JSON-RPC</span><span class="tag">Docker</span><span class="tag">222 tests</span><span class="tag">Claude Code: main coding agent</span><span class="tag">Cursor Agent: viewer</span><span class="tag off">NVIDIA: not used</span>
   </div>
-  <p class="muted" style="margin-top:24px;">Pre-existing component declared: the Automata x402 store (tienda.textokit.store), the data subject of example 1. Everything else was written in the build window.</p>
-  <div class="foot"><span>Team Automata · Martin Pisacreta</span><span>11</span></div>
+  <p class="muted small" style="margin-top:20px;">No model ran in the committed runs: the model path is implemented and tested offline with an OpenAI-compatible double.</p>
+  <p class="muted small">Pre-existing, declared: our own Automata agent and its x402 store tienda.textokit.store (data source only, none of its code here), the Meterless conformance vectors (copied with attribution), the Zetaris platform and the Python standard library.</p>
+  <div class="foot"><span>Team Automata · Martin Pisacreta · metadata.json</span><span>12</span></div>
 </section>
 
 <script>

@@ -210,6 +210,48 @@ class SampleRunContract(unittest.TestCase):
         for env in (envelope,):
             self.assertEqual(validate(env, load_schema("output")), [])
 
+    def test_max_seconds_is_a_wall_clock_bound_in_sample_mode(self) -> None:
+        """The SampleClock advances 1 ms per call and never reaches the deadline by itself; the monotonic wall clock
+        does. A wall clock that jumps past budget.max_seconds right after the start stops a sample run."""
+        payload = example_payload("01-seller-audit-textokit")
+        budget_s = payload["input"]["budget"]["max_seconds"]
+        ticks = iter([0.0])
+        with mock.patch.object(runner, "wall_seconds", lambda: next(ticks, budget_s + 1.0)):
+            envelope = run_investigation(payload, sample_config(self.out_dir), echo_stdout=False)
+        self.assertEqual(envelope["error"]["code"], "E_TIMEOUT")
+        self.assertGreater(envelope["error"]["details"]["wall_elapsed_ms"], budget_s * 1000)
+        self.assertLess(envelope["error"]["details"]["elapsed_ms"], budget_s * 1000, "the run clock alone would not stop it")
+        events = [json.loads(line) for line in (self.out_dir / envelope["run_id"] / "run.jsonl").read_text(encoding="utf-8").splitlines()]
+        timeouts = [e["payload"] for e in events if e["type"] == "timeout"]
+        self.assertTrue(timeouts)
+        self.assertGreater(timeouts[0]["wall_elapsed_s"], budget_s)
+        self.assertLess(timeouts[0]["elapsed_s"], budget_s)
+        self.assertEqual(validate(envelope, load_schema("output")), [])
+
+    def test_wall_clock_deadline_after_the_collector_skips_the_rest(self) -> None:
+        """A wall-clock deadline reached right after the Collector in a sample run: the Verifier, the Analyst and the
+        Writer are skipped with a timeout event and a deadline_skip recovery each, and with no claim the run is
+        E_TIMEOUT (never a partial without claims)."""
+        payload = example_payload("01-seller-audit-textokit")
+        budget_s = payload["input"]["budget"]["max_seconds"]
+        real = runner.wall_seconds
+        start = real()
+        state = {"collector_done": False}
+        original = runner.collector.run_collector
+
+        def collector_then_late(ctx, plan):
+            result = original(ctx, plan)
+            state["collector_done"] = True
+            return result
+        with mock.patch.object(runner.collector, "run_collector", collector_then_late),                 mock.patch.object(runner, "wall_seconds", lambda: real() + (budget_s + 1.0 if state["collector_done"] else 0.0)):
+            envelope = run_investigation(payload, sample_config(self.out_dir), echo_stdout=False)
+        self.assertEqual(envelope["error"]["code"], "E_TIMEOUT")
+        events = [json.loads(line) for line in (self.out_dir / envelope["run_id"] / "run.jsonl").read_text(encoding="utf-8").splitlines()]
+        self.assertEqual([e["payload"]["stage"] for e in events if e["type"] == "timeout"], ["verifier", "analyst", "writer"])
+        self.assertEqual(sum(1 for e in events if e["type"] == "recovery" and e["payload"]["reason"] == "deadline_skip"), 3)
+        self.assertFalse(any(e["type"] == "claim" for e in events))
+        self.assertLess(real() - start, budget_s)
+
     def test_sample_mode_honours_log_dir_and_reads_no_credential(self) -> None:
         environ = {"LOG_DIR": str(self.out_dir / "from-env"), "OPENAI_API_KEY": "not-a-real-key",
                    "ZETARIS_PASSWORD": "not-a-real-password"}

@@ -123,7 +123,10 @@ run.py -> runner (state machine, budgets, deadline, handoffs)
 Every transition is a `handoff` event with the sha256 of the artifact handed over. The Runner never retries a whole
 run and never turns an exception into `partial`: an uncaught exception is `E_INTERNAL` naming the stage and the last
 log line. The verdict label is chosen by rules (`investigator/agents/verdict.py`), never by a model. Budgets bound
-everything: `max_seconds` (deadline checked before every step and inside the loops), `max_fetches`, `max_sql`,
+everything: `max_seconds` (a wall-clock deadline measured with a monotonic clock in both modes and checked before
+every step and inside the loops; in sample mode the logged timestamps come from the deterministic clock, which
+advances 1 ms per call and never reaches the deadline by itself, so the monotonic clock is what stops a slow sample
+run, `tests/test_run_contract.py`), `max_fetches`, `max_sql`,
 `max_generator_calls`, `max_critic_rounds`, `max_tx_verifications`; retries use a fixed 0.5 s / 1.5 s backoff.
 
 Exactly three mount points differ between live and sample mode and they are the first key of every output
@@ -473,7 +476,7 @@ on 2026-10-22 between 00:02 and 00:08 UTC.
 ## Tests
 
 ```
-python -m unittest discover -s tests     # 223 tests, no third-party dependency
+python -m unittest discover -s tests     # 225 tests, no third-party dependency
 python -m pytest -q                      # same suite under pytest if installed
 ```
 

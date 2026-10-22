@@ -17,8 +17,8 @@ from investigator.zetaris.catalog import referenced_views, sql_sha256_for  # noq
 from investigator.zetaris.executor import backend_label, cast_cell, cast_rows  # noqa: E402
 from investigator.contracts import SqlResult  # noqa: E402
 from investigator.zetaris.views_sqlite import (  # noqa: E402
-    VIEWS, VIEW_NAMES, bigint, build_views, digits_bigint, double, flag, host_of, rows_bazaar, rows_sales,
-    rows_settlements, rows_trust_search,
+    VIEWS, VIEW_NAMES, bigint, build_views, digits_bigint, double, flag, hex_bigint, host_of, rows_bazaar,
+    rows_chain_facts, rows_sales, rows_settlements, rows_trust_search,
 )
 from investigator.zetaris.views_zetaris import shape_of, view_select, view_tables  # noqa: E402
 
@@ -106,6 +106,18 @@ class RowBuilders(unittest.TestCase):
                "block_time": "t", "facilitator_from": "0xF", "status": "verified"}
         self.assertEqual(rows_settlements([row]), rows_settlements({"rows": [row]}))
         self.assertEqual(rows_settlements([row])[0][0], "0xab")
+
+    def test_chain_facts_decode_the_rpc_hex_in_the_view_layer(self) -> None:
+        word = "0x" + "0" * 58 + "0feacc"
+        rows = rows_chain_facts([{"wallet": "0xABC", "predicate": "usdc_balance_atomic", "result_hex": word},
+                                 {"wallet": "0xabc", "predicate": "tx_count", "result_hex": "0x18"}])
+        self.assertEqual(rows, [("0xabc", "usdc_balance_atomic", int("feacc", 16), word), ("0xabc", "tx_count", 24, "0x18")])
+        self.assertEqual(rows_chain_facts({"rows": [{"wallet": "0xabc", "predicate": "tx_count", "result_hex": "0x18"}]}),
+                         [("0xabc", "tx_count", 24, "0x18")])
+        self.assertIsNone(hex_bigint("18"))            # not a JSON-RPC quantity
+        self.assertIsNone(hex_bigint("0x"))
+        self.assertIsNone(hex_bigint(None))
+        self.assertIsNone(hex_bigint("0x" + "f" * 64))  # beyond BIGINT, NULL as Spark's CAST would give
 
     def test_trust_search_total_on_every_row(self) -> None:
         rows = rows_trust_search({"total": 36, "results": [{"resource": "r", "host": "H", "delisted": False, "score": 38,
@@ -200,6 +212,11 @@ class ShapeAwareDdl(unittest.TestCase):
         sql = view_select("settlements", "r", {"settlements_raw": "DB.settlements_raw"}, {"settlements_raw": array_shape})
         self.assertTrue(sql.endswith("FROM DB.settlements_raw"), sql)
         self.assertNotIn("explode", sql)
+        facts_shape = shape_of([{"wallet": "0xabc", "predicate": "tx_count", "result_hex": "0x18"}])
+        sql = view_select("chain_facts", "r", {"chain_facts_raw": "DB.chain_facts_raw"}, {"chain_facts_raw": facts_shape})
+        self.assertTrue(sql.endswith("FROM DB.chain_facts_raw"), sql)
+        self.assertIn("CAST(conv(substring(result_hex, 3), 16, 10) AS BIGINT)", sql)
+        self.assertIn("lower(wallet) AS wallet", sql)
         wrapped = shape_of({"rows": [{"path": "/a", "operationId": "a", "priceUsd": "0.1", "network": "n", "asset": "x", "payTo": "P"}]})
         sql = view_select("openapi_paid_ops", "r", {"openapi_paid_ops_raw": "DB.o"}, {"openapi_paid_ops_raw": wrapped})
         self.assertIn("LATERAL VIEW explode(rows) AS r", sql)

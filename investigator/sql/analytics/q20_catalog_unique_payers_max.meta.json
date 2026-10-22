@@ -1,0 +1,16 @@
+{
+  "id": "q20_catalog_unique_payers_max",
+  "params": [],
+  "columns": {
+    "max_payers_30d": "int"
+  },
+  "expected_rows_bound": 1,
+  "sources": [
+    "cdp_catalog_snapshot"
+  ],
+  "fields": [
+    "l30DaysUniquePayers"
+  ],
+  "ansi_only": true,
+  "note": "payers_30d is MAX, never SUM (mem-seed-001); added 2026-10-22 after the Zetaris recording session, so fixtures/zetaris/ holds no recording for it yet"
+}

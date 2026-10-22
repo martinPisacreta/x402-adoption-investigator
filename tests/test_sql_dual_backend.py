@@ -19,13 +19,19 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
-from investigator.agents.metrics import METRICS  # noqa: E402
+from investigator.agents.metrics import METRICS, query_ids_for_metrics  # noqa: E402
+from investigator.agents.reducers import REDUCERS, get_extractor  # noqa: E402
 from investigator.zetaris.catalog import ANSI_FORBIDDEN, bind_params, lint, load_catalog, referenced_views  # noqa: E402
 from investigator.zetaris.executor import SqliteExecutor  # noqa: E402
 from investigator.zetaris.fixture_exports import build_fixture_exports, default_params, exports_sha256  # noqa: E402
 from investigator.zetaris.views_sqlite import VIEW_NAMES  # noqa: E402
 
-EXPECTED_QUERY_IDS = [f"q{n:02d}" for n in range(1, 20)]
+EXPECTED_QUERY_IDS = [f"q{n:02d}" for n in range(1, 23)]
+# Queries added on 2026-10-22 after the Zetaris recording session, so that every registry metric has an SQL half
+# (no Zetaris login was available afterwards). They run on SQLite in every sample run, where each claim compares
+# them with its reducer, but fixtures/zetaris/ holds no recording of them yet. The set is explicit so a new query
+# cannot silently skip the recording check; scripts/record_zetaris_results.py --from-fixtures records them.
+NOT_YET_RECORDED = frozenset({"q20_catalog_unique_payers_max", "q21_catalog_top_hosts_by_listings", "q22_payer_chain_facts"})
 RECORDINGS_DIR = REPO_ROOT / "fixtures" / "zetaris"
 FLOAT_TOLERANCE = 1e-9
 
@@ -34,7 +40,7 @@ class CatalogLint(unittest.TestCase):
     def setUp(self) -> None:
         self.catalog = load_catalog(REPO_ROOT / "investigator" / "sql")
 
-    def test_nineteen_queries_with_meta(self) -> None:
+    def test_every_query_with_meta(self) -> None:
         prefixes = sorted(q[:3] for q in self.catalog)
         self.assertEqual(prefixes, EXPECTED_QUERY_IDS)
         for spec in self.catalog.values():
@@ -81,6 +87,16 @@ class CatalogLint(unittest.TestCase):
         for metric in METRICS.values():
             self.assertIn(metric.query_id, self.catalog, metric.id)
 
+    def test_every_metric_is_computed_twice(self) -> None:
+        """The structural half of "every metric is computed twice": each registry metric has a committed query,
+        an SQL extractor and a pure-Python reducer. The Critic's C2 rejects any claim whose two values are
+        missing or disagree (tests/test_dual_computation.py)."""
+        for metric in METRICS.values():
+            self.assertTrue(metric.sql_backed, metric.id)
+            self.assertIsNotNone(get_extractor(metric.id), f"{metric.id} has no SQL extractor")
+            self.assertIn(metric.reducer, REDUCERS, metric.id)
+            self.assertIn(metric.query_id, query_ids_for_metrics([metric.id]), metric.id)
+
 
 class DualBackend(unittest.TestCase):
     """SQLite over the fixture exports == Zetaris recordings over the same exports, query by query."""
@@ -118,7 +134,8 @@ class DualBackend(unittest.TestCase):
 
     def test_every_query_has_a_recording(self) -> None:
         self._require_recordings()
-        self.assertEqual(sorted(self.recordings), sorted(self.catalog))
+        self.assertEqual(sorted(self.recordings), sorted(set(self.catalog) - NOT_YET_RECORDED))
+        self.assertTrue(NOT_YET_RECORDED <= set(self.catalog))
         for qid, rec in self.recordings.items():
             self.assertEqual(rec.get("backend"), "zetaris", f"{qid} was not recorded on Zetaris: {rec.get('fallback_reason')}")
             self.assertTrue(rec.get("zetaris_version"), qid)

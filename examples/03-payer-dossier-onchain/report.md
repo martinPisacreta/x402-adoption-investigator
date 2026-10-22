@@ -13,7 +13,7 @@ What do we know about the payer 0x097e3F339D0b023605e12A6B81E2d6Cb7571475a: what
 
 Playbook `payer_dossier` (planner source: rules).  
 Sources: receipts, cdp_search, base_rpc.  
-Queries: q16_settlements_vs_receipts, q17_payer_dossier, q06_bazaar_host_listings.  
+Queries: q16_settlements_vs_receipts, q17_payer_dossier, q06_bazaar_host_listings, q22_payer_chain_facts.  
 Memories retrieved by the Planner: mem-seed-005.
 
 ## Verdict
@@ -28,15 +28,15 @@ The evidence shows thin adoption (verdict adoption_thin) based on [c03], [c07]. 
 
 | id | metric | subject | value | unit | conf. | cross-checked | caveats | conflicts | evidence |
 |---|---|---|---|---|---|---|---|---|---|
-| c01 | bazaar_listings_for_host | seller:host:tienda.textokit.store | 17 | count | 0.9 | True | search_limit_20 (mem-seed-002) | - | <https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?urlSubstring=tienda.textokit.store&limit=20> sha256 da993b56bae8… [replayed]<br>`log://ex03-payer-dossier#33`<br>`log://ex03-payer-dossier#34` |
-| c02 | settlements_verified | seller:host:tienda.textokit.store | 1 | count | 0.9 | True | payer_from_transfer_log (mem-seed-005), self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br><https://mainnet.base.org> sha256 c756d78d11b3… [replayed]<br><https://basescan.org/tx/0x62c01526c5beb13cad96634ec80e837e576df496905f1bac8019c6ffa3e358c3> [replayed, verified]<br>`log://ex03-payer-dossier#31`<br>`log://ex03-payer-dossier#35` |
-| c03 | payer_sales_total | wallet:base:0x097e3f339d0b023605e12a6b81e2d6cb7571475a | 1 | count | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex03-payer-dossier#32`<br>`log://ex03-payer-dossier#36` |
-| c04 | payer_usdc_atomic | wallet:base:0x097e3f339d0b023605e12a6b81e2d6cb7571475a | 1000 | atomic_usdc | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex03-payer-dossier#32`<br>`log://ex03-payer-dossier#37` |
-| c05 | payer_window | wallet:base:0x097e3f339d0b023605e12a6b81e2d6cb7571475a | 2026-10-20T04:51:24.352Z..2026-10-20T04:51:24.352Z | iso8601 | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex03-payer-dossier#32`<br>`log://ex03-payer-dossier#38` |
-| c06 | payer_services | wallet:base:0x097e3f339d0b023605e12a6b81e2d6cb7571475a | 1 | count | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex03-payer-dossier#32`<br>`log://ex03-payer-dossier#39` |
-| c07 | verified_tx | wallet:base:0x097e3f339d0b023605e12a6b81e2d6cb7571475a | 1 | count | 0.9 | True | payer_from_transfer_log (mem-seed-005), self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br><https://mainnet.base.org> sha256 c756d78d11b3… [replayed]<br><https://basescan.org/tx/0x62c01526c5beb13cad96634ec80e837e576df496905f1bac8019c6ffa3e358c3> [replayed, verified]<br>`log://ex03-payer-dossier#31`<br>`log://ex03-payer-dossier#40` |
-| c08 | usdc_balance_atomic | wallet:base:0x097e3f339d0b023605e12a6b81e2d6cb7571475a | 1043148 | atomic_usdc | 0.7 | False | payer_from_transfer_log (mem-seed-005) | - | <https://mainnet.base.org> sha256 c756d78d11b3… [replayed]<br><https://basescan.org/tx/0x62c01526c5beb13cad96634ec80e837e576df496905f1bac8019c6ffa3e358c3> [replayed, verified]<br>`log://ex03-payer-dossier#41` |
-| c09 | tx_count | wallet:base:0x097e3f339d0b023605e12a6b81e2d6cb7571475a | 24 | count | 0.7 | False | payer_from_transfer_log (mem-seed-005) | - | <https://mainnet.base.org> sha256 c756d78d11b3… [replayed]<br><https://basescan.org/tx/0x62c01526c5beb13cad96634ec80e837e576df496905f1bac8019c6ffa3e358c3> [replayed, verified]<br>`log://ex03-payer-dossier#42` |
+| c01 | bazaar_listings_for_host | seller:host:tienda.textokit.store | 17 | count | 0.9 | True | search_limit_20 (mem-seed-002) | - | <https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?urlSubstring=tienda.textokit.store&limit=20> sha256 da993b56bae8… [replayed]<br>`log://ex03-payer-dossier#33`<br>`log://ex03-payer-dossier#35` |
+| c02 | settlements_verified | seller:host:tienda.textokit.store | 1 | count | 0.9 | True | payer_from_transfer_log (mem-seed-005), self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br><https://mainnet.base.org> sha256 c756d78d11b3… [replayed]<br><https://basescan.org/tx/0x62c01526c5beb13cad96634ec80e837e576df496905f1bac8019c6ffa3e358c3> [replayed, verified]<br>`log://ex03-payer-dossier#31`<br>`log://ex03-payer-dossier#36` |
+| c03 | payer_sales_total | wallet:base:0x097e3f339d0b023605e12a6b81e2d6cb7571475a | 1 | count | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex03-payer-dossier#32`<br>`log://ex03-payer-dossier#37` |
+| c04 | payer_usdc_atomic | wallet:base:0x097e3f339d0b023605e12a6b81e2d6cb7571475a | 1000 | atomic_usdc | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex03-payer-dossier#32`<br>`log://ex03-payer-dossier#38` |
+| c05 | payer_window | wallet:base:0x097e3f339d0b023605e12a6b81e2d6cb7571475a | 2026-10-20T04:51:24.352Z..2026-10-20T04:51:24.352Z | iso8601 | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex03-payer-dossier#32`<br>`log://ex03-payer-dossier#39` |
+| c06 | payer_services | wallet:base:0x097e3f339d0b023605e12a6b81e2d6cb7571475a | 1 | count | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex03-payer-dossier#32`<br>`log://ex03-payer-dossier#40` |
+| c07 | verified_tx | wallet:base:0x097e3f339d0b023605e12a6b81e2d6cb7571475a | 1 | count | 0.9 | True | payer_from_transfer_log (mem-seed-005), self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br><https://mainnet.base.org> sha256 c756d78d11b3… [replayed]<br><https://basescan.org/tx/0x62c01526c5beb13cad96634ec80e837e576df496905f1bac8019c6ffa3e358c3> [replayed, verified]<br>`log://ex03-payer-dossier#31`<br>`log://ex03-payer-dossier#41` |
+| c08 | usdc_balance_atomic | wallet:base:0x097e3f339d0b023605e12a6b81e2d6cb7571475a | 1043148 | atomic_usdc | 0.9 | True | payer_from_transfer_log (mem-seed-005) | - | <https://mainnet.base.org> sha256 c756d78d11b3… [replayed]<br><https://basescan.org/tx/0x62c01526c5beb13cad96634ec80e837e576df496905f1bac8019c6ffa3e358c3> [replayed, verified]<br>`log://ex03-payer-dossier#34`<br>`log://ex03-payer-dossier#42` |
+| c09 | tx_count | wallet:base:0x097e3f339d0b023605e12a6b81e2d6cb7571475a | 24 | count | 0.9 | True | payer_from_transfer_log (mem-seed-005) | - | <https://mainnet.base.org> sha256 c756d78d11b3… [replayed]<br><https://basescan.org/tx/0x62c01526c5beb13cad96634ec80e837e576df496905f1bac8019c6ffa3e358c3> [replayed, verified]<br>`log://ex03-payer-dossier#34`<br>`log://ex03-payer-dossier#43` |
 
 ### Derivations and critique trail
 
@@ -54,9 +54,9 @@ The evidence shows thin adoption (verdict adoption_thin) based on [c03], [c07]. 
   - critique: r1 A accept: C1-C7 passed
 - **c07** 1 settlement(s) of this payer verified on Base. — query `q16_settlements_vs_receipts` on `sqlite` (sql sha256 `82a4f8cbe2ab`), reducer `reducers.verified_tx`, 1 row(s), sources receipts, base_rpc, fields transaction; log `log://ex03-payer-dossier#31`
   - critique: r1 A accept: C1-C7 passed
-- **c08** USDC balance at capture: 1043148 atomic (1.043148 USDC). — query `None` on `None` (sql sha256 `-`), reducer `reducers.usdc_balance_atomic`, 0 row(s), sources base_rpc, fields balanceOf; log `log://ex03-payer-dossier#41`
+- **c08** USDC balance at capture: 1043148 atomic (1.043148 USDC). — query `q22_payer_chain_facts` on `sqlite` (sql sha256 `6f24ed6d9dc3`), reducer `reducers.usdc_balance_atomic`, 2 row(s), sources base_rpc, fields balanceOf; log `log://ex03-payer-dossier#34`
   - critique: r1 A accept: C1-C7 passed
-- **c09** Transaction count (nonce) at capture: 24. — query `None` on `None` (sql sha256 `-`), reducer `reducers.tx_count`, 0 row(s), sources base_rpc, fields eth_getTransactionCount; log `log://ex03-payer-dossier#42`
+- **c09** Transaction count (nonce) at capture: 24. — query `q22_payer_chain_facts` on `sqlite` (sql sha256 `6f24ed6d9dc3`), reducer `reducers.tx_count`, 2 row(s), sources base_rpc, fields eth_getTransactionCount; log `log://ex03-payer-dossier#34`
   - critique: r1 A accept: C1-C7 passed
 
 ## Rejected claims

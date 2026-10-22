@@ -18,7 +18,8 @@
       "query_ids": [
         "q16_settlements_vs_receipts",
         "q17_payer_dossier",
-        "q06_bazaar_host_listings"
+        "q06_bazaar_host_listings",
+        "q22_payer_chain_facts"
       ],
       "sources": [
         "receipts",
@@ -85,7 +86,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex03-payer-dossier#34",
+            "ref": "log://ex03-payer-dossier#35",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -192,7 +193,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex03-payer-dossier#35",
+            "ref": "log://ex03-payer-dossier#36",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -276,7 +277,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex03-payer-dossier#36",
+            "ref": "log://ex03-payer-dossier#37",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -355,7 +356,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex03-payer-dossier#37",
+            "ref": "log://ex03-payer-dossier#38",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -435,7 +436,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex03-payer-dossier#38",
+            "ref": "log://ex03-payer-dossier#39",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -515,7 +516,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex03-payer-dossier#39",
+            "ref": "log://ex03-payer-dossier#40",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -617,7 +618,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex03-payer-dossier#40",
+            "ref": "log://ex03-payer-dossier#41",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -699,7 +700,18 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex03-payer-dossier#41",
+            "ref": "log://ex03-payer-dossier#34",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex03-payer-dossier#42",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -711,18 +723,18 @@
         ],
         "derivation": {
           "agent": "analyst",
-          "query_id": null,
-          "sql_sha256": null,
-          "backend": null,
+          "query_id": "q22_payer_chain_facts",
+          "sql_sha256": "6f24ed6d9dc3bb3c997eb9c8eb9762cdeb9031d7a1e1277aec70eba8f411f75b",
+          "backend": "sqlite",
           "reducer": "reducers.usdc_balance_atomic",
-          "rows": 0,
+          "rows": 2,
           "fields": [
             "balanceOf"
           ],
           "sources": [
             "base_rpc"
           ],
-          "log_seq": 41
+          "log_seq": 34
         },
         "coverage": null,
         "caveats": [
@@ -732,9 +744,9 @@
           "payer_from_transfer_log": "mem-seed-005"
         },
         "conflict_ids": [],
-        "confidence": 0.7,
+        "confidence": 0.9,
         "status": "accepted",
-        "cross_checked": false,
+        "cross_checked": true,
         "critique": [
           {
             "round": 1,
@@ -778,7 +790,18 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex03-payer-dossier#42",
+            "ref": "log://ex03-payer-dossier#34",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex03-payer-dossier#43",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -790,18 +813,18 @@
         ],
         "derivation": {
           "agent": "analyst",
-          "query_id": null,
-          "sql_sha256": null,
-          "backend": null,
+          "query_id": "q22_payer_chain_facts",
+          "sql_sha256": "6f24ed6d9dc3bb3c997eb9c8eb9762cdeb9031d7a1e1277aec70eba8f411f75b",
+          "backend": "sqlite",
           "reducer": "reducers.tx_count",
-          "rows": 0,
+          "rows": 2,
           "fields": [
             "eth_getTransactionCount"
           ],
           "sources": [
             "base_rpc"
           ],
-          "log_seq": 42
+          "log_seq": 34
         },
         "coverage": null,
         "caveats": [
@@ -811,9 +834,9 @@
           "payer_from_transfer_log": "mem-seed-005"
         },
         "conflict_ids": [],
-        "confidence": 0.7,
+        "confidence": 0.9,
         "status": "accepted",
-        "cross_checked": false,
+        "cross_checked": true,
         "critique": [
           {
             "round": 1,

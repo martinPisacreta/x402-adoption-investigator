@@ -20,7 +20,9 @@
         "q09_catalog_top_hosts_by_calls",
         "q10_catalog_active_share",
         "q11_catalog_payto_concentration",
-        "q19_trust_ecosystem_stats"
+        "q19_trust_ecosystem_stats",
+        "q20_catalog_unique_payers_max",
+        "q21_catalog_top_hosts_by_listings"
       ],
       "sources": [
         "cdp_catalog_snapshot",
@@ -88,7 +90,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#23",
+            "ref": "log://ex02-catalog-concentration#25",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -174,7 +176,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#24",
+            "ref": "log://ex02-catalog-concentration#26",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -258,7 +260,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#25",
+            "ref": "log://ex02-catalog-concentration#27",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -342,7 +344,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#26",
+            "ref": "log://ex02-catalog-concentration#28",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -430,7 +432,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#27",
+            "ref": "log://ex02-catalog-concentration#29",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -519,7 +521,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#28",
+            "ref": "log://ex02-catalog-concentration#30",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -607,7 +609,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#29",
+            "ref": "log://ex02-catalog-concentration#31",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -680,7 +682,18 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#30",
+            "ref": "log://ex02-catalog-concentration#24",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex02-catalog-concentration#32",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -692,18 +705,18 @@
         ],
         "derivation": {
           "agent": "analyst",
-          "query_id": null,
-          "sql_sha256": null,
-          "backend": null,
+          "query_id": "q21_catalog_top_hosts_by_listings",
+          "sql_sha256": "84906723659a4585daf4c53647ec1b0c748f530ecb4f217d9abff33046c5bbac",
+          "backend": "sqlite",
           "reducer": "reducers.top_hosts_by_listings",
-          "rows": 0,
+          "rows": 4,
           "fields": [
             "resource"
           ],
           "sources": [
             "cdp_catalog_snapshot"
           ],
-          "log_seq": 30
+          "log_seq": 24
         },
         "coverage": {
           "items_seen": 28462,
@@ -718,9 +731,9 @@
           "snapshot_dated": "mem-seed-006"
         },
         "conflict_ids": [],
-        "confidence": 0.7,
+        "confidence": 0.9,
         "status": "accepted",
-        "cross_checked": false,
+        "cross_checked": true,
         "critique": [
           {
             "round": 1,
@@ -769,7 +782,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#31",
+            "ref": "log://ex02-catalog-concentration#33",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -843,7 +856,18 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#32",
+            "ref": "log://ex02-catalog-concentration#23",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex02-catalog-concentration#34",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -855,18 +879,18 @@
         ],
         "derivation": {
           "agent": "analyst",
-          "query_id": null,
-          "sql_sha256": null,
-          "backend": null,
+          "query_id": "q20_catalog_unique_payers_max",
+          "sql_sha256": "d37a5473afae5bea1086ca1c424fb031364f335629dfc13ec0553433ae033110",
+          "backend": "sqlite",
           "reducer": "reducers.unique_payers_per_endpoint_max",
-          "rows": 0,
+          "rows": 1,
           "fields": [
             "l30DaysUniquePayers"
           ],
           "sources": [
             "cdp_catalog_snapshot"
           ],
-          "log_seq": 32
+          "log_seq": 23
         },
         "coverage": {
           "items_seen": 28462,
@@ -883,9 +907,9 @@
           "snapshot_dated": "mem-seed-006"
         },
         "conflict_ids": [],
-        "confidence": 0.7,
+        "confidence": 0.9,
         "status": "accepted",
-        "cross_checked": false,
+        "cross_checked": true,
         "critique": [
           {
             "round": 1,
@@ -956,7 +980,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#33",
+            "ref": "log://ex02-catalog-concentration#35",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -1275,7 +1299,7 @@
         "attempts": 1,
         "status": "ok",
         "notes": [
-          "views without export: sales, purchases, bazaar_search, openapi_paid_ops, agent402_tools, agent402_seller, vet402_endpoints, trust_search, settlements"
+          "views without export: sales, purchases, bazaar_search, openapi_paid_ops, agent402_tools, agent402_seller, vet402_endpoints, trust_search, settlements, chain_facts"
         ]
       },
       {

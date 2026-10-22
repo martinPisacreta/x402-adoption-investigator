@@ -13,7 +13,8 @@ in the fixtures are verifiable, the rest are unverifiable with reason fixture_mi
 Cross-checks (one `crosscheck` event each): receipts seller == Bazaar payTo; registry endpoint counts
 (cdp_search vs openapi / Agent402 / vet402 / x402-trust); Bazaar calls_30d summed over the host's listings vs
 receipts in the same 30-day window (expected to disagree: different bases). Writes exports/settlements.json only
-when at least one receipt was decoded, so an unreachable chain never becomes a settlements view with zero rows.
+when at least one receipt was decoded, so an unreachable chain never becomes a settlements view with zero rows,
+and exports/chain_facts.json (wallet, predicate, raw result hex) only when balanceOf or the nonce answered.
 """
 from __future__ import annotations
 
@@ -35,6 +36,7 @@ if TYPE_CHECKING:
 
 BASESCAN_TX = "https://basescan.org/tx/{tx}"
 SETTLEMENTS_EXPORT = "settlements"
+CHAIN_FACTS_EXPORT = "chain_facts"
 TRANSFER_BASIS = "USDC Transfer log of the on-chain receipt (eth_getTransactionReceipt on Base)"
 RECEIPTS_BASIS = "the seller's own receipts.json row for the transaction"
 CONFLICT_EXPLANATION_SETTLEMENT = ("The seller's receipt row and the decoded USDC Transfer log disagree; the chain is "
@@ -304,6 +306,17 @@ def write_settlements_export(ctx: "RunContext", verifications: list[Verification
     return path
 
 
+def write_chain_facts_export(ctx: "RunContext", rows: list[dict[str, Any]]) -> Path:
+    """exports/chain_facts.json rows: wallet, predicate, result_hex (the JSON-RPC `result` exactly as fetched).
+    The SQL view layer decodes the hex itself, so the SQL half of a chain metric does not reuse this agent's
+    decoding (the reducer half reads the value decoded here, through the World Model)."""
+    path = ctx.exports_dir / f"{CHAIN_FACTS_EXPORT}.json"
+    ordered = sorted(rows, key=lambda r: (r["wallet"], r["predicate"]))
+    path.write_text(json.dumps(ordered, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n",
+                    encoding="utf-8", newline="\n")
+    return path
+
+
 def chain_fact(about: str, predicate: str, value: Any, obs: Observation, *, url: Optional[str] = None,
                at: Optional[str] = None, confidence: float = 0.95) -> dict[str, Any]:
     """Keeper-shaped chain fact {about, predicate, value, url, at, checksum, kind, by} plus the `source` dict the
@@ -406,6 +419,7 @@ def run_verifier(ctx: "RunContext", plan: Plan, observations: list[Observation])
                                       url=verification.basescan_url, at=verification.block_time or obs.captured_at))
 
     wallet = focus_wallet or top_external_payer(sales)
+    chain_rows: list[dict[str, Any]] = []
     if wallet and not rpc_down and not wrong_chain and not ctx.deadline_hit("verifier"):
         balance_obs = client.batch([base_rpc.call_balance_of(wallet)])[0]
         nonce_obs = client.batch([base_rpc.call_nonce(wallet)])[0]
@@ -415,6 +429,9 @@ def run_verifier(ctx: "RunContext", plan: Plan, observations: list[Observation])
                 notes.append(f"{predicate} for {wallet} not available: {_reason_for(obs)}")
                 continue
             chain_facts.append(chain_fact(f"wallet:base:{wallet}", predicate, value, obs))
+            chain_rows.append({"wallet": wallet, "predicate": predicate, "result_hex": str(result_of(obs))})
+    if chain_rows:                       # like settlements.json: no RPC answer never becomes a view with zero rows
+        write_chain_facts_export(ctx, chain_rows)
 
     crosschecks, xconflicts = cross_checks(ctx, observations, host=plan.params.get("host"))
     conflicts.extend(xconflicts)

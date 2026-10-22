@@ -11,6 +11,9 @@ Two exports are derived here because their producers are other agents:
 - settlements: the Base RPC receipt fixture decoded (USDC Transfer log: payer = topics[1], seller =
   topics[2], amount = data; tx.from is the facilitator) and matched against the receipts rows, the shape
   the Verifier writes in a run.
+- chain_facts: the balanceOf / getTransactionCount fixtures of the first external payer, located through the
+  MANIFEST request keys (so a fixture of another wallet is never attributed to this one), with the raw `result`
+  hex the Verifier writes in a run.
 """
 from __future__ import annotations
 
@@ -37,7 +40,7 @@ RPC_RECEIPT_FILE = "base-rpc-eth_getTransactionReceipt.json"
 RPC_TX_FILE = "base-rpc-eth_getTransactionByHash.json"
 USDC_BASE = "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"
 TRANSFER_TOPIC = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
-DERIVED_EXPORTS: tuple[str, ...] = ("openapi_paid_ops", "settlements", "catalog_snapshot")
+DERIVED_EXPORTS: tuple[str, ...] = ("openapi_paid_ops", "settlements", "chain_facts", "catalog_snapshot")
 
 
 def canonical_dump(obj: Any) -> str:
@@ -124,6 +127,32 @@ def decode_settlements(receipt_rpc: Any, tx_rpc: Any, receipts: dict[str, Any]) 
              "receipt_match": bool(ok)}]
 
 
+def first_external_payer(receipts: dict[str, Any]) -> Optional[str]:
+    for sale in receipts.get("sales") or []:
+        if isinstance(sale, dict) and sale.get("ownWallet") is False and sale.get("payer"):
+            return str(sale["payer"]).lower()
+    return None
+
+
+def chain_fact_rows(fixtures_dir: Path, wallet: str) -> list[dict[str, Any]]:
+    """{wallet, predicate, result_hex} for the RPC reads about `wallet` that the MANIFEST maps to a fixture file."""
+    from ..chain import base_rpc
+    from ..sources.registry import rpc_request_key
+    manifest_path = Path(fixtures_dir) / "MANIFEST.json"
+    if not manifest_path.is_file():
+        return []
+    requests = load_json(manifest_path).get("requests") or {}
+    rows: list[dict[str, Any]] = []
+    for predicate, call in (("usdc_balance_atomic", base_rpc.call_balance_of(wallet)), ("tx_count", base_rpc.call_nonce(wallet))):
+        entry = requests.get(rpc_request_key(call["method"], call["params"]))
+        if not isinstance(entry, dict) or not entry.get("file"):
+            continue
+        result = (load_json(Path(fixtures_dir) / entry["file"]) or {}).get("result")
+        if isinstance(result, str):
+            rows.append({"wallet": wallet, "predicate": predicate, "result_hex": result})
+    return sorted(rows, key=lambda r: (r["wallet"], r["predicate"]))
+
+
 def build_fixture_exports(fixtures_dir: Path, out_dir: Path, include_catalog: bool = True) -> dict[str, str]:
     """Write every export under out_dir and return {export_name: path}."""
     fixtures_dir = Path(fixtures_dir)
@@ -150,6 +179,10 @@ def build_fixture_exports(fixtures_dir: Path, out_dir: Path, include_catalog: bo
     if receipt_path.is_file() and "store_receipts" in loaded:
         tx_rpc = load_json(tx_path) if tx_path.is_file() else {}
         write("settlements", decode_settlements(load_json(receipt_path), tx_rpc, loaded["store_receipts"]))
+    payer = first_external_payer(loaded["store_receipts"]) if "store_receipts" in loaded else None
+    chain_rows = chain_fact_rows(fixtures_dir, payer) if payer else []
+    if chain_rows:
+        write("chain_facts", chain_rows)
     catalog_path = fixtures_dir / CATALOG_FILE
     if include_catalog and catalog_path.is_file():
         with gzip.open(catalog_path, "rb") as handle:
@@ -193,9 +226,7 @@ def default_params(exports: dict[str, str]) -> dict[str, Any]:
                 break
     receipts_path = exports.get("store_receipts")
     if receipts_path:
-        receipts = load_json(Path(receipts_path)) or {}
-        for sale in receipts.get("sales") or []:
-            if isinstance(sale, dict) and sale.get("ownWallet") is False and sale.get("payer"):
-                params["wallet"] = str(sale["payer"]).lower()
-                break
+        wallet = first_external_payer(load_json(Path(receipts_path)) or {})
+        if wallet:
+            params["wallet"] = wallet
     return params

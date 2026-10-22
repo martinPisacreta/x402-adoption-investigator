@@ -339,4 +339,27 @@ def view_select(view: str, run_id: str, tables: dict[str, str], shapes: Optional
         ]
         return f"SELECT {', '.join(cols)} FROM {source}"
 
+    if view == "chain_facts":
+        # Added 2026-10-22 after the live Zetaris session: same top-level-array pattern as `settlements` (verified
+        # live), plus Spark's conv() to decode the JSON-RPC hex. Not yet executed on a Zetaris instance; a failure
+        # sends the queries that read it to SQLite (zetaris_query_fallback), never to a silent zero.
+        t = tables[spec.table]
+        sh = shapes.get(spec.table)
+        prefix, source, path = _rows_source(t, sh, ("rows", "facts"))
+        keyset = (sh or {}).get("keys", set()) if not path else (sh or {}).get("nested", {}).get(path, set())
+        known = sh is not None
+
+        def has_key(key: str) -> bool:
+            return (not known) or key in keyset
+
+        hex_expr = f"{prefix}result_hex"
+        cols = [
+            _col(f"lower({prefix}wallet)", "wallet", has_key("wallet")),
+            _col(f"{prefix}predicate", "predicate", has_key("predicate")),
+            _col(f"CASE WHEN {hex_expr} RLIKE '^0x[0-9a-fA-F]+$' THEN CAST(conv(substring({hex_expr}, 3), 16, 10) AS BIGINT) "
+                 f"ELSE NULL END", "value_atomic", has_key("result_hex"), "BIGINT"),
+            _col(hex_expr, "result_hex", has_key("result_hex")),
+        ]
+        return f"SELECT {', '.join(cols)} FROM {source}"
+
     raise KeyError(f"unknown view {view!r}")

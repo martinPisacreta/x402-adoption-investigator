@@ -1,0 +1,20 @@
+{
+  "id": "q22_payer_chain_facts",
+  "params": [
+    "wallet"
+  ],
+  "columns": {
+    "predicate": "str",
+    "value_atomic": "int"
+  },
+  "expected_rows_bound": 2,
+  "sources": [
+    "base_rpc"
+  ],
+  "fields": [
+    "balanceOf",
+    "eth_getTransactionCount"
+  ],
+  "ansi_only": true,
+  "note": "chain_facts decodes the raw JSON-RPC result hex in the view layer; the reducer reads the value the Verifier decoded into the World Model; added 2026-10-22 after the Zetaris recording session, so fixtures/zetaris/ holds no recording for it yet"
+}

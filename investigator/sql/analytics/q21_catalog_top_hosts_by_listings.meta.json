@@ -1,0 +1,17 @@
+{
+  "id": "q21_catalog_top_hosts_by_listings",
+  "params": [],
+  "columns": {
+    "host": "str",
+    "n_resources": "int"
+  },
+  "expected_rows_bound": 4,
+  "sources": [
+    "cdp_catalog_snapshot"
+  ],
+  "fields": [
+    "resource"
+  ],
+  "ansi_only": true,
+  "note": "resources with a NULL host (URI-illegal) are not ranked, as in reducers.top_hosts_by_listings; added 2026-10-22 after the Zetaris recording session, so fixtures/zetaris/ holds no recording for it yet"
+}

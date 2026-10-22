@@ -137,7 +137,9 @@ generator (`openai:<model>` | `recorded` | `null`).
 
 Requirements: Python 3.11 (standard library only at runtime), git. No network, no keys and no env file are needed
 for the default run. `python` below is Python 3.11; on systems where the binary is `python3` use that name
-(`scripts/one_command.sh` picks `python3` when it exists).
+(`scripts/one_command.sh` takes the first of `python3` and `python` that actually runs and is 3.11 or newer, so the
+Microsoft Store `python3` stub on Windows is skipped; `scripts/one_command.ps1` tries `python`, `py -3` and
+`python3` the same way).
 
 ```bash
 git clone https://github.com/martinPisacreta/x402-adoption-investigator && cd x402-adoption-investigator
@@ -151,7 +153,8 @@ output}` envelope that is also written to `logs/ex01-seller-audit/output.json` (
 `--sample` pins sample mode; without it the default `--mode auto` also runs sample mode when no credentials are
 configured, but an `OPENAI_API_KEY` or `ZETARIS_PASSWORD` already exported in the shell (or present in
 `.env.local`) switches `auto` to live mode, with real fetches and paid model calls. `scripts/one_command.sh` (or
-`.ps1`) runs the example with `--print-output` and then the test suite. On Windows, clone into a short directory:
+`.ps1`, Windows PowerShell 5.1 or PowerShell 7) runs the example with `--print-output` and then the test suite, with
+pytest when it is installed and with `python -m unittest discover -s tests` otherwise. On Windows, clone into a short directory:
 the run folder nests `logs/<run_id>/exports/<name>.json`, and the longest file the examples write
 (`logs/ex03-payer-dossier/exports/rpc_receipt_0x<64 hex>.json`) is 115 characters below the repository root, so a
 repository path longer than 143 characters (a logs directory longer than 148) goes over the `MAX_PATH` limit

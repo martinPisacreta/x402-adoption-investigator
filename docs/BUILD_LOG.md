@@ -104,7 +104,9 @@ staged demo. Both were removed rather than explained away; everything that chang
   names the path and its length (Windows `MAX_PATH`); `scripts/one_command.sh` uses `python3` when present; two
   `ResourceWarning`s in the tests (an unclosed `EventLog`, an unclosed socket) are closed.
 - Not fixable from inside the tree and still open at review time: the repository had no commit and no public remote
-  yet, and the "Cursor sessions" section was empty until the viewer session below.
+  yet, and the "Cursor sessions" section was empty until the viewer session below. Both were resolved the same day:
+  the initial commit 169e896 is on the public remote github.com/martinPisacreta/x402-adoption-investigator, and
+  the section lists two Cursor Agent sessions.
 
 ## Cursor sessions (what was actually done in Cursor)
 
@@ -130,7 +132,7 @@ Entries are added only for work done in Cursor itself (Composer / agent sessions
 
 - **Tool:** Cursor Agent CLI session under `.cursor/rules/project.mdc`.
 - **Prompt (summary):** Add a short Pitch section to `README.md` right after the opening paragraphs (before
-  Overview), linking the demo video `docs/pitch/demo.mp4` (3 min 26 s, Windows TTS narration;
+  Overview), linking the demo video `docs/pitch/demo.mp4` (3 min 27 s, Windows TTS narration;
   `docs/pitch/narration.txt`), the slide deck `docs/pitch/deck.pdf` (11 slides; source `docs/pitch/deck.html`,
   images in `docs/pitch/slides/`). Keep to 4–6 lines; no new claims or numbers beyond video length and slide
   count. Add this Cursor sessions entry. Touch no other files; do not run git.

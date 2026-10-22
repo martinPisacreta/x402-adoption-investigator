@@ -252,7 +252,7 @@ CONFLICT_EXPLANATIONS: dict[str, str] = {
         "The Bazaar snapshot is a dated capture of one index deduplicated by resource; the API total moves by the "
         "minute; x402-trust indexes a different and larger set with its own 30-day probe window and counts delisted "
         "endpoints."),
-    "backend_disagreement": "The SQL backend result and the pure-Python reducer disagree over the same exports; the claim is kept at confidence 0.5 until the view layer is reconciled.",
+    "backend_disagreement": "The SQL backend result and the pure-Python reducer disagree over the same exports; the Critic rejects the claim (rule C2) and this conflict stays open until the view layer and the reducer are reconciled.",
     "two_fetches_apart": "Zetaris fetched its own copy of the URL seconds after the Collector; the source moved in between.",
 }
 

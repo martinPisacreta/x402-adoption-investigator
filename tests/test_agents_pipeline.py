@@ -370,7 +370,7 @@ class DegradedPaths(unittest.TestCase):
             self.assertEqual(envelope["error"]["code"], "E_NO_SOURCES")
             self.assertEqual(validate(envelope, load_schema("output")), [])
 
-    def test_executor_unavailable_keeps_reducer_values(self) -> None:
+    def test_executor_unavailable_falls_back_to_sqlite_and_still_computes_twice(self) -> None:
         class BrokenExecutor(doubles.DoubleSqliteExecutor):
             def ensure_views(self, exports, urls=None):
                 raise NotImplementedError("B3 not merged")
@@ -381,11 +381,12 @@ class DegradedPaths(unittest.TestCase):
             self.assertEqual(envelope["status"], "partial", envelope.get("error"))
             claims = {c["metric"]: c for c in envelope["output"]["claims"]}
             self.assertEqual(claims["sales_total"]["value"], len(receipts()["sales"]))
-            self.assertFalse(claims["sales_total"]["cross_checked"])
-            self.assertLessEqual(claims["sales_total"]["confidence"], 0.7)
-            self.assertIsNone(claims["sales_total"]["derivation"]["backend"])
+            for claim in envelope["output"]["claims"]:
+                self.assertTrue(claim["cross_checked"], claim["metric"])
+                self.assertEqual(claim["derivation"]["backend"], "sqlite-fallback", claim["metric"])
+            self.assertEqual(envelope["output"]["rejected_claims"], [])
             recoveries = [l["payload"] for l in read_lines(Path(tmp) / "ex01-seller-audit" / "run.jsonl") if l["type"] == "recovery"]
-            self.assertTrue(any(r["reason"] == "zetaris_query_fallback" for r in recoveries))
+            self.assertTrue(any(r["reason"] == "zetaris_query_fallback" and r.get("to") == "sqlite" for r in recoveries))
 
     def test_timeout_before_any_claim_is_e_timeout(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

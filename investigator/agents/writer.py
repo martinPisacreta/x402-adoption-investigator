@@ -74,11 +74,31 @@ def claim_sentence(claim: Claim) -> str:
     return f"{statement} [{claim.id}]."
 
 
-def conflict_sentence(conflict: Conflict) -> str:
+def conflict_sentence(conflict: Conflict, live_ids: Optional[set[str]] = None) -> str:
+    """One "where sources disagree" sentence; it cites only claims that are not rejected (a rejected claim is
+    never cited, but the conflict itself stays in the answer with its values and explanation)."""
     parts = "; ".join(f"{v.source}: {format_value(v.value)} ({v.basis})" for v in conflict.values)
-    cited = " ".join(f"[{cid}]" for cid in conflict.claim_ids)
+    cited = " ".join(f"[{cid}]" for cid in conflict.claim_ids if live_ids is None or cid in live_ids)
     return (f"Where sources disagree [{conflict.id}] on {conflict.predicate}: {parts}. "
             f"{conflict.explanation.rstrip('.')} {cited}".rstrip() + ".")
+
+
+def rejection_rule(claim: Claim) -> str:
+    """The rule of the Critic's first reject verdict on a claim (C1-C7, B or A for unresolved)."""
+    for item in claim.critique:
+        if item.verdict == "reject":
+            return item.rule
+    return "A"
+
+
+def rejected_sentence(claims: list[Claim]) -> Optional[str]:
+    """Names the claims the Critic rejected (metric and rule, no number: a rejected value is never restated)."""
+    rejected = [c for c in claims if c.status == "rejected"]
+    if not rejected:
+        return None
+    names = "; ".join(f"{c.metric} (rule {rejection_rule(c)})" for c in rejected)
+    return (f"Rejected by the Critic and left out of this answer: {names}; "
+            "the reasons are in rejected_claims[] and in the critique lines of the run log.")
 
 
 def caveat_sentences(claims: list[Claim]) -> list[str]:
@@ -131,11 +151,15 @@ def render_template(claims: list[Claim], conflicts: list[Conflict], unavailable:
         summary.append(claim_sentence(claim))
     for claim in usable:
         sentences.append(claim_sentence(claim))
+    live_ids = {c.id for c in usable}
     for conflict in conflicts:
-        sentences.append(conflict_sentence(conflict))
+        sentences.append(conflict_sentence(conflict, live_ids))
     sentences.extend(caveat_sentences(usable))
     for item in unavailable:
         sentences.append(f"Unavailable: {item.get('metric')} ({item.get('reason')}).")
+    rejected_text = rejected_sentence(claims)
+    if rejected_text:
+        sentences.append(rejected_text)
     if stale_disclaimer:
         sentences.append(STALE_DISCLAIMER)
     if sample_notice:
@@ -279,6 +303,9 @@ def run_writer(ctx: "RunContext", claims: list[Claim], conflicts: list[Conflict]
         answer = render_with_generator(ctx, claims, conflicts, unavailable, verdict, issues, reinjection, round_no)
         if answer is not None and stale and STALE_DISCLAIMER not in answer.sentences:
             answer.sentences.append(STALE_DISCLAIMER)
+        rejected_text = rejected_sentence(claims)
+        if answer is not None and rejected_text and rejected_text not in answer.sentences:
+            answer.sentences.append(rejected_text)
         if answer is not None and notice and notice not in answer.sentences:
             answer.sentences.append(notice)
     if answer is None:
@@ -289,5 +316,19 @@ def run_writer(ctx: "RunContext", claims: list[Claim], conflicts: list[Conflict]
             ctx.recover("writer", "narrative_trimmed",
                         f"round {round_no}: {len(answer.dropped)} sentence(s) flagged by the Critic left out of the template",
                         sentences=[s[:160] for s in answer.dropped])
+    log_rejected_revision(ctx, claims, round_no)
     status = "ok"
     return AgentResult("writer", status, answer, notes=notes)
+
+
+def log_rejected_revision(ctx: "RunContext", claims: list[Claim], round_no: int) -> None:
+    """A revision round that leaves out claims the Critic rejected since the last draft is a visible recovery."""
+    seen: set[str] = ctx.scratch.setdefault("writer_rejected_seen", set())
+    newly = [c for c in claims if c.status == "rejected" and c.id not in seen]
+    if not newly:
+        return
+    seen.update(c.id for c in newly)
+    ctx.recover("writer", "narrative_trimmed",
+                f"round {round_no}: {len(newly)} claim(s) rejected by the Critic left out of the answer and named in "
+                "its rejected-claims sentence",
+                claims=[{"claim_id": c.id, "metric": c.metric, "rule": rejection_rule(c)} for c in newly])

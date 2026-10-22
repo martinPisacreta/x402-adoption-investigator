@@ -2,9 +2,10 @@
 
 For every metric in Plan.metrics: run the committed SQL through ctx.executor (sql event + sql.jsonl line), run
 the reducer over the run exports, compare (counts/sums exact, shares within 1e-6). Agree -> cross_checked true
-and the registry confidence; disagree -> Conflict <metric>:backend_disagreement and 0.5; executor unavailable ->
-reducer value only (backend null, not cross-checked, confidence 0.7); required source unavailable ->
-unavailable[], no claim (never a zero). Conflicts: endpoint_count_for_host (q06, q12-q15), calls_30d_for_host,
+and the registry confidence; disagree -> an open Conflict <metric>:backend_disagreement, confidence 0.5, and the
+Critic's C2 rejects the claim; mounted executor unusable -> the same SQL on an embedded SQLite executor over the
+same exports (recovery zetaris_query_fallback); a claim still left with one value (query skipped or over budget)
+is proposed as computed and rejected by C2. Required source unavailable -> unavailable[], no claim (never a zero). Conflicts: endpoint_count_for_host (q06, q12-q15), calls_30d_for_host,
 ecosystem_size, backend disagreement, with rule-written explanations from metrics.CONFLICT_EXPLANATIONS.
 Bounds: <= 25 metrics, each query <= 30 s, total SQL <= 60 s, budget.max_sql statements, deadline checks.
 
@@ -241,8 +242,14 @@ def query_params(spec: QuerySpec, params: dict[str, Any]) -> Optional[dict[str, 
     return bound
 
 
+def sql_executor(ctx: "RunContext") -> Any:
+    """The executor the Analyst queries: the mounted one, or the SQLite fallback installed by run_analyst."""
+    return ctx.scratch.get("analyst_executor") or ctx.executor
+
+
 def run_query(ctx: "RunContext", spec: QuerySpec, params: dict[str, Any]) -> Optional[SqlResult]:
-    """Execute one catalog query within the SQL budget; emit `sql` + sql.jsonl; None when skipped or failed."""
+    """Execute one catalog query within the SQL budget; emit `sql` + sql.jsonl; None when skipped or failed (the
+    metrics that read it then have one value only, and the Critic's C2 rejects them)."""
     bound = query_params(spec, params)
     if bound is None:
         ctx.notes.append(f"{spec.id} skipped: missing parameter {spec.params}")
@@ -250,13 +257,14 @@ def run_query(ctx: "RunContext", spec: QuerySpec, params: dict[str, Any]) -> Opt
     if not ctx.budget_take("sql", ctx.budget.max_sql, "analyst"):
         return None
     started = ctx.clock.now_ms()
+    executor = sql_executor(ctx)
     try:
-        result = ctx.executor.execute(spec.id, spec.sql, bound, spec.meta)
+        result = executor.execute(spec.id, spec.sql, bound, spec.meta)
     except NotImplementedError as exc:
-        ctx.recover("analyst", "zetaris_query_fallback", f"{spec.id}: executor {ctx.executor.name} not implemented ({exc}); reducer only")
+        ctx.recover("analyst", "zetaris_query_fallback", f"{spec.id}: executor {executor.name} not implemented ({exc}); no SQL value")
         return None
     except Exception as exc:  # noqa: BLE001 - a failed statement is a visible degradation, never a silent zero
-        ctx.recover("analyst", "zetaris_query_fallback", f"{spec.id}: {type(exc).__name__}: {exc}; reducer only")
+        ctx.recover("analyst", "zetaris_query_fallback", f"{spec.id}: {type(exc).__name__}: {exc}; no SQL value")
         ctx.scratch["analyst_degraded"] = True
         return None
     elapsed = max(0, ctx.clock.now_ms() - started)
@@ -278,6 +286,26 @@ def run_query(ctx: "RunContext", spec: QuerySpec, params: dict[str, Any]) -> Opt
     if time_used > SQL_QUERY_TIMEOUT_S * 1000:
         ctx.recover("analyst", "budget_exhausted", f"{spec.id} took {time_used} ms (> {SQL_QUERY_TIMEOUT_S} s)")
     return result
+
+
+def fallback_to_sqlite(ctx: "RunContext", exports: dict[str, str], reason: str, notes: list[str]) -> bool:
+    """The mounted executor cannot build its views: run the same committed SQL on an embedded SQLite executor over
+    the same exports, so every metric keeps its SQL half (recovery zetaris_query_fallback, backend sqlite-fallback).
+    False when even that fails: the claims then carry one value and the Critic's C2 rejects them."""
+    from ..zetaris.executor import SqliteExecutor
+    ctx.scratch["analyst_degraded"] = True
+    try:
+        fallback = SqliteExecutor(ctx.run_dir, ctx.log, fallback_reason=reason)
+        ctx.scratch["sql_tables"] = fallback.ensure_views(exports)
+    except Exception as exc:  # noqa: BLE001
+        ctx.recover("analyst", "zetaris_query_fallback", f"{reason}; the SQLite fallback failed too "
+                    f"({type(exc).__name__}: {exc}): no SQL half, the Critic will reject single-computed claims", to="none")
+        notes.append(f"no SQL executor: {reason}")
+        return False
+    ctx.scratch["analyst_executor"] = fallback
+    ctx.recover("analyst", "zetaris_query_fallback", f"{reason}; the same SQL runs on SQLite over the same exports", to="sqlite")
+    notes.append(f"SQL executor fallback to SQLite: {reason}")
+    return True
 
 
 def run_queries(ctx: "RunContext", plan: Plan, catalog: dict[str, QuerySpec], params: dict[str, Any],
@@ -619,17 +647,9 @@ def run_analyst(ctx: "RunContext", plan: Plan, observations: list[Observation], 
         absent = [t.get("name") for t in tables if isinstance(t, dict) and t.get("present") is False]
         if absent:
             notes.append("views without export: " + ", ".join(str(a) for a in absent))
-    except NotImplementedError as exc:
-        executor_ok = False
-        ctx.recover("analyst", "zetaris_query_fallback", f"executor {ctx.executor.name} views not implemented ({exc}); reducers only",
-                    to="reducers")
-        notes.append(f"stub: SQL executor {ctx.executor.name} unavailable; claims are reducer-only and not cross-checked (B3)")
-    except Exception as exc:  # noqa: BLE001
-        executor_ok = False
-        ctx.recover("analyst", "zetaris_query_fallback", f"executor {ctx.executor.name} ensure_views failed: {type(exc).__name__}: {exc}",
-                    to="reducers")
-        ctx.scratch["analyst_degraded"] = True
-        notes.append(f"executor ensure_views failed: {type(exc).__name__}")
+    except Exception as exc:  # noqa: BLE001 - NotImplementedError included: the SQL half moves to SQLite
+        executor_ok = fallback_to_sqlite(ctx, exports, f"executor {ctx.executor.name} ensure_views failed: "
+                                         f"{type(exc).__name__}: {exc}", notes)
 
     results = run_queries(ctx, plan, catalog, {**params, "since": window_since(world.now_iso)}, executor_ok)
     payload["sql_results"] = results
@@ -658,6 +678,9 @@ def run_analyst(ctx: "RunContext", plan: Plan, observations: list[Observation], 
             unavailable.append(missing)
     conflicts.extend(compose_conflicts(ctx, plan, claims, named, world, params, next_conflict[0]))
     emit_conflicts(ctx, conflicts)
+    fallback = ctx.scratch.pop("analyst_executor", None)
+    if fallback is not None:                 # C2 recomputes from the recorded SQL value, never re-queries
+        fallback.cleanup()
     payload.update({"claims": claims, "conflicts": conflicts, "unavailable": unavailable})
     status = "degraded" if (ctx.scratch.get("analyst_degraded") or not executor_ok) else "ok"
     if not claims and not unavailable:

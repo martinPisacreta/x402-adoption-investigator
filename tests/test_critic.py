@@ -131,6 +131,25 @@ class CriticChecks(unittest.TestCase):
         self.ctx.scratch["recompute"]["c01"]["reducer"] = None
         self.assertTrue(critic.check_c2_recompute(self.ctx, Claim("c09", "sales_total", "s", "x", 1, "count"), []))
 
+    def test_c2_rejects_single_computed_and_disagreeing_numbers(self) -> None:
+        claim = receipts_claim(self.obs)
+        world = WorldExports(raw={"store_receipts": self.obs.payload}, now_iso=self.ctx.clock.start_iso)
+        self.ctx.scratch["world_exports"] = world
+        record = {"sql": None, "reducer": claim.value, "metric": "sales_total", "params": {}}
+        self.ctx.scratch["recompute"] = {"c01": record}
+        issues = critic.check_c2_recompute(self.ctx, claim, [])
+        self.assertEqual(issues[0]["verdict"], "reject")
+        self.assertIn("single computation", issues[0]["reason"])
+        record["sql"] = claim.value + 1                 # the SQL half disagrees with the recomputed reducer
+        conflict = Conflict(id="k09", predicate="sales_total:backend_disagreement", subject=claim.subject,
+                            values=[ConflictValue(source="sql:sqlite", value=claim.value + 1, url=self.obs.url, basis="sql"),
+                                    ConflictValue(source="reducer:reducers.sales_total", value=claim.value, url=self.obs.url, basis="py")],
+                            explanation="x", status="open", claim_ids=["c01"])
+        claim.conflict_ids = ["k09"]                    # citing the conflict no longer saves the number
+        issues = critic.check_c2_recompute(self.ctx, claim, [conflict])
+        self.assertEqual(issues[0]["verdict"], "reject")
+        self.assertIn("k09 stays open", issues[0]["reason"])
+
     def test_c3_pitfall_gate_requires_the_memory_caveat(self) -> None:
         claim = receipts_claim(self.obs, caveats=())
         issues, helpful = critic.check_c3_pitfall_gate(self.ctx, claim)

@@ -44,8 +44,10 @@ ORDER = [("s01", "slide"), ("s02", "slide"), ("s03", "slide"), ("s04", "slide"),
          ("s06", "slide"), ("s07", "slide"), ("run", "terminal"), ("s11", "viewer"), ("s08", "slide"),
          ("s09", "slide"), ("s10", "slide"), ("s12", "slide")]
 XFADE = 0.5                      # crossfade between segments, seconds
-LEAD = {"s01": 1.0, "run": 2.0, "s11": 0.9}   # picture before the voice starts (default 0.6)
-TAIL = {"run": 3.2, "s11": 0.9, "s12": 2.0}   # picture after the voice ends (default 0.5)
+# The recorded run starts with its first line (the guard) as the voice starts, not after an empty terminal, and
+# its closing note shows while the voice ends, so the run leaves no long silent tail before the viewer.
+LEAD = {"s01": 1.0, "run": 0.8, "s11": 0.6}   # picture before the voice starts (default 0.6)
+TAIL = {"run": 1.8, "s11": 0.9, "s12": 2.0}   # picture after the voice ends (default 0.5)
 FPS = 30
 W, H = 1920, 1080
 # SpeakProgress.AudioPosition on this engine counts 16 kHz time whatever the output rate (tts.ps1 header).
@@ -293,15 +295,14 @@ def terminal_clip(ffmpeg, cap, words, lead, duration, work, out):
     env_label = next(i for i in range(sep, len(lines)) if lines[i].strip() == '"label": "insufficient_evidence",')
     env_answer = next(i for i in range(sep, len(lines)) if lines[i].strip().startswith('"answer"'))
     wt = functools.partial(word_time, words)
-    audio_end = words[-1]["s"] + 0.9
     # (line index, when it appears in the clip): each line arrives as the narration names it.
-    anchors = [(seq_idx[1], wt("first")), (seq_idx[3], wt("handoffs")), (seq_idx[12], wt("five")),
+    anchors = [(seq_idx[1], words[0]["s"] + 0.2), (seq_idx[3], wt("handoffs")), (seq_idx[12], wt("five")),
                (seq_idx[14], wt("fixture")), (seq_idx[28], wt("recovery") + 0.3), (seq_idx[33], wt("analyst")),
                (seq_idx[43], wt("zero")), (seq_idx[49], wt("rejects")), (seq_idx[50], wt("hands") - 0.6),
                (seq_idx[62], wt("hands")),
                (seq_idx[63], wt("dropped")), (seq_idx[74], wt("six")), (seq_idx[83], wt("partial")),
                (sep, wt("insufficient") - 0.25), (env_label, wt("insufficient") + 0.2),
-               (env_answer, audio_end + 0.4)]
+               (env_answer, wt("evidence") + 0.5)]
     anchors = [(i, lead + t) for i, t in anchors]
     appear = {}
     for (ia, ta), (ib, tb) in zip(anchors, anchors[1:]):
@@ -327,7 +328,7 @@ def terminal_clip(ffmpeg, cap, words, lead, duration, work, out):
         shown = max([j + 1 for j, a in appear.items() if round(a * FPS) / FPS <= t] or [0])
         cur = max([h for h in highlights if h < shown] or [None], key=lambda v: -1 if v is None else v)
         states.append((t, shown, cur))
-    states.append((lead + audio_end + 1.6, last + 1, None))   # closing note
+    states.append((lead + words[-1]["s"] + 1.2, last + 1, None))   # closing note, as the last word ends
     concat = []
     for n, (t, shown, cur) in enumerate(states):
         png = fdir / f"f{n:04d}.png"

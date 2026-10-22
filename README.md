@@ -30,7 +30,7 @@ committed example output (`examples/*/output.json`) or a committed live trace (`
 
 ## Pitch
 
-Demo video: [docs/pitch/demo.mp4](docs/pitch/demo.mp4) (3 min 30 s), narrated with a Windows text-to-speech voice
+Demo video: [docs/pitch/demo.mp4](docs/pitch/demo.mp4) (3 min 38 s), narrated with a Windows text-to-speech voice
 from [docs/pitch/narration.txt](docs/pitch/narration.txt). Besides the slides it shows a recorded run of example 04:
 the stdout of `docker run --rm --network none x402-demo --sample --input examples/ex4.json --print-output` on an
 image built from a fresh clone, replayed line by line, unedited and slowed down to the narration, each line with its

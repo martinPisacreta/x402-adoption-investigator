@@ -19,6 +19,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Optional
 
 from ..contracts import AgentResult, Claim, Observation, Verification, to_json
+from .collector import absolute_path
 from ..worldmodel import WorldModel
 from ..worldmodel.adapters import adapter_or_skip, adapter_skip
 from ..worldmodel.domain import (PROVENANCE_KIND_BY_FAMILY, day_context, day_context_id, investigation_context_id,
@@ -96,7 +97,7 @@ def write_ingest_manifest(ctx: "RunContext", items: list[IngestObservation], obs
     for item in items:
         obs = by_name.get(item.title)
         export_name = f"{item.title}.json"
-        export_path = Path(obs.export_path) if obs is not None and obs.export_path else exports / export_name
+        export_path = absolute_path(ctx, obs.export_path) if obs is not None and obs.export_path else exports / export_name
         if not export_path.is_file():
             export_path = exports / export_name
             export_path.write_text(canonical_json(item.payload) + "\n", encoding="utf-8", newline="\n")

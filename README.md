@@ -292,7 +292,8 @@ with types `guard`, `run_start`, `plan`, `handoff`, `fetch`, `retry`, `recovery`
 retry (the live Fetcher's 0.5 s / 1.5 s backoff on timeouts, connection errors and 5xx, `tests/test_fetcher.py`);
 sample runs replay fixtures and carry none, and a second Writer round is a `handoff` from the Critic with its
 issues, not a retry. Side files share the same `seq`
-counter so `log://<run_id>#<seq>` is unambiguous: `fetch.jsonl` (request keys, sha256, export paths), `sql.jsonl`
+counter so `log://<run_id>#<seq>` is unambiguous: `fetch.jsonl` (request keys, sha256, export and raw paths written
+run-relative as `logs/<run_id>/...` even when `--out` points elsewhere, never as a machine path), `sql.jsonl`
 (SQL text, params, headers, first rows, executor, Zetaris version, tables with `source_url` = the export path
 `logs/<run_id>/exports/<file>` on SQLite or the artifact-server URL on Zetaris), `zetaris.jsonl` (live only: every REST
 call with status and timing, never a header or token), `hmem.trace.jsonl` (retrieval hits with their signals and

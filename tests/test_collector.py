@@ -71,8 +71,7 @@ def side_lines(ctx: RunContext, name: str) -> list[dict[str, Any]]:
 
 
 def export_file(ctx: RunContext, portable: str) -> Path:
-    path = Path(portable)
-    return path if path.is_absolute() else ctx.config.repo_root / path
+    return collector.absolute_path(ctx, portable)
 
 
 class CollectorOverFixtures(unittest.TestCase):
@@ -121,6 +120,18 @@ class CollectorOverFixtures(unittest.TestCase):
         self.assertEqual(len(side), len(observations) + 1, "one side line per request plus the derived openapi_paid_ops")
         self.assertTrue(all("export_path" in l for l in side))
         self.assertTrue(any("deferred" in n for n in result.notes))
+        # The run folder is a temp dir outside the repository: fetch.jsonl still carries run-relative paths only
+        # (logs/<run_id>/exports|raw/<file>), never the machine's absolute path, and they resolve back to the files.
+        prefix = f"logs/{ctx.run_id}/"
+        for line in side:
+            for key in ("export_path", "raw_path"):
+                if line.get(key) is not None:
+                    self.assertTrue(line[key].startswith(prefix), line[key])
+                    self.assertTrue(collector.absolute_path(ctx, line[key]).is_file(), line[key])
+        fetch_text = (ctx.run_dir / "fetch.jsonl").read_text(encoding="utf-8")
+        tmp_dir = Path(self.tmp).resolve()
+        for form in (str(tmp_dir), tmp_dir.as_posix(), json.dumps(str(tmp_dir))[1:-1]):
+            self.assertNotIn(form, fetch_text)
 
     def test_openapi_paid_ops_is_flattened_from_the_openapi_fixture(self) -> None:
         ctx = make_ctx(self.tmp)
@@ -293,7 +304,7 @@ class CollectorOverFixtures(unittest.TestCase):
         self.assertEqual(caught.exception.code, "E_INTERNAL")
         self.assertEqual(caught.exception.stage, "collector")
         self.assertIn("cannot write store_receipts.json", caught.exception.message)
-        self.assertEqual(caught.exception.details["path"], str(target.resolve()))
+        self.assertEqual(caught.exception.details["path"], f"logs/{ctx.run_dir.name}/exports/store_receipts.json")
         self.assertEqual(caught.exception.details["path_length"], len(str(target.resolve())))
         self.assertEqual(caught.exception.details["errno"], errno.ENOENT)
         long_path = Path(str(target.parent) + "/" + "x" * 300 + ".json")

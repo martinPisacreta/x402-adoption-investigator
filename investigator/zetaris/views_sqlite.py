@@ -427,7 +427,7 @@ def portable_source_url(path: Any) -> str:
         if parent.name == "exports":
             run_dir = parent.parent
             return f"logs/{run_dir.name}/{resolved.relative_to(run_dir).as_posix()}"
-    return resolved.as_uri()
+    return resolved.name
 
 
 def build_view(conn: sqlite3.Connection, spec: ViewSpec, exports: dict[str, Any]) -> dict[str, Any]:

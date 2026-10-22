@@ -7,6 +7,11 @@ sample-mode replays in `../0N-*/` instead of finding a mismatch. Copied files: `
 `run.jsonl`, `sql.jsonl`, `zetaris.jsonl` (Zetaris runs only), `hmem.trace.jsonl`, `fetch.jsonl`. The World Model
 event files (hundreds of KB per run) stay in `logs/`. No secret, token or header value appears in a trace: the
 copies were grepped for the configured username, password and `Bearer`/`idToken` strings before being added.
+The runs wrote their folders outside the repository (`--out` pointing at a scratch directory), and the
+investigator then logged absolute export and raw paths in `fetch.jsonl`. On 2026-10-22 those 93 `export_path` /
+`raw_path` values were rewritten to the run-relative form `logs/<run_id>/exports|raw/<file>` that the code now
+writes for any run folder; nothing else in the files changed, and no hash covers those two fields (handoff hashes
+strip them).
 
 | folder | command | mounts | status | what it shows |
 |---|---|---|---|---|

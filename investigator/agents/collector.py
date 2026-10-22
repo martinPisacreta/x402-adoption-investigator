@@ -121,9 +121,21 @@ def _write_or_explain(path: Path, writer: Callable[[Path], None], stage: str) ->
         detail = f"cannot write {path.name}: {exc.strerror or exc}"
         if sys.platform == "win32" and len(full) >= WINDOWS_MAX_PATH - 12:
             detail += (f"; the full path is {len(full)} characters, over the Windows MAX_PATH limit of {WINDOWS_MAX_PATH} "
-                       "(clone into a shorter directory or enable LongPathsEnabled)")
+                       "(clone into a shorter directory, pass --out <short dir> or enable LongPathsEnabled)")
         raise InvestigatorError("E_INTERNAL", stage, detail, retryable=False,
-                                details={"path": full, "path_length": len(full), "errno": exc.errno}) from exc
+                                details={"path": run_relative(path), "path_length": len(full), "errno": exc.errno}) from exc
+
+
+def run_relative(path: Path) -> str:
+    """logs/<run_id>/<exports|raw>/<file> for a file inside a run folder (the documented layout, the same form the
+    SQLite view layer writes), else the bare file name. Used where no RunContext is at hand; error details and log
+    lines never carry a machine-specific absolute path."""
+    resolved = Path(path).resolve()
+    for parent in resolved.parents:
+        if parent.name in ("exports", "raw"):
+            run_dir = parent.parent
+            return f"logs/{run_dir.name}/{resolved.relative_to(run_dir).as_posix()}"
+    return resolved.name
 
 
 def write_raw(ctx: "RunContext", obs: Observation, data: Optional[bytes]) -> Optional[Path]:
@@ -145,16 +157,31 @@ def export_observation(ctx: "RunContext", obs: Observation) -> Path:
 
 
 def portable_path(ctx: "RunContext", path: Path) -> str:
-    """logs/<run_id>/exports/<name>.json relative to the repo root when inside it (logs stay machine-independent)."""
+    """The path written to fetch.jsonl and the observations: relative to the repo root when the run folder is
+    inside it (logs/<run_id>/exports/<name>.json by default); for a run folder elsewhere (--out, LOG_DIR) the same
+    logs/<run_id>/<path inside the run folder> form, so no log line carries a machine-specific absolute path.
+    absolute_path() maps both forms back to the file."""
+    resolved = path.resolve()
     try:
-        return path.resolve().relative_to(ctx.config.repo_root.resolve()).as_posix()
+        return resolved.relative_to(ctx.config.repo_root.resolve()).as_posix()
     except ValueError:
-        return path.resolve().as_posix()
+        pass
+    try:
+        return f"logs/{ctx.run_id}/{resolved.relative_to(ctx.run_dir.resolve()).as_posix()}"
+    except ValueError:
+        return resolved.name
 
 
 def absolute_path(ctx: "RunContext", portable: str) -> Path:
+    """Inverse of portable_path(): logs/<run_id>/... resolves inside this run's folder, any other relative path
+    against the repo root."""
     path = Path(portable)
-    return path if path.is_absolute() else (ctx.config.repo_root / path)
+    if path.is_absolute():
+        return path
+    prefix = f"logs/{ctx.run_id}/"
+    if portable.startswith(prefix):
+        return ctx.run_dir / portable[len(prefix):]
+    return ctx.config.repo_root / path
 
 
 def record_observation(ctx: "RunContext", obs: Observation, attempted: bool = True) -> None:

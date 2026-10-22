@@ -542,11 +542,14 @@ def agent_summaries(ctx: RunContext) -> list[dict[str, Any]]:
     return summaries
 
 
-def relative_path(root: Path, path: Path) -> str:
-    try:
-        return path.resolve().relative_to(root.resolve()).as_posix()
-    except ValueError:
-        return path.resolve().as_posix()
+def scrub_paths(text: str, repo_root: Path) -> str:
+    """Replace the repository root and the home directory with <repo> and ~ (both slash styles), so a traceback
+    written to logs/<run_id>/traceback.txt carries no machine-specific absolute path."""
+    for prefix, label in ((repo_root.resolve(), "<repo>"), (Path.home(), "~")):
+        for form in (str(prefix), prefix.as_posix()):
+            if form and form not in (".", "/"):
+                text = text.replace(form, label)
+    return text
 
 
 def compute_status(ctx: RunContext, accepted: list[Any], rejected: list[Any], unavailable: list[Any]) -> str:
@@ -618,7 +621,7 @@ def run(payload: Any, config: RunConfig, run_id_override: Optional[str] = None, 
                                          "exception": "NetworkDisabledError"})
         return _error_envelope(ctx, run_id, err)
     except Exception as exc:  # noqa: BLE001 - converted to E_INTERNAL, never to partial
-        tb = traceback.format_exc()
+        tb = scrub_paths(traceback.format_exc(), config.repo_root)
         stage = ctx.stage if ctx else "mounts"
         details = {"agent": stage, "last_log_seq": ctx.log.seq if ctx else 0,
                    "traceback_sha256": sha256_text(tb), "exception": type(exc).__name__}

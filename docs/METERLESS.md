@@ -132,7 +132,7 @@ control-plane HTML, write coalescing / per-instance write queues (single process
   `field:`/`source:` tokens, camelCase source fields (`l30DaysUniquePayers` -> `field:l30DaysUniquePayers`) and source
   family aliases (`receipts.json` -> `source:receipts`, `Bazaar search` -> `source:cdp_search`, `basescan` ->
   `source:base_rpc`, ...), and the `tech` keyword list includes the x402 vocabulary so claim statements and questions
-  land in the seeds' domain. Measured over the seed (clock fixed at the fixture capture): a claim statement that
+  land in the seeds' domain. Measured over the seed in a development run (clock fixed at the fixture capture; only the 0.49 score also appears in a committed trace, `examples/*/hmem.trace.jsonl`): a claim statement that
   names `l30DaysUniquePayers` retrieves `mem-seed-001` at 0.43, a self-settlement statement retrieves `mem-seed-003`
   at 0.39, a Transfer-log statement retrieves `mem-seed-005` at 0.49, and an unrelated question retrieves nothing at
   the 0.35 threshold. A generic planner question scores below 0.35 by the formula; callers that know their sources

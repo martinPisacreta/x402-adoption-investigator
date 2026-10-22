@@ -17,7 +17,9 @@ before they reach the log (`ZetarisClient.scrub`). Port 8889 is never called; `Z
 `/api/proxy/...` onto `/api/v1.0/...` with the same JWT but was not exercised on this instance (proxy is the
 tested path).
 
-| step | call | measured |
+Figures in the "measured" column come from the B3 integration probe of 2026-10-22, whose log is not committed. The committed live traces (`examples/live-trace/*/zetaris.jsonl`) show the same steps at: REST table 52-157 ms, view 36-60 ms, database 18-23 ms, container 15-18 ms.
+
+| step | call | measured (B3 probe, not committed) |
 |---|---|---|
 | login | `POST /api/auth/login` | 45-67 ms |
 | version | run-query `SHOW SERVER VERSION` | headers `[version, build_target, build_time, build_tag, build_hash]`, row `2.4.3.1 ... cb88df0b`, 31 ms |
@@ -85,10 +87,10 @@ saw no request) the executor switches to `direct` for those three tables by itse
   applies the same rejection rules, so both backends report 2,680 distinct hosts on the fixture snapshot.
 - Shape-aware DDL: Spark infers the struct schema from the JSON it is served; a field no row carries does not
   exist and a reference to it fails the whole view. `views_zetaris.shape_of()` scans each export once and
-  `view_select()` emits `CAST(NULL AS <type>)` for absent fields (for example `maxAmountRequired`, present in 200
-  catalog accepts but in no Bazaar search result).
+  `view_select()` emits `CAST(NULL AS <type>)` for absent fields (for example `maxAmountRequired`, present in about 1,000
+  primary catalog accepts (998 `accepts[0]`, 2,202 accepts in all) but in no Bazaar search result).
 - Catalog size: the decompressed snapshot (32,471,519 bytes) registers as a REST table in 2.7 s, caches in 3.5 s
-  and answers q08-q11 in 0.3-0.6 s, so the catalog family stays on Zetaris; the
+  and answers q08-q11 in 0.21-0.44 s (`time_used_ms` in `fixtures/zetaris/q08`-`q11`), so the catalog family stays on Zetaris; the
   `catalog_too_large_for_rest_table` fallback exists but did not fire.
 - Analytics: `investigator/sql/analytics/qNN_*.sql` + `.meta.json`, ANSI subset only (lint test), parameters
   bound by the loader with quoting, `sql_sha256` over the file bytes copied into `meta` and reported on every
@@ -124,7 +126,7 @@ Real `zetaris.jsonl` lines (from the live probe; the seq is added by the EventLo
 ## 5. Evidence
 
 - `scripts/zetaris_preflight.py`: 8/8 PASS on 2026-10-22 (table in section 2).
-- `scripts/record_zetaris_results.py --from-fixtures` (2026-10-22 01:54 UTC): 12/12 views created on Zetaris,
+- `scripts/record_zetaris_results.py --from-fixtures` (2026-10-22 01:54 UTC; the recorder's own log is not committed, only its result sets): 12/12 views created on Zetaris,
   19/19 queries answered by Zetaris in 146-504 ms each, 96 REST calls, objects dropped afterwards
   (`zetaris_cleanup.py --dry-run` reports none). Results under `fixtures/zetaris/qNN_*.json` with
   `sql_sha256`, `params` and the sha256 of every export.
@@ -136,7 +138,7 @@ Real `zetaris.jsonl` lines (from the live probe; the seq is added by the EventLo
 - `tests/test_zetaris_views.py`, `tests/test_zetaris_executor.py`: parity rules, shape-aware DDL, qualification,
   casting, fallback matrix, `--require-zetaris`, secret scrubbing, artifact server.
 - Live traces of full runs (integrator, 2026-10-22): `examples/live-trace/live-ex01-20261022/` (example 01 on
-  Zetaris: 8 REST tables and 10 views, the ones its queries read of the 12 that existed then; 13 queries on the
+  Zetaris: 8 REST tables and 10 views, one per export it produced (its 13 queries read 7 of them); 13 queries on the
   `zetaris` backend in 106-447 ms each, the `time_used_ms` of its `sql.jsonl`; 75 REST calls incl. login, DDL and
   cleanup in its `zetaris.jsonl`; 4/4 settlements verified on Base), `examples/live-trace/live-ex03-20261022/` (`--require-zetaris`), and
   `examples/live-trace/live-nozetaris-ex03/` (credentials withheld: `recovery{zetaris_unreachable}`, whole run on

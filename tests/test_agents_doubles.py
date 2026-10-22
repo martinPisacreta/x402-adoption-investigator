@@ -108,7 +108,7 @@ def run_collector(ctx: Any, plan: Plan, unavailable: tuple[str, ...] = ()) -> Ag
         if name == "store_openapi":
             (ctx.exports_dir / "openapi_paid_ops.json").write_text(
                 json.dumps(flatten_openapi_paid_ops(payload), ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n",
-                encoding="utf-8")
+                encoding="utf-8", newline="\n")
         observations.append(obs)
     mandatory_down = [o for o in observations if o.status != "ok" and not next(
         (it for it in plan.fetch_list if it["name"] == o.name), {"optional": True})["optional"]]
@@ -180,7 +180,7 @@ def run_verifier(ctx: Any, plan: Plan, observations: list[Observation]) -> Agent
                                             "receipt_match": v.receipt_match, "reason": v.reason})
         payload["verifications"].append(v)
     (ctx.exports_dir / "settlements.json").write_text(json.dumps(settlements, sort_keys=True, separators=(",", ":")) + "\n",
-                                                      encoding="utf-8")
+                                                      encoding="utf-8", newline="\n")
     payload["settlements"] = settlements
     wallet = focus or (sample[0]["payer"].lower() if sample else None)
     if wallet == "0x097e3f339d0b023605e12a6b81e2d6cb7571475a":   # the only payer the fixtures cover

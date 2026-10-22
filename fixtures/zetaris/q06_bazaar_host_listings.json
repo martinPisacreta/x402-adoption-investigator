@@ -71,6 +71,20 @@
     }
   ],
   "exports_sha256": {
+    "agent402_index": "374d7f444e63fd2c9fef9e2cc502e7651ad7e31cb3dd733f95cf40f744cf40ea",
+    "catalog_snapshot": "fb53b73fd3d40045d8bb929da1802e992c4d983068190f7e12802ecb9bf8ddf2",
+    "cdp_page_0": "4d01047b8d06c828426993afa308bd307c31e7315f9dffc7a06a6fcd54cc7541",
+    "cdp_page_1": "9df8eada1806f5634e274fb7b2e81d3428683f94b58053bdda0b702203eca019",
+    "cdp_search_host": "03790d7e9078715f56e1c6be36d35f7a0c67d43058f67d55e6dffce251292b21",
+    "openapi_paid_ops": "1afd849d7843b51f54b56e16c030f15dfe2cbb4b70d731f69c69c8baa5c04641",
+    "settlements": "d88da9abadb268249651a4a4be2dabb4701b518b2d5682136bd385e270b23916",
+    "store_openapi": "e4d890c05299f530862d2ec11aa7b4eb67fd648c4673a8037ff119e81e7f9416",
+    "store_receipts": "f6038f9ccd4f64b8394a4e151a1e0aa62e76736e3897ff40f7fe7f518298ff35",
+    "trust_search": "350a6db36c2b6dc24a20f0ea94c01889d6da832be5ec56f6ce6e419f8eba404c",
+    "trust_stats": "0a6add02492a3d4dfa74cdaed7c904951603c856b2ad16b3f7c5829e0e7aeed7",
+    "vet402_resolve": "94d9be99435a2570423b5bb4493e3eff7cffd2ca570f557a64c4263a79fa0199"
+  },
+  "exports_sha256_recorded_crlf": {
     "agent402_index": "2bf9a3d602acd12b7ba86637a49f77b9c403c3566fd3261c8ce1eb1213475fcc",
     "catalog_snapshot": "67faa32d3d950c712d98ca3833839672ac22bc5cc3167956eb3786e23ba1ea8c",
     "cdp_page_0": "17414ea1597e727afffdc9105379d9154c1de4335f3e2623869768d7aec793fd",
@@ -84,5 +98,6 @@
     "trust_stats": "1a1ad8581a01ca9d3066687405100b11774e1b9aa6fe62841f145515625d2ed1",
     "vet402_resolve": "7e4e591e4d36293817f8bd25294c80cc334329d0e743a7114d59a11688e25b61"
   },
-  "note": "typed per .meta.json; recorded by scripts/record_zetaris_results.py over the fixture exports"
+  "note": "typed per .meta.json; recorded by scripts/record_zetaris_results.py over the fixture exports",
+  "exports_line_endings_note": "exports_sha256 re-hashed on 2026-10-22 over LF-terminated exports: the recording ran on Windows, where the exports were written with a CRLF terminator; each export is one JSON line, the documents are identical and the hashes Zetaris read are kept in exports_sha256_recorded_crlf (sha256 of the same bytes ending in CRLF)"
 }

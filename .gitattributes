@@ -1,0 +1,29 @@
+# Every text file is stored and checked out with LF on every OS (Windows clones included), so the sha256
+# recorded for fixtures, SQL files and committed example outputs is the same everywhere.
+* text=auto eol=lf
+
+# Captured bytes are hashed in fixtures/raw/MANIFEST.json and copied verbatim from upstream (tests/vectors):
+# never convert them.
+fixtures/raw/** -text
+tests/vectors/** -text
+
+# Binary files.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.mp4 binary
+*.webm binary
+*.mp3 binary
+*.wav binary
+*.pdf binary
+*.gz binary
+*.zip binary
+*.sqlite binary
+*.sqlite3 binary
+*.db binary
+*.woff binary
+*.woff2 binary
+*.ttf binary

@@ -114,7 +114,7 @@ def main(argv: list[str] | None = None) -> int:
                 "tables": result.tables, "exports_sha256": shas,
                 "note": "typed per .meta.json; recorded by scripts/record_zetaris_results.py over the fixture exports",
             }
-            (out_dir / f"{qid}.json").write_text(json.dumps(record, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+            (out_dir / f"{qid}.json").write_text(json.dumps(record, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
             print(f"  {qid:<36} {record['backend']:<16} rows={result.rowcount:<4} {result.time_used_ms:>6} ms  "
                   f"{result.fallback_reason or ''}")
     finally:

@@ -166,7 +166,7 @@ def main(argv: Optional[list[str]] = None) -> int:
         print(dump(envelope))
     if config.output_path:
         config.output_path.parent.mkdir(parents=True, exist_ok=True)
-        config.output_path.write_text(dump(envelope) + "\n", encoding="utf-8")
+        config.output_path.write_text(dump(envelope) + "\n", encoding="utf-8", newline="\n")
     return 0 if envelope.get("status") in ("ok", "partial") else 1
 
 

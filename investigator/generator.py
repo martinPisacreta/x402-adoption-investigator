@@ -163,8 +163,8 @@ def save_transcript(folder: Path, prompt_id: str, prompt: str, result: Generator
     record: dict[str, Any] = {"prompt_id": prompt_id, "prompt_sha256": result.prompt_sha256, "model": result.model,
                               "recorded_at": recorded_at, "response": result.text, "usage": result.usage}
     path = folder / name
-    path.write_text(json.dumps(record, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    (folder / name.replace(".json", ".prompt.txt")).write_text(prompt, encoding="utf-8")
+    path.write_text(json.dumps(record, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
+    (folder / name.replace(".json", ".prompt.txt")).write_text(prompt, encoding="utf-8", newline="\n")
     return path
 
 

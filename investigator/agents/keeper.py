@@ -99,11 +99,11 @@ def write_ingest_manifest(ctx: "RunContext", items: list[IngestObservation], obs
         export_path = Path(obs.export_path) if obs is not None and obs.export_path else exports / export_name
         if not export_path.is_file():
             export_path = exports / export_name
-            export_path.write_text(canonical_json(item.payload) + "\n", encoding="utf-8")
+            export_path.write_text(canonical_json(item.payload) + "\n", encoding="utf-8", newline="\n")
         rows.append({"externalId": item.external_id, "at": item.at, "source": to_wire(item.source), "type": item.type,
                      "title": item.title, "payloadExport": export_path.name})
     path = exports / INGEST_MANIFEST
-    path.write_text(json.dumps(rows, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    path.write_text(json.dumps(rows, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
     return path
 
 

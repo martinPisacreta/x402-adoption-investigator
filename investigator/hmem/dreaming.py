@@ -45,7 +45,7 @@ class Dreaming:
             return
         data = [{"id": p.id, "type": p.type, "content": p.content, "derivedFrom": p.derived_from, "status": p.status,
                  "suggestedDomain": p.suggested_domain} for p in self.proposals.values()]
-        self.path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        self.path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
 
     @staticmethod
     def relatedness(a: MemoryRecord, b: MemoryRecord) -> float:

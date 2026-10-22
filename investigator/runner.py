@@ -559,7 +559,7 @@ def compute_status(ctx: RunContext, accepted: list[Any], rejected: list[Any], un
 
 def write_output(ctx: RunContext, envelope: dict[str, Any]) -> Path:
     path = ctx.run_dir / "output.json"
-    path.write_text(json.dumps(envelope, indent=2, sort_keys=False, ensure_ascii=False) + "\n", encoding="utf-8")
+    path.write_text(json.dumps(envelope, indent=2, sort_keys=False, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
     return path
 
 
@@ -602,7 +602,7 @@ def run(payload: Any, config: RunConfig, run_id_override: Optional[str] = None, 
                                              "recoveries": ctx.recoveries[-5:], "last_log_seq": ctx.log.seq})
         envelope = {"run_id": run_id, "status": status, "output": output}
         write_output(ctx, envelope)
-        (ctx.run_dir / "report.md").write_text(report.render_report(envelope), encoding="utf-8")
+        (ctx.run_dir / "report.md").write_text(report.render_report(envelope), encoding="utf-8", newline="\n")
         ctx.log.emit("result", "runner", {
             "status": status, "accepted": len(output["claims"]), "rejected": len(output["rejected_claims"]),
             "conflicts": len(output["conflicts"]), "unavailable": len(output["unavailable"]),
@@ -623,7 +623,7 @@ def run(payload: Any, config: RunConfig, run_id_override: Optional[str] = None, 
         details = {"agent": stage, "last_log_seq": ctx.log.seq if ctx else 0,
                    "traceback_sha256": sha256_text(tb), "exception": type(exc).__name__}
         if ctx is not None:
-            (ctx.run_dir / "traceback.txt").write_text(tb, encoding="utf-8")
+            (ctx.run_dir / "traceback.txt").write_text(tb, encoding="utf-8", newline="\n")
         err = InvestigatorError("E_INTERNAL", stage, f"{type(exc).__name__}: {exc}", details=details)
         return _error_envelope(ctx, run_id, err)
 

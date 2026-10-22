@@ -77,7 +77,7 @@ def main(argv: list[str] | None = None) -> int:
             record("metadata", False, f"HTTP {err.http}: {err.message}")
 
         tmp = Path(tempfile.mkdtemp(prefix="x402-preflight-"))
-        (tmp / "probe.json").write_text(json.dumps({"items": [{"k": "preflight", "n": 1}], "ok": True}) + "\n", encoding="utf-8")
+        (tmp / "probe.json").write_text(json.dumps({"items": [{"k": "preflight", "n": 1}], "ok": True}) + "\n", encoding="utf-8", newline="\n")
         server = ArtifactServer(tmp, host_for_driver=env.artifact_server_host, port=env.artifact_server_port)
         try:
             port = server.start()

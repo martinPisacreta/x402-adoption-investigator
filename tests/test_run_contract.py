@@ -159,7 +159,7 @@ class SampleRunContract(unittest.TestCase):
 
     def test_cli_error_exit_code(self) -> None:
         bad = self.out_dir / "bad.json"
-        bad.write_text(json.dumps({"input": {"question": "hi"}}), encoding="utf-8")
+        bad.write_text(json.dumps({"input": {"question": "hi"}}), encoding="utf-8", newline="\n")
         proc = subprocess.run([sys.executable, "run.py", "--sample", "--input", str(bad), "--quiet", "--out", str(self.out_dir)],
                               cwd=REPO_ROOT, capture_output=True, text=True, timeout=120)
         self.assertEqual(proc.returncode, 1)

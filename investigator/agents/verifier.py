@@ -300,7 +300,7 @@ def write_settlements_export(ctx: "RunContext", verifications: list[Verification
     """exports/settlements.json rows: tx_hash, payer, seller, amount_atomic, block_number, block_time, facilitator_from, status."""
     path = ctx.exports_dir / f"{SETTLEMENTS_EXPORT}.json"
     path.write_text(json.dumps(settlement_rows(verifications), ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n",
-                    encoding="utf-8")
+                    encoding="utf-8", newline="\n")
     return path
 
 

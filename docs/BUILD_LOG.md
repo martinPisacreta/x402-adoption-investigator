@@ -225,6 +225,11 @@ outputs as they now stand, instead of keeping the first-night wording:
 - Narration (`docs/pitch/narration.txt`): one segment per slide plus a `run` segment for a recorded terminal run of
   example 04; every spoken claim checked against the outputs (about 517 words, about 3 min 27 s at 150 words per
   minute). `docs/DEMO_SCRIPT.md` gained the example 04 lines to point at.
+- Verified on the tree of 288935b: `python -m unittest discover -s tests` = 222 tests OK in a default Windows clone
+  (`core.autocrlf=true`), an `autocrlf=false` clone and the Docker image built from it (`--network none`). In the
+  default clone the eight example inputs ran with `--sample` (exit 0; 01-03 `ok`, 04 `partial`) and rewrote the
+  committed example files byte for byte, and `scripts/memory_ablation.py` reproduced `examples/memory-ablation/`;
+  in the image `--sample --input examples/ex4.json` exited 0 with status `partial`.
 
 ## Cursor sessions (what was actually done in Cursor)
 

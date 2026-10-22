@@ -19,6 +19,12 @@ repository, so a stale recording is caught. Re-record after changing a query, a 
 
 `ZETARIS_*` come from `.env.local` (never printed). Credentials, tokens and headers are never written here.
 
+Not recorded yet: q20_catalog_unique_payers_max, q21_catalog_top_hosts_by_listings and q22_payer_chain_facts (with
+the `chain_facts` view) were added on 2026-10-22 after the recording session, so that every registry metric has an
+SQL half; no Zetaris login was available afterwards. They run on SQLite in every sample run and every claim compares
+them with its reducer, and `tests/test_sql_dual_backend.py` names them in `NOT_YET_RECORDED`, so a missing recording
+of any other query still fails. The command above records them as well.
+
 Line endings. The 19 result sets were recorded on Windows before the exporters wrote LF explicitly, so the export
 files Zetaris read ended in CRLF. Every export is a single line of canonical JSON, so the CRLF and LF files hold the
 same document; only the terminator differs. On 2026-10-22 the exporters were fixed to write LF on every OS

@@ -72,8 +72,11 @@ saw no request) the executor switches to `direct` for those three tables by itse
 ## 3. View layer and the ANSI catalog
 
 - Views: `investigator/sql/views/VIEWS.md` (names, columns, parity rules) and `views_sqlite.VIEWS` (the
-  machine-readable copy both backends share). Twelve views, one per source family plus `purchases`, `agent402_seller`
-  and `trust_stats`.
+  machine-readable copy both backends share). Thirteen views, one per source family plus `purchases`,
+  `agent402_seller`, `trust_stats` and `chain_facts`. `chain_facts` and the queries q20-q22 were added on
+  2026-10-22 after the live session below, so that every metric has an SQL half: they run on SQLite in every sample
+  run, `fixtures/zetaris/` holds no recording of them yet (`tests/test_sql_dual_backend.py` lists them as
+  `NOT_YET_RECORDED`), and on Zetaris a failure sends the query to SQLite (`recovery{zetaris_query_fallback}`).
 - One row per listing: `bazaar_resources`, `bazaar_search` and `catalog_resources` use the primary accept
   (`accepts[0]`). Half of the 28,462 snapshot items carry several accepts (up to 18, across Base, Solana and
   other chains); exploding them would make `COUNT(*)` count accepts, not resources.

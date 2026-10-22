@@ -21,6 +21,7 @@ copy of this table is `views_sqlite.VIEWS` (name, family, columns, export candid
 | `trust_search` | resource, host, delisted (0/1), score, grade, provider_verified (0/1), total_reported | `trust_search.json` / `trust_search_raw` | `explode(results) AS r` + top-level `total` | `rows_trust_search` |
 | `trust_stats` | endpoints_listed, endpoints_active, settlements_30d, settled_volume_usd_30d DOUBLE, distinct_payers_30d, distinct_receivers_30d | `trust_stats.json` / `trust_stats_raw` | top-level fields | `rows_trust_stats` |
 | `settlements` | tx_hash, payer, seller, amount_atomic, block_number, block_time, facilitator_from, status | `settlements.json` (written by the Verifier) / `settlements_raw` | top-level array or `explode(rows)` | `rows_settlements` |
+| `chain_facts` | wallet, predicate, value_atomic BIGINT, result_hex | `chain_facts.json` (written by the Verifier: the raw JSON-RPC `result` of balanceOf / getTransactionCount) / `chain_facts_raw` | top-level array or `explode(rows)`; `value_atomic` = `CAST(conv(substring(result_hex, 3), 16, 10) AS BIGINT)` when `result_hex` is `0x` + hex digits (added 2026-10-22 after the live session; not yet executed on Zetaris) | `rows_chain_facts` (decodes the hex in Python) |
 
 Conventions (each one verified against Zetaris 2.4.3.1 on the fixtures, 2026-10-22):
 - One row per listing: `bazaar_resources`, `bazaar_search` and `catalog_resources` take the PRIMARY accept

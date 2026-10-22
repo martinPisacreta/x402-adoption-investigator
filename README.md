@@ -9,9 +9,12 @@ Where public registries disagree, the disagreement is a first-class `Conflict` w
 number and a rule-written explanation of why they differ.
 
 Sponsor technology is structural: a Meterless **World Model** (provenance on every row, idempotent ingest) is the
-shared state; a Meterless **H-MEM** store with a trust ledger gates what the Critic accepts; **Zetaris** Lightning
-SQL is the live federation layer every number is computed on (the same committed SQL runs on SQLite in offline
-sample mode); the repository was built under the **Cursor** rules in `.cursor/rules/project.mdc`.
+shared state; Meterless **H-MEM** pitfall memories decide which caveats every claim must carry (enforced by the
+Critic's rule C3) and are injected into the Planner and Writer prompts whenever a generator is mounted, with a trace
+in `logs/` (no committed run had a model key; `tests/test_generator_hmem.py` proves the injection offline);
+**Zetaris** Lightning SQL is the live federation layer (the live seller audit computed all 19 of its claims on it),
+and offline the same committed SQL runs on SQLite; the repository was built under the **Cursor** rules in
+`.cursor/rules/project.mdc`.
 
 Full specification: [SPEC.md](SPEC.md). Build log: [docs/BUILD_LOG.md](docs/BUILD_LOG.md). Demo script:
 [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md). Sponsor integrations: [docs/METERLESS.md](docs/METERLESS.md),
@@ -41,10 +44,13 @@ wallets. An agent that reports one of these numbers without its basis is not exp
 **What the investigator does.** It plans which sources answer the question, fetches them with retries and hashes
 the bytes, folds them into a World Model with provenance, verifies sampled settlements on Base by decoding the USDC
 `Transfer` log (never trusting `tx.from`, which is the facilitator), computes every metric twice (a committed SQL
-query on Zetaris or SQLite, and a pure-Python reducer over the same exports) and only keeps a claim when both agree,
-writes an answer where every number cites a claim id, and runs a Critic that checks evidence, recomputation, scope,
-staleness, conflict citation and the pitfall memories in H-MEM. Claims the Critic rejects are listed in
-`rejected_claims[]` with their critique trail. Sources that are down become `unavailable[]` entries, never zeros.
+query on Zetaris or SQLite, and a pure-Python reducer over the same exports) and keeps a number only when both
+halves exist and agree (the Critic's rule C2 rejects a single-computed or disagreeing value and the disagreement
+stays as an open `Conflict`; `tests/test_dual_computation.py`), writes an answer where every number cites a claim
+id, and runs a Critic that checks evidence (including that a count of verified settlements rests on a decoded
+settlement of its own subject), recomputation, scope, staleness, conflict citation and the pitfall memories in
+H-MEM. Claims the Critic rejects are listed in `rejected_claims[]` with their critique trail and named in the
+answer (example 04). Sources that are down become `unavailable[]` entries, never zeros.
 
 **What it found (sample mode, fixtures of 2026-10-22; see [Examples](#examples)).** For the seller audit: 77 sales,
 56 self-settled from 3 own wallets (72.7 %), 21 external sales from 4 payers worth 44,000 atomic USDC (0.044 USDC),
@@ -53,7 +59,9 @@ Bazaar catalog: 28,462 listed resources on 2,680 hosts paying to 1,785 wallets, 
 counters, 99.6 % of resources with at least one call, the top host `www.ax1.vc` taking 29.5 % of the calls and the
 top ten hosts 73.3 %; verdict `concentrated`. For the payer dossier: one purchase of 1,000 atomic USDC, its
 settlement verified on chain (block 52,841,269, payer and seller read from the Transfer log), USDC balance
-1,043,148 atomic and nonce 24 at capture; verdict `adoption_thin`.
+1,043,148 atomic and nonce 24 at capture; verdict `adoption_thin`. For a second external payer whose settlement the
+fixtures do not cover (example 04): one purchase of 1,000 atomic USDC, the "0 verified" count rejected by the
+Critic as missing evidence, verdict `insufficient_evidence`.
 
 ## Architecture: agents and handoffs
 
@@ -163,7 +171,7 @@ second and example 02 about 15 s (it folds the 32 MB catalog snapshot); the live
 Sample mode is the default whenever no credentials are configured (`--sample` or `SAMPLE_MODE=1` force it). It is
 proven offline, not asserted: `investigator/guard.py` patches `socket.socket.connect`, `connect_ex`,
 `create_connection`, `getaddrinfo` and `urllib.request.urlopen` before the first event, and
-`tests/test_sample_offline.py` runs the three examples with the guard installed (any socket use would surface as
+`tests/test_sample_offline.py` runs the four examples with the guard installed (any socket use would surface as
 `E_INTERNAL`). What is replayed:
 
 - 27 request keys over 26 files in `fixtures/raw/` captured read-only on 2026-10-22 (`MANIFEST.json` maps the
@@ -178,6 +186,7 @@ proven offline, not asserted: `investigator/guard.py` patches `socket.socket.con
 - No model call: the generator mount is `null`, Planner and Writer use rules and templates and the Critic runs its
   deterministic rules only. No transcript was recorded because no `OPENAI_API_KEY` was available during the build
   window (honesty note below); `RecordedGenerator` replays `fixtures/transcripts/` when they exist.
+  `tests/test_generator_hmem.py` exercises the generator path offline with an in-process OpenAI-compatible double.
 
 Anything the fixtures do not cover is reported, never invented: in the seller audit the Verifier samples four
 transactions, verifies the one the fixtures cover and reports the other three as `unverifiable` with
@@ -197,14 +206,18 @@ otherwise; `SAMPLE_MODE=1` forces sample mode. Each missing piece degrades to a 
 | `OPENAI_API_KEY` | Planner/Writer rules and templates, Critic rules only | `recovery{generator_fallback}`, `mounts.generator: "null"`, status `partial` |
 | Zetaris credentials or instance | the same SQL on SQLite for the whole run | `recovery{zetaris_unreachable}`, `mounts.executor: "sqlite"`, status `partial` |
 | one Zetaris view or query | that query on SQLite, the rest on Zetaris | `recovery{zetaris_query_fallback}`, `derivation.backend: "sqlite-fallback"` |
+| the mounted executor cannot build its views | the same SQL on an embedded SQLite executor over the same exports | `recovery{zetaris_query_fallback, to: sqlite}`, `derivation.backend: "sqlite-fallback"` |
+| a query skipped (SQL budget, deadline) | the claims that need it have one value only and the Critic's C2 rejects them | `recovery{budget_exhausted | deadline_skip}`, `rejected_claims[]`, status `partial` |
 | a source after retries | fixture replayed as stale, or `unavailable` + `unavailable[]` metrics | `retry`, `recovery{fixture_fallback | source_unavailable}` |
 | Base RPC | settlements `unverifiable`, chain metrics in `unavailable[]` | `recovery{rpc_unavailable}` |
 | time | optional steps skipped in a fixed order | `timeout`, `recovery{deadline_skip}` |
 
 Three live traces are committed under `examples/live-trace/` (see its README): example 01 and 03 on Zetaris 2.4.3.1
 with 4 of 4 sampled settlements verified against `https://mainnet.base.org`, and example 03 with every credential
-withheld (`--mode live`): `zetaris_unreachable` -> SQLite, `generator_fallback`, status `partial`, every number still
-computed, cross-checked and verified on chain.
+withheld (`--mode live`): `zetaris_unreachable` -> SQLite, `generator_fallback`, status `partial`, every SQL-backed
+number still computed and cross-checked, 4 of 4 settlements verified on chain. The traces were recorded before the
+balance and nonce got their SQL half, so in both example 03 traces those two claims are reducer-only
+(`cross_checked: false`); the current build computes them in SQL too (q22) and its C2 would reject them otherwise.
 
 ## Meterless integration (H-MEM + World Model)
 
@@ -240,9 +253,9 @@ Seven committed pitfall memories (`memory/seed/memories.jsonl`, tags `pitfall` +
 metrics)`, read twice per claim: the Analyst attaches every caveat the touching memories require, with the memory
 id behind each code (`claim.caveat_memory_ids`), and the Critic's rule C3 re-reads the same index and revises any
 claim that arrives without one (`investigator/agents/pitfalls.py`). In the committed examples the two agree, so
-round 1 is clean and the loop ends after one round; C3 is the safety net for a memory added at run time or a
-generator-written claim that drops a caveat, and `tests/test_critic.py` exercises the revise path with hand-built
-claims. What memory changes is measurable, not asserted: `scripts/memory_ablation.py` runs example 01 twice, with
+C3 never fires (example 04's second round comes from a C1 rejection, not from memory); C3 is the safety net for a
+memory added at run time or a generator-written claim that drops a caveat, and `tests/test_critic.py` exercises the
+revise path with hand-built claims. What memory changes is measurable, not asserted: `scripts/memory_ablation.py` runs example 01 twice, with
 the committed seed and with `mem-seed-003` removed, and `examples/memory-ablation/summary.json` records the
 difference (the `self_reported_receipts` caveat disappears from `settlements_verified`, which no registry rule
 attaches, and the `[mem-seed-003]` citation disappears from fifteen claims and from the answer; the verdict does
@@ -252,7 +265,13 @@ memory: no registry metric does it, and the rule is proven by registering such a
 makes the run `partial`. Retrieval uses the spec formula
 (`0.35 semantic + 0.20 keyword + 0.10 tag + 0.10 domain + 0.15 entity + 0.05 layer + 0.05 recency - 0.20 superseded`,
 times confidence, threshold on the final score) over a deterministic FNV-1a hash embedder; every retrieval writes a
-trace line to `hmem.trace.jsonl`. Feedback applies the exact deltas (`helpful +0.05`, `not_helpful -0.03`,
+trace line to `hmem.trace.jsonl`. When a generator is mounted, the Planner's and the Writer's retrievals are filled
+into their prompts as a `[MEMORY CONTEXT]` block, and every prompt that carries one is logged before the call as a
+`memory` event `op: "inject"` (and the same line in `hmem.trace.jsonl`) with the memory ids, the prompt's sha256
+and the block's sha256, so retrieval, injection and the `generator.jsonl` line of the call link up by hash.
+`tests/test_generator_hmem.py` checks the block inside the prompts actually sent (example 03: `mem-seed-005` for
+both roles) against those hashes, and that the Writer's second-round prompt carries the block again with the
+Critic's issues. Feedback applies the exact deltas (`helpful +0.05`, `not_helpful -0.03`,
 `wrong -0.20`) to the trust ledger (`ledger.jsonl`, `output.memory.feedback`), the runner mines one short-term record
 per accepted claim at finalize (`output.memory.mined`), and the sleep cycle is previewed every run (executed only in
 live mode with `--hmem-sleep`).
@@ -272,17 +291,22 @@ the syntax facts learned on the instance are in [docs/ZETARIS.md](docs/ZETARIS.m
   bytes the Collector hashed), cached with `CACHE TABLE`, and a SchemaStore container `x402_<run8>` with the views
   that flatten the JSON (`sales`, `purchases`, `bazaar_resources`, `bazaar_search`, `catalog_resources`,
   `openapi_paid_ops`, `agent402_tools`, `agent402_seller`, `vet402_endpoints`, `trust_search`, `trust_stats`,
-  `settlements`; ten of the twelve in the seller audit; columns in `investigator/sql/views/VIEWS.md`). Everything is dropped at finalize and on every error path
+  `settlements`, `chain_facts`; the live seller audit built ten of the twelve views that existed then, before
+  `chain_facts` was added; columns in `investigator/sql/views/VIEWS.md`). Everything is dropped at finalize and on every error path
   (`scripts/zetaris_cleanup.py` removes leftovers of crashed runs). `--zetaris-source direct` registers the public
   URLs of receipts and Bazaar pages instead of the captured exports.
-- **SQL.** 19 analytics queries (`investigator/sql/analytics/qNN_*.sql` + `.meta.json` with the column types,
+- **SQL.** 22 analytics queries (`investigator/sql/analytics/qNN_*.sql` + `.meta.json` with the column types,
   parameters `:host` / `:wallet` / `:since` bound by the catalog loader) in an ANSI subset that runs unchanged on both
   backends; the sha256 of each committed query is reported on every claim (`derivation.sql_sha256`). Zetaris returns
   every cell as a string; cells are cast per the meta file. A lint test keeps Spark-only syntax out of the catalog.
+  q20-q22 were added after the live Zetaris session so that every metric has an SQL half: q20 and q21 read the
+  existing `catalog_resources` view; q22 reads the new `chain_facts` view, whose Zetaris definition decodes the
+  JSON-RPC hex with `conv()` and has not run on an instance yet (a failure there sends that query to SQLite).
 - **What worked on the demo machine (2026-10-22).** `scripts/zetaris_preflight.py` 8/8 PASS (login, version,
   metadata, artifact server bound and reachable from the driver container, SchemaStore view, cleanup);
-  `scripts/record_zetaris_results.py --from-fixtures` recorded the 19 result sets in `fixtures/zetaris/` and
-  `tests/test_sql_dual_backend.py` proves SQLite returns the same typed rows; the live run of example 01 computed
+  `scripts/record_zetaris_results.py --from-fixtures` recorded the 19 result sets of q01-q19 in `fixtures/zetaris/`
+  and `tests/test_sql_dual_backend.py` proves SQLite returns the same typed rows (q20-q22 have no recording yet; the
+  test names them explicitly); the live run of example 01 computed
   all 19 claims on Zetaris (`derivation.backend: "zetaris"`, queries in 157-590 ms, 75 REST calls including the
   cleanup, `examples/live-trace/live-ex01-20261022/zetaris.jsonl`), and example 03 ran with `--require-zetaris`.
 - **Fallback.** Login failure or an unreachable instance -> SQLite for the whole run with
@@ -309,28 +333,36 @@ writes `output.json`, `report.md`, `exports/` (what the SQL backends and reducer
 
 What to look for in a stream: the `handoff` lines between agents (each with the sha256 of what was handed over),
 `claim` lines with `sql_value` and `reducer_value` side by side, `critique` accept summaries per rule with the
-claim count (and `verdict: revise` lines with `memory_ids` whenever the gate fires), a `narrative_map` with
+claim count (and `verdict: revise` lines with `memory_ids` whenever the gate fires, `verdict: reject` lines when a
+claim is rejected: example 04's C1 on `verified_tx`, followed by a `handoff` critic -> writer and the Writer's
+`recovery{narrative_trimmed}` naming the claim), `memory` `op: "inject"` lines when a generator is mounted, a
+`narrative_map` with
 `unsourced: []`, `verify` lines with `receipt_match`, `recovery` lines for every fallback (`fixture_miss` in the
 sample seller audit, `zetaris_unreachable` / `generator_fallback` in the degraded live trace), and `ingest` pass 2
 with `eventsAppended: 0`.
 
 ## Examples
 
-Three inputs with their outputs are committed under `examples/` (`exN.json` are short aliases of the folder inputs,
+Four inputs with their outputs are committed under `examples/` (`exN.json` are short aliases of the folder inputs,
 `examples/outputs/exN.output.json` byte-identical copies of the outputs); `scripts/regen_examples.py` is the only
 way they are updated and `tests/test_examples_reproducible.py` keeps them honest.
 
-| example | question | verdict | status | key claims (all cross-checked SQL == reducer unless noted) |
+| example | question | verdict | status | key claims (every one computed twice, SQL == reducer) |
 |---|---|---|---|---|
 | `01-seller-audit-textokit` (`ex1.json`) | How real is the adoption of tienda.textokit.store? Who pays, how much, do they come back, why do registries disagree? | `self_settled_mostly` (0.9) | `ok` | 77 sales; 56 own-wallet from 3 wallets; 21 external from 4 payers, 44,000 atomic USDC; self-settlement 56/77 = 72.7 %; 1 repeat payer; top payer 18/21 = 85.7 %; external window 2026-10-20..2026-10-21; Bazaar 17 listings, 1 payTo, 60 calls (30-day counters); endpoint counts 17 / 17 / 17 of 34 / 19 / 36 (Conflict k01); calls vs receipts basis mismatch (Conflict k02); 1 settlement verified on Base (3 `unverifiable: fixture_miss`) |
-| `02-catalog-concentration` (`ex2.json`) | Who sells on the CDP Bazaar and how concentrated are the paid calls? What share of listed endpoints saw any call in the last 30 days? | `concentrated` (0.9) | `ok` | 28,462 resources (coverage 28,462 of 28,472 reported, 0.9996); 2,680 hosts; 1,785 payTo wallets; 824,796 calls; active 28,347/28,462 = 99.6 %; top host `www.ax1.vc` 243,580 = 29.5 %; top-10 hosts 604,248 = 73.3 %; top payTo 29.5 %; most listings `saylorinnovations.com` 1,568 (reducer only); largest per-endpoint unique-payer counter 2,708 (reducer only, caveat `unique_payers_not_dedupable` from `mem-seed-001`); x402-trust 286,358 listed / 210,375 active (Conflict k01 `ecosystem_size`) |
-| `03-payer-dossier-onchain` (`ex3.json`) | What do we know about payer 0x097e...475a, what it bought from tienda.textokit.store, can the settlement be verified on Base? | `adoption_thin` (0.9) | `ok` | 1 purchase, 1,000 atomic USDC, 1 service, 2026-10-20T04:51Z; settlement verified: payer and seller from the Transfer log, 1,000 atomic, block 52,841,269, facilitator `0x8f5c...e531`, `receipt_match: true`; USDC balance 1,043,148 atomic (1.043148 USDC) and nonce 24 at capture (chain facts, reducer only) |
+| `02-catalog-concentration` (`ex2.json`) | Who sells on the CDP Bazaar and how concentrated are the paid calls? What share of listed endpoints saw any call in the last 30 days? | `concentrated` (0.9) | `ok` | 28,462 resources (coverage 28,462 of 28,472 reported, 0.9996); 2,680 hosts; 1,785 payTo wallets; 824,796 calls; active 28,347/28,462 = 99.6 %; top host `www.ax1.vc` 243,580 = 29.5 %; top-10 hosts 604,248 = 73.3 %; top payTo 29.5 %; most listings `saylorinnovations.com` 1,568; largest per-endpoint unique-payer counter 2,708 (caveat `unique_payers_not_dedupable` from `mem-seed-001`); x402-trust 286,358 listed / 210,375 active (Conflict k01 `ecosystem_size`) |
+| `03-payer-dossier-onchain` (`ex3.json`) | What do we know about payer 0x097e...475a, what it bought from tienda.textokit.store, can the settlement be verified on Base? | `adoption_thin` (0.9) | `ok` | 1 purchase, 1,000 atomic USDC, 1 service, 2026-10-20T04:51Z; settlement verified: payer and seller from the Transfer log, 1,000 atomic, block 52,841,269, facilitator `0x8f5c...e531`, `receipt_match: true`; USDC balance 1,043,148 atomic (1.043148 USDC) and nonce 24 at capture (SQL decodes the RPC hex in the view layer, the reducer reads the Verifier's decoding) |
+| `04-payer-dossier-unverifiable` (`ex4.json`) | The same question about payer 0xA1d1...1978 | `insufficient_evidence` (0.0) | `partial` | 1 purchase, 1,000 atomic USDC, 1 service, 2026-10-21T21:18Z; its settlement is not in the RPC fixtures (`unverifiable: fixture_miss`), so `verified_tx` = 0 (SQL and reducer agree) is rejected by the Critic's rule C1 and dropped and named by the Writer's second round; balance and nonce `unavailable` (`fixture_miss`); the same settlement is `verified` in `examples/live-trace/live-ex01-20261022` |
 
-All three examples are `ok`: every planned source answered (from fixtures), every claim passed C1-C7 in one round
-and, in 01 and 03, the one settlement the fixtures cover decodes and matches. No example carries a claim written to
-be rejected; the rejection path (Critic C4, `rejected_claims[]`, status `partial`) is exercised by
-`tests/test_run_contract.py` with a metric that exists only inside that test. `examples/memory-ablation/` is the
-fourth committed run pair: the same example 01 with and without one seed memory, and the diff between the two
+Examples 01-03 are `ok`: every planned source answered (from fixtures), every claim passed C1-C7 in one round
+and, in 01 and 03, the one settlement the fixtures cover decodes and matches. Example 04 is `partial` because the
+Critic rejected a claim: its input differs from example 03 only in the wallet, and nothing in the registry is
+written for it (`tests/test_example_04_critic.py` checks the committed files and re-runs it offline). The other
+rejection paths are proven by tests with a deliberately broken half: `tests/test_dual_computation.py` (an
+off-by-one reducer leaves an open `backend_disagreement` Conflict and C2 rejects the claim; an SQL budget of five
+rejects every claim whose query never ran; with no SQL executor at all nothing survives) and
+`tests/test_run_contract.py` (C4, with a metric that exists only inside that test). `examples/memory-ablation/` is
+a further committed run pair: the same example 01 with and without one seed memory, and the diff between the two
 outputs (`summary.json`).
 
 ## Viewer
@@ -383,7 +415,7 @@ data source: no code from it is in this repository, and its receipts are treated
 ## Tests
 
 ```
-python -m unittest discover -s tests     # 199 tests, no third-party dependency
+python -m unittest discover -s tests     # 219 tests, no third-party dependency
 python -m pytest -q                      # same suite under pytest if installed
 ```
 
@@ -392,7 +424,9 @@ H-MEM investigator surface, fetcher and collector, settlement decoding, the Veri
 fallback matrix (faked HTTP), SQL dual backend (recorded Zetaris result sets == SQLite), Critic rules, the agents
 pipeline, the run contract (schemas, error codes, status rule, CLI exit codes, `--serve` HTTP statuses, `LOG_DIR`,
 the no-hardcoded-numbers grep),
-sample-mode offline proof, and byte-for-byte reproducibility of the committed examples.
+dual computation with a deliberately broken half (C2), example 04's organic C1 rejection, H-MEM injection into the
+generator prompts through an in-process OpenAI-compatible double plus `RecordedGenerator` replay, sample-mode
+offline proof, and byte-for-byte reproducibility of the committed examples.
 
 On 2026-10-22 the suite ran green (199 tests, 0 failures, 0 skips) in three places: a fresh Windows clone with the
 Git for Windows default `core.autocrlf=true`, a fresh clone with `core.autocrlf=false`, and the Docker image built
@@ -419,10 +453,12 @@ are records of live runs and are not re-run offline.
   reason.
 - **Sample mode verifies one settlement.** The fixtures cover one transaction; the other sampled hashes are
   `unverifiable: fixture_miss`. Live runs verify 4 of 4 (`examples/live-trace/`).
-- **No staged loop.** The committed sample runs finish in one Critic round with no `retry` and no rejected claim:
-  the Analyst already attaches what the pitfall memories require, and sample mode has nothing to retry. The revise
-  path, the rejection path and the Fetcher retries are covered by unit tests, and the live traces show the real
-  recoveries (`zetaris_unreachable`, `generator_fallback`).
+- **Where critique and recovery show up.** Examples 01-03 finish in one Critic round: the Analyst already attaches
+  what the pitfall memories require. Example 04 shows a real rejection (C1), a second Writer round and the
+  recoveries behind it. Sample mode never emits `retry` (fixtures do not time out): the Fetcher's retries are
+  covered by unit tests and can only occur in live runs (none of the committed live traces needed one), and the live
+  traces show the real recoveries (`zetaris_unreachable`, `generator_fallback`). The C2 and C4 rejection paths are proven by tests with
+  deliberately broken halves, not by a committed example.
 - **Memory changes caveats and citations, not the verdict**, in these examples: `examples/memory-ablation/`
   measures exactly what one seed memory adds (a caveat on one claim, a citation on fifteen, feedback entries) and
   shows the verdict label unchanged.

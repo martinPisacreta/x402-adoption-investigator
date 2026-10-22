@@ -387,3 +387,14 @@ The notes above are kept as the builders wrote them. Three decisions recorded th
   (`investigator/agents/pitfalls.py`), so "every receipts claim is revised in round 1" no longer happens; round 1 is
   clean in the three examples.
 - The runner no longer emits a `retry` event for a second Writer round; `retry` means a real retry (Fetcher backoff).
+
+### Superseded on 2026-10-22 evening (central claims made true; see docs/BUILD_LOG.md)
+
+- The four reducer-only metrics now have an SQL half: `unique_payers_per_endpoint_max` (q20), `top_hosts_by_listings`
+  (q21), `usdc_balance_atomic` and `tx_count` (q22 over the new `chain_facts` view, which decodes the raw JSON-RPC
+  hex the Verifier exports). `sql_backed=False` is no longer used by any registry metric.
+- A disagreement between SQL and the reducer is no longer accepted at confidence 0.5: the Critic's C2 rejects the
+  claim and the `backend_disagreement` Conflict stays open. A missing half is rejected too; an executor that cannot
+  build its views is replaced by SQLite for the Analyst's queries.
+- Example 04 (`examples/04-payer-dossier-unverifiable`) is `partial` by design: C1 rejects `verified_tx` = 0 for a
+  wallet whose one settlement is not in the RPC fixtures.

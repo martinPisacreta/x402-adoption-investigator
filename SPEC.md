@@ -545,7 +545,7 @@ All files live in `logs/<run_id>/`. `run.jsonl` is mirrored to stdout line by li
 | `conflict` | analyst / verifier | `{conflict_id, predicate, subject, values: [{source, value, url, basis}], explanation}` | per conflict |
 | `critique` | critic / keeper | `{round, rule, target: claim_id|sentence_index, verdict, reason, memory_ids, kind?}`; `kind: "provenance_rejected"` when the World Model refused an agent fact | per check that fires, plus one `{rule, verdict: "accept", count}` summary per rule |
 | `narrative_map` | critic | `{round, tokens: [{token, claim_id|null, kind: "value"|"share"|"numerator"|"denominator"|"formatted"}], unsourced: [...]}` | pass B |
-| `memory` | planner / writer / critic / runner | `{op: "retrieve"|"feedback"|"mine"|"sleep_preview", actor, memory_ids, details}` (trace in hmem.trace.jsonl) | per H-MEM op |
+| `memory` | planner / writer / critic / runner | `{op: "retrieve"|"inject"|"feedback"|"mine"|"sleep_preview", actor, memory_ids, details}` (trace in hmem.trace.jsonl; `inject` added 2026-10-22: a generator prompt that carries the reinjection block, with prompt and block sha256) | per H-MEM op |
 | `timeout` | runner | `{stage, elapsed_s, budget_s}` | deadline hit |
 | `result` | runner | `{status, accepted, rejected, conflicts, unavailable, executor, generator}` | last line |
 | `error` | runner | `{code, stage, message, retryable, details}` | before returning an error |
@@ -635,6 +635,11 @@ Pass A (claims), each check logged as a `critique` event:
 
 - C1 evidence-present: every claim has >= 1 evidence item that resolves (url sha256 matches a `fetch` event in this run or the MANIFEST; tx is a Verifier `verified` entry; `log://` seq exists).
 - C2 recompute: reducer value equals SQL value (exact for counts/sums, 1e-6 for shares); both missing -> reject.
+  _Amended 2026-10-22 (docs/BUILD_LOG.md, "central claims made true"):_ either value missing or a disagreement ->
+  reject (the `backend_disagreement` Conflict stays open in the answer); every registry metric has a committed
+  query (q20-q22 added), and an executor that cannot build its views is replaced by SQLite for the Analyst.
+  C1 also requires, for `settlements_verified` / `verified_tx`, at least one sampled settlement of the claim's own
+  subject that was decoded (verified or failed); a count over unverifiable settlements is rejected.
 - C3 pitfall gate (H-MEM): for every pitfall memory whose `entities` intersect `derivation.fields` or `derivation.sources`, the claim must carry the caveat code the memory names (`caveat_memory_ids[code] == memory.id`); missing -> `revise` with `memory_ids`; present -> candidate `helpful` feedback.
 - C4 scope rules: `l30DaysUniquePayers` never summed across endpoints (any claim whose derivation declares a sum over that field is rejected outright); shares carry numerator and denominator; receipts-only claims carry `self_reported_receipts`; catalog-wide claims carry `coverage`.
 - C5 staleness: replayed evidence older than 7 days at run time -> confidence cap 0.8 and a mandatory disclaimer sentence; `stale: true` evidence -> cap 0.7.

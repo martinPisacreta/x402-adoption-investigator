@@ -394,6 +394,16 @@ pipeline, the run contract (schemas, error codes, status rule, CLI exit codes, `
 the no-hardcoded-numbers grep),
 sample-mode offline proof, and byte-for-byte reproducibility of the committed examples.
 
+On 2026-10-22 the suite ran green (199 tests, 0 failures, 0 skips) in three places: a fresh Windows clone with the
+Git for Windows default `core.autocrlf=true`, a fresh clone with `core.autocrlf=false`, and the Docker image built
+from that clone (`docker run --network none ... -m unittest discover -s tests`). In all three, `python run.py
+--sample` on each of the six example inputs (`examples/exN.json` and `examples/0N-*/input.json`) exited 0 and
+rewrote `output.json`, `report.md`, `run.jsonl`, `sql.jsonl` and `hmem.trace.jsonl` byte for byte as committed, and
+`scripts/memory_ablation.py` reproduced `examples/memory-ablation/`. Sample mode has no time-dependent field (the
+clock is pinned to the fixture capture time). `.gitattributes` keeps every text file LF on checkout and the code
+writes LF on every OS, so the recorded sha256 values match everywhere. The live traces in `examples/live-trace/`
+are records of live runs and are not re-run offline.
+
 ## Limitations and honesty notes
 
 - **No model transcripts.** No `OPENAI_API_KEY` was available during the build, so every committed example and

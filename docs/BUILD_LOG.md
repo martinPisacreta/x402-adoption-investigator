@@ -108,6 +108,34 @@ staged demo. Both were removed rather than explained away; everything that chang
   the initial commit 169e896 is on the public remote github.com/martinPisacreta/x402-adoption-investigator, and
   the section lists two Cursor Agent sessions.
 
+## Day 1, pre-submission verification fixes (2026-10-22, 16:00-17:00 UTC)
+
+An independent verification pass from fresh clones found mechanical defects; all are fixed in the commits after
+e654f59:
+
+- Line endings. No `.gitattributes`, and `Path.write_text` wrote CRLF on Windows. A default Windows clone failed 4
+  of 193 tests (sha256 of fixtures and SQL converted to CRLF, byte-identical examples), an LF clone failed 1 (fresh
+  `output.json` with CRLF), and Linux/Docker failed 1, because the `exports_sha256` recorded in
+  `fixtures/zetaris/q*.json` were the CRLF variants. Fix: `.gitattributes` (`* text=auto eol=lf`, captured
+  fixtures and upstream vectors `-text`, media binary), `newline="\n"` on every writer, and `exports_sha256`
+  re-hashed over the LF exports. All 228 old values equal the sha256 of the same single-line exports ending in
+  CRLF and are kept as `exports_sha256_recorded_crlf` (see `fixtures/zetaris/README.md`). Rows, headers, params
+  and `sql_sha256` are unchanged, and no committed example output changed.
+- Wrong GitHub owner in the README clone command, `REPO_URL` and the five schema `$id` values (404); now
+  `martinPisacreta`.
+- Absolute local paths in the three live traces (`fetch.jsonl` `export_path` / `raw_path`) rewritten to
+  `logs/<run_id>/...`. The collector now writes that form for run folders outside the repository too, and
+  `traceback.txt` replaces the repo root and home directory.
+- Smaller items: sample mode honours `LOG_DIR` (README and `--help` said so); the README's Windows `MAX_PATH` bound is
+  the measured one (repo path up to 143 characters, logs dir up to 148, checked at 148/149); `--serve` returns 400
+  for a body that is not JSON and 422 for a schema-invalid one, now documented and tested; a tautological test
+  assertion became a real one; `.gitignore` / `.dockerignore` cover `.env.*`, key, certificate, wallet and cookie
+  files; World Model provenance no longer doubles `fixtures/raw/`.
+- Verified: `python -m unittest discover -s tests` = 199 tests OK in a default Windows clone, an
+  `autocrlf=false` clone and the Docker image built from it (`--network none`). Every example input ran with
+  `--sample` (exit 0) and rewrote the committed example files byte for byte, and `scripts/one_command.sh` passed
+  in the image.
+
 ## Cursor sessions (what was actually done in Cursor)
 
 Entries are added only for work done in Cursor itself (Composer / agent sessions or edits with

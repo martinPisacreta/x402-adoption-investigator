@@ -2235,7 +2235,7 @@
         "attempts": 1,
         "status": "ok",
         "notes": [
-          "views without export: bazaar_resources, catalog_resources"
+          "views without export: bazaar_resources, catalog_resources, chain_facts"
         ]
       },
       {

@@ -698,6 +698,14 @@ def top_hosts_by_listings(world: WorldExports, params: dict[str, Any]) -> str:
     return format_pairs(ranked)
 
 
+@extractor("top_hosts_by_listings")
+def _x_top_hosts_by_listings(results: dict[str, SqlResult], params: dict[str, Any]) -> Optional[str]:
+    rows = _rows(results, "q21_catalog_top_hosts_by_listings")
+    if rows is None:
+        return None
+    return format_pairs([(r["host"], _int(r["n_resources"])) for r in rows])
+
+
 @reducer("top_payto_calls_share")
 def top_payto_calls_share(world: WorldExports, params: dict[str, Any]) -> dict[str, Any]:
     sums: dict[Any, int] = {}
@@ -727,6 +735,12 @@ def _x_top_payto_calls_share(results: dict[str, SqlResult], params: dict[str, An
 @reducer("unique_payers_per_endpoint_max")
 def unique_payers_per_endpoint_max(world: WorldExports, params: dict[str, Any]) -> int:
     return max((r["payers_30d"] for r in catalog_rows(world)), default=0)
+
+
+@extractor("unique_payers_per_endpoint_max")
+def _x_unique_payers_per_endpoint_max(results: dict[str, SqlResult], params: dict[str, Any]) -> Optional[int]:
+    rows = _rows(results, "q20_catalog_unique_payers_max")
+    return None if rows is None else (_int(rows[0]["max_payers_30d"]) if rows else 0)
 
 
 @reducer("trust_ecosystem_stats")
@@ -830,6 +844,26 @@ def tx_count(world: WorldExports, params: dict[str, Any]) -> Optional[int]:
     wallet = str(params.get("wallet") or "").lower()
     value = chain_fact_value(world, "tx_count", f"wallet:base:{wallet}" if wallet else None)
     return None if value is None else _int(value)
+
+
+def _x_chain_fact(results: dict[str, SqlResult], predicate: str) -> Optional[int]:
+    rows = _rows(results, "q22_payer_chain_facts")
+    if rows is None:
+        return None
+    for r in rows:
+        if r.get("predicate") == predicate and r.get("value_atomic") is not None:
+            return _int(r["value_atomic"])
+    return None
+
+
+@extractor("usdc_balance_atomic")
+def _x_usdc_balance_atomic(results: dict[str, SqlResult], params: dict[str, Any]) -> Optional[int]:
+    return _x_chain_fact(results, "usdc_balance_atomic")
+
+
+@extractor("tx_count")
+def _x_tx_count(results: dict[str, SqlResult], params: dict[str, Any]) -> Optional[int]:
+    return _x_chain_fact(results, "tx_count")
 
 
 def get_reducer(name: str) -> Reducer:

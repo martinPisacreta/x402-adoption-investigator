@@ -28,6 +28,7 @@ PAGE_KEY_RE = re.compile(r"^cdp_page_?(\d+)$")
 DIGITS_RE = re.compile(r"^[0-9]+$")
 INT_RE = re.compile(r"^-?[0-9]+$")
 DECIMAL_RE = re.compile(r"^-?[0-9]+\.[0-9]*$")
+HEX_RE = re.compile(r"^0x[0-9a-fA-F]+$")
 BIGINT_MAX = 2**63 - 1
 BIGINT_MIN = -(2**63)
 # Characters java.net.URI rejects anywhere in a URL string (Spark's parse_url returns NULL for them).
@@ -104,6 +105,9 @@ VIEWS: dict[str, ViewSpec] = {spec.name: spec for spec in [
              (("tx_hash", "TEXT"), ("payer", "TEXT"), ("seller", "TEXT"), ("amount_atomic", "INTEGER"),
               ("block_number", "INTEGER"), ("block_time", "TEXT"), ("facilitator_from", "TEXT"), ("status", "TEXT")),
              ("settlements",), "settlements_raw", "rows_settlements"),
+    ViewSpec("chain_facts", "base_rpc",
+             (("wallet", "TEXT"), ("predicate", "TEXT"), ("value_atomic", "INTEGER"), ("result_hex", "TEXT")),
+             ("chain_facts",), "chain_facts_raw", "rows_chain_facts"),
 ]}
 
 VIEW_NAMES: tuple[str, ...] = tuple(VIEWS.keys())
@@ -355,12 +359,33 @@ def rows_settlements(payload: Any) -> list[tuple[Any, ...]]:
     return rows
 
 
+def hex_bigint(value: Any) -> Optional[int]:
+    """A JSON-RPC quantity or 32-byte word ("0x" + hex digits) as an integer; anything else (or a value beyond
+    the BIGINT range) is NULL. Zetaris: CAST(conv(substring(x, 3), 16, 10) AS BIGINT)."""
+    if not isinstance(value, str) or not HEX_RE.match(value.strip()):
+        return None
+    return _in_bigint_range(int(value.strip()[2:], 16))
+
+
+def rows_chain_facts(payload: Any) -> list[tuple[Any, ...]]:
+    """exports/chain_facts.json (written by the Verifier): one row per JSON-RPC read about a wallet, with the raw
+    `result` hex as fetched. The value is decoded HERE, independently of the Verifier's own decoding (the reducer
+    reads the Verifier's value from the World Model), so the SQL and the reducer halves of a chain metric are two
+    computations over the same bytes."""
+    rows: list[tuple[Any, ...]] = []
+    for r in rows_of(payload, "rows", "facts"):
+        rows.append((lower(r.get("wallet")), text(r.get("predicate")), hex_bigint(r.get("result_hex")),
+                     text(r.get("result_hex"))))
+    return rows
+
+
 BUILDERS = {
     "rows_sales": rows_sales, "rows_purchases": rows_purchases, "rows_bazaar": rows_bazaar,
     "rows_bazaar_search": rows_bazaar_search, "rows_catalog": rows_catalog,
     "rows_openapi_paid_ops": rows_openapi_paid_ops, "rows_agent402_tools": rows_agent402_tools,
     "rows_agent402_seller": rows_agent402_seller, "rows_vet402_endpoints": rows_vet402_endpoints,
     "rows_trust_search": rows_trust_search, "rows_trust_stats": rows_trust_stats, "rows_settlements": rows_settlements,
+    "rows_chain_facts": rows_chain_facts,
 }
 
 

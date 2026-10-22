@@ -163,7 +163,8 @@ def _export_file(ctx: "RunContext", obs: Observation, name: str) -> Path:
 def build_exports(ctx: "RunContext", named: dict[str, Observation]) -> dict[str, str]:
     """{export name: absolute file path} for the executor: the Collector's exports (through collector.exports_map
     when available; written here only when a file is missing), the Verifier's settlements.json, the Collector's
-    openapi_paid_ops.json and the Keeper's world-*.json. Everything lives in logs/<run_id>/exports/."""
+    openapi_paid_ops.json, the Verifier's settlements.json and chain_facts.json and the Keeper's world-*.json.
+    Everything lives in logs/<run_id>/exports/."""
     exports: dict[str, str] = {}
     mapper = getattr(collector_mod, "exports_map", None)
     if mapper is not None:
@@ -181,7 +182,7 @@ def build_exports(ctx: "RunContext", named: dict[str, Observation]) -> dict[str,
                             encoding="utf-8", newline="\n")
             ctx.notes.append(f"analyst wrote missing export {name}.json (the Collector should export it)")
         exports[name] = str(path)
-    for extra in ("openapi_paid_ops", "settlements", *WORLD_EXPORT_FILES):
+    for extra in ("openapi_paid_ops", "settlements", "chain_facts", *WORLD_EXPORT_FILES):
         path = ctx.exports_dir / f"{extra}.json"
         if path.is_file():
             exports.setdefault(extra, str(path))

@@ -56,7 +56,9 @@ class MetricSpec:
     extra_query_ids: tuple[str, ...] = ()  # other queries the SQL extractor reads (multi-source metrics)
     sums: tuple[str, ...] = ()            # source fields this metric SUMS (Critic C4 rejects any spec that sums
                                           # l30DaysUniquePayers; no registry entry does, tests/test_critic.py proves the rule)
-    sql_backed: bool = True               # False: no committed query exposes this value; reducer only (documented)
+    sql_backed: bool = True               # every registry metric is SQL-backed (tests/test_sql_dual_backend.py);
+                                          # False exists only for test-local metrics, and the Critic's C2 rejects
+                                          # any claim that reaches it without an SQL value
     required_exports: tuple[str, ...] = ()  # run exports that must exist (e.g. the Verifier's settlements.json)
 
 
@@ -178,21 +180,20 @@ METRICS: dict[str, MetricSpec] = {spec.id: spec for spec in [
        required_sources=("cdp_catalog_snapshot",), fields=("l30DaysTotalCalls",), sources=("cdp_catalog_snapshot",),
        caveat_rules=("snapshot_dated",), coverage_rule="catalog_snapshot", period="l30d", sums=("l30DaysTotalCalls",),
        playbooks=("catalog_concentration",)),
-    _m(id="top_hosts_by_listings", query_id="q09_catalog_top_hosts_by_calls", reducer="reducers.top_hosts_by_listings", unit="text",
+    _m(id="top_hosts_by_listings", query_id="q21_catalog_top_hosts_by_listings", reducer="reducers.top_hosts_by_listings", unit="text",
        subject_template="catalog:cdp-bazaar", statement_template="Hosts with the most listings in the snapshot: {value}.",
        required_sources=("cdp_catalog_snapshot",), fields=("resource",), sources=("cdp_catalog_snapshot",),
-       caveat_rules=("snapshot_dated",), coverage_rule="catalog_snapshot", playbooks=("catalog_concentration",),
-       sql_backed=False),
+       caveat_rules=("snapshot_dated",), coverage_rule="catalog_snapshot", playbooks=("catalog_concentration",)),
     _m(id="top_payto_calls_share", query_id="q11_catalog_payto_concentration", reducer="reducers.top_payto_calls_share", unit="share",
        subject_template="catalog:cdp-bazaar", statement_template="The top payTo wallet {pay_to} receives {numerator} of {denominator} 30-day calls ({share_pct} %).",
        required_sources=("cdp_catalog_snapshot",), fields=("l30DaysTotalCalls", "payTo"), sources=("cdp_catalog_snapshot",),
        caveat_rules=("snapshot_dated",), coverage_rule="catalog_snapshot", period="l30d", sums=("l30DaysTotalCalls",),
        playbooks=("catalog_concentration",)),
-    _m(id="unique_payers_per_endpoint_max", query_id="q08_catalog_size", reducer="reducers.unique_payers_per_endpoint_max", unit="count",
+    _m(id="unique_payers_per_endpoint_max", query_id="q20_catalog_unique_payers_max", reducer="reducers.unique_payers_per_endpoint_max", unit="count",
        subject_template="catalog:cdp-bazaar", statement_template="The largest per-endpoint 30-day unique-payer counter is {value} (not deduplicable across endpoints).",
        required_sources=("cdp_catalog_snapshot",), fields=("l30DaysUniquePayers",), sources=("cdp_catalog_snapshot",),
        caveat_rules=("unique_payers_not_dedupable", "snapshot_dated"), coverage_rule="catalog_snapshot", period="l30d",
-       playbooks=("catalog_concentration",), sql_backed=False),
+       playbooks=("catalog_concentration",)),
     _m(id="trust_ecosystem_stats", query_id="q19_trust_ecosystem_stats", reducer="reducers.trust_ecosystem_stats", unit="text",
        subject_template="registry:name:x402-trust", statement_template="x402-trust reports {value}.",
        required_sources=("x402_trust",), fields=("endpointsListed", "endpointsActive", "settlements30d"), sources=("x402_trust",),
@@ -218,15 +219,15 @@ METRICS: dict[str, MetricSpec] = {spec.id: spec for spec in [
        subject_template="wallet:base:{wallet}", statement_template="{value} settlement(s) of this payer verified on Base.",
        required_sources=("receipts", "base_rpc"), fields=("transaction",), sources=("receipts", "base_rpc"),
        caveat_rules=("payer_from_transfer_log",), playbooks=("payer_dossier",), required_exports=("settlements",)),
-    _m(id="usdc_balance_atomic", query_id="q17_payer_dossier", reducer="reducers.usdc_balance_atomic", unit="atomic_usdc",
+    _m(id="usdc_balance_atomic", query_id="q22_payer_chain_facts", reducer="reducers.usdc_balance_atomic", unit="atomic_usdc",
        subject_template="wallet:base:{wallet}", statement_template="USDC balance at capture: {value} atomic ({usdc} USDC).",
        required_sources=("base_rpc",), fields=("balanceOf",), sources=("base_rpc",),
-       caveat_rules=("payer_from_transfer_log",), playbooks=("payer_dossier",), sql_backed=False,
+       caveat_rules=("payer_from_transfer_log",), playbooks=("payer_dossier",),
        required_exports=("chain_fact:usdc_balance_atomic",)),
-    _m(id="tx_count", query_id="q17_payer_dossier", reducer="reducers.tx_count", unit="count",
+    _m(id="tx_count", query_id="q22_payer_chain_facts", reducer="reducers.tx_count", unit="count",
        subject_template="wallet:base:{wallet}", statement_template="Transaction count (nonce) at capture: {value}.",
        required_sources=("base_rpc",), fields=("eth_getTransactionCount",), sources=("base_rpc",),
-       caveat_rules=(), playbooks=("payer_dossier",), sql_backed=False, required_exports=("chain_fact:tx_count",)),
+       caveat_rules=(), playbooks=("payer_dossier",), required_exports=("chain_fact:tx_count",)),
 ]}
 
 # Measurement basis per registry source, used when composing Conflicts (rule-written, SPEC.md 6.5).

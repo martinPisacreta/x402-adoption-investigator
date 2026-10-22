@@ -172,7 +172,7 @@ retrieved: 7, cited: mem-seed-002, mem-seed-003, mem-seed-004, mem-seed-005, mem
 | collector | False | None | 1 | ok | 9 ok, 0 stale fixture fallback(s), 0 fixture miss(es), 0 unavailable, 1 deferred to the verifier; deferred: base_rpc_batch |
 | keeper | False | None | 3 | ok | chain facts asserted: 1; claims asserted as agent facts: 19; ingested 9 observations, 917 events appended; second pass: {'runId': 'run_bce5c176f222', 'processed': 0, 'skippedUnchanged': 9, 'eventsAppended': 0, 'changed': False} |
 | verifier | False | None | 1 | ok | 4 tx sampled (most recent external sale per distinct payer, newest first, capped at max_tx_verifications): 1 verified, 0 failed, 3 unverifiable (fixture_miss x3); chain facts: 1; cross-checks: 6; settlements export: yes; tx_count for 0xec2abd3eda89bed90124736e317e847d5fb6d034 not available: fixture_miss; usdc_balance_atomic for 0xec2abd3eda89bed90124736e317e847d5fb6d034 not available: fixture_miss |
-| analyst | False | None | 1 | ok | views without export: bazaar_resources, catalog_resources |
+| analyst | False | None | 1 | ok | views without export: bazaar_resources, catalog_resources, chain_facts |
 | writer | True | none | 1 | ok | - |
 | critic | True | none | 1 | ok | - |
 

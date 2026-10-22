@@ -262,9 +262,18 @@ class CatalogPipeline(unittest.TestCase):
         self.assertEqual(claims["catalog_active_share"]["value"]["numerator"],
                          sum(1 for i in items if int((i.get("quality") or {}).get("l30DaysTotalCalls") or 0) > 0))
         for metric in ("catalog_resources", "catalog_hosts", "catalog_distinct_payto", "catalog_calls_30d_sum", "catalog_active_share",
-                       "top_host_calls_share", "top10_hosts_calls_share", "top_payto_calls_share", "trust_ecosystem_stats"):
+                       "top_host_calls_share", "top10_hosts_calls_share", "top_payto_calls_share", "trust_ecosystem_stats",
+                       "top_hosts_by_listings", "unique_payers_per_endpoint_max"):
             self.assertIn(metric, claims)
             self.assertTrue(claims[metric]["cross_checked"], metric)
+        # Every accepted claim was computed twice (committed SQL + reducer) and the two agreed.
+        for claim in self.envelope["output"]["claims"]:
+            self.assertTrue(claim["cross_checked"], claim["metric"])
+            self.assertEqual(claim["derivation"]["backend"], "sqlite", claim["metric"])
+        payers_max = max(int((i.get("quality") or {}).get("l30DaysUniquePayers") or 0) for i in items)
+        self.assertEqual(claims["unique_payers_per_endpoint_max"]["value"], payers_max)
+        self.assertEqual(claims["unique_payers_per_endpoint_max"]["derivation"]["query_id"], "q20_catalog_unique_payers_max")
+        self.assertEqual(claims["top_hosts_by_listings"]["derivation"]["query_id"], "q21_catalog_top_hosts_by_listings")
         for claim in self.envelope["output"]["claims"]:
             if claim["subject"].startswith("catalog:"):
                 self.assertIsNotNone(claim["coverage"], claim["metric"])
@@ -309,8 +318,13 @@ class PayerDossierPipeline(unittest.TestCase):
         nonce = json.loads((FIXTURES / "base-rpc-eth_getTransactionCount-payer.json").read_text(encoding="utf-8"))["result"]
         self.assertEqual(claims["usdc_balance_atomic"]["value"], int(balance, 16))
         self.assertEqual(claims["tx_count"]["value"], int(nonce, 16))
-        self.assertFalse(claims["usdc_balance_atomic"]["cross_checked"])
-        self.assertIsNone(claims["usdc_balance_atomic"]["derivation"]["query_id"])
+        for metric in ("usdc_balance_atomic", "tx_count"):
+            # SQL decodes the RPC hex in the view layer; the reducer reads the Verifier's decoding: two computations.
+            self.assertTrue(claims[metric]["cross_checked"], metric)
+            self.assertEqual(claims[metric]["derivation"]["query_id"], "q22_payer_chain_facts")
+            self.assertEqual(claims[metric]["derivation"]["backend"], "sqlite")
+        for claim in self.envelope["output"]["claims"]:
+            self.assertTrue(claim["cross_checked"], claim["metric"])
         self.assertEqual(claims["verified_tx"]["value"], 1)
         self.assertEqual(self.envelope["output"]["verdict"]["label"], "adoption_thin")
         self.assertEqual(self.envelope["output"]["rejected_claims"], [])

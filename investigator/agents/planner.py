@@ -49,9 +49,10 @@ PLAYBOOK_QUERIES: dict[str, list[str]] = {
     ],
     "catalog_concentration": [
         "q08_catalog_size", "q09_catalog_top_hosts_by_calls", "q10_catalog_active_share",
-        "q11_catalog_payto_concentration", "q19_trust_ecosystem_stats",
+        "q11_catalog_payto_concentration", "q19_trust_ecosystem_stats", "q20_catalog_unique_payers_max",
+        "q21_catalog_top_hosts_by_listings",
     ],
-    "payer_dossier": ["q16_settlements_vs_receipts", "q17_payer_dossier", "q06_bazaar_host_listings"],
+    "payer_dossier": ["q16_settlements_vs_receipts", "q17_payer_dossier", "q06_bazaar_host_listings", "q22_payer_chain_facts"],
 }
 
 PLAYBOOK_SOURCES: dict[str, list[str]] = {

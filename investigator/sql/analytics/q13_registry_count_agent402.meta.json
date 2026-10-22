@@ -1,0 +1,17 @@
+{
+  "id": "q13_registry_count_agent402",
+  "params": [],
+  "columns": {
+    "paid_tool_count": "int",
+    "tool_count": "int"
+  },
+  "expected_rows_bound": 1,
+  "sources": [
+    "agent402"
+  ],
+  "fields": [
+    "paidToolCount",
+    "toolCount"
+  ],
+  "ansi_only": true
+}

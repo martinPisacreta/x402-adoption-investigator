@@ -1,0 +1,16 @@
+{
+  "id": "q12_registry_count_openapi",
+  "params": [],
+  "columns": {
+    "n_paid_ops": "int"
+  },
+  "expected_rows_bound": 1,
+  "sources": [
+    "store_openapi"
+  ],
+  "fields": [
+    "paths",
+    "x-payment-info"
+  ],
+  "ansi_only": true
+}

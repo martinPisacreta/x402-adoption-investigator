@@ -1,0 +1,22 @@
+{
+  "id": "q19_trust_ecosystem_stats",
+  "params": [],
+  "columns": {
+    "endpoints_listed": "int",
+    "endpoints_active": "int",
+    "settlements_30d": "int",
+    "settled_volume_usd_30d": "float",
+    "distinct_payers_30d": "int",
+    "distinct_receivers_30d": "int"
+  },
+  "expected_rows_bound": 1,
+  "sources": [
+    "x402_trust"
+  ],
+  "fields": [
+    "endpointsListed",
+    "endpointsActive",
+    "settlements30d"
+  ],
+  "ansi_only": true
+}

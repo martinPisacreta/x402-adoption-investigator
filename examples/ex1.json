@@ -1,0 +1,23 @@
+{
+  "run_id": "ex01-seller-audit",
+  "input": {
+    "question": "How real is the adoption of tienda.textokit.store? Who pays, how much, do they come back, and why do registries disagree about it?",
+    "focus": {
+      "host": "tienda.textokit.store",
+      "wallet": null,
+      "service": null,
+      "query": null
+    },
+    "budget": {
+      "max_seconds": 180,
+      "max_fetches": 40,
+      "max_tx_verifications": 5,
+      "max_critic_rounds": 2,
+      "bazaar_pages": 3
+    },
+    "options": {
+      "catalog": "snapshot",
+      "zetaris_source": "captured"
+    }
+  }
+}

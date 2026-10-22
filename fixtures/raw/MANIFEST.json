@@ -1,0 +1,613 @@
+{
+  "note": "Raw public responses captured read-only with curl on 2026-10-22 ~00:02-00:08 UTC (no auth, no keys). Sample mode replays these files; the collector must say so. Latencies are single observations from Argentina.",
+  "fetchedAt": "2026-10-22T00:05:00Z",
+  "sources": {
+    "cdp_bazaar_discovery_resources": {
+      "url": "https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources?limit=100&offset=0",
+      "method": "GET",
+      "auth": "none",
+      "http": 200,
+      "contentType": "application/json",
+      "files": [
+        "cdp-discovery-resources-p0.json",
+        "cdp-discovery-resources-p1.json",
+        "cdp-discovery-catalog-compact.json.gz"
+      ],
+      "topKeys": [
+        "items",
+        "pagination",
+        "x402Version"
+      ],
+      "pagination": "pagination.{limit,offset,total}; limit clamped to max 1000 (limit=101 fell back to 100, use 100 or 1000); offset snapped DOWN to a multiple of limit; offset >= total returns items=[]; total is live and moves by a few entries per minute (28469-28472 during capture)",
+      "itemKeys": [
+        "resource",
+        "type",
+        "x402Version",
+        "serviceName",
+        "description",
+        "tags",
+        "iconUrl",
+        "lastUpdated",
+        "curated",
+        "bundleSlugs",
+        "accepts",
+        "extensions",
+        "quality"
+      ],
+      "qualityKeys": [
+        "l30DaysTotalCalls",
+        "l30DaysUniquePayers",
+        "lastCalledAt"
+      ],
+      "qualityLocation": "TOP-LEVEL item.quality (NOT metadata.quality; no item has a metadata key)",
+      "acceptsKeys": [
+        "scheme",
+        "network",
+        "asset",
+        "amount",
+        "maxAmountRequired",
+        "payTo",
+        "recipient",
+        "maxTimeoutSeconds",
+        "extra",
+        "mimeType",
+        "description",
+        "outputSchema",
+        "resource",
+        "currency",
+        "extensions"
+      ],
+      "latencySeconds": {
+        "limit100": 0.4,
+        "limit1000": 1.3,
+        "fullCrawl30pages": 38
+      },
+      "bytes": {
+        "limit100": 371402,
+        "limit1000": 3416956,
+        "fullCrawlApprox": 100000000
+      }
+    },
+    "cdp_bazaar_discovery_search": {
+      "url": "https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?urlSubstring=tienda.textokit.store&limit=20",
+      "method": "GET",
+      "auth": "none",
+      "http": 200,
+      "files": [
+        "cdp-discovery-search-urlSubstring-tienda.json",
+        "cdp-discovery-search-query-textokit.json"
+      ],
+      "topKeys": [
+        "resources",
+        "partialResults",
+        "searchMethod",
+        "meta",
+        "x402Version"
+      ],
+      "limits": "limit max 20 (limit=50 -> HTTP 400 invalid_request); offset is ignored; no pagination object; resources[] items have the same shape as discovery items minus curated/bundleSlugs/iconUrl",
+      "latencySeconds": 0.4,
+      "bytes": 49516
+    },
+    "store_receipts": {
+      "url": "https://tienda.textokit.store/receipts.json",
+      "method": "GET",
+      "auth": "none",
+      "http": 200,
+      "files": [
+        "store-receipts.json"
+      ],
+      "topKeys": [
+        "generatedAt",
+        "seller",
+        "agentId",
+        "network",
+        "note",
+        "totals",
+        "sales",
+        "purchases"
+      ],
+      "totalsKeys": [
+        "sales",
+        "salesFromOwnWallets",
+        "externalPayers",
+        "purchases"
+      ],
+      "saleKeys": [
+        "at",
+        "service",
+        "resource",
+        "amountAtomic",
+        "payer",
+        "ownWallet",
+        "transaction",
+        "facilitator",
+        "x402Version"
+      ],
+      "saleNotes": "service/resource/facilitator absent on older own-wallet rows; payer casing is mixed (lowercase before comparing); amountAtomic is a decimal string of USDC base units (6 decimals)",
+      "purchaseKeys": [
+        "at",
+        "url",
+        "priceUsd",
+        "outcome",
+        "note",
+        "transaction"
+      ],
+      "latencySeconds": 0.15,
+      "bytes": 25849
+    },
+    "store_openapi": {
+      "url": "https://tienda.textokit.store/openapi.json",
+      "method": "GET",
+      "auth": "none",
+      "http": 200,
+      "files": [
+        "store-openapi.json",
+        "store-llms.txt"
+      ],
+      "topKeys": [
+        "openapi",
+        "info",
+        "servers",
+        "x-discovery",
+        "paths"
+      ],
+      "notes": "34 paths (17 paid POST + 17 free /sample); each paid op has x-payment-info {protocols, price{mode,currency,amount}, network, asset, payTo}",
+      "latencySeconds": 0.23,
+      "bytes": 164082
+    },
+    "base_rpc": {
+      "url": "https://mainnet.base.org",
+      "method": "POST application/json JSON-RPC 2.0 (batch arrays accepted)",
+      "auth": "none",
+      "http": 200,
+      "files": [
+        "base-rpc-eth_getTransactionByHash.json",
+        "base-rpc-eth_getTransactionReceipt.json",
+        "base-rpc-eth_call-usdc-balanceOf-payer.json",
+        "base-rpc-eth_getTransactionCount-payer.json",
+        "base-rpc-batch-blockNumber-chainId.json"
+      ],
+      "sample": {
+        "tx": "0x62c01526c5beb13cad96634ec80e837e576df496905f1bac8019c6ffa3e358c3",
+        "payer": "0x097e3F339D0b023605e12A6B81E2d6Cb7571475a",
+        "seller": "0x6b5aF9924f4CD35643c11a9fd1C983f77261A6E1",
+        "usdc": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "chainId": "0x2105"
+      },
+      "notes": "x402 settlements are USDC transferWithAuthorization (selector 0xe3ee160e) sent BY the facilitator (tx.from = facilitator settler, tx.to = USDC); payer/seller/amount come from the receipt's Transfer log (topic0 0xddf252ad..., topics[1]=from, topics[2]=to, data=amount) and the AuthorizationUsed log (topic0 0x98de5035...); logs carry blockTimestamp (hex unix seconds); balanceOf data = 0x70a08231 + 32-byte padded address; 10 quick calls all 200 in ~0.22 s, no rate-limit headers seen",
+      "latencySeconds": 0.25
+    },
+    "x402_trust": {
+      "url": "https://x402-trust.com/llms.txt",
+      "method": "GET",
+      "auth": "none",
+      "http": 200,
+      "files": [
+        "x402-trust-llms.txt",
+        "x402-trust-openapi.json",
+        "x402-trust-stats.json",
+        "x402-trust-leaderboard-p0.json",
+        "x402-trust-search-tienda.json",
+        "x402-trust-verified-p0.json",
+        "x402-trust-facilitators.json",
+        "x402-trust-report.json",
+        "x402-trust-activity.json",
+        "x402-trust-semantic-search-argentina-tax-id.json"
+      ],
+      "freeEndpoints": {
+        "GET /trust/stats": "ecosystem snapshot: endpointsListed/Active/Delisted, reachablePct, envelopeCompliantPct, settlements30d, settledVolumeUsd30d, distinctReceivers30d, distinctPayers30d, ecosystemAllTimeUsd, ecosystemVolumeByChain[]",
+        "GET /trust/leaderboard?limit=25&offset=0": "top[] {host, score, endpoints, probes30d, grade, providerVerified, providerName}; limit 1-25; total=100",
+        "GET /trust/search?q=<substring>&limit=25&offset=0": "results[] {id, resource, host, serviceName, description, delisted, score, grade, providerVerified, providerName, endpointPage}; limit 1-25; total = unpaged matches",
+        "GET /verified.json?limit=25&offset=0": "providers[] {host, score, grade, endpoints, probes30d, orgName, supportUrl, docsUrl, address, description, contactEmail, providerPage}; total=42 at capture; contactEmail is provider-published, do not re-publish beyond the fixture",
+        "GET /v1/facilitators": "facilitators[] {id, url, networks, addresses, volume30dUsd, settlements30d, volumeAllTimeUsd, settlementsAllTime, lastActiveDay, trackedSince, partial}",
+        "GET /trust/report.json": "endpoints{}, volume{}, ecosystem{allTime,last30d byChain}, monthly[12], topEarners[10], topIssues[10], grades{}, transports{}, sources[]",
+        "GET /api/activity.json": "x402-trust own sales: stats{count,totalUsd,distinctPayers,recurringPayers}, recent[] {ts, endpoint, network, amountUsd, payer(redacted), txHash, explorerUrl}",
+        "POST /v1/semantic-search {query,limit}": "matches[] {id, resource, score, grade, similarity, amountUsd, providerVerified, providerName, description}; slow (~21 s)",
+        "GET /endpoint?resource=<url>": "301 to /endpoint/<id> which is HTML only (no JSON); use /trust/search rows instead"
+      },
+      "signature": "every JSON carries signature{alg:Ed25519, canon:RFC8785, hash:SHA-256, keyId, digest, value, publicKeys} verifiable against /.well-known/x402-trust-keys.json",
+      "latencySeconds": {
+        "llms": 0.96,
+        "stats": 1.9,
+        "others": "0.3-0.6",
+        "semanticSearch": 20.9
+      }
+    },
+    "agent402": {
+      "urls": [
+        "https://agent402.tools/api/index?seller=tienda.textokit.store",
+        "https://agent402.tools/api/route?q=x402%20adoption&include=external"
+      ],
+      "method": "GET",
+      "auth": "none",
+      "http": 200,
+      "files": [
+        "agent402-index-seller-tienda.json",
+        "agent402-route-x402-adoption.json"
+      ],
+      "indexTopKeys": [
+        "origin",
+        "displayName",
+        "toolCount",
+        "paidToolCount",
+        "fetchedAt",
+        "error",
+        "health",
+        "routable",
+        "networks",
+        "paywall",
+        "discoveryPath",
+        "payToByNetwork",
+        "history",
+        "tools",
+        "toolsReturned",
+        "toolsTruncated",
+        "toolsCap",
+        "routerDispatchEligible",
+        "routerDispatchReason",
+        "routerDispatchByChain",
+        "legend"
+      ],
+      "indexToolKeys": [
+        "method",
+        "route",
+        "slug",
+        "name",
+        "description",
+        "tags",
+        "price",
+        "priceKnown",
+        "paid",
+        "declared",
+        "source",
+        "lastVerifiedAt",
+        "networks",
+        "requestContract",
+        "responseContract"
+      ],
+      "routeTopKeys": [
+        "query",
+        "include",
+        "count",
+        "sellers",
+        "results",
+        "returned",
+        "matched",
+        "complete",
+        "truncated",
+        "sellersMatched",
+        "topMax",
+        "neutrality",
+        "containsUntrustedContent",
+        "judged"
+      ],
+      "routeResultKeys": [
+        "seller",
+        "sellerName",
+        "slug",
+        "name",
+        "method",
+        "route",
+        "url",
+        "price",
+        "priceUsd",
+        "priceKnown",
+        "payable",
+        "bazaar{calls30d,payers30d,lastCalledAt,payTos,curated}",
+        "why{score,matchedOn,health,healthSource,...}",
+        "score",
+        "health",
+        "networks",
+        "category",
+        "description",
+        "tags"
+      ],
+      "notes": "route returns at most topMax=25 results; sellersMatched=1931 and matched=49035 give catalogue-size hints; responses flag containsUntrustedContent=true (seller-supplied text)",
+      "latencySeconds": {
+        "index": 0.68,
+        "route": 0.86
+      }
+    },
+    "vet402": {
+      "url": "https://vet402.com/api/v1/resolve?q=tienda.textokit.store",
+      "method": "GET",
+      "auth": "none",
+      "http": 200,
+      "files": [
+        "vet402-resolve-tienda.json"
+      ],
+      "topKeys": [
+        "query",
+        "disclaimer",
+        "endpoints"
+      ],
+      "endpointKeys": [
+        "endpoint_id",
+        "resource_id",
+        "observatory_id",
+        "canonical_url",
+        "method",
+        "payee_id",
+        "catalog_status",
+        "first_seen",
+        "last_seen"
+      ],
+      "latencySeconds": 1.07
+    }
+  },
+  "requestsGeneratedBy": "scripts/build_manifest_requests.py",
+  "requests": {
+    "GET https://agent402.tools/api/index?seller=tienda.textokit.store": {
+      "file": "agent402-index-seller-tienda.json",
+      "capturedAt": "2026-10-22T00:05:00Z",
+      "sha256": "e8a04c9322f43feb1ec7f9a566675f7d226e6812e09b5c64182ab7f671cb87d7",
+      "http": 200,
+      "contentType": "application/json",
+      "url": "https://agent402.tools/api/index?seller=tienda.textokit.store",
+      "method": "GET",
+      "family": "agent402"
+    },
+    "GET https://agent402.tools/api/route?include=external&q=x402+adoption": {
+      "file": "agent402-route-x402-adoption.json",
+      "capturedAt": "2026-10-22T00:05:00Z",
+      "sha256": "7bdec79ccccc0d8e17be2822edda007989e211936359dcf56db55769e7a48a72",
+      "http": 200,
+      "contentType": "application/json",
+      "url": "https://agent402.tools/api/route?q=x402%20adoption&include=external",
+      "method": "GET",
+      "family": "agent402"
+    },
+    "GET https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources?limit=100&offset=0": {
+      "file": "cdp-discovery-resources-p0.json",
+      "capturedAt": "2026-10-22T00:05:00Z",
+      "sha256": "828c301c7a7ba308b27f593b1f54653fa274a9b611e5c1e1e2386da4adc76c01",
+      "http": 200,
+      "contentType": "application/json",
+      "url": "https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources?limit=100&offset=0",
+      "method": "GET",
+      "family": "cdp_bazaar"
+    },
+    "GET https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources?limit=100&offset=100": {
+      "file": "cdp-discovery-resources-p1.json",
+      "capturedAt": "2026-10-22T00:05:00Z",
+      "sha256": "5566627d5c9f9fd151307f2e236502ca37b5b21d4c58cde5d401d4c31d30bb2b",
+      "http": 200,
+      "contentType": "application/json",
+      "url": "https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources?limit=100&offset=100",
+      "method": "GET",
+      "family": "cdp_bazaar"
+    },
+    "GET https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?limit=20&query=textokit": {
+      "file": "cdp-discovery-search-query-textokit.json",
+      "capturedAt": "2026-10-22T00:05:00Z",
+      "sha256": "7cc78cbb7450a70bfd3a2b231c8b801051669c29f156e808111681bc5170dd47",
+      "http": 200,
+      "contentType": "application/json",
+      "url": "https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?query=textokit&limit=20",
+      "method": "GET",
+      "family": "cdp_search"
+    },
+    "GET https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?limit=20&urlSubstring=tienda.textokit.store": {
+      "file": "cdp-discovery-search-urlSubstring-tienda.json",
+      "capturedAt": "2026-10-22T00:05:00Z",
+      "sha256": "da993b56bae87f758e2bbcbc4780609d1385f6b71a1afaaeee23122a7213002b",
+      "http": 200,
+      "contentType": "application/json",
+      "url": "https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?urlSubstring=tienda.textokit.store&limit=20",
+      "method": "GET",
+      "family": "cdp_search"
+    },
+    "GET https://tienda.textokit.store/llms.txt": {
+      "file": "store-llms.txt",
+      "capturedAt": "2026-10-22T00:05:00Z",
+      "sha256": "10b1a1eb3312b3b305449441f514112a32ff446e0190bb4f1d882cd0e63787e4",
+      "http": 200,
+      "contentType": "text/plain",
+      "url": "https://tienda.textokit.store/llms.txt",
+      "method": "GET",
+      "family": "store_openapi"
+    },
+    "GET https://tienda.textokit.store/openapi.json": {
+      "file": "store-openapi.json",
+      "capturedAt": "2026-10-22T00:05:00Z",
+      "sha256": "3cc61746315ead507b72edc81f4ba3cf807eab447f28cf201bf74b6e7935617f",
+      "http": 200,
+      "contentType": "application/json",
+      "url": "https://tienda.textokit.store/openapi.json",
+      "method": "GET",
+      "family": "store_openapi"
+    },
+    "GET https://tienda.textokit.store/receipts.json": {
+      "file": "store-receipts.json",
+      "capturedAt": "2026-10-22T00:05:00Z",
+      "sha256": "e179af8c286417ecfeb637e8dced806792030422513ff74b97ee84e88b138985",
+      "http": 200,
+      "contentType": "application/json",
+      "url": "https://tienda.textokit.store/receipts.json",
+      "method": "GET",
+      "family": "receipts"
+    },
+    "GET https://vet402.com/api/v1/resolve?q=tienda.textokit.store": {
+      "file": "vet402-resolve-tienda.json",
+      "capturedAt": "2026-10-22T00:05:00Z",
+      "sha256": "53d8e517e95e97c54e04629798b2997b10b4859ad2929ea8bebad340e9da54db",
+      "http": 200,
+      "contentType": "application/json",
+      "url": "https://vet402.com/api/v1/resolve?q=tienda.textokit.store",
+      "method": "GET",
+      "family": "vet402"
+    },
+    "GET https://x402-trust.com/api/activity.json": {
+      "file": "x402-trust-activity.json",
+      "capturedAt": "2026-10-22T00:05:00Z",
+      "sha256": "b27895099b953780bca3fd7e239b612b202167ae9ad887c1ef075337c40e9b9c",
+      "http": 200,
+      "contentType": "application/json",
+      "url": "https://x402-trust.com/api/activity.json",
+      "method": "GET",
+      "family": "x402_trust"
+    },
+    "GET https://x402-trust.com/llms.txt": {
+      "file": "x402-trust-llms.txt",
+      "capturedAt": "2026-10-22T00:05:00Z",
+      "sha256": "ee221f10a85e6b6c757d17e6527fdf297bf227ee075c253d5d05109010b970f3",
+      "http": 200,
+      "contentType": "text/plain",
+      "url": "https://x402-trust.com/llms.txt",
+      "method": "GET",
+      "family": "x402_trust"
+    },
+    "GET https://x402-trust.com/openapi.json": {
+      "file": "x402-trust-openapi.json",
+      "capturedAt": "2026-10-22T00:05:00Z",
+      "sha256": "2a53d895d4669e54d74f08d6fba374d59bc75dea56ef416be862b807529ea580",
+      "http": 200,
+      "contentType": "application/json",
+      "url": "https://x402-trust.com/openapi.json",
+      "method": "GET",
+      "family": "x402_trust"
+    },
+    "GET https://x402-trust.com/trust/leaderboard?limit=25&offset=0": {
+      "file": "x402-trust-leaderboard-p0.json",
+      "capturedAt": "2026-10-22T00:05:00Z",
+      "sha256": "2d9d40a8e9e62e6ccce5d5d5bb08c403c2f42bd81443388ea4d06723fb5b05e5",
+      "http": 200,
+      "contentType": "application/json",
+      "url": "https://x402-trust.com/trust/leaderboard?limit=25&offset=0",
+      "method": "GET",
+      "family": "x402_trust"
+    },
+    "GET https://x402-trust.com/trust/report.json": {
+      "file": "x402-trust-report.json",
+      "capturedAt": "2026-10-22T00:05:00Z",
+      "sha256": "ac8d5f8cfd7bc4ec6a7c0403487311bc0030d8f889afae43edf5e3ed7a507a4e",
+      "http": 200,
+      "contentType": "application/json",
+      "url": "https://x402-trust.com/trust/report.json",
+      "method": "GET",
+      "family": "x402_trust"
+    },
+    "GET https://x402-trust.com/trust/search?limit=25&offset=0&q=tienda.textokit.store": {
+      "file": "x402-trust-search-tienda.json",
+      "capturedAt": "2026-10-22T00:05:00Z",
+      "sha256": "d0afd0ef43c9b2c9786ecc1df6ebef8665681ef179a998a6bd289db03d78bdf2",
+      "http": 200,
+      "contentType": "application/json",
+      "url": "https://x402-trust.com/trust/search?q=tienda.textokit.store&limit=25&offset=0",
+      "method": "GET",
+      "family": "x402_trust"
+    },
+    "GET https://x402-trust.com/trust/stats": {
+      "file": "x402-trust-stats.json",
+      "capturedAt": "2026-10-22T00:05:00Z",
+      "sha256": "26ee64acb78ab5e07b53ab9bf4fd4dd95128844c90268f317f8621b5f775fa37",
+      "http": 200,
+      "contentType": "application/json",
+      "url": "https://x402-trust.com/trust/stats",
+      "method": "GET",
+      "family": "x402_trust"
+    },
+    "GET https://x402-trust.com/v1/facilitators": {
+      "file": "x402-trust-facilitators.json",
+      "capturedAt": "2026-10-22T00:05:00Z",
+      "sha256": "b4f1d54d5feb4edda1e7a2a53916e03354d201f3712cc9ea6c700a1ecfdbc01c",
+      "http": 200,
+      "contentType": "application/json",
+      "url": "https://x402-trust.com/v1/facilitators",
+      "method": "GET",
+      "family": "x402_trust"
+    },
+    "GET https://x402-trust.com/verified.json?limit=25&offset=0": {
+      "file": "x402-trust-verified-p0.json",
+      "capturedAt": "2026-10-22T00:05:00Z",
+      "sha256": "c52eacf293747de364aa00bc59812a5ce23b51eedfd159974a232792c02a3719",
+      "http": 200,
+      "contentType": "application/json",
+      "url": "https://x402-trust.com/verified.json?limit=25&offset=0",
+      "method": "GET",
+      "family": "x402_trust"
+    },
+    "POST https://x402-trust.com/v1/semantic-search af92a46a315d54ba": {
+      "file": "x402-trust-semantic-search-argentina-tax-id.json",
+      "capturedAt": "2026-10-22T00:05:00Z",
+      "sha256": "253b8189440fcb847ec418bada1e09d73cc21a657b44ac467b7ed98b0b183619",
+      "http": 200,
+      "contentType": "application/json",
+      "url": "https://x402-trust.com/v1/semantic-search",
+      "method": "POST",
+      "family": "x402_trust"
+    },
+    "RPC eth_blockNumber 4f53cda18c2baa0c": {
+      "file": "base-rpc-batch-blockNumber-chainId.json",
+      "capturedAt": "2026-10-22T00:05:00Z",
+      "sha256": "c756d78d11b3cdb43099164f6dee151001ab7be4a472e180df47c0b2c51b41f3",
+      "http": 200,
+      "contentType": "application/json",
+      "url": "https://mainnet.base.org",
+      "method": "POST",
+      "element": 0,
+      "family": "base_rpc"
+    },
+    "RPC eth_call db248b8bcb7ad3bb": {
+      "file": "base-rpc-eth_call-usdc-balanceOf-payer.json",
+      "capturedAt": "2026-10-22T00:05:00Z",
+      "sha256": "27c49155eb0252613b27d35520c5a87616940193528ee069aacab73e833ab738",
+      "http": 200,
+      "contentType": "application/json",
+      "url": "https://mainnet.base.org",
+      "method": "POST",
+      "family": "base_rpc"
+    },
+    "RPC eth_chainId 4f53cda18c2baa0c": {
+      "file": "base-rpc-batch-blockNumber-chainId.json",
+      "capturedAt": "2026-10-22T00:05:00Z",
+      "sha256": "c756d78d11b3cdb43099164f6dee151001ab7be4a472e180df47c0b2c51b41f3",
+      "http": 200,
+      "contentType": "application/json",
+      "url": "https://mainnet.base.org",
+      "method": "POST",
+      "element": 1,
+      "family": "base_rpc"
+    },
+    "RPC eth_getTransactionByHash 54fa30d4aadcf1af": {
+      "file": "base-rpc-eth_getTransactionByHash.json",
+      "capturedAt": "2026-10-22T00:05:00Z",
+      "sha256": "505491d34af383d44ba1e0b2c6b3a152893c31a8df1fb6b11989fadff7cd6ca5",
+      "http": 200,
+      "contentType": "application/json",
+      "url": "https://mainnet.base.org",
+      "method": "POST",
+      "family": "base_rpc"
+    },
+    "RPC eth_getTransactionCount 0c40644bd8fdd8d1": {
+      "file": "base-rpc-eth_getTransactionCount-payer.json",
+      "capturedAt": "2026-10-22T00:05:00Z",
+      "sha256": "6eb3a48cce1432c174fd659dd5173c759b3775ce2ffd808cc0e3dc3140a658d8",
+      "http": 200,
+      "contentType": "application/json",
+      "url": "https://mainnet.base.org",
+      "method": "POST",
+      "family": "base_rpc"
+    },
+    "RPC eth_getTransactionReceipt 54fa30d4aadcf1af": {
+      "file": "base-rpc-eth_getTransactionReceipt.json",
+      "capturedAt": "2026-10-22T00:05:00Z",
+      "sha256": "f7d915c990742d978d599a83c54530e59c88b2747bdfae9a9072482a363b080e",
+      "http": 200,
+      "contentType": "application/json",
+      "url": "https://mainnet.base.org",
+      "method": "POST",
+      "family": "base_rpc"
+    },
+    "SNAPSHOT cdp-discovery-catalog-compact": {
+      "file": "cdp-discovery-catalog-compact.json.gz",
+      "capturedAt": "2026-10-22T00:10:00Z",
+      "sha256": "e1b0040a2265596ab5871523a197f4620b75819b1cdbef269aefb9b61100f3b8",
+      "http": 200,
+      "contentType": "application/gzip",
+      "url": "https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources?limit=1000&offset=N",
+      "method": "GET",
+      "family": "cdp_catalog_snapshot"
+    }
+  }
+}

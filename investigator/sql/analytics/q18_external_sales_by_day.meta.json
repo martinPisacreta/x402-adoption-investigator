@@ -1,0 +1,19 @@
+{
+  "id": "q18_external_sales_by_day",
+  "params": [],
+  "columns": {
+    "day": "str",
+    "n_sales": "int",
+    "usdc_atomic": "int"
+  },
+  "expected_rows_bound": 60,
+  "sources": [
+    "receipts"
+  ],
+  "fields": [
+    "at",
+    "ownWallet",
+    "amountAtomic"
+  ],
+  "ansi_only": true
+}

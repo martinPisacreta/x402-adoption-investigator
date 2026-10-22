@@ -1,0 +1,408 @@
+# Automata service catalog / Catálogo de servicios
+
+API field names and enum values are unchanged across languages.
+Las claves JSON y los valores enumerados son iguales en ambos idiomas.
+
+Discovery: https://tienda.textokit.store/.well-known/x402
+OpenAPI: https://tienda.textokit.store/openapi.json
+Agent card: https://tienda.textokit.store/.well-known/agent-card.json
+
+## translate-es
+
+Translate to Spanish (Argentina): rioplatense voseo, any source language
+Translate text to Spanish as spoken in Argentina and Uruguay (rioplatense, voseo): up to 6,000 characters from any language, keeping names, numbers, links and formatting. Use this when an agent needs Spanish copy for Argentine or Uruguayan users, such as support replies, product listings, notifications or marketing, instead of neutral or European Spanish. Optional tone: formal, neutral or casual. JSON output. Free sample at /api/translate-es/sample.
+
+Traducción al español rioplatense
+Translate or adapt text of up to 6,000 characters into natural Spanish as spoken in Argentina and the Rio de la Plata (voseo), keeping names, numbers, links and formatting. Use this when an agent needs Spanish copy for Argentine or Uruguayan users, such as support replies, product listings, notifications or marketing, instead of neutral or European Spanish. Optional tone: formal, neutral or casual. Any input language; JSON output. Free sample at /api/translate-es/sample.
+
+POST https://tienda.textokit.store/api/translate-es
+Price / Precio: 0.003 USDC on Base
+ARS: 500
+Field / Campo text: Text to translate into Rioplatense Spanish; 1–6000 characters. / Text to translate into Rioplatense Spanish
+Field / Campo tone: Optional tone: formal, neutral or casual. Defaults to neutral. / Tone of the translation: formal, neutral (default) or casual
+English input example: {"text":"Hello! Your order ships tomorrow.","tone":"neutral"}
+Ejemplo de entrada en español: {"text":"Hello! Your order ships tomorrow.","tone":"neutral"}
+English output example: {"translation":"¡Hola! Tu pedido sale mañana.","model":"gpt-6-sol"}
+Ejemplo de salida en español: {"translation":"¡Hola! Tu pedido sale mañana.","model":"gpt-6-sol"}
+
+## bcra-indicadores
+
+Indicadores monetarios del BCRA
+Consulta una página de variables u observaciones por fecha de la API pública de estadísticas v4.0 del BCRA. El filtro de texto se aplica solo a la página recibida. La serie admite un identificador de variable y fechas opcionales. Incluye URL de fuente, hora de lectura y paginación informada por BCRA. Hace una lectura sin reintentos y rechaza respuestas incompletas. No ofrece búsqueda global ni historiales completos.
+
+Indicadores monetarios del BCRA
+Consulta una página de variables u observaciones por fecha de la API pública de estadísticas v4.0 del BCRA. El filtro de texto se aplica solo a la página recibida. La serie admite un identificador de variable y fechas opcionales. Incluye URL de fuente, hora de lectura y paginación informada por BCRA. Hace una lectura sin reintentos y rechaza respuestas incompletas. No ofrece búsqueda global ni historiales completos.
+
+POST https://tienda.textokit.store/api/bcra-indicadores
+Price / Precio: 0.002 USDC on Base
+Field / Campo resource: lista returns variables; serie returns observations for one variable. / lista devuelve variables; serie devuelve observaciones de una variable.
+Field / Campo query: Optional lista-only text filter within the received page; matches ID, description and category without case or accent distinctions. / Filtro opcional exclusivo de lista sobre ID, descripción y categoría de la página recibida, sin distinguir mayúsculas ni acentos.
+Field / Campo idVariable: Required for serie; forbidden for lista. Positive BCRA variable ID. / Identificador positivo de BCRA, obligatorio para serie y prohibido para lista.
+Field / Campo desde: Optional serie-only start date, YYYY-MM-DD; must not exceed hasta. / Fecha inicial opcional exclusiva de serie, AAAA-MM-DD; no puede superar hasta.
+Field / Campo hasta: Optional serie-only end date, YYYY-MM-DD. / Fecha final opcional exclusiva de serie, AAAA-MM-DD.
+Field / Campo limit: Requested page size, 1–20; defaults to 5. / Tamaño de página solicitado, de 1 a 20; predeterminado: 5.
+Field / Campo offset: Requested page offset; defaults to 0. / Desplazamiento solicitado; predeterminado: 0.
+English input example: {"resource":"serie","idVariable":1,"limit":3}
+Ejemplo de entrada en español: {"resource":"serie","idVariable":1,"limit":3}
+English output example: {"resource":"serie","source":"Banco Central de la República Argentina, public statistics API v4.0","sourceUrl":"https://api.bcra.gob.ar/estadisticas/v4.0/monetarias/1?limit=3&offset=0","readAt":"2026-01-01T00:00:00.000Z","requestedLimit":3,"requestedOffset":0,"sourcePagination":{"count":1,"offset":0,"limit":3},"sourceReturned":1,"returned":1,"items":[{"idVariable":1,"fecha":"2025-12-31","valor":123}],"scope":"Illustrative fixture with simulated values, pagination and timestamp; not a live BCRA reading."}
+Ejemplo de salida en español: {"resource":"serie","source":"Banco Central de la República Argentina, public statistics API v4.0","sourceUrl":"https://api.bcra.gob.ar/estadisticas/v4.0/monetarias/1?limit=3&offset=0","readAt":"2026-01-01T00:00:00.000Z","requestedLimit":3,"requestedOffset":0,"sourcePagination":{"count":1,"offset":0,"limit":3},"sourceReturned":1,"returned":1,"items":[{"idVariable":1,"fecha":"2025-12-31","valor":123}],"scope":"Illustrative fixture with simulated values, pagination and timestamp; not a live BCRA reading."}
+
+## cartas-ar
+
+Formal letter in Argentine Spanish
+Drafts a firm, courteous formal letter in Argentine Spanish using the supplied information. Supports reclamo, intimacion or solicitud and an optional requested response period. Does not verify facts or determine legal effects. If drafting fails, returns the existing template and explains its scope. Examples preserve the supplied Spanish text.
+
+Carta formal en español de Argentina
+Formal letter in Argentine Spanish drafted from the facts you supply: claim, demand or request to a company or person, with sender, recipient, subject, facts, what you ask for and an optional response deadline in days. Use this when an agent must produce a firm, courteous letter for an Argentine consumer or business dispute. Returns the letter as text; it does not verify facts or give legal advice. Free sample at /api/cartas-ar/sample.
+
+POST https://tienda.textokit.store/api/cartas-ar
+Price / Precio: 0.005 USDC on Base
+ARS: 1200
+Field / Campo remitente: Name or identification to include in the signature / Nombre o identificación que debe figurar en la firma
+Field / Campo destinatario: Recipient person or organization / Persona u organización destinataria
+Field / Campo lugarYFecha: Place and date supplied by the buyer / Lugar y fecha suministrados por el comprador
+Field / Campo asunto: Subject to include in the reference line of the letter / Asunto que debe figurar en la referencia de la carta
+Field / Campo hechos: Supplied facts for the body, ordered chronologically when the information permits / Hechos aportados para redactar el cuerpo; se ordenan cronológicamente cuando los datos lo permiten
+Field / Campo solicitud: Requested action and conditions supplied by the buyer / Petición concreta y condiciones aportadas por el comprador
+Field / Campo tipo: Letter type: reclamo, intimacion or solicitud. Defaults to reclamo when omitted. Does not determine legal effects. / Tipo de carta; si se omite, se usa reclamo. No determina efectos jurídicos.
+Field / Campo plazoDias: Optional requested response period in days, from 1 to 60. Does not determine a legal deadline or a due date. / Plazo solicitado de respuesta en días. No determina un plazo legal ni una fecha de vencimiento.
+English input example: {"remitente":"Ana Pérez","destinatario":"Comercio Los Aromos","lugarYFecha":"Rosario, 13 de octubre de 2026","asunto":"Reclamo por entrega pendiente","hechos":"El 8 de octubre de 2026 consulté por la entrega y no recibí respuesta. El 2 de octubre de 2026 compré una mesa por $85.000. La entrega acordada era el 7 de octubre de 2026 y ese día no recibí la mesa.","solicitud":"Solicito que informen una fecha concreta de entrega de la mesa.","plazoDias":5}
+Ejemplo de entrada en español: {"remitente":"Ana Pérez","destinatario":"Comercio Los Aromos","lugarYFecha":"Rosario, 13 de octubre de 2026","asunto":"Reclamo por entrega pendiente","hechos":"El 8 de octubre de 2026 consulté por la entrega y no recibí respuesta. El 2 de octubre de 2026 compré una mesa por $85.000. La entrega acordada era el 7 de octubre de 2026 y ese día no recibí la mesa.","solicitud":"Solicito que informen una fecha concreta de entrega de la mesa.","plazoDias":5}
+English output example: {"carta":"Rosario, 13 de octubre de 2026\n\nComercio Los Aromos\n\nReferencia: Reclamo por entrega pendiente\n\nMe dirijo a ustedes para presentar un reclamo por la entrega pendiente de una mesa.\n\nEl 2 de octubre de 2026 compré una mesa por $85.000. La entrega acordada era el 7 de octubre de 2026 y ese día no recibí la mesa. El 8 de octubre de 2026 consulté por la entrega y no recibí respuesta.\n\nSolicito que informen una fecha concreta de entrega de la mesa. Solicito una respuesta en un plazo de 5 días.\n\nAtentamente,\n\nAna Pérez","alcance":"Borrador redactado con un modelo a partir de los datos suministrados. No verifica hechos ni determina derechos, plazos legales o efectos jurídicos. Revisá el texto antes de usarlo.","model":"gpt-6-sol"}
+Ejemplo de salida en español: {"carta":"Rosario, 13 de octubre de 2026\n\nComercio Los Aromos\n\nReferencia: Reclamo por entrega pendiente\n\nMe dirijo a ustedes para presentar un reclamo por la entrega pendiente de una mesa.\n\nEl 2 de octubre de 2026 compré una mesa por $85.000. La entrega acordada era el 7 de octubre de 2026 y ese día no recibí la mesa. El 8 de octubre de 2026 consulté por la entrega y no recibí respuesta.\n\nSolicito que informen una fecha concreta de entrega de la mesa. Solicito una respuesta en un plazo de 5 días.\n\nAtentamente,\n\nAna Pérez","alcance":"Borrador redactado con un modelo a partir de los datos suministrados. No verifica hechos ni determina derechos, plazos legales o efectos jurídicos. Revisá el texto antes de usarlo.","model":"gpt-6-sol"}
+
+## comparar-textos
+
+Compare texts literally
+Compare two strings literally without normalization or inference. Returns equality, lengths and the first difference with Unicode code point and UTF-16 positions. Each input supports up to 20000 UTF-16 units. Does not verify file bytes, facts or delivery acceptance.
+
+Comparar textos literalmente
+Compare two strings literally, with no normalization and no inference: equality, lengths, and the first difference with line, column, Unicode code point and UTF-16 offset. Up to 20,000 UTF-16 units each. Use this when an agent must check that a delivered text matches the agreed text exactly, or locate where two versions diverge. Deterministic JSON. Free sample at /api/comparar-textos/sample.
+
+POST https://tienda.textokit.store/api/comparar-textos
+Price / Precio: 0.001 USDC on Base
+ARS: 300
+Field / Campo original: Original string; at most 20000 UTF-16 code units. / Original text; handler limit: 20000 UTF-16 units
+Field / Campo entrega: String to compare against the original; at most 20000 UTF-16 code units. Keep the JSON key entrega. / Delivered text; handler limit: 20000 UTF-16 units
+English input example: {"original":"😀a","entrega":"😀b"}
+Ejemplo de entrada en español: {"original":"😀a","entrega":"😀b"}
+English output example: {"equal":false,"lengths":{"original":{"codePoints":2,"utf16":3},"entrega":{"codePoints":2,"utf16":3}},"firstDifference":{"codePointIndex":1,"utf16Offset":2,"line":1,"column":2,"original":{"character":"a","codePoint":"U+0061"},"entrega":{"character":"b","codePoint":"U+0062"}},"positionConvention":{"codePointIndexBase":0,"utf16OffsetBase":0,"lineBase":1,"columnBase":1,"lineSeparator":"LF","columnUnit":"Unicode code points"},"scope":"Compares the received strings literally, without normalization or inference. Does not verify file bytes, facts or delivery acceptance."}
+Ejemplo de salida en español: {"equal":false,"lengths":{"original":{"codePoints":2,"utf16":3},"entrega":{"codePoints":2,"utf16":3}},"firstDifference":{"codePointIndex":1,"utf16Offset":2,"line":1,"column":2,"original":{"character":"a","codePoint":"U+0061"},"entrega":{"character":"b","codePoint":"U+0062"}},"positionConvention":{"codePointIndexBase":0,"utf16OffsetBase":0,"lineBase":1,"columnBase":1,"lineSeparator":"LF","columnUnit":"Unicode code points"},"scope":"Compara literalmente las cadenas recibidas, sin normalización ni inferencia. No verifica bytes de archivos, hechos ni aceptación de una entrega."}
+
+## crypto-prices
+
+Precios de criptomonedas en USD
+Consulta precio spot USD, capitalización y variación porcentual de 24 horas para 1 a 20 IDs de CoinGecko. Incluye fuente y hora de lectura; actualización del proveedor cuando existe. Las métricas opcionales ausentes son null; un precio ausente produce error. Una lectura por ejecución, sin reintentos automáticos. La fuente puede usar caché; sus fallos y HTTP 429 generan errores claros.
+
+Precios de criptomonedas en USD
+Consulta precio spot USD, capitalización y variación porcentual de 24 horas para 1 a 20 IDs de CoinGecko. Incluye fuente y hora de lectura; actualización del proveedor cuando existe. Las métricas opcionales ausentes son null; un precio ausente produce error. Una lectura por ejecución, sin reintentos automáticos. La fuente puede usar caché; sus fallos y HTTP 429 generan errores claros.
+
+POST https://tienda.textokit.store/api/crypto-prices
+Price / Precio: 0.001 USDC on Base
+Field / Campo coins: Comma-separated list of 1–20 distinct lowercase CoinGecko IDs, such as bitcoin,ethereum. Symbols are not supported. / Lista separada por comas de 1 a 20 IDs únicos de CoinGecko en minúsculas, como bitcoin,ethereum. No admite símbolos.
+English input example: {"coins":"bitcoin,ethereum"}
+Ejemplo de entrada en español: {"coins":"bitcoin,ethereum"}
+English output example: {"source":"CoinGecko public API","sourceUrl":"https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_market_cap=true&include_24hr_change=true&include_last_updated_at=true","readAt":"2026-01-01T00:00:00.000Z","currency":"usd","items":[{"id":"bitcoin","priceUsd":123,"marketCapUsd":456,"change24hPercent":-2,"sourceUpdatedAt":null}],"scope":"Illustrative fixture with simulated values and timestamp; not a live market reading."}
+Ejemplo de salida en español: {"source":"CoinGecko public API","sourceUrl":"https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_market_cap=true&include_24hr_change=true&include_last_updated_at=true","readAt":"2026-01-01T00:00:00.000Z","currency":"usd","items":[{"id":"bitcoin","priceUsd":123,"marketCapUsd":456,"change24hPercent":-2,"sourceUpdatedAt":null}],"scope":"Illustrative fixture with simulated values and timestamp; not a live market reading."}
+
+## cuit-ar
+
+Validate Argentine CUIT or CUIL tax id (check digit, KYC onboarding)
+Validate an Argentine CUIT or CUIL tax id: format and check-digit verification, normalized and formatted forms, declared type (CUIT or CUIL). Use this when an agent collects Argentine customer or supplier ids and must reject typos before invoicing, KYC or onboarding. Mathematical validation only: it does not confirm registration or ownership. JSON, no model inference. Free sample at /api/cuit-ar/sample.
+
+Validación de CUIT y CUIL
+Validate an Argentine CUIT or CUIL tax id: format and check-digit verification, normalized and formatted forms, declared type (CUIT or CUIL). Use this when an agent collects Argentine customer or supplier ids and must reject typos before invoicing, KYC or onboarding. Mathematical validation only: it does not confirm registration or ownership. JSON, no model inference. Free sample at /api/cuit-ar/sample.
+
+POST https://tienda.textokit.store/api/cuit-ar
+Price / Precio: 0.001 USDC on Base
+Field / Campo identifier: Eleven digits or XX-XXXXXXXX-X format, supplied as text; up to 32 characters. / Once dígitos o formato XX-XXXXXXXX-X.
+Field / Campo type: Optional caller-declared type: auto, CUIT or CUIL. Defaults to auto; does not confirm the type. / Tipo declarado; auto deja el tipo sin determinar.
+English input example: {"identifier":"20-12345678-6","type":"auto"}
+Ejemplo de entrada en español: {"identifier":"20-12345678-6","type":"CUIT"}
+English output example: {"formatValid":true,"checksumValid":true,"mathematicallyValid":true,"normalized":"20123456786","formatted":"20-12345678-6","providedCheckDigit":6,"calculatedCheckDigit":6,"requestedType":"auto","type":null,"typeConfirmed":false,"typeBasis":"undetermined","publicVerification":{"performed":false,"sources":[]},"scope":"Mathematical validity does not establish assignment, ownership, registration, or current status. The calculation cannot distinguish CUIT from CUIL; the supplied type reflects only the requester's declaration. The current handler does not verify identifiers against public sources. The result is not an official certificate.","errors":[]}
+Ejemplo de salida en español: {"formatValid":true,"checksumValid":true,"mathematicallyValid":true,"normalized":"20123456786","formatted":"20-12345678-6","providedCheckDigit":6,"calculatedCheckDigit":6,"requestedType":"CUIT","type":"CUIT","typeConfirmed":false,"typeBasis":"callerDeclaration","publicVerification":{"performed":false,"sources":[]},"scope":"La comprobación de formato y dígito no acredita asignación, titularidad, inscripción ni vigencia. CUIT y CUIL comparten formato y algoritmo; el tipo declarado no está confirmado.","errors":[]}
+
+## dev-utils
+
+Hash, HMAC, JWT decode, UUID, base64 and time zone utilities
+Hash sha256, sha512, sha1 or md5, HMAC, JWT decode (header, payload, expiry, optional HS256 check), UUID v4, base64 encode and decode, URL parse, time zone convert and unix to ISO: one deterministic op per call. Use this when an agent needs a verifiable transform without shipping its own library. Pure Node, no upstream, no model inference, nothing stored, JSON out. Free sample at /api/dev-utils/sample.
+
+Hash, HMAC, JWT decode, UUID, base64 and time zone utilities
+Hash sha256, sha512, sha1 or md5, HMAC, JWT decode (header, payload, expiry, optional HS256 check), UUID v4, base64 encode and decode, URL parse, time zone convert and unix to ISO: one deterministic op per call. Use this when an agent needs a verifiable transform without shipping its own library. Pure Node, no upstream, no model inference, nothing stored, JSON out. Free sample at /api/dev-utils/sample.
+
+POST https://tienda.textokit.store/api/dev-utils
+Price / Precio: 0.001 USDC on Base
+Field / Campo op: Operation to run. / Operation to run.
+Field / Campo value: Input text, token, URL, timestamp or local datetime (depends on op). / Input text, token, URL, timestamp or local datetime (depends on op).
+Field / Campo algorithm: Hash algorithm for hash and hmac (default sha256). / Hash algorithm for hash and hmac (default sha256).
+Field / Campo secret: Secret for hmac or for optional HS256 verification in jwt_decode. / Secret for hmac or for optional HS256 verification in jwt_decode.
+Field / Campo from: IANA source time zone for tz_convert (default UTC). / IANA source time zone for tz_convert (default UTC).
+Field / Campo to: IANA target time zone for tz_convert (default UTC). / IANA target time zone for tz_convert (default UTC).
+English input example: {"op":"hash","value":"hello world","algorithm":"sha256"}
+Ejemplo de entrada en español: {"op":"hash","value":"hello world","algorithm":"sha256"}
+English output example: {"op":"hash","algorithm":"sha256","inputLength":11,"hex":"b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9","base64":"uU0nuZNNPgilLlLX2n2r+sSE7+N6U4DukIj3rOLvzek=","readAt":"2026-10-16T06:29:30.955Z"}
+Ejemplo de salida en español: {"op":"hash","algorithm":"sha256","inputLength":11,"hex":"b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9","base64":"uU0nuZNNPgilLlLX2n2r+sSE7+N6U4DukIj3rOLvzek=","readAt":"2026-10-16T06:29:30.955Z"}
+
+## direcciones-ar
+
+Argentine address candidates from Georef
+Returns possible Argentine address matches from Georef, preserving source records, URL and reading time. An optional province identifier restricts the request; records outside that province cause rejection. Results do not guarantee a unique or correct match or an exhaustive search.
+
+Coincidencias de direcciones argentinas con Georef
+Devuelve posibles coincidencias de direcciones argentinas de Georef, conservando registros, URL y fecha de lectura. Un identificador provincial opcional restringe la consulta; los registros de otra provincia causan rechazo. No garantiza una coincidencia única o correcta ni una búsqueda exhaustiva.
+
+POST https://tienda.textokit.store/api/direcciones-ar
+Price / Precio: 0.002 USDC on Base
+Field / Campo direccion: Address text, from 3 to 200 characters. Locality text alone may not restrict results. / Texto de dirección, de 3 a 200 caracteres. Mencionar una localidad puede no restringir los resultados.
+Field / Campo provinciaId: Optional two-digit province identifier, preserving leading zeros. Example: 02 for CABA. / Identificador provincial opcional de dos dígitos, conservando ceros iniciales. Ejemplo: 02 para CABA.
+Field / Campo limit: Maximum returned candidates, from 1 to 10; defaults to 5. / Máximo de coincidencias devueltas, de 1 a 10; por defecto, 5.
+English input example: {"direccion":"Av. Corrientes 1234","provinciaId":"02","limit":3}
+Ejemplo de entrada en español: {"direccion":"Av. Corrientes 1234","provinciaId":"02","limit":3}
+English output example: {"direcciones":[{"altura":{"unidad":null,"valor":1234},"calle":{"categoria":"AV","id":"0200701001185","nombre":"AV CORRIENTES"},"calle_cruce_1":{"categoria":null,"id":null,"nombre":null},"calle_cruce_2":{"categoria":null,"id":null,"nombre":null},"departamento":{"id":"02007","nombre":"Comuna 1"},"localidad_censal":{"id":"02000010","nombre":"Ciudad Autónoma de Buenos Aires"},"nomenclatura":"AV CORRIENTES 1234, Comuna 1, Ciudad Autónoma de Buenos Aires","piso":null,"provincia":{"id":"02","nombre":"Ciudad Autónoma de Buenos Aires"},"ubicacion":{"lat":-34.60385632930893,"lon":-58.38419018127011}}],"fuente":{"url":"https://apis.datos.gob.ar/georef/api/direcciones?direccion=Av.+Corrientes+1234&max=3&provincia=02","consultadoEn":"2026-10-12T10:46:35.433934+00:00"}}
+Ejemplo de salida en español: {"direcciones":[{"altura":{"unidad":null,"valor":1234},"calle":{"categoria":"AV","id":"0200701001185","nombre":"AV CORRIENTES"},"calle_cruce_1":{"categoria":null,"id":null,"nombre":null},"calle_cruce_2":{"categoria":null,"id":null,"nombre":null},"departamento":{"id":"02007","nombre":"Comuna 1"},"localidad_censal":{"id":"02000010","nombre":"Ciudad Autónoma de Buenos Aires"},"nomenclatura":"AV CORRIENTES 1234, Comuna 1, Ciudad Autónoma de Buenos Aires","piso":null,"provincia":{"id":"02","nombre":"Ciudad Autónoma de Buenos Aires"},"ubicacion":{"lat":-34.60385632930893,"lon":-58.38419018127011}}],"fuente":{"url":"https://apis.datos.gob.ar/georef/api/direcciones?direccion=Av.+Corrientes+1234&max=3&provincia=02","consultadoEn":"2026-10-12T10:46:35.433934+00:00"}}
+
+## dolar-ar
+
+Argentina dollar exchange rates
+Return official, blue, MEP (bolsa) and CCL rates published by DolarAPI, with buy and sell prices, source URL, reading time, source update timestamps and evidence references. Does not guarantee real-time prices or independent confirmation.
+
+Cotizaciones del dólar en Argentina
+Returns Argentine peso quotes for the official, blue, MEP and CCL dollar from DolarAPI, including buy and sell values, provider update timestamps, read time and source evidence. JSON response. Quotes may be delayed and are not independently verified. Free documentary example at /api/dolar-ar/sample.
+
+POST https://tienda.textokit.store/api/dolar-ar
+Price / Precio: 0.002 USDC on Base
+English input example: {}
+Ejemplo de entrada en español: {}
+English output example: {"source":"DolarAPI","sourceUrl":"https://dolarapi.com/v1/dolares","readAt":"2026-10-12T04:58:37.706831+00:00","quotes":[{"moneda":"USD","casa":"oficial","nombre":"Oficial","compra":1485,"venta":1535,"fechaActualizacion":"2026-10-09T18:55:00.000Z"},{"moneda":"USD","casa":"blue","nombre":"Blue","compra":1520,"venta":1540,"fechaActualizacion":"2026-10-11T21:00:00.000Z"},{"moneda":"USD","casa":"bolsa","nombre":"Bolsa","compra":1535.9,"venta":1542.9,"fechaActualizacion":"2026-10-11T21:00:00.000Z"},{"moneda":"USD","casa":"contadoconliqui","nombre":"Contado con liquidación","compra":1605.5,"venta":1606.6,"fechaActualizacion":"2026-10-11T21:00:00.000Z"}],"evidence":{"response":"evidence/source-20261012T045837356753Z/response.body","responseSha256":"828b819ac929a1e8e262107e4f16243f1c1877ab8cc1b2df94cf6b4923761d04","responseBytes":1227},"scope":"Rates published by DolarAPI. Reading time differs from each source update timestamp; no guarantee of real-time prices or independent confirmation. This is a historical example."}
+Ejemplo de salida en español: {"source":"DolarAPI","sourceUrl":"https://dolarapi.com/v1/dolares","readAt":"2026-10-12T04:58:37.706831+00:00","quotes":[{"moneda":"USD","casa":"oficial","nombre":"Oficial","compra":1485,"venta":1535,"fechaActualizacion":"2026-10-09T18:55:00.000Z"},{"moneda":"USD","casa":"blue","nombre":"Blue","compra":1520,"venta":1540,"fechaActualizacion":"2026-10-11T21:00:00.000Z"},{"moneda":"USD","casa":"bolsa","nombre":"Bolsa","compra":1535.9,"venta":1542.9,"fechaActualizacion":"2026-10-11T21:00:00.000Z"},{"moneda":"USD","casa":"contadoconliqui","nombre":"Contado con liquidación","compra":1605.5,"venta":1606.6,"fechaActualizacion":"2026-10-11T21:00:00.000Z"}],"evidence":{"response":"evidence/source-20261012T045837356753Z/response.body","responseSha256":"828b819ac929a1e8e262107e4f16243f1c1877ab8cc1b2df94cf6b4923761d04","responseBytes":1227},"scope":"Cotizaciones publicadas por DolarAPI. La hora de lectura y la fecha de actualización de cada registro son distintas; no garantiza precios en tiempo real ni confirma datos con otra fuente.","quoteAges":{"readAt":"2026-10-12T04:58:37.706831+00:00","quotes":[{"casa":"oficial","sourceUpdatedAt":"2026-10-09T18:55:00.000Z","ageAtReadSeconds":209017.706},{"casa":"blue","sourceUpdatedAt":"2026-10-11T21:00:00.000Z","ageAtReadSeconds":28717.706},{"casa":"bolsa","sourceUpdatedAt":"2026-10-11T21:00:00.000Z","ageAtReadSeconds":28717.706},{"casa":"contadoconliqui","sourceUpdatedAt":"2026-10-11T21:00:00.000Z","ageAtReadSeconds":28717.706}],"scope":"Tiempo entre la actualización declarada por el proveedor y la lectura. No confirma vigencia del precio ni mide la demora posterior a esa lectura."}}
+
+## fx-rates
+
+FX rates: daily exchange rates for USD, EUR, ARS, BRL and 160 currencies
+FX rates and currency conversion reference: daily exchange rates for up to 20 currencies against one base (USD, EUR, GBP, JPY, BRL, MXN, ARS and about 160 more) with rate, reference date and source URL from Frankfurter (central-bank data, MIT licence). Use this when an agent needs an official-style exchange rate to price, invoice or convert amounts and must cite where it came from. Daily rates, not intraday; JSON, no model inference. Free sample at /api/fx-rates/sample.
+
+FX rates: daily exchange rates for USD, EUR, ARS, BRL and 160 currencies
+FX rates and currency conversion reference: daily exchange rates for up to 20 currencies against one base (USD, EUR, GBP, JPY, BRL, MXN, ARS and about 160 more) with rate, reference date and source URL from Frankfurter (central-bank data, MIT licence). Use this when an agent needs an official-style exchange rate to price, invoice or convert amounts and must cite where it came from. Daily rates, not intraday; JSON, no model inference. Free sample at /api/fx-rates/sample.
+
+POST https://tienda.textokit.store/api/fx-rates
+Price / Precio: 0.001 USDC on Base
+Field / Campo base: Base currency, ISO 4217 (default USD). / Base currency, ISO 4217 (default USD).
+Field / Campo quotes: Comma-separated quote currencies, 1 to 20 ISO 4217 codes. / Comma-separated quote currencies, 1 to 20 ISO 4217 codes.
+English input example: {"base":"USD","quotes":"EUR,GBP,BRL,ARS,MXN,JPY"}
+Ejemplo de entrada en español: {"base":"USD","quotes":"EUR,GBP,BRL,ARS,MXN,JPY"}
+English output example: {"base":"USD","rates":{"ARS":1512.47,"BRL":5.0379,"EUR":0.89273,"GBP":0.75433,"JPY":158.22,"MXN":18.471},"dates":{"ARS":"2026-10-15","BRL":"2026-10-15","EUR":"2026-10-16","GBP":"2026-10-16","JPY":"2026-10-16","MXN":"2026-10-16"},"unavailable":[],"degraded":false,"readAt":"2026-10-16T06:29:31.190Z","sources":[{"name":"Frankfurter v2 (central-bank reference rates)","url":"https://api.frankfurter.dev/v2/rates?base=USD","license":"MIT","date":"2026-10-16"}],"scope":"Daily reference rates, not intraday quotes; each rate carries its own reference date."}
+Ejemplo de salida en español: {"base":"USD","rates":{"ARS":1512.47,"BRL":5.0379,"EUR":0.89273,"GBP":0.75433,"JPY":158.22,"MXN":18.471},"dates":{"ARS":"2026-10-15","BRL":"2026-10-15","EUR":"2026-10-16","GBP":"2026-10-16","JPY":"2026-10-16","MXN":"2026-10-16"},"unavailable":[],"degraded":false,"readAt":"2026-10-16T06:29:31.190Z","sources":[{"name":"Frankfurter v2 (central-bank reference rates)","url":"https://api.frankfurter.dev/v2/rates?base=USD","license":"MIT","date":"2026-10-16"}],"scope":"Daily reference rates, not intraday quotes; each rate carries its own reference date."}
+
+## normativa-ar
+
+Argentina Boletin Oficial search: official gazette notices with excerpts
+Argentina official gazette (Boletin Oficial) keyword search returning literal excerpts of matching notices with dates and source URLs; an optional date limits the search to that day's notices. Use this when an agent needs primary-source evidence of an Argentine regulation, decree, resolution or notice. No completeness guarantee and no legal interpretation; if the official search cannot be verified the call fails and is not settled. Free sample at /api/normativa-ar/sample.
+
+Búsqueda en el Boletín Oficial
+Argentina official gazette (Boletin Oficial) keyword search returning literal excerpts of matching notices with dates and source URLs; an optional date limits the search to that day's notices. Use this when an agent needs primary-source evidence of an Argentine regulation, decree, resolution or notice. No completeness guarantee and no legal interpretation; if the official search cannot be verified the call fails and is not settled. Free sample at /api/normativa-ar/sample.
+
+POST https://tienda.textokit.store/api/normativa-ar
+Price / Precio: 0.005 USDC on Base
+ARS: 700
+Field / Campo query: Nonempty keyword or search text, up to 200 UTF-16 units. / Palabra clave o texto de búsqueda no vacío
+Field / Campo date: Optional publication date, YYYY-MM-DD, selecting daily mode. Omit for keyword search without a date; supplied dates must be valid. / Opcional: fecha de publicación YYYY-MM-DD para activar el modo diario; debe ser una fecha real. Omitir para buscar por palabra clave sin fecha.
+Field / Campo limit: Maximum notices to read, from 1 to 10; default: 3. / Máximo de avisos a leer; predeterminado: 3
+English input example: {"query":"monotributo","date":"Optional publication date, YYYY-MM-DD, selecting daily mode. Omit for keyword search without a date; supplied dates must be valid.","limit":2}
+Ejemplo de entrada en español: {"query":"monotributo","limit":2}
+English output example: {"error":"The verified daily query could not be completed. This does not establish absence of notices or complete coverage."}
+Ejemplo de salida en español: {"error":"Si la consulta oficial no puede verificarse, el servicio devuelve un error; no se interpreta como ausencia de resultados."}
+
+## polymarket-markets
+
+Mercados y datos públicos de Polymarket
+Consulta una página de mercados públicos de Gamma o posiciones y actividad de una billetera en Data API. Los filtros y el orden de mercados se aplican solo a la página recibida. Devuelve campos originales compactos, fuente y hora de lectura. No acredita coincidencias globales, rankings ni cobertura completa de la billetera. Si la fuente falla, devuelve un error sin inventar resultados.
+
+Mercados y datos públicos de Polymarket
+Consulta una página de mercados públicos de Gamma o posiciones y actividad de una billetera en Data API. Los filtros y el orden de mercados se aplican solo a la página recibida. Devuelve campos originales compactos, fuente y hora de lectura. No acredita coincidencias globales, rankings ni cobertura completa de la billetera. Si la fuente falla, devuelve un error sin inventar resultados.
+
+POST https://tienda.textokit.store/api/polymarket-markets
+Price / Precio: 0.002 USDC on Base
+Field / Campo resource: Defaults to markets. Positions and activity require user. / Recurso: markets, positions o activity. Por defecto markets; posiciones y actividad requieren user.
+Field / Campo query: Case-insensitive substring search in question and slug within the received market page. Whitespace-only values are rejected. Markets only. / Busca una subcadena sin distinguir mayúsculas en question y slug dentro de la página recibida. Solo mercados; no admite texto vacío.
+Field / Campo status: Filter the received market page. Active requires active=true and closed=false; closed requires closed=true. Defaults to all. Markets only. / Filtra la página de mercados recibida: all, active o closed. Active exige active=true y closed=false; closed exige closed=true. Por defecto all.
+Field / Campo order: Descending ordering within the received market page; missing numeric values sort last. Defaults to volume. Markets only. / Orden descendente por volume o liquidity dentro de la página recibida. Valores ausentes al final; por defecto volume.
+Field / Campo user: Public wallet address required for positions and activity; rejected for markets. / Dirección pública de billetera requerida para posiciones y actividad. No se admite para mercados.
+Field / Campo limit: Upstream page size before local filtering; defaults to 5. A filtered page may return fewer records or none. / Cantidad solicitada a la fuente antes del filtrado local, de 1 a 20. Por defecto 5; puede devolver menos registros o ninguno.
+Field / Campo offset: Offset passed to the upstream endpoint before local filtering; defaults to 0. Endpoint-specific restrictions may cause an upstream error. / Desplazamiento enviado a la fuente antes del filtrado local. Por defecto 0; la fuente puede imponer restricciones adicionales.
+English input example: {"resource":"markets","limit":1,"offset":0}
+Ejemplo de entrada en español: {"resource":"markets","limit":1,"offset":0}
+English output example: {"resource":"markets","sourceUrl":"https://gamma-api.polymarket.com/markets?limit=1&offset=0","readAt":"2026-10-12T19:12:18.241Z","pagination":{"limit":1,"offset":0,"returned":1,"sourceReturned":1,"offsetScope":"upstream_page","totalKnown":false},"items":[{"id":"559651","question":"Xi Jinping out before 2027?","slug":"xi-jinping-out-before-2027","conditionId":"0xa467b14d51f01b957109d9cbb1d6c124fab2a089d52ed8f471d23c2812e743b7","active":true,"closed":false,"archived":false,"endDate":"2027-01-01T04:59:00Z","volume":"14770807.421027988","volumeNum":14770807.421027988,"liquidity":"626904.29825","liquidityNum":626904.29825,"outcomes":"[\"Yes\", \"No\"]","outcomePrices":"[\"0.0285\", \"0.9715\"]","clobTokenIds":"[\"32338220190071351435772801779725302244575775216413325951443816017994629993401\", \"25659310674993675562345759665114759892400026242514633218387667107987341231962\"]"}],"selection":{"scope":"received_page_only","status":"all","order":"volume","direction":"descending","queryFields":["question","slug"],"missingOrderValues":"last"},"scope":"Text and status filters and ordering apply only to this source page. Results do not establish global matches or global ranking; an empty selection does not establish absence of matching markets."}
+Ejemplo de salida en español: {"resource":"markets","sourceUrl":"https://gamma-api.polymarket.com/markets?limit=1&offset=0","readAt":"2026-10-12T19:12:18.241Z","pagination":{"limit":1,"offset":0,"returned":1,"sourceReturned":1,"offsetScope":"upstream_page","totalKnown":false},"items":[{"id":"559651","question":"Xi Jinping out before 2027?","slug":"xi-jinping-out-before-2027","conditionId":"0xa467b14d51f01b957109d9cbb1d6c124fab2a089d52ed8f471d23c2812e743b7","active":true,"closed":false,"archived":false,"endDate":"2027-01-01T04:59:00Z","volume":"14770807.421027988","volumeNum":14770807.421027988,"liquidity":"626904.29825","liquidityNum":626904.29825,"outcomes":"[\"Yes\", \"No\"]","outcomePrices":"[\"0.0285\", \"0.9715\"]","clobTokenIds":"[\"32338220190071351435772801779725302244575775216413325951443816017994629993401\", \"25659310674993675562345759665114759892400026242514633218387667107987341231962\"]"}],"selection":{"scope":"received_page_only","status":"all","order":"volume","direction":"descending","queryFields":["question","slug"],"missingOrderValues":"last"},"scope":"Text and status filters and ordering apply only to this source page. Results do not establish global matches or global ranking; an empty selection does not establish absence of matching markets."}
+
+## source-bounded-summary
+
+Summarize text with verified quotes (evidence-bound summary)
+Summarize text with evidence: send 1 to 4,000 characters in English or Spanish and get a short summary plus 1 to 3 supporting quotes verified as exact substrings of your text, with a limitations note. Use this when an agent must condense an article, email or document and needs citations it can check before putting them in a report. Works only on the supplied text, no web retrieval, JSON out. Free sample at /api/source-bounded-summary/sample.
+
+Source-bounded summary with exact quotes
+Summarize text with evidence: send 1 to 4,000 characters in English or Spanish and get a short summary plus 1 to 3 supporting quotes verified as exact substrings of your text, with a limitations note. Use this when an agent must condense an article, email or document and needs citations it can check before putting them in a report. Works only on the supplied text, no web retrieval, JSON out. Free sample at /api/source-bounded-summary/sample.
+
+POST https://tienda.textokit.store/api/source-bounded-summary
+Price / Precio: 0.002 USDC on Base
+ARS: 1200
+Field / Campo text: Text to summarize; 1–4000 characters. Do not submit secrets or sensitive data. / Source text; no secrets or sensitive data
+Field / Campo language: Optional summary language: es or en. Defaults to es. / Summary language; defaults to es
+English input example: {"text":"Ana delivered the report on Monday. Luis reviewed it on Tuesday.","language":"en"}
+Ejemplo de entrada en español: {"text":"Ana entregó el informe el lunes. Luis lo revisó el martes.","language":"es"}
+English output example: {"summary":"Ana delivered the report on Monday and Luis reviewed it on Tuesday.","evidence":[{"quote":"Ana delivered the report on Monday."},{"quote":"Luis reviewed it on Tuesday."}],"limitations":"Quotes are checked as exact substrings of the supplied text. Facts and external sources are not verified. Generated summaries may contain interpretation errors."}
+Ejemplo de salida en español: {"summary":"Ana entregó el informe el lunes y Luis lo revisó el martes.","evidence":[{"quote":"Ana entregó el informe el lunes."},{"quote":"Luis lo revisó el martes."}],"limitations":"Citas comprobadas como fragmentos literales del texto proporcionado; no se verificaron hechos ni fuentes externas. El resumen generado puede contener errores de interpretación."}
+
+## url-text
+
+Texto legible de una página pública
+Extrae contenido legible y título de una página HTML pública HTTPS, como texto o Markdown simple. Una lectura sin reintentos. Elimina scripts, estilos y navegación reconocida mediante reglas heurísticas. No ejecuta JavaScript ni accede a páginas con login. El lector limita el contenido a 20.000 caracteres y se informa el recorte. La extracción del contenido principal es aproximada.
+
+Texto legible de una página pública
+Extrae contenido legible y título de una página HTML pública HTTPS, como texto o Markdown simple. Una lectura sin reintentos. Elimina scripts, estilos y navegación reconocida mediante reglas heurísticas. No ejecuta JavaScript ni accede a páginas con login. El lector limita el contenido a 20.000 caracteres y se informa el recorte. La extracción del contenido principal es aproximada.
+
+POST https://tienda.textokit.store/api/url-text
+Price / Precio: 0.001 USDC on Base
+Field / Campo url: Public HTTPS page URL. Private addresses and pages requiring authentication are unsupported. / URL de una página pública HTTPS; no admite direcciones privadas ni páginas con autenticación.
+Field / Campo format: Output format: plain text or simple Markdown. Defaults to text. / text o markdown; por defecto text.
+Field / Campo maxChars: Maximum returned text length in UTF-16 code units, from 1000 to 20000. Defaults to 10000. / Máximo de unidades UTF-16 del texto devuelto: 1000 a 20000; por defecto 10000.
+English input example: {"url":"https://example.com/","format":"text","maxChars":10000}
+Ejemplo de entrada en español: {"url":"https://example.com/","format":"text","maxChars":10000}
+English output example: {"url":"https://example.com/","title":"Illustrative page","format":"text","text":"Example text.","characters":13,"truncated":false,"sourceTruncated":false,"readAt":"2026-01-01T00:00:00.000Z","scope":"Simulated documentation example, not a live reading."}
+Ejemplo de salida en español: {"url":"https://example.com/","title":"Illustrative page","format":"text","text":"Example text.","characters":13,"truncated":false,"sourceTruncated":false,"readAt":"2026-01-01T00:00:00.000Z","scope":"Simulated documentation example, not a live reading."}
+
+## web-read
+
+Web page to Markdown: read any public URL as clean text
+Web page to Markdown or plain text: fetch one public URL and get its title and main content with scripts, styles, navigation and ads stripped, plus character count and truncation flags. Use this when an agent needs to read a URL for research, RAG, monitoring or summarization without an API key or a browser. One HTTPS fetch of static HTML (no JavaScript rendering, no login pages), up to 20,000 characters, JSON out. Free sample at /api/web-read/sample.
+
+Web page to Markdown: read any public URL as clean text
+Web page to Markdown or plain text: fetch one public URL and get its title and main content with scripts, styles, navigation and ads stripped, plus character count and truncation flags. Use this when an agent needs to read a URL for research, RAG, monitoring or summarization without an API key or a browser. One HTTPS fetch of static HTML (no JavaScript rendering, no login pages), up to 20,000 characters, JSON out. Free sample at /api/web-read/sample.
+
+POST https://tienda.textokit.store/api/web-read
+Price / Precio: 0.001 USDC on Base
+Field / Campo url: Public HTTPS page URL. Private addresses and pages requiring authentication are unsupported. / Public HTTPS page URL. Private addresses and pages requiring authentication are unsupported.
+Field / Campo format: Output format: plain text or simple Markdown. Defaults to text. / Output format: plain text or simple Markdown. Defaults to text.
+Field / Campo maxChars: Maximum returned text length in UTF-16 code units, from 1000 to 20000. Defaults to 10000. / Maximum returned text length in UTF-16 code units, from 1000 to 20000. Defaults to 10000.
+English input example: {"url":"https://example.com/","format":"markdown","maxChars":10000}
+Ejemplo de entrada en español: {"url":"https://example.com/","format":"markdown","maxChars":10000}
+English output example: {"url":"https://example.com/","title":"Example Domain","format":"markdown","text":"This domain is for use in documentation examples without needing permission. This is not a service; avoid relying on it for testing and monitoring purposes.","characters":156,"truncated":null,"sourceTruncated":null,"readAt":"2026-10-16T06:29:31.115Z","scope":"Best-effort extraction from one received HTML response using structural heuristics. No JavaScript execution or authenticated access. CSS and generic navigation may not be recognized. Common HTML entities are decoded; other named entities are retained. Source completeness is unknown because the reader supplied no usable truncation flag. Extracted content fits within maxChars. Title is extracted from the received title element and limited to 1000 UTF-16 units. The storefront reader limits received raw HTML to 20,000 UTF-16 code units before extraction; this limit includes markup and omitted content."}
+Ejemplo de salida en español: {"url":"https://example.com/","title":"Example Domain","format":"markdown","text":"This domain is for use in documentation examples without needing permission. This is not a service; avoid relying on it for testing and monitoring purposes.","characters":156,"truncated":null,"sourceTruncated":null,"readAt":"2026-10-16T06:29:31.115Z","scope":"Best-effort extraction from one received HTML response using structural heuristics. No JavaScript execution or authenticated access. CSS and generic navigation may not be recognized. Common HTML entities are decoded; other named entities are retained. Source completeness is unknown because the reader supplied no usable truncation flag. Extracted content fits within maxChars. Title is extracted from the received title element and limited to 1000 UTF-16 units. The storefront reader limits received raw HTML to 20,000 UTF-16 code units before extraction; this limit includes markup and omitted content."}
+
+## x402-adoption
+
+x402 Bazaar stats: what agents actually buy, with sources
+x402 adoption and Bazaar stats with sources: seller and host concentration, how many listings have real unique payers in 30 days, USDC price percentiles, keyword categories, the paid demand radar, from a full crawl of the Coinbase x402 Bazaar. Use this when an agent or builder needs current x402 market numbers with source URLs before deciding what to sell or buy. Sections: overview, sellers, payers, prices, demand, all. No model inference. Free sample at /api/x402-adoption/sample.
+
+x402 Bazaar stats: what agents actually buy, with sources
+x402 adoption and Bazaar stats with sources: seller and host concentration, how many listings have real unique payers in 30 days, USDC price percentiles, keyword categories, the paid demand radar, from a full crawl of the Coinbase x402 Bazaar. Use this when an agent or builder needs current x402 market numbers with source URLs before deciding what to sell or buy. Sections: overview, sellers, payers, prices, demand, all. No model inference. Free sample at /api/x402-adoption/sample.
+
+POST https://tienda.textokit.store/api/x402-adoption
+Price / Precio: 0.005 USDC on Base
+Field / Campo section: Which part of the report to return. overview: headline counts and conclusions; bazaar: network, asset and version shares; sellers: host and wallet concentration plus the Agent402 leaderboard; payers: how many resources have 1, 2, 5 or 10+ unique payers in 30 days; prices: USDC price percentiles; categories: keyword categories; demand: the paid demand radar; all: everything. / Which part of the report to return. overview: headline counts and conclusions; bazaar: network, asset and version shares; sellers: host and wallet concentration plus the Agent402 leaderboard; payers: how many resources have 1, 2, 5 or 10+ unique payers in 30 days; prices: USDC price percentiles; categories: keyword categories; demand: the paid demand radar; all: everything.
+English input example: {"section":"overview"}
+Ejemplo de entrada en español: {"section":"overview"}
+English output example: {"section":"overview","generatedAt":"2026-10-16T04:00:00.000Z","headline":{"bazaarResources":40509,"sellerWallets":1670,"hosts":2382,"resourcesWithAnyPayer30d":1000,"resourcesWith10PlusPayers30d":100,"medianPriceUsdc":0.01,"largestHostShare":0.343},"conclusions":["Illustrative documentation example, not live data."],"sources":[{"name":"CDP x402 Bazaar discovery","url":"https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources?limit=1000&offset=0","fetchedAt":"2026-10-16T04:00:00.000Z"}],"scope":"Counts over fetched data; not an estimate."}
+Ejemplo de salida en español: {"section":"overview","generatedAt":"2026-10-16T04:00:00.000Z","headline":{"bazaarResources":40509,"sellerWallets":1670,"hosts":2382,"resourcesWithAnyPayer30d":1000,"resourcesWith10PlusPayers30d":100,"medianPriceUsdc":0.01,"largestHostShare":0.343},"conclusions":["Illustrative documentation example, not live data."],"sources":[{"name":"CDP x402 Bazaar discovery","url":"https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources?limit=1000&offset=0","fetchedAt":"2026-10-16T04:00:00.000Z"}],"scope":"Counts over fetched data; not an estimate."}
+
+## x402-ping
+
+x402 ping: cheapest end-to-end test of an x402 payment on Base
+x402 payment test and ping: one call with no required parameters returns server time (ISO 8601 and Unix ms), a request id, the seller payTo, chain id and an echo of your optional text, only after a real settlement. Use this when an agent needs to prove its payment flow works, measure round-trip latency or run a cheap scheduled canary against a live seller. No upstream, no model inference; paid round trip 1 to 2 s. Free sample at /api/x402-ping/sample.
+
+x402 ping: cheapest end-to-end test of an x402 payment on Base
+x402 payment test and ping: one call with no required parameters returns server time (ISO 8601 and Unix ms), a request id, the seller payTo, chain id and an echo of your optional text, only after a real settlement. Use this when an agent needs to prove its payment flow works, measure round-trip latency or run a cheap scheduled canary against a live seller. No upstream, no model inference; paid round trip 1 to 2 s. Free sample at /api/x402-ping/sample.
+
+POST https://tienda.textokit.store/api/x402-ping
+Price / Precio: 0.001 USDC on Base
+Field / Campo echo: Optional text echoed back (up to 200 characters). / Optional text echoed back (up to 200 characters).
+English input example: {"echo":"hello"}
+Ejemplo de entrada en español: {"echo":"hello"}
+English output example: {"ok":true,"serverTime":"2026-10-16T06:29:30.883Z","unixMs":1792132170883,"requestId":"8a10db38-8f01-43ff-ab3e-721d1a068375","echo":"hello","payer":"0xf9D7D09F50d8d216D9a4D6B5ec93b176c10f87e9","seller":{"payTo":"0x6b5aF9924f4CD35643c11a9fd1C983f77261A6E1","chainId":8453,"erc8004AgentId":98748},"policy":"settled only after a successful response; paid round trip 1 to 2 s (verify and settle first)"}
+Ejemplo de salida en español: {"ok":true,"serverTime":"2026-10-16T06:29:30.883Z","unixMs":1792132170883,"requestId":"8a10db38-8f01-43ff-ab3e-721d1a068375","echo":"hello","payer":"0xf9D7D09F50d8d216D9a4D6B5ec93b176c10f87e9","seller":{"payTo":"0x6b5aF9924f4CD35643c11a9fd1C983f77261A6E1","chainId":8453,"erc8004AgentId":98748},"policy":"settled only after a successful response; paid round trip 1 to 2 s (verify and settle first)"}
+
+Servicios para personas: compra en pesos con Mercado Pago
+- Redactar una carta formal en Argentina: https://tienda.textokit.store/servicios/cartas-ar
+- Buscar publicaciones en el Boletín Oficial argentino: https://tienda.textokit.store/servicios/normativa-ar
+- Resumir un texto con citas del original: https://tienda.textokit.store/servicios/source-bounded-summary
+- Comparar dos versiones de un texto: https://tienda.textokit.store/servicios/comparar-textos
+- Traducir al español de Argentina: https://tienda.textokit.store/servicios/translate-es
+
+Modelos de cartas de reclamo
+- [Modelos de cartas de reclamo](https://tienda.textokit.store/modelos)
+- [Modelo de carta de reclamo por corte de luz prolongado](https://tienda.textokit.store/modelos/corte-de-luz-prolongado)
+- [Modelo de carta de reclamo por facturación excesiva de luz o gas](https://tienda.textokit.store/modelos/facturacion-excesiva-luz-gas)
+- [Modelo de reclamo a la empresa de luz por electrodomésticos dañados por sobretensión](https://tienda.textokit.store/modelos/reclamo-empresa-luz-electrodomesticos-sobretension)
+- [Modelo de reclamo a la empresa de gas por falta de suministro](https://tienda.textokit.store/modelos/reclamo-empresa-gas-falta-suministro)
+- [Modelo de reclamo a la telefonía móvil por cargos no contratados](https://tienda.textokit.store/modelos/reclamo-telefonia-movil-cargos-no-contratados)
+- [Modelo de reclamo por internet más lento que lo contratado](https://tienda.textokit.store/modelos/reclamo-internet-mas-lento-contratado)
+- [Modelo de carta de reclamo por baja de internet o cable que no procesan](https://tienda.textokit.store/modelos/baja-internet-cable-no-procesada)
+- [Modelo de carta de reclamo por cobro después de dar de baja un servicio](https://tienda.textokit.store/modelos/cobro-despues-de-baja)
+- [Modelo de carta de reclamo por curso o gimnasio que no permite la baja](https://tienda.textokit.store/modelos/curso-gimnasio-no-permite-baja)
+- [Modelo de reclamo al gimnasio por cobro después de la baja](https://tienda.textokit.store/modelos/reclamo-gimnasio-cobro-despues-baja)
+- [Modelo de carta de reclamo por cargo no reconocido en la tarjeta](https://tienda.textokit.store/modelos/cargo-no-reconocido-tarjeta)
+- [Modelo de carta de reclamo por comisión bancaria no informada](https://tienda.textokit.store/modelos/comision-bancaria-no-informada)
+- [Modelo de reclamo a la tarjeta por cuotas cobradas de más](https://tienda.textokit.store/modelos/reclamo-tarjeta-cuotas-cobradas-de-mas)
+- [Modelo de reclamo al banco por débito automático no autorizado](https://tienda.textokit.store/modelos/reclamo-banco-debito-automatico-no-autorizado)
+- [Modelo de reclamo a la billetera virtual por transferencia no acreditada](https://tienda.textokit.store/modelos/reclamo-billetera-virtual-transferencia-no-acreditada)
+- [Modelo de carta de reclamo por producto comprado por internet que no llega](https://tienda.textokit.store/modelos/compra-internet-no-entregada)
+- [Modelo de carta de reclamo por producto fallado dentro de la garantía](https://tienda.textokit.store/modelos/producto-fallado-garantia)
+- [Modelo de carta de reclamo por arrepentimiento de compra dentro de los diez días](https://tienda.textokit.store/modelos/arrepentimiento-compra-diez-dias)
+- [Modelo de carta de reclamo por servicio técnico que no devuelve el equipo](https://tienda.textokit.store/modelos/servicio-tecnico-no-devuelve-equipo)
+- [Modelo de reclamo a la concesionaria por un 0 km con fallas](https://tienda.textokit.store/modelos/reclamo-concesionaria-0-km-fallas)
+- [Modelo de reclamo a la empresa de delivery por pedido cobrado y no entregado](https://tienda.textokit.store/modelos/reclamo-empresa-delivery-pedido-cobrado-no-entregado)
+- [Modelo de reclamo a la tienda online por producto distinto al comprado](https://tienda.textokit.store/modelos/reclamo-tienda-online-producto-distinto-comprado)
+- [Modelo de carta de reclamo por cancelación de vuelo y reintegro](https://tienda.textokit.store/modelos/cancelacion-vuelo-reintegro)
+- [Modelo de carta de reclamo por pasaje aéreo con cambio de horario](https://tienda.textokit.store/modelos/pasaje-aereo-cambio-horario)
+- [Modelo de carta de reclamo por viaje de egresados o turismo cancelado](https://tienda.textokit.store/modelos/viaje-egresados-turismo-cancelado)
+- [Modelo de reclamo a la agencia de viajes por paquete cancelado](https://tienda.textokit.store/modelos/reclamo-agencia-viajes-paquete-cancelado)
+- [Modelo de reclamo a la empresa de transporte por equipaje dañado](https://tienda.textokit.store/modelos/reclamo-empresa-transporte-equipaje-danado)
+- [Modelo de carta de reclamo por reintegro de prepaga u obra social](https://tienda.textokit.store/modelos/reintegro-prepaga-obra-social)
+- [Modelo de carta de reclamo por aumento de cuota de prepaga](https://tienda.textokit.store/modelos/aumento-cuota-prepaga)
+- [Modelo de reclamo a la prepaga por rechazo de cobertura de un estudio](https://tienda.textokit.store/modelos/reclamo-prepaga-rechazo-cobertura-estudio)
+- [Modelo de reclamo a la obra social por demora en autorizar una cirugía](https://tienda.textokit.store/modelos/reclamo-obra-social-demora-autorizar-cirugia)
+- [Modelo de carta de reclamo por devolución del depósito de alquiler](https://tienda.textokit.store/modelos/devolucion-deposito-alquiler)
+- [Modelo de carta de reclamo por reparación urgente en la vivienda alquilada](https://tienda.textokit.store/modelos/reparacion-urgente-vivienda-alquilada)
+- [Modelo de intimación al inquilino por falta de pago del alquiler](https://tienda.textokit.store/modelos/intimacion-inquilino-falta-pago)
+- [Modelo de intimación al propietario por reparaciones no hechas](https://tienda.textokit.store/modelos/intimacion-propietario-reparaciones-no-hechas)
+- [Modelo de carta de reclamo por plan de ahorro con cuotas que suben](https://tienda.textokit.store/modelos/plan-ahorro-cuotas-suben)
+- [Modelo de carta de reclamo por seguro que no responde ante un siniestro](https://tienda.textokit.store/modelos/seguro-sin-respuesta-siniestro)
+- [Modelo de reclamo a la aseguradora por demora en el pago de un siniestro de auto](https://tienda.textokit.store/modelos/reclamo-aseguradora-demora-pago-siniestro-auto)
+- [Modelo de carta de reclamo por salarios adeudados](https://tienda.textokit.store/modelos/salarios-adeudados)
+- [Modelo de carta de reclamo por certificado de trabajo no entregado](https://tienda.textokit.store/modelos/certificado-trabajo-no-entregado)
+- [Modelo de carta documento por despido sin causa](https://tienda.textokit.store/modelos/carta-documento-despido-sin-causa)
+- [Modelo de carta de reclamo por mudanza con daños](https://tienda.textokit.store/modelos/mudanza-con-danos)
+- [Modelo de carta de reclamo por estacionamiento con daños al vehículo](https://tienda.textokit.store/modelos/estacionamiento-danos-vehiculo)
+- [Modelo de reclamo al consorcio por filtraciones](https://tienda.textokit.store/modelos/reclamo-consorcio-filtraciones)
+- [Modelo de reclamo por expensas mal liquidadas](https://tienda.textokit.store/modelos/reclamo-expensas-mal-liquidadas)
+- [Modelo de reclamo al colegio por matrícula no devuelta](https://tienda.textokit.store/modelos/reclamo-colegio-matricula-no-devuelta)
+- [Modelo de reclamo a la universidad privada por cuotas cobradas después de la baja](https://tienda.textokit.store/modelos/reclamo-universidad-privada-cuotas-despues-baja)
+- [Modelo de reclamo al club por cuota social cobrada de más](https://tienda.textokit.store/modelos/reclamo-club-cuota-social-cobrada-de-mas)
+
+Free service samples (documentation examples; no payment):
+- translate-es: https://tienda.textokit.store/api/translate-es/sample
+- bcra-indicadores: https://tienda.textokit.store/api/bcra-indicadores/sample
+- cartas-ar: https://tienda.textokit.store/api/cartas-ar/sample
+- comparar-textos: https://tienda.textokit.store/api/comparar-textos/sample
+- crypto-prices: https://tienda.textokit.store/api/crypto-prices/sample
+- cuit-ar: https://tienda.textokit.store/api/cuit-ar/sample
+- dev-utils: https://tienda.textokit.store/api/dev-utils/sample
+- direcciones-ar: https://tienda.textokit.store/api/direcciones-ar/sample
+- dolar-ar: https://tienda.textokit.store/api/dolar-ar/sample
+- fx-rates: https://tienda.textokit.store/api/fx-rates/sample
+- normativa-ar: https://tienda.textokit.store/api/normativa-ar/sample
+- polymarket-markets: https://tienda.textokit.store/api/polymarket-markets/sample
+- source-bounded-summary: https://tienda.textokit.store/api/source-bounded-summary/sample
+- url-text: https://tienda.textokit.store/api/url-text/sample
+- web-read: https://tienda.textokit.store/api/web-read/sample
+- x402-adoption: https://tienda.textokit.store/api/x402-adoption/sample
+- x402-ping: https://tienda.textokit.store/api/x402-ping/sample
+
+
+Public pages for agents and auditors:
+- https://tienda.textokit.store/receipts.json (every settled x402 sale and every purchase by this agent, with Base tx hashes; own wallets flagged)
+- https://tienda.textokit.store/x402-adoption.json (free summary of the cited x402 adoption dataset; full report via POST /api/x402-adoption, 0.01 USDC)
+
+
+MCP (Model Context Protocol) access to this catalog:
+- Remote MCP server (Streamable HTTP, stateless, POST JSON-RPC): https://tienda.textokit.store/mcp -- free tools textokit_catalog, textokit_sample, textokit_how_to_pay; each paid route is a tool that accepts payment_signature (x402 v2 payload signed by YOUR wallet; never send private keys).
+- Local MCP server that signs x402 payments with your own key: npx -y textokit-mcp (npm package textokit-mcp, env TEXTOKIT_PRIVATE_KEY, TEXTOKIT_MAX_CENTS).

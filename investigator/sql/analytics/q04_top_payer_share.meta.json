@@ -1,0 +1,19 @@
+{
+  "id": "q04_top_payer_share",
+  "params": [],
+  "columns": {
+    "payer": "str",
+    "top_payer_sales": "int",
+    "external_sales_total": "int"
+  },
+  "expected_rows_bound": 1,
+  "sources": [
+    "receipts"
+  ],
+  "fields": [
+    "payer",
+    "ownWallet"
+  ],
+  "ansi_only": true,
+  "zetaris_note": "window SUM(COUNT(*)) OVER () instead of a scalar subquery: Zetaris rejects a second reference to the same exploded view (MISSING_ATTRIBUTES, verified 2026-10-22)"
+}

@@ -1,0 +1,16 @@
+{
+  "id": "q10_catalog_active_share",
+  "params": [],
+  "columns": {
+    "n_active": "int",
+    "n_resources": "int"
+  },
+  "expected_rows_bound": 1,
+  "sources": [
+    "cdp_catalog_snapshot"
+  ],
+  "fields": [
+    "l30DaysTotalCalls"
+  ],
+  "ansi_only": true
+}

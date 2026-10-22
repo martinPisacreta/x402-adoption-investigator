@@ -1,0 +1,23 @@
+{
+  "run_id": "ex03-payer-dossier",
+  "input": {
+    "question": "What do we know about the payer 0x097e3F339D0b023605e12A6B81E2d6Cb7571475a: what it bought from tienda.textokit.store, and can the settlement be verified on Base?",
+    "focus": {
+      "host": "tienda.textokit.store",
+      "wallet": "0x097e3f339d0b023605e12a6b81e2d6cb7571475a",
+      "service": null,
+      "query": null
+    },
+    "budget": {
+      "max_seconds": 180,
+      "max_fetches": 40,
+      "max_tx_verifications": 5,
+      "max_critic_rounds": 2,
+      "bazaar_pages": 3
+    },
+    "options": {
+      "catalog": "snapshot",
+      "zetaris_source": "captured"
+    }
+  }
+}

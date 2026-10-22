@@ -1,0 +1,140 @@
+{
+  "query_id": "q09_catalog_top_hosts_by_calls",
+  "sql_sha256": "cd7605046bb600b836fb626ccd4c9d8495eb3eb3cbe422d969ec80e0d585e070",
+  "zetaris_version": "2.4.3.1",
+  "recorded_at": "2026-10-22T01:54:49Z",
+  "backend": "zetaris",
+  "fallback_reason": null,
+  "params": {},
+  "headers": [
+    "host",
+    "calls_30d_sum",
+    "n_resources",
+    "catalog_calls_30d_sum"
+  ],
+  "rows": [
+    [
+      "www.ax1.vc",
+      243580,
+      1,
+      824796
+    ],
+    [
+      "blockrun.ai",
+      103334,
+      108,
+      824796
+    ],
+    [
+      "www.api-xpay.com",
+      62997,
+      14,
+      824796
+    ],
+    [
+      "agent.pocket.network",
+      47973,
+      117,
+      824796
+    ],
+    [
+      "x402.sniperx.fun",
+      34624,
+      10,
+      824796
+    ],
+    [
+      "keyring-agent.blockchhub.link",
+      29180,
+      5,
+      824796
+    ],
+    [
+      "stableenrich.dev",
+      28827,
+      15,
+      824796
+    ],
+    [
+      "agents.chain.link",
+      25938,
+      3,
+      824796
+    ],
+    [
+      "win.oneshotagent.com",
+      16164,
+      70,
+      824796
+    ],
+    [
+      "agent402.tools",
+      11631,
+      613,
+      824796
+    ]
+  ],
+  "rowcount": 10,
+  "time_used_ms": 333,
+  "tables": [
+    {
+      "name": "X402_E7ACB33C.receipts_raw",
+      "source_url": "http://host.docker.internal:62693/eecf2f514507e2c0c3d5ca5e5f8762d5/store_receipts.json"
+    },
+    {
+      "name": "X402_E7ACB33C.bazaar_page0",
+      "source_url": "http://host.docker.internal:62693/eecf2f514507e2c0c3d5ca5e5f8762d5/cdp_page_0.json"
+    },
+    {
+      "name": "X402_E7ACB33C.bazaar_page1",
+      "source_url": "http://host.docker.internal:62693/eecf2f514507e2c0c3d5ca5e5f8762d5/cdp_page_1.json"
+    },
+    {
+      "name": "X402_E7ACB33C.bazaar_search_host",
+      "source_url": "http://host.docker.internal:62693/eecf2f514507e2c0c3d5ca5e5f8762d5/cdp_search_host.json"
+    },
+    {
+      "name": "X402_E7ACB33C.catalog_snapshot",
+      "source_url": "http://host.docker.internal:62693/eecf2f514507e2c0c3d5ca5e5f8762d5/catalog_snapshot.json"
+    },
+    {
+      "name": "X402_E7ACB33C.openapi_paid_ops_raw",
+      "source_url": "http://host.docker.internal:62693/eecf2f514507e2c0c3d5ca5e5f8762d5/openapi_paid_ops.json"
+    },
+    {
+      "name": "X402_E7ACB33C.agent402_index",
+      "source_url": "http://host.docker.internal:62693/eecf2f514507e2c0c3d5ca5e5f8762d5/agent402_index.json"
+    },
+    {
+      "name": "X402_E7ACB33C.vet402_resolve",
+      "source_url": "http://host.docker.internal:62693/eecf2f514507e2c0c3d5ca5e5f8762d5/vet402_resolve.json"
+    },
+    {
+      "name": "X402_E7ACB33C.trust_search_raw",
+      "source_url": "http://host.docker.internal:62693/eecf2f514507e2c0c3d5ca5e5f8762d5/trust_search.json"
+    },
+    {
+      "name": "X402_E7ACB33C.trust_stats_raw",
+      "source_url": "http://host.docker.internal:62693/eecf2f514507e2c0c3d5ca5e5f8762d5/trust_stats.json"
+    },
+    {
+      "name": "X402_E7ACB33C.settlements_raw",
+      "source_url": "http://host.docker.internal:62693/eecf2f514507e2c0c3d5ca5e5f8762d5/settlements.json"
+    }
+  ],
+  "exports_sha256": {
+    "agent402_index": "2bf9a3d602acd12b7ba86637a49f77b9c403c3566fd3261c8ce1eb1213475fcc",
+    "catalog_snapshot": "67faa32d3d950c712d98ca3833839672ac22bc5cc3167956eb3786e23ba1ea8c",
+    "cdp_page_0": "17414ea1597e727afffdc9105379d9154c1de4335f3e2623869768d7aec793fd",
+    "cdp_page_1": "7096f4c8f28a16e748ff8d4e3508d8bf0237bc8298100e2b5a2ed0b6b0233c28",
+    "cdp_search_host": "d7a3220ca194c7fe0e63200931e7374dc1b7dc7f3f8f147d751c1886e2ba11ff",
+    "openapi_paid_ops": "9cfc28d8ed5c4df28ad259ef6de936ca770aee4de9742bea314c2ed28fed39bb",
+    "settlements": "3be14b4d193366b3988aa23a87d1a1883979425c8f15e79ea946992730327d58",
+    "store_openapi": "fc27ee566c17a2f4da2fb1715d90cc65cd2e3f5900e094c79d17daef1b057a89",
+    "store_receipts": "da34b701883f0348f487460a8c52cf09442652d31c23c6bdce85593f57b01140",
+    "trust_search": "86d7bb41d83413209fb411c935caa1faa7366b7197d3e979ea89d549934f7a85",
+    "trust_stats": "1a1ad8581a01ca9d3066687405100b11774e1b9aa6fe62841f145515625d2ed1",
+    "vet402_resolve": "7e4e591e4d36293817f8bd25294c80cc334329d0e743a7114d59a11688e25b61"
+  },
+  "note": "typed per .meta.json; recorded by scripts/record_zetaris_results.py over the fixture exports"
+}

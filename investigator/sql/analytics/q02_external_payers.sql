@@ -1,0 +1,1 @@
+SELECT payer, COUNT(*) AS n_sales, SUM(amount_atomic) AS usdc_atomic, MIN(settled_at) AS first_at, MAX(settled_at) AS last_at, COUNT(DISTINCT service) AS n_services FROM sales WHERE own_wallet = 0 GROUP BY payer ORDER BY n_sales DESC, payer

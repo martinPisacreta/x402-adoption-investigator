@@ -1,0 +1,28 @@
+{
+  "id": "q16_settlements_vs_receipts",
+  "params": [],
+  "columns": {
+    "tx_hash": "str",
+    "chain_payer": "str",
+    "receipt_payer": "str",
+    "chain_seller": "str",
+    "receipt_seller": "str",
+    "chain_amount": "int",
+    "receipt_amount": "int",
+    "payer_match": "int",
+    "seller_match": "int",
+    "amount_match": "int",
+    "status": "str"
+  },
+  "expected_rows_bound": 20,
+  "sources": [
+    "base_rpc",
+    "receipts"
+  ],
+  "fields": [
+    "transaction",
+    "payer",
+    "amountAtomic"
+  ],
+  "ansi_only": true
+}

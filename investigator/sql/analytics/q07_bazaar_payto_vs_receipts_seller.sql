@@ -1,0 +1,1 @@
+SELECT b.resource, b.pay_to, s.seller FROM (SELECT DISTINCT resource, LOWER(pay_to) AS pay_to FROM bazaar_search WHERE host = :host) b INNER JOIN (SELECT DISTINCT LOWER(seller) AS seller FROM sales) s ON b.pay_to = s.seller ORDER BY b.resource

@@ -1,0 +1,1 @@
+SELECT pay_to, calls_30d_sum, catalog_calls_30d_sum FROM (SELECT pay_to, SUM(calls_30d) AS calls_30d_sum, SUM(SUM(calls_30d)) OVER () AS catalog_calls_30d_sum FROM catalog_resources GROUP BY pay_to) t ORDER BY calls_30d_sum DESC, pay_to LIMIT 10

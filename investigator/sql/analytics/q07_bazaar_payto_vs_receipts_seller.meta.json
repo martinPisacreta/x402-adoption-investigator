@@ -1,0 +1,21 @@
+{
+  "id": "q07_bazaar_payto_vs_receipts_seller",
+  "params": [
+    "host"
+  ],
+  "columns": {
+    "resource": "str",
+    "pay_to": "str",
+    "seller": "str"
+  },
+  "expected_rows_bound": 100,
+  "sources": [
+    "cdp_search",
+    "receipts"
+  ],
+  "fields": [
+    "payTo",
+    "seller"
+  ],
+  "ansi_only": true
+}

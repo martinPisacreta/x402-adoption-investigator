@@ -1,0 +1,24 @@
+{
+  "id": "q06_bazaar_host_listings",
+  "params": [
+    "host"
+  ],
+  "columns": {
+    "n_listings": "int",
+    "n_pay_to": "int",
+    "calls_30d_sum": "int",
+    "payers_30d_max": "int"
+  },
+  "expected_rows_bound": 1,
+  "sources": [
+    "cdp_search"
+  ],
+  "fields": [
+    "resource",
+    "payTo",
+    "l30DaysTotalCalls",
+    "l30DaysUniquePayers"
+  ],
+  "ansi_only": true,
+  "scaffold_note": "payers_30d is MAX, never SUM (mem-seed-001)"
+}

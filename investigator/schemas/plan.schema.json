@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/pisacretamartin/x402-adoption-investigator/investigator/schemas/plan.schema.json",
+  "title": "Planner output",
+  "description": "The Plan object produced by agents/planner.py (root) and the JSON the generator must return when the router is ambiguous ($defs/generator_response). SPEC.md section 6.1.",
+  "type": "object",
+  "required": ["playbook", "params", "fetch_list", "query_ids", "metrics", "tx_sample_rule", "hypotheses", "planner_source", "hmem_memory_ids"],
+  "additionalProperties": false,
+  "properties": {
+    "playbook": { "$ref": "#/$defs/playbook" },
+    "params": { "type": "object" },
+    "fetch_list": {
+      "type": "array",
+      "maxItems": 40,
+      "items": {
+        "type": "object",
+        "required": ["name", "family", "request_key", "url", "method", "optional", "priority"],
+        "additionalProperties": true,
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "family": { "$ref": "#/$defs/family" },
+          "request_key": { "type": "string", "minLength": 1 },
+          "url": { "type": "string", "minLength": 1 },
+          "method": { "enum": ["GET", "POST", "RPC", "SNAPSHOT"] },
+          "body": {},
+          "optional": { "type": "boolean" },
+          "priority": { "type": "integer", "minimum": 0 }
+        }
+      }
+    },
+    "query_ids": { "type": "array", "items": { "type": "string", "pattern": "^q[0-9]{2}_[a-z0-9_]+$" } },
+    "metrics": { "type": "array", "maxItems": 25, "items": { "type": "string", "pattern": "^[a-z0-9_]+$" } },
+    "tx_sample_rule": { "type": "string" },
+    "hypotheses": { "type": "array", "maxItems": 10, "items": { "type": "string", "maxLength": 300 } },
+    "planner_source": { "enum": ["rules", "generator", "recorded-generator"] },
+    "hmem_memory_ids": { "type": "array", "items": { "type": "string" } }
+  },
+  "$defs": {
+    "playbook": { "enum": ["seller_profile", "catalog_concentration", "payer_dossier"] },
+    "family": { "enum": ["receipts", "cdp_bazaar", "cdp_search", "cdp_catalog_snapshot", "store_openapi", "agent402", "x402_trust", "vet402", "base_rpc"] },
+    "generator_response": {
+      "description": "Exact JSON the Planner prompt asks the generator for; validated before use, one retry with the validator message, then rules.",
+      "type": "object",
+      "required": ["playbook", "hypotheses", "extra_metrics"],
+      "additionalProperties": false,
+      "properties": {
+        "playbook": { "$ref": "#/$defs/playbook" },
+        "hypotheses": { "type": "array", "maxItems": 5, "items": { "type": "string", "minLength": 3, "maxLength": 300 } },
+        "extra_metrics": { "type": "array", "maxItems": 5, "items": { "type": "string", "pattern": "^[a-z0-9_]+$" } }
+      }
+    }
+  }
+}

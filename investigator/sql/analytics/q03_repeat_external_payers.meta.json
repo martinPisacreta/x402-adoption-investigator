@@ -1,0 +1,17 @@
+{
+  "id": "q03_repeat_external_payers",
+  "params": [],
+  "columns": {
+    "payer": "str",
+    "n_sales": "int"
+  },
+  "expected_rows_bound": 100,
+  "sources": [
+    "receipts"
+  ],
+  "fields": [
+    "payer",
+    "ownWallet"
+  ],
+  "ansi_only": true
+}

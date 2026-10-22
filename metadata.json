@@ -171,7 +171,7 @@
   "examples_note": "Every committed example output is regenerated only by scripts/regen_examples.py and checked byte for byte by tests/test_examples_reproducible.py. All 45 accepted claims of the four examples are computed twice and agree.",
   "tests": {
     "command": "python -m unittest discover -s tests",
-    "count": 223,
+    "count": 225,
     "third_party_dependencies": "none",
     "verified": "Green on 2026-10-22 in a fresh Windows clone with core.autocrlf=true, a clone with core.autocrlf=false and the Docker image built from it (--network none, Python 3.11.17)."
   },

@@ -978,7 +978,7 @@ Clean clone and command
 Contract
 - [ ] Input/output validate against `schemas/`; error objects for `E_INPUT`, `E_TIMEOUT`, `E_NO_SOURCES`, `E_GENERATOR`, `E_ZETARIS_REQUIRED`, `E_INTERNAL` are tested.
 - [ ] `partial` only with >= 1 accepted claim; no "exception -> partial".
-- [ ] A run finishes within `budget.max_seconds` (default 180 s) in both modes on the demo machine; every loop is bounded.
+- [ ] A run finishes within `budget.max_seconds` (default 180 s) in both modes on the demo machine; every loop is bounded. _Amended 2026-10-22:_ the deadline is measured with a monotonic wall clock in both modes; in sample mode the deterministic SampleClock (1 ms per call) only stamps the logs and never reaches the deadline by itself (`tests/test_run_contract.py`).
 
 Logs
 - [ ] `run.jsonl` is mirrored to stdout and contains `handoff`, `critique` (accept summaries per rule; revise/reject lines whenever a rule fires), `recovery`, `ingest` x2, `sql`, `claim`, `conflict`, `narrative_map`, `memory`, `result`; `retry` appears only when something was really retried (live Fetcher backoff), never in a sample replay (_amended 2026-10-22_).

@@ -16,6 +16,7 @@ from __future__ import annotations
 import hashlib
 import json
 import shutil
+import time
 import traceback
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -59,6 +60,11 @@ def sha256_json(obj: Any) -> str:
     return sha256_text(json.dumps(_strip_volatile(to_json(obj)), sort_keys=True, ensure_ascii=False, separators=(",", ":"), default=str))
 
 
+def wall_seconds() -> float:
+    """Monotonic wall time in seconds. budget.max_seconds is measured with it in both modes (tests patch it)."""
+    return time.monotonic()
+
+
 @dataclass
 class RunContext:
     """Everything an agent needs; passed to every agent entry point."""
@@ -81,6 +87,7 @@ class RunContext:
     start_ms: int = 0
     start_iso: str = ""
     deadline_ms: int = 0
+    wall_start_s: Optional[float] = None   # wall_seconds() at run start; budget.max_seconds is a wall-clock bound
     stage: str = "init"
     counters: dict[str, int] = field(default_factory=lambda: {
         "fetches": 0, "sql": 0, "generator_calls": 0, "tx_verifications": 0, "critic_rounds": 0, "deadline_skips": 0})
@@ -106,8 +113,18 @@ class RunContext:
         path.mkdir(parents=True, exist_ok=True)
         return path
 
+    def wall_elapsed_ms(self) -> Optional[int]:
+        return None if self.wall_start_s is None else int((wall_seconds() - self.wall_start_s) * 1000)
+
     def time_left_ms(self) -> int:
-        return self.deadline_ms - self.clock.now_ms()
+        """Milliseconds left of budget.max_seconds: the smaller of the run clock's and the monotonic wall clock's view.
+        In sample mode the run clock is the deterministic SampleClock (1 ms per call), which never reaches the
+        deadline by itself, so the wall clock is what bounds a sample run; nothing logged depends on it until it fires."""
+        left = self.deadline_ms - self.clock.now_ms()
+        wall = self.wall_elapsed_ms()
+        if wall is not None:
+            left = min(left, self.budget.max_seconds * 1000 - wall)
+        return left
 
     def deadline_hit(self, stage: str) -> bool:
         """True (and a `timeout` event) when the deadline has passed."""
@@ -115,7 +132,11 @@ class RunContext:
         if left > 0:
             return False
         elapsed_s = round((self.clock.now_ms() - self.start_ms) / 1000, 3)
-        self.log.emit("timeout", "runner", {"stage": stage, "elapsed_s": elapsed_s, "budget_s": self.budget.max_seconds})
+        payload: dict[str, Any] = {"stage": stage, "elapsed_s": elapsed_s, "budget_s": self.budget.max_seconds}
+        wall = self.wall_elapsed_ms()
+        if wall is not None:
+            payload["wall_elapsed_s"] = round(wall / 1000, 3)
+        self.log.emit("timeout", "runner", payload)
         return True
 
     def recover(self, agent: str, reason: str, detail: str, **extra: Any) -> int:
@@ -299,6 +320,7 @@ def run_pipeline(ctx: RunContext) -> dict[str, Any]:
         if ctx.counters.get("deadline_skips", 0) > 0:
             raise InvestigatorError("E_TIMEOUT", "collector", "deadline hit before any source was fetched",
                                     retryable=True, details={"elapsed_ms": ctx.clock.now_ms() - ctx.start_ms,
+                                                             "wall_elapsed_ms": ctx.wall_elapsed_ms(),
                                                              "notes": collector_result.notes})
         raise InvestigatorError("E_NO_SOURCES", "collector", "every mandatory source is unavailable",
                                 retryable=True, details={"notes": collector_result.notes})
@@ -582,6 +604,7 @@ def run(payload: Any, config: RunConfig, run_id_override: Optional[str] = None, 
     ctx: Optional[RunContext] = None
     try:
         ctx = build_context(run_id, inp, config, echo_stdout)
+        ctx.wall_start_s = wall_seconds()
         ctx.start_ms = ctx.clock.now_ms()
         ctx.start_iso = ctx.clock.now_iso() if not isinstance(ctx.clock, SampleClock) else ctx.clock.start_iso
         ctx.deadline_ms = ctx.start_ms + inp.budget.max_seconds * 1000
@@ -595,7 +618,8 @@ def run(payload: Any, config: RunConfig, run_id_override: Optional[str] = None, 
         if status == "error":
             if ctx.counters.get("deadline_skips", 0) > 0:
                 raise InvestigatorError("E_TIMEOUT", ctx.stage, "deadline hit before any claim was accepted",
-                                        retryable=True, details={"elapsed_ms": ctx.clock.now_ms() - ctx.start_ms})
+                                        retryable=True, details={"elapsed_ms": ctx.clock.now_ms() - ctx.start_ms,
+                                                                 "wall_elapsed_ms": ctx.wall_elapsed_ms()})
             if output["unavailable"] and not output["rejected_claims"]:
                 raise InvestigatorError("E_NO_SOURCES", "analyst", "no claim could be computed: every metric's sources were unavailable",
                                         retryable=True, details={"unavailable": output["unavailable"][:10],

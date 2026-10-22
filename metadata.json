@@ -173,7 +173,7 @@
     "command": "python -m unittest discover -s tests",
     "count": 225,
     "third_party_dependencies": "none",
-    "verified": "Green on 2026-10-22 in a fresh Windows clone with core.autocrlf=true, a clone with core.autocrlf=false and the Docker image built from it (--network none, Python 3.11.17)."
+    "verified": "Green (0 failures, 0 skips) on 2026-10-22 on the tree of da37be7 in a fresh Windows clone with the default core.autocrlf=true (Python 3.11.9) and in the Docker image built from a fresh clone (--network none, Python 3.11.17); earlier rounds also checked a clone with core.autocrlf=false."
   },
   "docs": ["README.md", "SPEC.md", "docs/BUILD_LOG.md", "docs/METERLESS.md", "docs/ZETARIS.md", "docs/DEMO_SCRIPT.md", "examples/README.md", "examples/live-trace/README.md", "docs/pitch/deck.pdf", "docs/pitch/deck.html", "docs/pitch/narration.txt", "docs/pitch/demo.mp4", "docs/pitch/video/build_video.py", "docs/pitch/video/run-capture.json"],
   "limitations": [

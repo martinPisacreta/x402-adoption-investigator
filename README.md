@@ -497,15 +497,18 @@ generator prompts through an in-process OpenAI-compatible double plus `RecordedG
 offline proof, byte-for-byte reproducibility of the committed examples, and `metadata.json` (every path it names
 exists, its test count is the discovered one, and README and deck quote the same count).
 
-On 2026-10-22 the suite ran green (0 failures, 0 skips; the tree and the test count of each verification are in
-docs/BUILD_LOG.md) in three places: a fresh Windows clone with the
-Git for Windows default `core.autocrlf=true`, a fresh clone with `core.autocrlf=false`, and the Docker image built
-from that clone (`docker run --network none ... -m unittest discover -s tests`, Python 3.11.17). In all three,
-`python run.py --sample` on each of the eight example inputs (`examples/exN.json` and `examples/0N-*/input.json`)
-exited 0 (status `ok` for 01-03, `partial` for 04) and rewrote `output.json`, `report.md`, `run.jsonl`,
-`sql.jsonl` and `hmem.trace.jsonl` byte for byte as committed, and `scripts/memory_ablation.py` reproduced
-`examples/memory-ablation/`; `scripts/one_command.sh` exited 0 in the image. Sample mode has no time-dependent field (the
-clock is pinned to the fixture capture time). `.gitattributes` keeps every text file LF on checkout and the code
+On 2026-10-22, on the tree of da37be7, the suite ran green (225 tests, 0 failures, 0 skips) in a fresh Windows
+clone with the Git for Windows default `core.autocrlf=true` (Python 3.11.9) and in the Docker image built from
+another fresh clone (`docker run --network none ... -m unittest discover -s tests`, Python 3.11.17); earlier rounds
+also checked a `core.autocrlf=false` clone (docs/BUILD_LOG.md). In the Windows clone, `python run.py --sample` on
+each of the eight example inputs (`examples/exN.json` and `examples/0N-*/input.json`) exited 0 (status `ok` for
+01-03, `partial` for 04) and rewrote `output.json`, `report.md`, `run.jsonl`, `sql.jsonl` and `hmem.trace.jsonl`
+byte for byte as committed, `scripts/memory_ablation.py` reproduced `examples/memory-ablation/`, and both
+one-command scripts exited 0 without pytest (`one_command.sh` in Git Bash, `one_command.ps1` in Windows PowerShell
+5.1; each picked the Python 3.13 first on that machine's PATH, and the suite passed there too). In the image,
+`scripts/one_command.sh`, the default command and `--sample --input examples/ex4.json` (status `partial`) exited 0.
+Sample mode has no time-dependent field unless the wall-clock deadline fires (the logged clock is pinned to the
+fixture capture time). `.gitattributes` keeps every text file LF on checkout and the code
 writes LF on every OS, so the recorded sha256 values match everywhere. The live traces in `examples/live-trace/`
 are records of live runs and are not re-run offline.
 

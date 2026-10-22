@@ -136,8 +136,9 @@ Real `zetaris.jsonl` lines (from the live probe; the seq is added by the EventLo
 - `tests/test_zetaris_views.py`, `tests/test_zetaris_executor.py`: parity rules, shape-aware DDL, qualification,
   casting, fallback matrix, `--require-zetaris`, secret scrubbing, artifact server.
 - Live traces of full runs (integrator, 2026-10-22): `examples/live-trace/live-ex01-20261022/` (example 01 on
-  Zetaris: 12 views, 13 queries on the `zetaris` backend in 157-590 ms, 75 REST calls incl. cleanup, 4/4 settlements
-  verified on Base), `examples/live-trace/live-ex03-20261022/` (`--require-zetaris`), and
+  Zetaris: 8 REST tables and 10 views, the ones its queries read of the 12 that existed then; 13 queries on the
+  `zetaris` backend in 106-447 ms each, the `time_used_ms` of its `sql.jsonl`; 75 REST calls incl. login, DDL and
+  cleanup in its `zetaris.jsonl`; 4/4 settlements verified on Base), `examples/live-trace/live-ex03-20261022/` (`--require-zetaris`), and
   `examples/live-trace/live-nozetaris-ex03/` (credentials withheld: `recovery{zetaris_unreachable}`, whole run on
   SQLite, status `partial`). Secrets were grepped for before copying; none appear.
 

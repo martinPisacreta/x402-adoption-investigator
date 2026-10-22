@@ -18,7 +18,7 @@ USDC, here on Base; the CDP Bazaar is Coinbase's x402 discovery catalog.)
 | **What the agents do** | Seven roles in a bounded loop. Planner: playbook, sources, queries. Collector: fetch and hash. Keeper: Meterless World Model. Verifier: settlements decoded on Base. Analyst: every metric twice, in committed SQL and in a Python reducer. Writer: an answer where every number cites a claim. Critic: rules C1-C7 and a narrative pass; it rejects claims or sends the answer back. |
 | **Try it** | `python run.py --sample --input examples/ex1.json` from a clean clone: offline, no keys, Python 3.11 standard library only. Docker: `docker run --rm --network none x402-investigator`. [Quick start](#quick-start-clean-clone-one-command). |
 | **Critique and recovery** | Example 04 (`examples/ex4.json`): the Critic rejects a "0 verified" count that no decoded settlement supports, the Writer's second round drops and names it, status `partial`, verdict `insufficient_evidence`. [Examples](#examples). |
-| **Sponsor tech** | Zetaris Lightning SQL is the live federation layer; Meterless World Model and H-MEM are mounted and conformance-tested; Cursor: two Cursor Agent sessions (optional since 22 Oct); NVIDIA: not used. [Summary](#sponsor-technology), machine-readable in [metadata.json](metadata.json). |
+| **Sponsor tech** | Zetaris Lightning SQL is the live federation layer; Meterless World Model and H-MEM are mounted and conformance-tested; Cursor (optional since 22 Oct): two Cursor Agent sessions, the report viewer and a first draft of the README Pitch section; NVIDIA: not used. [Summary](#sponsor-technology), machine-readable in [metadata.json](metadata.json). |
 | **Honesty** | No language model ran in any committed run: the generator-backed roles fell back to rules and templates ([Limitations](#limitations-and-honesty-notes)). Pre-existing: the author's own Automata store, used only as a data source ([declared](#pre-existing-components-declared)). |
 
 Full specification: [SPEC.md](SPEC.md). Build log: [docs/BUILD_LOG.md](docs/BUILD_LOG.md). Demo script:
@@ -94,8 +94,9 @@ The same facts in machine-readable form, with file paths and tests, are in [meta
   a trace in `logs/`. Conformance: 8/8 World
   Model checks, 13/13 upstream H-MEM vectors; `tests/test_generator_hmem.py` proves the injection offline;
   `examples/memory-ablation/` measures what one memory changes. [Details](#meterless-integration-h-mem--world-model).
-- **Cursor.** Optional since the 22 Oct rules update. Two headless Cursor Agent CLI sessions built the report viewer
-  (`viewer/index.html`) and the README Pitch section, under `.cursor/rules/project.mdc`; Claude Code wrote the rest.
+- **Cursor.** Optional since the 22 Oct rules update. Two headless Cursor Agent CLI sessions, under
+  `.cursor/rules/project.mdc`: one built the report viewer (`viewer/index.html`), the other a first draft of the README
+  Pitch section, whose current text is Claude Code's rewrite. Claude Code wrote everything else.
   [Details](#ai-coding-tools-claude-code-and-cursor).
 - **NVIDIA.** Not used: no NVIDIA model, API or GPU. The generator is OpenAI-compatible (`OPENAI_BASE_URL`, `MODEL`),
   but no NVIDIA endpoint was run or tested.
@@ -351,8 +352,9 @@ the syntax facts learned on the instance are in [docs/ZETARIS.md](docs/ZETARIS.m
   `scripts/record_zetaris_results.py --from-fixtures` recorded the 19 result sets of q01-q19 in `fixtures/zetaris/`
   and `tests/test_sql_dual_backend.py` proves SQLite returns the same typed rows (q20-q22 have no recording yet; the
   test names them explicitly); the live run of example 01 computed
-  all 19 claims on Zetaris (`derivation.backend: "zetaris"`, queries in 157-590 ms, 75 REST calls including the
-  cleanup, `examples/live-trace/live-ex01-20261022/zetaris.jsonl`), and example 03 ran with `--require-zetaris`.
+  all 19 claims on Zetaris (`derivation.backend: "zetaris"`; its 13 queries took 106-447 ms each, the
+  `time_used_ms` of `examples/live-trace/live-ex01-20261022/sql.jsonl`; 75 REST calls including the cleanup in
+  `zetaris.jsonl` next to it), and example 03 ran with `--require-zetaris`.
 - **Fallback.** Login failure or an unreachable instance -> SQLite for the whole run with
   `recovery{zetaris_unreachable}` (trace `examples/live-trace/live-nozetaris-ex03/`); a view or query that fails
   -> that query on SQLite with `fallback_reason` and `backend: "sqlite-fallback"`; `--require-zetaris` turns any of
@@ -439,9 +441,11 @@ same session, and so were the pre-submission verification and the fix rounds of 
 `Claude-Session` trailers.
 
 **Cursor** was required when the build started and became optional on 2026-10-22 at 12:45 UTC. Two scoped tasks
-were done in headless Cursor Agent CLI sessions: the static report viewer (`viewer/index.html`) and the README
-Pitch section. The Cursor prompts said not to run git, so the commits that carry that work (901b109, e654f59) were
-made from the Claude Code session and have its trailers. OpenAI Codex was not used.
+were done in headless Cursor Agent CLI sessions: the static report viewer (`viewer/index.html`), which is still
+Cursor's page, and a first draft of the README Pitch section (a few lines linking the video and the deck). Claude
+Code rewrote that section in the fix rounds for the 12-slide deck and the rebuilt video, keeping only its link
+lines. The Cursor prompts said not to run git, so the commits that carry that work (901b109, e654f59) were made
+from the Claude Code session and have its trailers. OpenAI Codex was not used.
 
 `.cursor/rules/project.mdc` is the architecture contract (always applied, every file type): standard library only,
 no number in code, evidence on every claim, generator-backed roles limited to Planner / Writer / Critic second

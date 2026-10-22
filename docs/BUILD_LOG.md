@@ -81,7 +81,8 @@ Integrator (same day, Claude Code acting as the integrator):
 - `.dockerignore` added: the Dockerfile copies the tree and would otherwise have baked `.env.local` into the image.
 - Live checks on the demo machine (Zetaris 2.4.3.1 in Docker, artifact server reachable from the driver:
   `scripts/zetaris_preflight.py` 8/8 PASS): `examples/live-trace/live-ex01-20261022` (every claim on the
-  `zetaris` backend, 4/4 settlements verified on Base, 75 REST calls, queries 157-590 ms),
+  `zetaris` backend, 4/4 settlements verified on Base, 75 REST calls, 13 queries of 106-447 ms each by the
+  `time_used_ms` of its `sql.jsonl`),
   `examples/live-trace/live-ex03-20261022` (`--require-zetaris`), `examples/live-trace/live-nozetaris-ex03`
   (credentials withheld: `recovery{zetaris_unreachable}` -> SQLite, `recovery{generator_fallback}`, status `partial`,
   still 4/4 verified). No `OPENAI_API_KEY` was available during the build, so no generator transcript was recorded:
@@ -302,8 +303,9 @@ Code session afterwards, which is why they have Claude Code trailers.
   count. Add this Cursor sessions entry. Touch no other files; do not run git.
 - **Files changed:** `README.md` (Pitch section), `docs/BUILD_LOG.md` (this entry).
 - **Rules that mattered:** rule 2 (no invented pitch numbers), English copy, only the listed files.
-- **Later:** the fix round of the same day rewrote that section for the 12-slide deck; it no longer quotes a video
-  length.
+- **Later:** Claude Code rewrote that section in the fix rounds of the same day, for the 12-slide deck and the
+  rebuilt video. The current text, including the video length it quotes, is Claude Code's; of the Cursor draft
+  only the link lines remain. The viewer, by contrast, is still the page this Cursor session wrote.
 
 ## Later days
 

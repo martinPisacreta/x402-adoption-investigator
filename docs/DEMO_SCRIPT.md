@@ -27,8 +27,8 @@ and `unverifiable` + `fixture_miss` for the others; `sql` lines (`query_id`, `ex
 ## 1:45 Memory in the loop, measured
 `claim` lines carry `caveats`; in `output.json` each caveat has the memory id behind it (`caveat_memory_ids`), e.g.
 `settlements_verified` carries `self_reported_receipts` from `mem-seed-003` although no registry rule attaches it.
-`critique` lines: one accept summary per rule with the claim count (C1-C7), `narrative_map` with every number
-mapped to a claim and `unsourced: []`, one round (the Analyst and the Critic read the same H-MEM policy index, so
+`critique` lines: one accept summary per rule with the claim count (C1-C7), `narrative_map` with the 62 numeric
+tokens of the answer (54 mapped to an accepted claim, 8 dates listed with `claim_id: null`) and `unsourced: []`, one round (the Analyst and the Critic read the same H-MEM policy index, so
 nothing is staged; C3 revises only when they disagree, `tests/test_critic.py`). Then open
 `examples/memory-ablation/summary.json`: the same example 01 run without `mem-seed-003` loses that caveat on
 `settlements_verified` and the `[mem-seed-003]` citation on fifteen claims, the feedback entry for the memory

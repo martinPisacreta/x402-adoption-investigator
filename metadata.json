@@ -63,7 +63,7 @@
         "docs/ZETARIS.md"
       ],
       "live_evidence": {
-        "examples/live-trace/live-ex01-20261022/": "Example 01 live: all 19 claims computed on Zetaris (derivation.backend zetaris), 75 REST calls in zetaris.jsonl including DDL and cleanup, queries in 157-590 ms.",
+        "examples/live-trace/live-ex01-20261022/": "Example 01 live: all 19 claims computed on Zetaris (derivation.backend zetaris); 8 REST tables and 10 SchemaStore views built; its 13 queries took 106-447 ms each (time_used_ms in sql.jsonl); 75 REST calls in zetaris.jsonl including login, DDL and cleanup.",
         "examples/live-trace/live-ex03-20261022/": "Example 03 live with --require-zetaris: 7 of 9 claims on Zetaris; balance and nonce were reducer-only in that earlier build (before q22 existed).",
         "examples/live-trace/live-nozetaris-ex03/": "Credentials withheld: recovery zetaris_unreachable, the same SQL on SQLite, status partial."
       },
@@ -104,9 +104,9 @@
     "cursor": {
       "used": true,
       "required": "No. Cursor became optional on 2026-10-22 12:45 UTC (HackOS announcement: any AI coding tool).",
-      "what_was_done": "Two headless Cursor Agent CLI (cursor-agent) sessions on 2026-10-22, both under .cursor/rules/project.mdc: the static report viewer viewer/index.html, and the Pitch section of README.md. The git commits for that work (901b109, e654f59) were made afterwards from the Claude Code session, which is why they carry Claude Code trailers.",
+      "what_was_done": "Two headless Cursor Agent CLI (cursor-agent) sessions on 2026-10-22, both under .cursor/rules/project.mdc: one built the static report viewer viewer/index.html (unchanged since), the other a first draft of the Pitch section of README.md, which Claude Code later rewrote for the 12-slide deck and the rebuilt video, keeping only its link lines. The git commits for that work (901b109, e654f59) were made afterwards from the Claude Code session, which is why they carry Claude Code trailers.",
       "rules": ".cursor/rules/project.mdc was written at the start of the build window as the architecture contract and given to every coding agent, Claude Code included.",
-      "not_done_in_cursor": "Everything else (engines, agents, Zetaris layer, tests, examples, pitch) was written by Claude Code.",
+      "not_done_in_cursor": "Everything else (engines, agents, Zetaris layer, tests, examples, deck, narration, video and the current README Pitch text) was written by Claude Code.",
       "evidence": ["docs/BUILD_LOG.md", ".cursor/rules/project.mdc", "viewer/index.html"]
     },
     "nvidia": {
@@ -123,7 +123,7 @@
     {
       "tool": "Cursor Agent CLI (cursor-agent)",
       "role": "Two scoped sessions.",
-      "what": "viewer/index.html and the README Pitch section (see sponsor_tech.cursor)."
+      "what": "viewer/index.html, and a first draft of the README Pitch section that Claude Code later rewrote (see sponsor_tech.cursor)."
     },
     {
       "tool": "OpenAI Codex",

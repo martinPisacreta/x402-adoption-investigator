@@ -178,7 +178,7 @@ def build_exports(ctx: "RunContext", named: dict[str, Observation]) -> dict[str,
         if not path.is_file():
             path = ctx.exports_dir / f"{name}.json"
             path.write_text(json.dumps(obs.payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n",
-                            encoding="utf-8")
+                            encoding="utf-8", newline="\n")
             ctx.notes.append(f"analyst wrote missing export {name}.json (the Collector should export it)")
         exports[name] = str(path)
     for extra in ("openapi_paid_ops", "settlements", *WORLD_EXPORT_FILES):

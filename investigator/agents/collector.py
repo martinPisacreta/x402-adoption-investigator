@@ -139,7 +139,7 @@ def export_observation(ctx: "RunContext", obs: Observation) -> Path:
     """Write the parsed payload to logs/<run_id>/exports/<name>.json (canonical JSON) and record export_path."""
     path = ctx.exports_dir / f"{obs.name}.json"
     text = json.dumps(obs.payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n"
-    _write_or_explain(path, lambda p: p.write_text(text, encoding="utf-8"), ctx.stage or "collector")
+    _write_or_explain(path, lambda p: p.write_text(text, encoding="utf-8", newline="\n"), ctx.stage or "collector")
     obs.export_path = portable_path(ctx, path)
     return path
 
@@ -237,7 +237,7 @@ def write_derived_exports(ctx: "RunContext", observations: list[Observation]) ->
             rows = flatten_openapi_paid_ops(obs.payload)
             path = ctx.exports_dir / f"{OPENAPI_PAID_OPS_EXPORT}.json"
             path.write_text(json.dumps(rows, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n",
-                            encoding="utf-8")
+                            encoding="utf-8", newline="\n")
             written[OPENAPI_PAID_OPS_EXPORT] = portable_path(ctx, path)
             ctx.log.side("fetch", {"name": OPENAPI_PAID_OPS_EXPORT, "family": obs.family, "derived_from": obs.name,
                                    "request_key": obs.request_key, "url": obs.url, "sha256": obs.bytes_sha256,
@@ -263,7 +263,7 @@ def write_normalized_exports(ctx: "RunContext", observations: list[Observation])
         path = folder / f"{view}.json"
         entry["row_count"] = len(entry["rows"])
         path.write_text(json.dumps(entry, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n",
-                        encoding="utf-8")
+                        encoding="utf-8", newline="\n")
         written[view] = portable_path(ctx, path)
     return written
 

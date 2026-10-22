@@ -18,3 +18,11 @@ repository, so a stale recording is caught. Re-record after changing a query, a 
     python scripts/record_zetaris_results.py --from-fixtures
 
 `ZETARIS_*` come from `.env.local` (never printed). Credentials, tokens and headers are never written here.
+
+Line endings. The 19 result sets were recorded on Windows before the exporters wrote LF explicitly, so the export
+files Zetaris read ended in CRLF. Every export is a single line of canonical JSON, so the CRLF and LF files hold the
+same document; only the terminator differs. On 2026-10-22 the exporters were fixed to write LF on every OS
+(`newline="\n"`) and `exports_sha256` was re-hashed over the LF files. The hashes of the bytes Zetaris actually
+read are kept in `exports_sha256_recorded_crlf`: each one equals the sha256 of the LF export with its final `\n`
+replaced by `\r\n`, checked for all 228 entries when the hashes were rewritten. Rows, headers, params and
+`sql_sha256` were not touched, and `tests/test_sql_dual_backend.py` still compares them with SQLite row by row.

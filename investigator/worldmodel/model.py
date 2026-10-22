@@ -352,6 +352,6 @@ class WorldModel:
         for name, key in (("world-entities.json", "entities"), ("world-relationships.json", "relationships"),
                           ("world-facts.json", "facts"), ("world-contexts.json", "contexts")):
             path = out / name
-            path.write_text(canonical_json(shape[key]) + "\n", encoding="utf-8")
+            path.write_text(canonical_json(shape[key]) + "\n", encoding="utf-8", newline="\n")
             paths[name] = str(path)
         return paths

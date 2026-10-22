@@ -203,7 +203,7 @@ class LiveFetcher:
             (self.record_dir / f"{slug}{ext}").write_bytes(raw)
             meta = {"request_key": request_key, "url": url, "method": method, "capturedAt": captured_at,
                     "sha256": digest, "http": status, "contentType": content_type, "file": f"{slug}{ext}"}
-            (self.record_dir / f"{slug}.meta.json").write_text(json.dumps(meta, indent=2) + "\n", encoding="utf-8")
+            (self.record_dir / f"{slug}.meta.json").write_text(json.dumps(meta, indent=2) + "\n", encoding="utf-8", newline="\n")
 
 
 class FixtureFetcher:

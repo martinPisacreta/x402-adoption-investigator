@@ -109,7 +109,7 @@ def small_exports(tmp: Path) -> dict[str, str]:
     out: dict[str, str] = {}
     for name, payload in (("store_receipts", receipts), ("cdp_search_host", search)):
         path = exports_dir / f"{name}.json"
-        path.write_text(json.dumps(payload, sort_keys=True, separators=(",", ":")) + "\n", encoding="utf-8")
+        path.write_text(json.dumps(payload, sort_keys=True, separators=(",", ":")) + "\n", encoding="utf-8", newline="\n")
         out[name] = str(path)
     return out
 
@@ -307,9 +307,9 @@ class FallbackMatrix(unittest.TestCase):
 class ArtifactServerBehaviour(unittest.TestCase):
     def test_serves_only_token_paths(self) -> None:
         tmp = Path(tempfile.mkdtemp(prefix="x402-srv-"))
-        (tmp / "a.json").write_text('{"ok":true}', encoding="utf-8")
+        (tmp / "a.json").write_text('{"ok":true}', encoding="utf-8", newline="\n")
         (tmp / "sub").mkdir()
-        (tmp / "sub" / "b.json").write_text("{}", encoding="utf-8")
+        (tmp / "sub" / "b.json").write_text("{}", encoding="utf-8", newline="\n")
         srv = ArtifactServer(tmp, host_for_driver="host.docker.internal")
         port = srv.start()
         try:

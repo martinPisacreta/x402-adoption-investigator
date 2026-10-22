@@ -91,7 +91,7 @@ class Sleep:
             with open(folder / MemoryStore.FILE, "w", encoding="utf-8", newline="\n") as handle:
                 for record in state["records"]:
                     handle.write(json.dumps(record, ensure_ascii=False, separators=(",", ":")) + "\n")
-            (folder / "meta.json").write_text(json.dumps({"seq": state["seq"], "at": self.clock.now_ms()}) + "\n", encoding="utf-8")
+            (folder / "meta.json").write_text(json.dumps({"seq": state["seq"], "at": self.clock.now_ms()}) + "\n", encoding="utf-8", newline="\n")
         return backup_id
 
     def execute(self, preview: Optional[dict[str, Any]] = None) -> dict[str, Any]:

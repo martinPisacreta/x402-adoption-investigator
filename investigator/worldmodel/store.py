@@ -174,7 +174,7 @@ class EventStore:
     def save_merge_queue(self) -> None:
         if self.persist_dir is not None:
             self._path(self.MERGE_QUEUE).write_text(json.dumps(self.merge_queue, indent=2, ensure_ascii=False) + "\n",
-                                                    encoding="utf-8")
+                                                    encoding="utf-8", newline="\n")
 
     # -- fold -------------------------------------------------------------------------------------------
     def _fold(self, event: Event) -> None:

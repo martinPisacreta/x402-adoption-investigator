@@ -50,7 +50,7 @@ def seed_without(memory_id: str, target: Path) -> dict[str, Any]:
                     removed["caveat_codes"] = [t.split(":", 1)[1] for t in record.get("tags", []) if t.startswith("caveat:")]
                 continue
             kept.append(line)
-        (target / name).write_text("\n".join(kept) + "\n", encoding="utf-8")
+        (target / name).write_text("\n".join(kept) + "\n", encoding="utf-8", newline="\n")
     if removed["content"] is None:
         raise SystemExit(f"{memory_id} is not in memory/seed/memories.jsonl")
     return removed
@@ -122,7 +122,7 @@ def main(argv: list[str] | None = None) -> int:
         if args.write:
             out = REPO_ROOT / args.write if not Path(args.write).is_absolute() else Path(args.write)
             out.mkdir(parents=True, exist_ok=True)
-            (out / "summary.json").write_text(text + "\n", encoding="utf-8")
+            (out / "summary.json").write_text(text + "\n", encoding="utf-8", newline="\n")
             shutil.copyfile(tmp_path / "full" / full["run_id"] / "output.json", out / "with-memory.output.json")
             shutil.copyfile(tmp_path / "without" / without["run_id"] / "output.json", out / "without-memory.output.json")
             print(f"written: {out}", file=sys.stderr)

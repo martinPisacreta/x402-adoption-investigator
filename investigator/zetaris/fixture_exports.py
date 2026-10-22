@@ -133,7 +133,7 @@ def build_fixture_exports(fixtures_dir: Path, out_dir: Path, include_catalog: bo
 
     def write(name: str, payload: Any) -> None:
         path = out_dir / f"{name}.json"
-        path.write_text(canonical_dump(payload), encoding="utf-8")
+        path.write_text(canonical_dump(payload), encoding="utf-8", newline="\n")
         exports[name] = str(path)
 
     loaded: dict[str, Any] = {}

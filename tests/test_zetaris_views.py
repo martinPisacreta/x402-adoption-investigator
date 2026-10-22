@@ -115,7 +115,7 @@ class RowBuilders(unittest.TestCase):
     def test_build_views_with_missing_exports_gives_empty_tables(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             receipts = Path(tmp) / "store_receipts.json"
-            receipts.write_text(json.dumps({"seller": "0xS", "agentId": "1", "sales": [], "purchases": []}), encoding="utf-8")
+            receipts.write_text(json.dumps({"seller": "0xS", "agentId": "1", "sales": [], "purchases": []}), encoding="utf-8", newline="\n")
             conn = sqlite3.connect(":memory:")
             tables = build_views(conn, {"store_receipts": str(receipts)})
             by_name = {t["name"]: t for t in tables}

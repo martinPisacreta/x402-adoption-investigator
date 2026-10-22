@@ -3,8 +3,11 @@
 Pass A (claims), each firing check logged as a `critique` event plus one accept summary per rule:
 - C1 evidence-present: >= 1 evidence item resolves (url sha256 seen by a fetch this run or in the MANIFEST; tx
   verified by the Verifier; log://<run_id>#<seq> exists). Missing -> reject.
-- C2 recompute: the reducer is re-run over the exports and must equal the SQL value recorded by the Analyst
-  (exact for counts/sums, 1e-6 for shares); both missing -> reject; a disagreement must cite a backend conflict.
+- C2 recompute (dual computation): the reducer is re-run over the exports and must equal the SQL value the
+  Analyst recorded from the committed query (exact for counts/sums, 1e-6 for shares). A number survives only when
+  BOTH halves exist and agree: no SQL value (query skipped, failed or over budget), no reducer value, or a
+  disagreement -> reject. A disagreement also stays visible as the open Conflict <metric>:backend_disagreement
+  the Analyst opened, which the answer still cites.
 - C3 pitfall gate (H-MEM): every pitfall memory whose entities intersect the claim's derivation.fields/sources or
   its metric id requires its caveat code on the claim with caveat_memory_ids[code] == memory.id; missing -> revise
   (the caveat is attached, the claim becomes `revised` and is re-checked next round); present -> candidate
@@ -116,14 +119,19 @@ def check_c2_recompute(ctx: "RunContext", claim: Claim, conflicts: list[Conflict
     sql_value = record.get("sql")
     if sql_value is None and recomputed is None:
         return [_issue(claim, "C2", "reject", "neither the SQL backend nor the reducer produced a value")]
-    if sql_value is not None and recomputed is not None and not values_agree(sql_value, recomputed, claim.unit):
-        cited = any(k.predicate == f"{claim.metric}:backend_disagreement" and k.id in claim.conflict_ids for k in conflicts)
-        if not cited:
-            return [_issue(claim, "C2", "reject", f"SQL value {sql_value!r} and recomputed reducer value {recomputed!r} disagree without a backend conflict")]
-        return []
-    reference = sql_value if sql_value is not None else recomputed
-    if not values_agree(claim.value, reference, claim.unit):
-        return [_issue(claim, "C2", "reject", f"claim value {claim.value!r} differs from the recomputed value {reference!r}")]
+    if sql_value is None:
+        return [_issue(claim, "C2", "reject",
+                       f"single computation: no SQL value from {spec.query_id} (query skipped, failed or over budget); "
+                       "a number is kept only when SQL and the reducer both compute it and agree")]
+    if recomputed is None:
+        return [_issue(claim, "C2", "reject", f"single computation: the reducer {spec.reducer} produced no value over the exports")]
+    if not values_agree(sql_value, recomputed, claim.unit):
+        conflict = next((k.id for k in conflicts if k.predicate == f"{claim.metric}:backend_disagreement"), None)
+        where = f"; conflict {conflict} stays open" if conflict else ""
+        return [_issue(claim, "C2", "reject",
+                       f"SQL value {sql_value!r} and recomputed reducer value {recomputed!r} disagree{where}")]
+    if not values_agree(claim.value, sql_value, claim.unit):
+        return [_issue(claim, "C2", "reject", f"claim value {claim.value!r} differs from the recomputed value {sql_value!r}")]
     return []
 
 

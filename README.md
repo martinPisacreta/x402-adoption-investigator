@@ -102,10 +102,14 @@ output}` envelope that is also written to `logs/ex01-seller-audit/output.json` (
 `--sample` pins sample mode; without it the default `--mode auto` also runs sample mode when no credentials are
 configured, but an `OPENAI_API_KEY` or `ZETARIS_PASSWORD` already exported in the shell (or present in
 `.env.local`) switches `auto` to live mode, with real fetches and paid model calls. `scripts/one_command.sh` (or
-`.ps1`) runs the example with `--print-output` and then the test suite. On Windows, clone into a short directory
-(the run folder nests `logs/<run_id>/exports/<name>.json`; a repository path longer than about 150 characters
-hits the 260-character `MAX_PATH` limit unless `LongPathsEnabled` is set, and the run then stops with an
-`E_INTERNAL` that names the path and its length). Docker:
+`.ps1`) runs the example with `--print-output` and then the test suite. On Windows, clone into a short directory:
+the run folder nests `logs/<run_id>/exports/<name>.json`, and the longest file the examples write
+(`logs/ex03-payer-dossier/exports/rpc_receipt_0x<64 hex>.json`) is 115 characters below the repository root, so a
+repository path longer than 143 characters (a logs directory longer than 148) goes over the `MAX_PATH` limit
+(260 including the terminator) unless `LongPathsEnabled` is set; a longer `--run-id` lowers that bound. The run
+then stops with an `E_INTERNAL` that names the run-relative path and the full length. `--out <short dir>` or the
+`LOG_DIR` variable (honoured in sample mode too; `--out` wins) moves the run folders without moving the clone.
+Docker:
 
 ```bash
 docker build -t x402-investigator .
@@ -113,8 +117,9 @@ docker run --rm --network none x402-investigator                                
 docker run --rm --network none x402-investigator --sample --input examples/ex3.json --quiet
 ```
 
-The image carries no secrets (`.dockerignore` excludes `.env*`, `logs/`, `memory/state/`); the two commands above
-were run on the demo machine with `--network none` and finished with status `ok`.
+The image carries no secrets (`.dockerignore` excludes `.env` files except `.env.example`, key, certificate and
+wallet files, `logs/` and `memory/state/`); the two commands above were run on the demo machine with
+`--network none` and finished with status `ok`.
 
 ## Run contract
 
@@ -144,8 +149,10 @@ with codes `E_INPUT`, `E_TIMEOUT`, `E_NO_SOURCES`, `E_GENERATOR`, `E_ZETARIS_REQ
 Status rule (SPEC.md 4.3): `ok` = every planned step completed, no fallback mount was used against the requested
 mode and no claim was rejected; `partial` = at least one accepted claim AND (a source or metric unavailable, a
 deadline skip, a rejected claim, or a fallback executor/generator in live mode); `error` otherwise. Exit code 0 for
-`ok` and `partial`, 1 for `error`. `--serve` answers 200 for `ok`/`partial` and 422 for `error` (verified with
-`GET /health`, `POST /run` on example 03 and a bad input).
+`ok` and `partial`, 1 for `error`. `--serve` answers `POST /run` with 200 for `ok`/`partial` and 422 for an
+`error` envelope (a JSON body that fails the input schema included); a body that is not JSON gets 400, a body over
+1 MB gets 413 (both with an `E_INPUT` error envelope), and any other path 404. `tests/test_run_contract.py`
+(`HttpRunContract`) checks `GET /health`, a non-JSON body, a schema-invalid body and example 03.
 
 A run finishes in seconds to minutes: on the demo machine the sample runs of example 01 and 03 take about one
 second and example 02 about 15 s (it folds the 32 MB catalog snapshot); the live Zetaris runs finished inside the
@@ -376,14 +383,15 @@ data source: no code from it is in this repository, and its receipts are treated
 ## Tests
 
 ```
-python -m unittest discover tests        # 193 tests, no third-party dependency
+python -m unittest discover -s tests     # 199 tests, no third-party dependency
 python -m pytest -q                      # same suite under pytest if installed
 ```
 
 Suites: World Model conformance (8/8), H-MEM conformance (13/13 vectors), adapters over the fixtures, Keeper and
 H-MEM investigator surface, fetcher and collector, settlement decoding, the Verifier, Zetaris views / executor /
 fallback matrix (faked HTTP), SQL dual backend (recorded Zetaris result sets == SQLite), Critic rules, the agents
-pipeline, the run contract (schemas, error codes, status rule, CLI exit codes, the no-hardcoded-numbers grep),
+pipeline, the run contract (schemas, error codes, status rule, CLI exit codes, `--serve` HTTP statuses, `LOG_DIR`,
+the no-hardcoded-numbers grep),
 sample-mode offline proof, and byte-for-byte reproducibility of the committed examples.
 
 ## Limitations and honesty notes

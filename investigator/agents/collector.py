@@ -120,8 +120,9 @@ def _write_or_explain(path: Path, writer: Callable[[Path], None], stage: str) ->
         full = str(path.resolve())
         detail = f"cannot write {path.name}: {exc.strerror or exc}"
         if sys.platform == "win32" and len(full) >= WINDOWS_MAX_PATH - 12:
-            detail += (f"; the full path is {len(full)} characters, over the Windows MAX_PATH limit of {WINDOWS_MAX_PATH} "
-                       "(clone into a shorter directory, pass --out <short dir> or enable LongPathsEnabled)")
+            detail += (f"; the full path is {len(full)} characters and the Windows MAX_PATH limit of {WINDOWS_MAX_PATH} "
+                       f"allows {WINDOWS_MAX_PATH - 1} (clone into a shorter directory, pass --out <short dir> or "
+                       "enable LongPathsEnabled)")
         raise InvestigatorError("E_INTERNAL", stage, detail, retryable=False,
                                 details={"path": run_relative(path), "path_length": len(full), "errno": exc.errno}) from exc
 

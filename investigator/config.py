@@ -2,7 +2,8 @@
 
 - load_env_local() reads KEY=VALUE lines from .env.local without printing values (names only are reported).
 - resolve_mode() implements the mode rule: `sample` if SAMPLE_MODE=1 or neither OPENAI_API_KEY nor
-  ZETARIS_PASSWORD is set; else `live`. `--mode sample` ignores the environment entirely.
+  ZETARIS_PASSWORD is set; else `live`. `--mode sample` reads no credential and no .env.local; the only
+  variable it honours is LOG_DIR (where the run folders go; --out wins over it).
 - parse_request() validates the run.py input against schemas/input.schema.json and builds RunInput; a bad
   input is E_INPUT with details.
 Secrets live only in the Env dataclass fields marked repr=False and are never logged.
@@ -171,13 +172,15 @@ class RunConfig:
 
 def build_config(args: Optional[argparse.Namespace] = None, environ: Optional[dict[str, str]] = None,
                  load_dotenv: bool = True) -> RunConfig:
-    """CLI namespace (run.py) + environment -> RunConfig. `--mode sample` never reads the environment."""
+    """CLI namespace (run.py) + environment -> RunConfig. `--mode sample` reads no credential and no .env.local:
+    the only environment variable it honours is LOG_DIR (default logs/), and --out wins over it."""
     ns = args or argparse.Namespace()
     requested: RequestedMode = getattr(ns, "mode", None) or "auto"
     if getattr(ns, "sample", False):
         requested = "sample"
     if requested == "sample":
-        env = Env(sample_mode_flag=True)
+        log_dir = (os.environ if environ is None else environ).get("LOG_DIR")
+        env = Env(sample_mode_flag=True, log_dir=Path(log_dir) if log_dir else REPO_ROOT / "logs")
     else:
         loaded = load_env_local() if (load_dotenv and environ is None) else []
         env = read_env(environ)

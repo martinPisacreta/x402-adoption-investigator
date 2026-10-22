@@ -169,6 +169,11 @@ one was made true in code, with tests, instead of being reworded:
   hashes against the trace and `generator.jsonl`, a second Writer round that carries the Critic's issue and the same
   block, and the `RecordedGenerator` replay. The README's honesty note now says exactly this; no real model output
   was recorded.
+- Verified on the tree of 8347887: `python -m unittest discover -s tests` = 219 tests OK in a default Windows clone
+  (`core.autocrlf=true`), an `autocrlf=false` clone and the Docker image built from it (`--network none`, Python
+  3.11.17). In all three, the eight example inputs ran with `--sample` (exit 0; 01-03 `ok`, 04 `partial`) and rewrote
+  the committed example files byte for byte, and `scripts/memory_ablation.py` reproduced `examples/memory-ablation/`;
+  `scripts/one_command.sh` passed in the image.
 
 ## Cursor sessions (what was actually done in Cursor)
 

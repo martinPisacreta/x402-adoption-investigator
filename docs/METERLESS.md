@@ -22,9 +22,12 @@ collector -> keeper(ingest pass 1) -> verifier -> keeper(chain facts) -> analyst
   engine's own logs in the run folder.
 - **H-MEM** (`investigator/hmem/`): the memory that gates the Critic. Seven committed pitfall memories
   (`memory/seed/memories.jsonl`) are copied into `logs/<run_id>/hmem/` for every sample run (live runs persist
-  `memory/state/`); the Planner and Writer retrieve with the spec formula (trace lines in `hmem.trace.jsonl`), the
-  Analyst and the Critic's C3 gate read the same deterministic `policy_memories(fields, sources, metrics)` index
-  (the Analyst attaches the caveats, the Critic verifies them), feedback writes the exact deltas to `ledger.jsonl`,
+  `memory/state/`); the Planner and Writer retrieve with the spec formula (trace lines in `hmem.trace.jsonl`) and,
+  when a generator is mounted, their prompts carry the `[MEMORY CONTEXT]` reinjection block, logged before each call
+  as a `memory` event `op: "inject"` (prompt and block sha256; `tests/test_generator_hmem.py` checks it offline with
+  an in-process OpenAI-compatible double, since no committed run had a model key), the Analyst and the Critic's C3
+  gate read the same deterministic `policy_memories(fields, sources, metrics)` index (the Analyst attaches the
+  caveats, the Critic verifies them), feedback writes the exact deltas to `ledger.jsonl`,
   and the runner mines one factual record per accepted claim at the end of the run. `scripts/memory_ablation.py`
   measures what one seed memory changes in an example's output (`examples/memory-ablation/`).
 

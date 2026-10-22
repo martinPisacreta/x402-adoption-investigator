@@ -17,13 +17,18 @@ strip them).
 |---|---|---|---|---|
 | `live-ex01-20261022/` | `python run.py --mode live --input examples/ex1.json --run-id live-ex01-20261022` | fetcher `live+fixture-fallback`, executor `zetaris` (2.4.3.1, source `captured`), generator `null` | `partial` | every claim computed on Zetaris (`derivation.backend: zetaris`), 4 of 4 sampled settlements verified against Base, `zetaris.jsonl` with login, DDL (database, REST tables, cache, container, views), 13 run-query calls, cleanup; the only recovery is `generator_fallback` (no model key), which is what makes the status `partial` |
 | `live-ex03-20261022/` | `python run.py --mode live --require-zetaris --input examples/ex3.json --run-id live-ex03-20261022` | same, Zetaris required | `partial` | payer dossier live: 4 of 4 verified, USDC balance and nonce read live, `--require-zetaris` honoured |
-| `live-nozetaris-ex03/` | same input with `ZETARIS_*` and `OPENAI_API_KEY` withheld, `--mode live` | fetcher `live+fixture-fallback`, executor `sqlite`, generator `null` | `partial` | graceful degradation: `recovery{zetaris_unreachable}` (whole run on SQLite), `recovery{generator_fallback}`, every number still computed and cross-checked, 4 of 4 settlements verified live |
+| `live-nozetaris-ex03/` | same input with `ZETARIS_*` and `OPENAI_API_KEY` withheld, `--mode live` | fetcher `live+fixture-fallback`, executor `sqlite`, generator `null` | `partial` | graceful degradation: `recovery{zetaris_unreachable}` (whole run on SQLite), `recovery{generator_fallback}`, every SQL-backed number still computed and cross-checked, 4 of 4 settlements verified live |
 
 The three traces were re-recorded on 2026-10-22 at 03:38 UTC, after the review fixes described in
 `docs/BUILD_LOG.md` (the earlier recordings carried a staged `retry` of the Writer and a `basis_mismatch` caveat on
 every receipts claim; neither exists any more). Each trace now finishes in one Critic round with no `retry` line:
 the only `recovery` lines are the real ones named in the table (`generator_fallback`, and `zetaris_unreachable`
 when the credentials were withheld), and `fetch.jsonl` shows every live request with its sha256.
+
+The traces predate two later changes (2026-10-22 evening, `docs/BUILD_LOG.md`): in both example 03 traces the
+balance and nonce claims are reducer-only (`derivation.backend: null`, `cross_checked: false`), because q22 and the
+`chain_facts` view did not exist yet; and the Critic of that build accepted such single-computed claims, which its
+rule C2 now rejects. The traces are kept as recorded, not re-run.
 
 Differences a reader will find between the replay and the live traces are real and expected: the receipts bytes
 have a different sha256 (the store's `receipts.json` carries a `generatedAt` timestamp), the Bazaar 30-day call

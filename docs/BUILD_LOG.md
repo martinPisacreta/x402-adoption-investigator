@@ -136,6 +136,40 @@ e654f59:
   `--sample` (exit 0) and rewrote the committed example files byte for byte, and `scripts/one_command.sh` passed
   in the image.
 
+## Day 1, central claims made true in code (2026-10-22, from 17:00 UTC)
+
+The same verification found that three claims of the pitch were not true of the code and the committed runs. Each
+one was made true in code, with tests, instead of being reworded:
+
+- "Every metric is computed twice, a claim survives only if both agree." Four accepted claims were reducer-only
+  (`top_hosts_by_listings`, `unique_payers_per_endpoint_max`, `usdc_balance_atomic`, `tx_count`: no SQL, confidence
+  0.7), and a SQL/reducer disagreement was accepted at confidence 0.5 when the claim cited its conflict. Now q20 and
+  q21 read `catalog_resources`, and q22 reads a new `chain_facts` view that decodes the raw JSON-RPC hex the
+  Verifier exports (the reducer keeps the Verifier's own decoding). The Critic's C2 rejects a claim with a missing
+  half or a disagreement, the `backend_disagreement` Conflict stays open, and an executor that cannot build its
+  views is replaced by SQLite for the Analyst. `tests/test_dual_computation.py` breaks one half on purpose (an
+  off-by-one reducer, an SQL budget of five, no executor at all). Examples 02 and 03 were regenerated: all 39
+  accepted claims are now cross-checked. q20-q22 have no Zetaris recording (no login was available after the
+  live session), and the dual-backend test lists them explicitly.
+- "The Critic rejects anything not backed by evidence." No committed run had ever rejected a claim. C1 now also
+  requires a settlement count (`settlements_verified`, `verified_tx`) to rest on at least one decoded settlement of
+  its own subject. Example 04 (`examples/04-payer-dossier-unverifiable`) asks the example 03 question about another
+  external payer whose settlement is not in the RPC fixtures (it is verified in the live trace of example 01). The
+  Analyst computes `verified_tx` = 0, with SQL and reducer agreeing. C1 rejects it, the Writer's second round drops
+  it and names it with `recovery{narrative_trimmed}`, and the verdict is `insufficient_evidence`. While building it,
+  two bugs showed up. A wallet claim cited another payer's verified transaction as its evidence; it now cites only
+  its own. And an unavailable chain fact said the RPC was never queried when the read had been made and had
+  missed its fixture; it now names the read and its status. Conflict sentences also stopped citing rejected claims,
+  which pass B had flagged as dangling citations.
+- "H-MEM memories are injected into prompts, with a trace in logs/." No model ran in any committed run, and no
+  test used the generator. `generate()` now logs every prompt that carries the reinjection block as a `memory`
+  event `op: "inject"` (prompt and block sha256, mirrored in `hmem.trace.jsonl`). `tests/test_generator_hmem.py`
+  mounts the real `OpenAIGenerator` with an in-process OpenAI-compatible transport on a sample run of example 03.
+  It checks the `[MEMORY CONTEXT]` block (`mem-seed-005`) inside the Planner and Writer prompts actually sent, the
+  hashes against the trace and `generator.jsonl`, a second Writer round that carries the Critic's issue and the same
+  block, and the `RecordedGenerator` replay. The README's honesty note now says exactly this; no real model output
+  was recorded.
+
 ## Cursor sessions (what was actually done in Cursor)
 
 Entries are added only for work done in Cursor itself (Composer / agent sessions or edits with

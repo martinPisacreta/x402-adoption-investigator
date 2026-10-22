@@ -225,7 +225,7 @@ outputs as they now stand, instead of keeping the first-night wording:
   choosing that file in the picker), cropped to the run header and the rejected-claims section.
 - Narration (`docs/pitch/narration.txt`): one segment per slide plus a `run` segment for a recorded terminal run of
   example 04; every spoken claim checked against the outputs (about 517 words, about 3 min 27 s at 150 words per
-  minute). `docs/DEMO_SCRIPT.md` gained the example 04 lines to point at.
+  minute at that point; the narration of the last round below has 549 words and the rebuilt video runs 3 min 38 s). `docs/DEMO_SCRIPT.md` gained the example 04 lines to point at.
 - Verified on the tree of 288935b: `python -m unittest discover -s tests` = 222 tests OK in a default Windows clone
   (`core.autocrlf=true`), an `autocrlf=false` clone and the Docker image built from it (`--network none`). In the
   default clone the eight example inputs ran with `--sample` (exit 0; 01-03 `ok`, 04 `partial`) and rewrote the
@@ -270,6 +270,43 @@ it. A Claude Code agent replaced it; the scripts are in `docs/pitch/video/`:
 - Rebuild: `powershell -NoProfile -ExecutionPolicy Bypass -File docs/pitch/video/tts.ps1 -OutDir <work>/tts -Rate 1`,
   then `python docs/pitch/video/build_video.py --work <work>` (Windows, ffmpeg, Chrome; pymupdf is used only by this
   script, not by the investigator).
+
+## Day 1, last verification round (2026-10-22, from 19:15 UTC)
+
+A final verification of the documents and the media against the code and the committed outputs found statements
+that were not true. Each was fixed in code where that was cheap and in the text otherwise (Claude Code agents):
+
+- Conflict k01 said vet402 lists endpoints "including delisted ones", but its count only takes rows with
+  `catalog_status: listed` and every vet402 row in the fixtures is listed. The Analyst now appends the routes that
+  separate vet402 from the store openapi, computed from the exports (`/api/maintenance-helper` and
+  `/api/preparar-solicitud`, the whole 19 vs 17 gap). Example 01 and the memory ablation were regenerated with
+  `scripts/regen_examples.py` and `scripts/memory_ablation.py`; only the k01 text and the answer hash changed.
+- `budget.max_seconds` could not fire in sample mode, where the SampleClock advances 1 ms per call. The budget is
+  now also measured with a monotonic wall clock in both modes. Nothing logged depends on it until it fires, so the
+  committed examples stayed byte-identical; two tests patch the wall clock.
+- `scripts/one_command.ps1` aborted on Windows PowerShell 5.1 when pytest was missing (under `Stop`, the redirected
+  stderr of the import probe became a terminating error), and `scripts/one_command.sh` took the Microsoft Store
+  `python3` stub whenever the name was on PATH. Both now pick an interpreter that actually runs and is 3.11 or
+  newer, and fall back to `unittest`. The `.ps1` ran example 01 and the whole suite on Windows PowerShell
+  5.1.26100 without pytest; the `.sh` selection skipped a stub `python3` placed first on PATH.
+- Figures: the live seller audit's 13 queries took 106-447 ms each (`time_used_ms` in its `sql.jsonl`), not
+  157-590 ms, and that run built 10 views, not 12. Cursor: two sessions everywhere, and the current README Pitch
+  text is Claude Code's rewrite of the Cursor draft.
+- Narration: s05 no longer says the Analyst keeps a metric only if both computations agree (the Analyst proposes
+  the claim; the Critic's C2 rejects a missing or disagreeing half), s06 says that 54 of the 62 numbers in the
+  answer map to accepted claims and the other 8 are dates, and s12 names the two Cursor sessions and the new test
+  count. Deck slide 12 (test count, Cursor tag) was re-rendered to `slides/s12.png` and `deck.pdf` with the Chrome
+  commands above; an unchanged slide rendered the same way came out byte-identical to the committed PNG.
+- Video rebuilt with `docs/pitch/video/tts.ps1` and `build_video.py` (all 13 segments re-synthesized; the TTS
+  script has no per-segment mode). The recorded-run segment now shows its first line, the guard, as the voice
+  starts instead of after about 7 s of empty terminal (`LEAD` 2.0 -> 0.8 s, seq 1 anchored to the first word), and
+  its closing note appears as the last word ends (`TAIL` 3.2 -> 1.8 s, viewer lead 0.9 -> 0.6 s), so the silence
+  between the run and the viewer went from about 4.9 s to 3.2 s. Output: 217.9 s (3 min 38 s), 1920x1080, 30 fps,
+  H.264 High yuv420p, AAC 44.1 kHz stereo, `+faststart` (moov before mdat), 13.8 MB, 6537 frames. Checks: `ffmpeg
+  -v error` decode with no output; volumedetect mean -21.9 dB, max -4.1 dB; silencedetect (-45 dB, 0.9 s) finds
+  only the gaps between segments, the longest the 3.2 s after the run; 14 frames looked at (1, 60, 90, 114.9,
+  115.4, 116.2, 125, 135, 144.5, 146.8, 150, 178, 190 and 205 s: slides 1, 5, 6, 9, 10 and 12, the run from its
+  first frame to the closing note, the viewer).
 
 ## Cursor sessions (what was actually done in Cursor)
 

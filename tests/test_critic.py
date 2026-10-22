@@ -21,7 +21,8 @@ from investigator.agents.reducers import WorldExports  # noqa: E402
 from investigator.agents.verdict import compute_verdict  # noqa: E402
 from investigator.agents.writer import Answer, render_template  # noqa: E402
 from investigator.config import build_config, parse_request  # noqa: E402
-from investigator.contracts import Claim, Conflict, ConflictValue, Coverage, Derivation, Evidence, Observation  # noqa: E402
+from investigator.contracts import (Claim, Conflict, ConflictValue, Coverage, Derivation, Evidence, Observation,  # noqa: E402
+                                    Verification)
 
 FIXTURES = REPO_ROOT / "fixtures" / "raw"
 
@@ -118,6 +119,33 @@ class CriticChecks(unittest.TestCase):
         self.assertEqual(critic.check_c1_evidence(self.ctx, claim, [], []), [])
         claim.evidence = [Evidence(kind="log_line", ref=self.ctx.log.ref(seq + 500))]
         self.assertEqual(critic.check_c1_evidence(self.ctx, claim, [], [])[0]["verdict"], "reject")
+
+    def test_c1_settlement_counts_need_a_decoded_settlement_of_their_subject(self) -> None:
+        sales = [s for s in self.obs.payload["sales"] if not s["ownWallet"]]
+        mine, other = sales[0], next(s for s in sales if s["payer"].lower() != sales[0]["payer"].lower())
+        wallet = mine["payer"].lower()
+        self.ctx.scratch["world_exports"] = WorldExports(raw={"store_receipts": self.obs.payload}, now_iso=self.ctx.clock.start_iso)
+
+        def verification(sale: dict, status: str, decoded: bool) -> Verification:
+            return Verification(tx=sale["transaction"].lower(), status=status, payer=sale["payer"].lower() if decoded else None,
+                                seller=None, amount_atomic=None, block=None, block_time=None, facilitator_from=None,
+                                basescan_url=f"https://basescan.org/tx/{sale['transaction'].lower()}", decoded_from="none",
+                                receipt_match=None, reason=None if decoded else "fixture_miss")
+
+        claim = Claim("c07", "verified_tx", f"wallet:base:{wallet}", "0 settlement(s) of this payer verified on Base.", 0, "count",
+                      evidence=[Evidence(kind="url", ref=self.obs.url, sha256=self.obs.bytes_sha256)])
+        unverifiable_mine = verification(mine, "unverifiable", False)
+        verified_other = verification(other, "verified", True)
+        issues = critic.check_c1_evidence(self.ctx, claim, [self.obs], [unverifiable_mine, verified_other])
+        self.assertEqual(issues[0]["verdict"], "reject")
+        self.assertIn("unverifiable fixture_miss x1", issues[0]["reason"])
+        # A decoded settlement of the wallet that FAILED makes the zero a real finding.
+        self.assertEqual(critic.check_c1_evidence(self.ctx, claim, [self.obs], [verification(mine, "failed", True), verified_other]), [])
+        # The seller-level count owns every sampled settlement: another payer's decoded one is enough.
+        seller = Claim("c02", "settlements_verified", "seller:host:tienda.textokit.store", "1 verified.", 1, "count",
+                       evidence=[Evidence(kind="url", ref=self.obs.url, sha256=self.obs.bytes_sha256)])
+        self.assertEqual(critic.check_c1_evidence(self.ctx, seller, [self.obs], [unverifiable_mine, verified_other]), [])
+        self.assertEqual(critic.check_c1_evidence(self.ctx, seller, [self.obs], [unverifiable_mine])[0]["verdict"], "reject")
 
     def test_c2_recompute_against_the_exports(self) -> None:
         claim = receipts_claim(self.obs)

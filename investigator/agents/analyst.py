@@ -335,7 +335,12 @@ def run_queries(ctx: "RunContext", plan: Plan, catalog: dict[str, QuerySpec], pa
 # ---------------------------------------------------------------------------------------------------------
 
 def evidence_for(spec: MetricSpec, named: dict[str, Observation], verifications: list[Verification],
-                 world: WorldExports) -> list[Evidence]:
+                 world: WorldExports, params: Optional[dict[str, Any]] = None) -> list[Evidence]:
+    """Source URLs with their sha256, verified transactions and chain-fact URLs behind a metric. A claim about one
+    wallet cites only that wallet's own verified settlements, never another payer's."""
+    params = params or {}
+    subject_wallet = (str(params["wallet"]).lower() if spec.subject_template.startswith("wallet:") and params.get("wallet")
+                      else None)
     evidence: list[Evidence] = []
     seen: set[str] = set()
     for obs in named.values():
@@ -346,6 +351,8 @@ def evidence_for(spec: MetricSpec, named: dict[str, Observation], verifications:
                                  replayed=obs.replayed, stale=obs.stale, http=obs.http, fixture_file=obs.fixture_file))
     if "base_rpc" in spec.sources:
         for v in verifications:
+            if subject_wallet and str(v.payer or "").lower() != subject_wallet:
+                continue
             if v.status == "verified" and v.basescan_url not in seen:
                 seen.add(v.basescan_url)
                 evidence.append(Evidence(kind="tx", ref=v.basescan_url, verified=True, replayed=any(o.replayed for o in named.values())))
@@ -403,7 +410,8 @@ def compute_metric(ctx: "RunContext", index: int, spec: MetricSpec, params: dict
         return None, {"metric": spec.id, "reason": "; ".join(family_failure_reason(f, all_observations) for f in missing)}
     missing_exports = [name for name in spec.required_exports if not _export_present(world, name)]
     if missing_exports:
-        return None, {"metric": spec.id, "reason": "; ".join(_export_missing_reason(name) for name in missing_exports)}
+        return None, {"metric": spec.id, "reason": "; ".join(_export_missing_reason(name, params, all_observations)
+                                                              for name in missing_exports)}
     params = dict(params)
     params.setdefault("since", window_since(world.now_iso))
     until = world.now_iso[:10]
@@ -462,7 +470,7 @@ def compute_metric(ctx: "RunContext", index: int, spec: MetricSpec, params: dict
         id=cid, metric=spec.id, subject=spec.subject_template.format(**{k: v for k, v in params.items()}),
         statement=render_statement(spec, value, params, until), value=value, unit=spec.unit,
         period=(f"{params['since']}..{until}" if spec.period == "l30d" else spec.period),
-        evidence=evidence_for(spec, named, verifications, world),
+        evidence=evidence_for(spec, named, verifications, world, params),
         derivation=Derivation(agent="analyst", query_id=query_id, sql_sha256=sql_sha, backend=backend,
                               reducer=spec.reducer, rows=rows, fields=list(spec.fields), sources=list(spec.sources),
                               log_seq=log_seq),
@@ -492,9 +500,19 @@ def _export_present(world: WorldExports, name: str) -> bool:
     return world.raw.get(name) is not None
 
 
-def _export_missing_reason(name: str) -> str:
+CHAIN_FACT_READS: dict[str, str] = {"usdc_balance_atomic": "rpc_balance_", "tx_count": "rpc_nonce_"}
+
+
+def _export_missing_reason(name: str, params: Optional[dict[str, Any]] = None,
+                           observations: Optional[list[Observation]] = None) -> str:
     if name.startswith("chain_fact:"):
-        return f"chain fact {name.split(':', 1)[1]} not produced: the Verifier did not query the Base RPC for it"
+        predicate = name.split(":", 1)[1]
+        wallet = str((params or {}).get("wallet") or "").lower()
+        prefix = CHAIN_FACT_READS.get(predicate)
+        for obs in observations or []:
+            if prefix and obs.name.lower() == f"{prefix}{wallet}" and obs.status != "ok":
+                return f"chain fact {predicate} not produced: the Base RPC read {obs.name} was {obs.status}"
+        return f"chain fact {predicate} not produced: the Verifier did not query the Base RPC for it"
     return f"export {name}.json missing: the Verifier did not produce it (no settlement decoded)"
 
 

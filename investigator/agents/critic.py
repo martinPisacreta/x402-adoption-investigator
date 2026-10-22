@@ -2,7 +2,11 @@
 
 Pass A (claims), each firing check logged as a `critique` event plus one accept summary per rule:
 - C1 evidence-present: >= 1 evidence item resolves (url sha256 seen by a fetch this run or in the MANIFEST; tx
-  verified by the Verifier; log://<run_id>#<seq> exists). Missing -> reject.
+  verified by the Verifier; log://<run_id>#<seq> exists). Missing -> reject. A metric with
+  evidence_rule "decoded_settlement" (settlements_verified, verified_tx) also needs >= 1 sampled settlement of
+  the claim's OWN subject (the seller, or the one wallet) that the Verifier actually decoded, verified or failed:
+  a count computed while every sampled settlement of the subject was unverifiable (RPC down, fixture miss) is
+  a number about missing data, typically a zero that would read as "not verified" -> reject.
 - C2 recompute (dual computation): the reducer is re-run over the exports and must equal the SQL value the
   Analyst recorded from the committed query (exact for counts/sums, 1e-6 for shares). A number survives only when
   BOTH halves exist and agree: no SQL value (query skipped, failed or over budget), no reducer value, or a
@@ -40,7 +44,7 @@ from .analyst import format_share_pct, format_usdc, values_agree
 from .metrics import METRICS, STALE_EVIDENCE_DAYS
 from .pitfalls import SeedMemory as _SeedMemory  # noqa: F401 - kept importable for callers of the old name
 from .pitfalls import memory_for_code, pitfall_memories
-from .reducers import get_reducer
+from .reducers import get_reducer, sales_rows
 from .writer import CITATION_RE, Answer, STALE_DISCLAIMER, claims_table
 
 if TYPE_CHECKING:
@@ -106,7 +110,37 @@ def check_c1_evidence(ctx: "RunContext", claim: Claim, observations: list[Observ
                 resolved += 1
     if resolved == 0:
         return [_issue(claim, "C1", "reject", f"no evidence item resolves ({len(claim.evidence)} listed)")]
+    spec = METRICS.get(claim.metric)
+    if spec is not None and spec.evidence_rule == "decoded_settlement":
+        return check_c1_decoded_settlements(ctx, claim, verifications)
     return []
+
+
+def subject_settlements(ctx: "RunContext", claim: Claim, verifications: list[Verification]) -> list[Verification]:
+    """The sampled settlements a claim's subject owns: every sampled one for a seller subject, the ones whose
+    receipts row names the wallet for a wallet subject (an unverifiable settlement has no decoded payer, so the
+    payer comes from the receipts export the Analyst loaded)."""
+    if not claim.subject.startswith("wallet:"):
+        return list(verifications)
+    wallet = claim.subject.rsplit(":", 1)[-1].lower()
+    world = ctx.scratch.get("world_exports")
+    payer_of = {r["tx_hash"]: r["payer"] for r in (sales_rows(world) if world is not None else []) if r["tx_hash"]}
+    return [v for v in verifications if str(v.payer or payer_of.get(str(v.tx).lower(), "")).lower() == wallet]
+
+
+def check_c1_decoded_settlements(ctx: "RunContext", claim: Claim, verifications: list[Verification]) -> list[dict[str, Any]]:
+    owned = subject_settlements(ctx, claim, verifications)
+    if any(v.status in ("verified", "failed") for v in owned):
+        return []
+    reasons: dict[str, int] = {}
+    for v in owned:
+        key = f"{v.status} {v.reason}" if v.reason else v.status
+        reasons[key] = reasons.get(key, 0) + 1
+    sampled = ", ".join(f"{k} x{n}" for k, n in sorted(reasons.items())) or "none sampled"
+    return [_issue(claim, "C1", "reject",
+                   f"{claim.metric}={claim.value!r} for {claim.subject} rests on no decoded settlement of that subject "
+                   f"({len(owned)} sampled: {sampled}); an unverifiable settlement is missing evidence, not evidence "
+                   "that it failed, so this count is reported as unknown")]
 
 
 def check_c2_recompute(ctx: "RunContext", claim: Claim, conflicts: list[Conflict]) -> list[dict[str, Any]]:

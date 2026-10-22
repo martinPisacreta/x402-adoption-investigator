@@ -175,7 +175,7 @@
     "third_party_dependencies": "none",
     "verified": "Green on 2026-10-22 in a fresh Windows clone with core.autocrlf=true, a clone with core.autocrlf=false and the Docker image built from it (--network none, Python 3.11.17)."
   },
-  "docs": ["README.md", "SPEC.md", "docs/BUILD_LOG.md", "docs/METERLESS.md", "docs/ZETARIS.md", "docs/DEMO_SCRIPT.md", "examples/README.md", "examples/live-trace/README.md", "docs/pitch/deck.pdf", "docs/pitch/deck.html", "docs/pitch/narration.txt", "docs/pitch/demo.mp4"],
+  "docs": ["README.md", "SPEC.md", "docs/BUILD_LOG.md", "docs/METERLESS.md", "docs/ZETARIS.md", "docs/DEMO_SCRIPT.md", "examples/README.md", "examples/live-trace/README.md", "docs/pitch/deck.pdf", "docs/pitch/deck.html", "docs/pitch/narration.txt", "docs/pitch/demo.mp4", "docs/pitch/video/build_video.py", "docs/pitch/video/run-capture.json"],
   "limitations": [
     "No language model ran in any committed run (see llm_usage).",
     "Sample mode verifies one settlement; the fixtures do not cover the others (they are verified in the live traces).",

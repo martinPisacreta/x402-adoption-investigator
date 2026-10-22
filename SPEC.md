@@ -1018,7 +1018,7 @@ Honesty and Track 02
 - `docs/BUILD_LOG.md` records, per day, which modules were written or refactored in Cursor (Composer/agent sessions), which rules were useful, and what was corrected by tests; screenshots optional. Only what actually happened is written there.
 - The README section "How Cursor was used" summarises the log in five lines and links to it.
 - _Amended 2026-10-22:_ Cursor became optional in the HackOS rules update of 12:45 UTC. What was done in Cursor is
-  two Cursor Agent CLI sessions (the viewer and the README Pitch section); the rest was built by Claude Code agents
+  two Cursor Agent CLI sessions (the viewer and a first draft of the README Pitch section, later rewritten by Claude Code); the rest was built by Claude Code agents
   (docs/BUILD_LOG.md, "Tools"). The README section is now "AI coding tools: Claude Code and Cursor", and
   `metadata.json` carries the same facts with the other sponsor technologies.
 

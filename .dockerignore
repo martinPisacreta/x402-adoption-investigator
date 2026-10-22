@@ -1,7 +1,16 @@
 # Never bake secrets or runtime state into the image.
 .env
 .env.local
+.env.*
+!.env.example
 *.local
+**/*.pem
+**/*.key
+**/*.p12
+**/*.pfx
+**/auth.json
+**/wallet*.json
+**/cookies*
 logs/*
 !logs/.gitkeep
 memory/state/*

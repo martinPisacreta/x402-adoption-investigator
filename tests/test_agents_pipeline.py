@@ -236,7 +236,9 @@ class SellerAuditPipeline(unittest.TestCase):
             for key in ("seq", "query_id", "executor", "sql", "sql_sha256", "params", "headers", "rowcount", "rows", "time_used_ms", "tables"):
                 self.assertIn(key, line)
         self.assertEqual(self.envelope["output"]["report_path"], "logs/ex01-seller-audit/report.md")
-        self.assertTrue((self.run_dir / "transcripts").is_dir() or True)   # transcripts only when a generator ran
+        # transcripts are written only when a generator ran; this sample run mounts none
+        self.assertEqual(self.envelope["output"]["mounts"]["generator"], "null")
+        self.assertFalse((self.run_dir / "transcripts").exists())
 
 
 class CatalogPipeline(unittest.TestCase):

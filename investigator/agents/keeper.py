@@ -43,7 +43,7 @@ def to_ingest_observation(obs: Observation, run_id: str) -> IngestObservation:
     byte-identical world state when the bytes are identical."""
     kind = PROVENANCE_KIND_BY_FAMILY.get(obs.family, "registry")
     if obs.replayed and obs.fixture_file:
-        by = f"fixture:fixtures/raw/{obs.fixture_file}"
+        by = f"fixture:{obs.fixture_file}"   # fixture_file is already repo-relative (fixtures/raw/<file>)
     else:
         by = f"collector:{obs.name}"
     checksum = f"sha256:{obs.bytes_sha256}" if obs.bytes_sha256 else None

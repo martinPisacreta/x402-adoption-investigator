@@ -76,9 +76,11 @@ MAX_REQUEST_BYTES = 1_000_000
 DRAIN_LIMIT_BYTES = 32 * MAX_REQUEST_BYTES   # an oversize body is read and discarded up to this, then the socket closes
 
 
-def serve(port: int, config: RunConfig, host: str = "127.0.0.1") -> int:
-    """Minimal stdlib HTTP server. POST /run -> envelope JSON; GET /health -> {"ok": true}. Binds the loopback
-    interface unless --host says otherwise; bodies over MAX_REQUEST_BYTES are refused with 413."""
+def build_server(port: int, config: RunConfig, host: str = "127.0.0.1") -> HTTPServer:
+    """Minimal stdlib HTTP server. POST /run answers with the run envelope: 200 for ok/partial and 422 for status
+    error (a JSON body that fails the input schema included); 400 for a body that is not JSON; 413 for a body over
+    MAX_REQUEST_BYTES; 404 for any other path. GET /health -> {"ok": true}. Binds the loopback interface unless
+    --host says otherwise."""
 
     class Handler(BaseHTTPRequestHandler):
         server_version = f"x402-adoption-investigator/{__version__}"
@@ -128,7 +130,12 @@ def serve(port: int, config: RunConfig, host: str = "127.0.0.1") -> int:
         def log_message(self, fmt: str, *args: Any) -> None:  # keep stdout clean for the event stream
             sys.stderr.write("%s - %s\n" % (self.address_string(), fmt % args))
 
-    httpd = HTTPServer((host, port), Handler)
+    return HTTPServer((host, port), Handler)
+
+
+def serve(port: int, config: RunConfig, host: str = "127.0.0.1") -> int:
+    """Run build_server() until interrupted."""
+    httpd = build_server(port, config, host)
     sys.stderr.write(f"x402-adoption-investigator serving on http://{host}:{port}/run (mode {config.mode})\n")
     try:
         httpd.serve_forever()

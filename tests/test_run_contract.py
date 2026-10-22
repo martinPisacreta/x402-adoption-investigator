@@ -195,6 +195,10 @@ class SampleRunContract(unittest.TestCase):
         self.assertEqual(envelope["error"]["stage"], "planner")
         self.assertIn("last_log_seq", envelope["error"]["details"])
         self.assertIn("traceback_sha256", envelope["error"]["details"])
+        traceback_text = (self.out_dir / envelope["run_id"] / "traceback.txt").read_text(encoding="utf-8")
+        self.assertIn("planner exploded", traceback_text)
+        for form in (str(REPO_ROOT.resolve()), REPO_ROOT.resolve().as_posix()):
+            self.assertNotIn(form, traceback_text, "traceback.txt must not carry the machine path of the repo")
         # E_GENERATOR / E_ZETARIS_REQUIRED: live mode with --require-* and nothing configured fails at mount time
         envelope = run_investigation(payload, live_config_without_env(self.out_dir, require_generator=True), echo_stdout=False)
         self.assertEqual(envelope["error"]["code"], "E_GENERATOR")
@@ -203,6 +207,81 @@ class SampleRunContract(unittest.TestCase):
         self.assertEqual(envelope["error"]["details"]["reason"], "zetaris_required")
         for env in (envelope,):
             self.assertEqual(validate(env, load_schema("output")), [])
+
+    def test_sample_mode_honours_log_dir_and_reads_no_credential(self) -> None:
+        environ = {"LOG_DIR": str(self.out_dir / "from-env"), "OPENAI_API_KEY": "not-a-real-key",
+                   "ZETARIS_PASSWORD": "not-a-real-password"}
+        no_out = type("Args", (), {"mode": "sample", "sample": True, "out": None})()
+        config = build_config(no_out, environ=environ, load_dotenv=False)
+        self.assertEqual(config.mode, "sample")
+        self.assertEqual(config.out_dir, self.out_dir / "from-env")
+        self.assertFalse(config.env.has_generator())
+        self.assertFalse(config.env.has_zetaris())
+        with_out = type("Args", (), {"mode": "sample", "sample": True, "out": str(self.out_dir / "cli")})()
+        self.assertEqual(build_config(with_out, environ=environ, load_dotenv=False).out_dir, self.out_dir / "cli")
+        self.assertEqual(build_config(no_out, environ={}, load_dotenv=False).out_dir, REPO_ROOT / "logs")
+
+
+class HttpRunContract(unittest.TestCase):
+    """run.py --serve: the statuses README.md documents for POST /run and GET /health."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        import threading
+        sys.path.insert(0, str(REPO_ROOT))
+        import run as run_module
+        cls.tmp = tempfile.TemporaryDirectory()
+        config = sample_config(Path(cls.tmp.name))
+        config.quiet = True                     # keep the test output free of the event stream
+        cls.httpd = run_module.build_server(0, config, host="127.0.0.1")
+        cls.base = f"http://127.0.0.1:{cls.httpd.server_address[1]}"
+        cls.thread = threading.Thread(target=cls.httpd.serve_forever, daemon=True)
+        cls.thread.start()
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        cls.httpd.shutdown()
+        cls.httpd.server_close()
+        cls.tmp.cleanup()
+
+    def _call(self, method: str, path: str, body: bytes | None = None) -> tuple[int, dict]:
+        import urllib.error
+        import urllib.request
+        from investigator import guard
+        guard.uninstall_network_guard()         # a sample run served earlier in this process installed it
+        request = urllib.request.Request(self.base + path, data=body, method=method,
+                                         headers={"Content-Type": "application/json"})
+        try:
+            with urllib.request.urlopen(request, timeout=120) as response:
+                return response.status, json.loads(response.read().decode("utf-8"))
+        except urllib.error.HTTPError as err:
+            return err.code, json.loads(err.read().decode("utf-8"))
+
+    def test_health(self) -> None:
+        status, body = self._call("GET", "/health")
+        self.assertEqual(status, 200)
+        self.assertTrue(body["ok"])
+
+    def test_body_that_is_not_json_is_400(self) -> None:
+        status, body = self._call("POST", "/run", b"{not json")
+        self.assertEqual(status, 400)
+        self.assertEqual(body["status"], "error")
+        self.assertEqual(body["error"]["code"], "E_INPUT")
+
+    def test_schema_invalid_body_is_422(self) -> None:
+        status, body = self._call("POST", "/run", json.dumps({"input": {"question": "hi"}}).encode("utf-8"))
+        self.assertEqual(status, 422)
+        self.assertEqual(body["error"]["code"], "E_INPUT")
+
+    def test_example_run_is_200(self) -> None:
+        status, body = self._call("POST", "/run", json.dumps(example_payload("03-payer-dossier-onchain")).encode("utf-8"))
+        self.assertEqual(status, 200)
+        self.assertIn(body["status"], ("ok", "partial"))
+        self.assertEqual(validate(body, load_schema("output")), [])
+
+    def test_unknown_path_is_404(self) -> None:
+        status, _ = self._call("POST", "/nope", b"{}")
+        self.assertEqual(status, 404)
 
 
 class NoHardcodedNumbers(unittest.TestCase):

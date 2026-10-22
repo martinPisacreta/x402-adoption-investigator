@@ -1,7 +1,16 @@
-# secrets
+# secrets (only .env.example is committed)
 .env
 .env.local
+.env.*
+!.env.example
 *.local
+*.pem
+*.key
+*.p12
+*.pfx
+auth.json
+wallet*.json
+cookies*
 
 # runtime logs (keep the folder)
 logs/*

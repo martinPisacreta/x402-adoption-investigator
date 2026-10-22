@@ -318,6 +318,21 @@ be rejected; the rejection path (Critic C4, `rejected_claims[]`, status `partial
 fourth committed run pair: the same example 01 with and without one seed memory, and the diff between the two
 outputs (`summary.json`).
 
+## Viewer
+
+A static, dependency-free report viewer lives at [`viewer/index.html`](viewer/index.html) (plain HTML + CSS +
+vanilla JS; no build step, no CDN). From the repository root:
+
+```bash
+python -m http.server
+```
+
+Then open `http://127.0.0.1:8000/viewer/`. It loads `examples/01-seller-audit-textokit/output.json` by default
+and accepts any `run.py` `output.json` via the file picker. It renders the run header (`mounts.mode`, `executor`,
+`generator`, `fixtures_captured_at`, verdict), accepted claims (value, unit, coverage, evidence links), rejected
+claims with the Critic reason, and conflicts with each source's value and explanation. Fields follow
+`investigator/schemas/output.schema.json`.
+
 Pitch numbers that differ from SPEC.md section 0 are the committed ones: the snapshot has 2,680 distinct hosts and
 1,785 distinct payTo wallets under the view semantics both backends share (primary accept per listing, Java-strict
 host parsing with 57 URI-illegal resources counted but not folded under a fake host), not 2,713 and 2,177.

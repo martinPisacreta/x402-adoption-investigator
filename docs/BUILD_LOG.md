@@ -103,15 +103,28 @@ staged demo. Both were removed rather than explained away; everything that chang
   unless `--host` is given and refuses bodies over 1 MB; an export that cannot be written is an `E_INTERNAL` that
   names the path and its length (Windows `MAX_PATH`); `scripts/one_command.sh` uses `python3` when present; two
   `ResourceWarning`s in the tests (an unclosed `EventLog`, an unclosed socket) are closed.
-- Not fixable from inside the tree and still open: the repository has no commit and no public remote yet, and the
-  "Cursor sessions" section below is empty. Both are listed in the README as what remains before submission.
+- Not fixable from inside the tree and still open at review time: the repository had no commit and no public remote
+  yet, and the "Cursor sessions" section was empty until the viewer session below.
 
 ## Cursor sessions (what was actually done in Cursor)
 
 Entries are added only for work done in Cursor itself (Composer / agent sessions or edits with
-`.cursor/rules/project.mdc` applied), with date, files and the rule that mattered. As of 2026-10-22 05:00 UTC the
-repository has been built and reviewed by AI coding agents outside Cursor; no Cursor session has been recorded yet.
-The rules file is in place for the sessions that remain in the build window; the README says the same.
+`.cursor/rules/project.mdc` applied), with date, files and the rule that mattered.
+
+### 2026-10-22 — Cursor Agent CLI (headless): static report viewer
+
+- **Tool:** Cursor Agent CLI, headless session under `.cursor/rules/project.mdc`.
+- **Prompt (summary):** Add a static, dependency-free report viewer at `viewer/index.html` (plain HTML + CSS +
+  vanilla JS, no build step, no external CDN) that loads a `run.py` `output.json` (file picker + default fetch of
+  `../examples/01-seller-audit-textokit/output.json` when the repo is served locally) and renders the run header
+  (mode, executor, generator, fixtures date, verdict), accepted claims as cards (value, unit, coverage, clickable
+  `https` / basescan evidence; `log://` as plain text), rejected claims with the Critic reason, and conflicts as
+  first-class objects (each source's value + explanation). Read the real schema from
+  `investigator/schemas/output.schema.json` and the three committed examples; do not invent fields. Document how to
+  open it in README; add this Cursor sessions entry. Do not change Python or tests; do not run git.
+- **Files changed:** `viewer/index.html` (new), `README.md` (Viewer section), `docs/BUILD_LOG.md` (this entry).
+- **Rules that mattered:** rule 1 (no runtime deps / no CDN), rule 2 (no invented numbers or demo fields — only
+  schema-backed keys), English UI copy.
 
 ## Day 2 (2026-10-23)
 

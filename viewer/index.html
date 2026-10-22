@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>x402 Adoption Investigator — report viewer</title>
+  <style>
+    :root {
+      --bg: #f7f5f0;
+      --ink: #1a1a18;
+      --muted: #5c5a54;
+      --line: #d4d0c6;
+      --card: #ffffff;
+      --accent: #0b5f4a;
+      --accent-soft: #e6f2ee;
+      --warn: #7a3e12;
+      --warn-soft: #f5ebe3;
+      --reject: #7a1f1f;
+      --reject-soft: #f5e6e6;
+      --mono: "Cascadia Code", "Consolas", "Menlo", monospace;
+      --sans: "Segoe UI", "Helvetica Neue", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--sans);
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse at 0% 0%, #e8efe9 0%, transparent 45%),
+        radial-gradient(ellipse at 100% 0%, #efe8df 0%, transparent 40%),
+        var(--bg);
+      line-height: 1.45;
+      min-height: 100vh;
+    }
+
+    header.app {
+      border-bottom: 1px solid var(--line);
+      background: rgba(247, 245, 240, 0.92);
+      backdrop-filter: blur(6px);
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+    header.app .inner {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 1rem 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem 1.25rem;
+      align-items: center;
+      justify-content: space-between;
+    }
+    header.app h1 {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 650;
+      letter-spacing: -0.02em;
+    }
+    header.app p {
+      margin: 0.15rem 0 0;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+    .load {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    .load label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .load input[type="file"] {
+      font-size: 0.8rem;
+      max-width: 14rem;
+    }
+    button {
+      font: inherit;
+      cursor: pointer;
+      border: 1px solid var(--line);
+      background: var(--card);
+      color: var(--ink);
+      padding: 0.4rem 0.75rem;
+      border-radius: 4px;
+    }
+    button:hover { border-color: var(--accent); color: var(--accent); }
+    button.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+    button.primary:hover { filter: brightness(1.05); color: #fff; }
+
+    main {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 1.25rem;
+    }
+
+    .status-bar {
+      margin-bottom: 1rem;
+      padding: 0.65rem 0.85rem;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: var(--card);
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+    .status-bar.error {
+      border-color: #c98989;
+      background: var(--reject-soft);
+      color: var(--reject);
+    }
+
+    section {
+      margin-bottom: 2rem;
+    }
+    section > h2 {
+      margin: 0 0 0.75rem;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      font-weight: 650;
+    }
+    .empty {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin: 0;
+    }
+
+    .run-header {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+      gap: 0.65rem;
+      padding: 1rem;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+    }
+    .run-header .field {
+      min-width: 0;
+    }
+    .run-header .label {
+      display: block;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin-bottom: 0.2rem;
+    }
+    .run-header .value {
+      font-family: var(--mono);
+      font-size: 0.9rem;
+      word-break: break-word;
+    }
+    .run-header .verdict-block {
+      grid-column: 1 / -1;
+      border-top: 1px solid var(--line);
+      padding-top: 0.75rem;
+      margin-top: 0.15rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1rem;
+      align-items: baseline;
+    }
+    .verdict-label {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 0.95rem;
+      font-weight: 650;
+      color: var(--accent);
+      background: var(--accent-soft);
+      padding: 0.2rem 0.55rem;
+      border-radius: 3px;
+    }
+    .meta-bits {
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+    .run-meta {
+      margin-top: 0.65rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .run-meta code {
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      color: var(--ink);
+    }
+
+    .cards {
+      display: grid;
+      gap: 0.75rem;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 0.9rem 1rem;
+    }
+    .card.rejected {
+      border-color: #d4a8a8;
+      background: #fdf8f8;
+    }
+    .card.conflict {
+      border-color: #d4b896;
+      background: #fdfaf6;
+    }
+    .card-top {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem 0.75rem;
+      align-items: baseline;
+      margin-bottom: 0.45rem;
+    }
+    .claim-id, .conflict-id {
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      font-weight: 650;
+      color: var(--accent);
+    }
+    .card.rejected .claim-id { color: var(--reject); }
+    .card.conflict .conflict-id { color: var(--warn); }
+    .metric {
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .statement {
+      margin: 0 0 0.65rem;
+      font-size: 0.95rem;
+    }
+    .value-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1.25rem;
+      margin-bottom: 0.65rem;
+      align-items: baseline;
+    }
+    .big-value {
+      font-family: var(--mono);
+      font-size: 1.15rem;
+      font-weight: 650;
+    }
+    .unit {
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .coverage {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .coverage strong {
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    .evidence {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+    .evidence li {
+      font-size: 0.82rem;
+      font-family: var(--mono);
+      word-break: break-all;
+    }
+    .evidence a {
+      color: var(--accent);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .evidence .log-ref {
+      color: var(--muted);
+    }
+    .kind-tag {
+      display: inline-block;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      margin-right: 0.35rem;
+      font-family: var(--sans);
+    }
+
+    .reason {
+      margin: 0.5rem 0 0;
+      padding: 0.55rem 0.7rem;
+      background: var(--reject-soft);
+      border-left: 3px solid var(--reject);
+      font-size: 0.9rem;
+      color: var(--reject);
+    }
+    .reason .rule {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      opacity: 0.85;
+    }
+
+    .conflict-subject {
+      margin: 0 0 0.5rem;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+    .conflict-subject code {
+      font-family: var(--mono);
+      color: var(--ink);
+      font-size: 0.85rem;
+    }
+    .sources-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      margin: 0.5rem 0 0.75rem;
+    }
+    .sources-table th,
+    .sources-table td {
+      text-align: left;
+      padding: 0.4rem 0.5rem;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+    .sources-table th {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      font-weight: 650;
+    }
+    .sources-table .val {
+      font-family: var(--mono);
+      font-size: 0.82rem;
+    }
+    .sources-table a {
+      color: var(--accent);
+      word-break: break-all;
+    }
+    .explanation {
+      margin: 0;
+      font-size: 0.9rem;
+      padding: 0.55rem 0.7rem;
+      background: var(--warn-soft);
+      border-left: 3px solid var(--warn);
+      color: var(--warn);
+    }
+    .claim-ids {
+      margin: 0.5rem 0 0;
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+
+    footer.note {
+      max-width: 960px;
+      margin: 0 auto 2rem;
+      padding: 0 1.25rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <header class="app">
+    <div class="inner">
+      <div>
+        <h1>x402 Adoption Investigator</h1>
+        <p>Static report viewer for <code>run.py</code> <code>output.json</code></p>
+      </div>
+      <div class="load">
+        <label>
+          Load file
+          <input type="file" id="file-input" accept="application/json,.json">
+        </label>
+        <button type="button" class="primary" id="btn-default">Load example 01</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div id="status" class="status-bar" role="status">Loading default example…</div>
+    <div id="report" hidden></div>
+  </main>
+
+  <footer class="note">
+    No build step, no CDN. Serve the repo root
+    (<code>python -m http.server</code>) and open <code>/viewer/</code>.
+    Schema: <code>investigator/schemas/output.schema.json</code>.
+  </footer>
+
+  <script>
+(function () {
+  "use strict";
+
+  var DEFAULT_URL = "../examples/01-seller-audit-textokit/output.json";
+
+  var statusEl = document.getElementById("status");
+  var reportEl = document.getElementById("report");
+  var fileInput = document.getElementById("file-input");
+  var btnDefault = document.getElementById("btn-default");
+
+  function setStatus(msg, isError) {
+    statusEl.textContent = msg;
+    statusEl.classList.toggle("error", !!isError);
+    statusEl.hidden = false;
+  }
+
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function formatValue(v) {
+    if (v === null || v === undefined) return "null";
+    if (typeof v === "object") return JSON.stringify(v);
+    return String(v);
+  }
+
+  function formatCoverage(cov) {
+    if (!cov) return "";
+    var parts = [];
+    parts.push("seen " + cov.items_seen);
+    if (cov.total_reported !== null && cov.total_reported !== undefined) {
+      parts.push("of " + cov.total_reported + " reported");
+    }
+    if (cov.share !== null && cov.share !== undefined) {
+      parts.push("share " + cov.share);
+    }
+    if (cov.basis) parts.push("(" + cov.basis + ")");
+    return parts.join(" ");
+  }
+
+  function isHttpUrl(ref) {
+    return typeof ref === "string" && /^https:\/\//i.test(ref);
+  }
+
+  function isLogRef(ref) {
+    return typeof ref === "string" && /^log:\/\//i.test(ref);
+  }
+
+  function renderEvidence(list) {
+    if (!list || !list.length) {
+      return '<p class="empty">No evidence.</p>';
+    }
+    var items = list.map(function (ev) {
+      var kind = escapeHtml(ev.kind || "");
+      var ref = ev.ref || "";
+      var body;
+      if (ev.kind === "url" || ev.kind === "tx") {
+        if (isHttpUrl(ref)) {
+          body = '<a href="' + escapeHtml(ref) + '" target="_blank" rel="noopener noreferrer">' +
+            escapeHtml(ref) + "</a>";
+        } else {
+          body = '<span class="log-ref">' + escapeHtml(ref) + "</span>";
+        }
+      } else if (ev.kind === "log_line" || isLogRef(ref)) {
+        body = '<span class="log-ref">' + escapeHtml(ref) + "</span>";
+      } else if (isHttpUrl(ref)) {
+        body = '<a href="' + escapeHtml(ref) + '" target="_blank" rel="noopener noreferrer">' +
+          escapeHtml(ref) + "</a>";
+      } else {
+        body = '<span class="log-ref">' + escapeHtml(ref) + "</span>";
+      }
+      return '<li><span class="kind-tag">' + kind + "</span>" + body + "</li>";
+    });
+    return '<ul class="evidence">' + items.join("") + "</ul>";
+  }
+
+  function criticRejectReasons(claim) {
+    var critique = claim.critique || [];
+    var rejects = critique.filter(function (c) {
+      return c.verdict === "reject";
+    });
+    if (!rejects.length) {
+      // Fallback: any critique with a reason (schema always has reason).
+      rejects = critique.filter(function (c) {
+        return c.reason;
+      });
+    }
+    return rejects;
+  }
+
+  function renderClaimCard(claim, rejected) {
+    var covHtml = "";
+    if (claim.coverage) {
+      covHtml =
+        '<div class="coverage"><strong>Coverage</strong> ' +
+        escapeHtml(formatCoverage(claim.coverage)) +
+        "</div>";
+    }
+    var reasonHtml = "";
+    if (rejected) {
+      var reasons = criticRejectReasons(claim);
+      if (reasons.length) {
+        reasonHtml = reasons
+          .map(function (r) {
+            return (
+              '<p class="reason"><span class="rule">' +
+              escapeHtml(r.rule || "") +
+              (r.round != null ? " · round " + r.round : "") +
+              "</span><br>" +
+              escapeHtml(r.reason || "") +
+              "</p>"
+            );
+          })
+          .join("");
+      } else {
+        reasonHtml = '<p class="reason">Rejected (no critique reason recorded).</p>';
+      }
+    }
+    return (
+      '<article class="card' +
+      (rejected ? " rejected" : "") +
+      '">' +
+      '<div class="card-top">' +
+      '<span class="claim-id">' +
+      escapeHtml(claim.id || "") +
+      "</span>" +
+      '<span class="metric">' +
+      escapeHtml(claim.metric || "") +
+      "</span>" +
+      "</div>" +
+      (claim.statement
+        ? '<p class="statement">' + escapeHtml(claim.statement) + "</p>"
+        : "") +
+      '<div class="value-row">' +
+      '<span class="big-value">' +
+      escapeHtml(formatValue(claim.value)) +
+      "</span>" +
+      '<span class="unit">' +
+      escapeHtml(claim.unit || "") +
+      "</span>" +
+      covHtml +
+      "</div>" +
+      renderEvidence(claim.evidence) +
+      reasonHtml +
+      "</article>"
+    );
+  }
+
+  function renderConflictCard(conflict) {
+    var rows = (conflict.values || [])
+      .map(function (v) {
+        var urlCell = isHttpUrl(v.url)
+          ? '<a href="' +
+            escapeHtml(v.url) +
+            '" target="_blank" rel="noopener noreferrer">' +
+            escapeHtml(v.url) +
+            "</a>"
+          : escapeHtml(v.url || "");
+        return (
+          "<tr>" +
+          "<td>" +
+          escapeHtml(v.source || "") +
+          "</td>" +
+          '<td class="val">' +
+          escapeHtml(formatValue(v.value)) +
+          "</td>" +
+          "<td>" +
+          escapeHtml(v.basis || "") +
+          "</td>" +
+          "<td>" +
+          urlCell +
+          "</td>" +
+          "</tr>"
+        );
+      })
+      .join("");
+    var claimIds = (conflict.claim_ids || []).join(", ");
+    return (
+      '<article class="card conflict">' +
+      '<div class="card-top">' +
+      '<span class="conflict-id">' +
+      escapeHtml(conflict.id || "") +
+      "</span>" +
+      '<span class="metric">' +
+      escapeHtml(conflict.predicate || "") +
+      " · " +
+      escapeHtml(conflict.status || "") +
+      "</span>" +
+      "</div>" +
+      '<p class="conflict-subject">Subject <code>' +
+      escapeHtml(conflict.subject || "") +
+      "</code></p>" +
+      '<table class="sources-table">' +
+      "<thead><tr><th>Source</th><th>Value</th><th>Basis</th><th>URL</th></tr></thead>" +
+      "<tbody>" +
+      rows +
+      "</tbody></table>" +
+      '<p class="explanation">' +
+      escapeHtml(conflict.explanation || "") +
+      "</p>" +
+      (claimIds
+        ? '<p class="claim-ids">Claims: ' + escapeHtml(claimIds) + "</p>"
+        : "") +
+      "</article>"
+    );
+  }
+
+  function renderReport(envelope) {
+    if (!envelope || typeof envelope !== "object") {
+      throw new Error("Expected a JSON object (run.py envelope).");
+    }
+    var runId = envelope.run_id || "";
+    var status = envelope.status || "";
+    if (status === "error") {
+      var err = envelope.error || {};
+      reportEl.innerHTML =
+        "<section><h2>Error</h2>" +
+        '<div class="card rejected">' +
+        "<p><strong>" +
+        escapeHtml(err.code || "error") +
+        "</strong> at stage <code>" +
+        escapeHtml(err.stage || "") +
+        "</code></p>" +
+        "<p>" +
+        escapeHtml(err.message || "") +
+        "</p></div></section>";
+      reportEl.hidden = false;
+      setStatus("Loaded run " + runId + " · status error", true);
+      return;
+    }
+    var out = envelope.output;
+    if (!out) {
+      throw new Error("Envelope has no output (status=" + status + ").");
+    }
+    var mounts = out.mounts || {};
+    var verdict = out.verdict || {};
+    var claims = out.claims || [];
+    var rejected = out.rejected_claims || [];
+    var conflicts = out.conflicts || [];
+
+    var fixtures =
+      mounts.fixtures_captured_at === null || mounts.fixtures_captured_at === undefined
+        ? "null"
+        : String(mounts.fixtures_captured_at);
+
+    var why =
+      Array.isArray(verdict.why) && verdict.why.length
+        ? " · why " + verdict.why.join(", ")
+        : "";
+
+    var headerHtml =
+      '<section><h2>Run</h2>' +
+      '<div class="run-header">' +
+      '<div class="field"><span class="label">Mode</span><span class="value">' +
+      escapeHtml(mounts.mode || "") +
+      "</span></div>" +
+      '<div class="field"><span class="label">Executor</span><span class="value">' +
+      escapeHtml(mounts.executor || "") +
+      "</span></div>" +
+      '<div class="field"><span class="label">Generator</span><span class="value">' +
+      escapeHtml(String(mounts.generator)) +
+      "</span></div>" +
+      '<div class="field"><span class="label">Fixtures date</span><span class="value">' +
+      escapeHtml(fixtures) +
+      "</span></div>" +
+      '<div class="verdict-block">' +
+      '<span class="label">Verdict</span>' +
+      '<span class="verdict-label">' +
+      escapeHtml(verdict.label || "") +
+      "</span>" +
+      '<span class="meta-bits">confidence ' +
+      escapeHtml(
+        verdict.confidence === undefined || verdict.confidence === null
+          ? ""
+          : String(verdict.confidence)
+      ) +
+      escapeHtml(why) +
+      "</span></div></div>" +
+      '<p class="run-meta">run_id <code>' +
+      escapeHtml(runId) +
+      "</code> · status <code>" +
+      escapeHtml(status) +
+      "</code>" +
+      (out.question
+        ? " · " + escapeHtml(out.question.slice(0, 160)) + (out.question.length > 160 ? "…" : "")
+        : "") +
+      "</p></section>";
+
+    var claimsHtml =
+      "<section><h2>Accepted claims (" +
+      claims.length +
+      ")</h2>" +
+      (claims.length
+        ? '<div class="cards">' +
+          claims.map(function (c) {
+            return renderClaimCard(c, false);
+          }).join("") +
+          "</div>"
+        : '<p class="empty">No accepted claims.</p>') +
+      "</section>";
+
+    var rejectedHtml =
+      "<section><h2>Rejected claims (" +
+      rejected.length +
+      ")</h2>" +
+      (rejected.length
+        ? '<div class="cards">' +
+          rejected
+            .map(function (c) {
+              return renderClaimCard(c, true);
+            })
+            .join("") +
+          "</div>"
+        : '<p class="empty">No rejected claims.</p>') +
+      "</section>";
+
+    var conflictsHtml =
+      "<section><h2>Conflicts (" +
+      conflicts.length +
+      ")</h2>" +
+      (conflicts.length
+        ? '<div class="cards">' +
+          conflicts.map(renderConflictCard).join("") +
+          "</div>"
+        : '<p class="empty">No conflicts.</p>') +
+      "</section>";
+
+    reportEl.innerHTML = headerHtml + claimsHtml + rejectedHtml + conflictsHtml;
+    reportEl.hidden = false;
+    setStatus(
+      "Loaded " +
+        runId +
+        " · status " +
+        status +
+        " · " +
+        claims.length +
+        " claims · " +
+        rejected.length +
+        " rejected · " +
+        conflicts.length +
+        " conflicts"
+    );
+  }
+
+  function loadFromObject(data) {
+    try {
+      renderReport(data);
+    } catch (e) {
+      reportEl.hidden = true;
+      setStatus(e.message || String(e), true);
+    }
+  }
+
+  function loadDefault() {
+    setStatus("Fetching " + DEFAULT_URL + "…");
+    fetch(DEFAULT_URL)
+      .then(function (res) {
+        if (!res.ok) {
+          throw new Error(
+            "Could not fetch " +
+              DEFAULT_URL +
+              " (" +
+              res.status +
+              "). Serve the repo root with python -m http.server, or pick a local output.json."
+          );
+        }
+        return res.json();
+      })
+      .then(loadFromObject)
+      .catch(function (err) {
+        reportEl.hidden = true;
+        setStatus(err.message || String(err), true);
+      });
+  }
+
+  fileInput.addEventListener("change", function () {
+    var file = fileInput.files && fileInput.files[0];
+    if (!file) return;
+    setStatus("Reading " + file.name + "…");
+    var reader = new FileReader();
+    reader.onload = function () {
+      try {
+        loadFromObject(JSON.parse(reader.result));
+      } catch (e) {
+        reportEl.hidden = true;
+        setStatus("Invalid JSON: " + (e.message || e), true);
+      }
+    };
+    reader.onerror = function () {
+      setStatus("Failed to read file.", true);
+    };
+    reader.readAsText(file);
+  });
+
+  btnDefault.addEventListener("click", loadDefault);
+
+  loadDefault();
+})();
+  </script>
+</body>
+</html>

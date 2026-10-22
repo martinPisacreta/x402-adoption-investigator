@@ -28,7 +28,11 @@ when the credentials were withheld), and `fetch.jsonl` shows every live request 
 The traces predate two later changes (2026-10-22 evening, `docs/BUILD_LOG.md`): in both example 03 traces the
 balance and nonce claims are reducer-only (`derivation.backend: null`, `cross_checked: false`), because q22 and the
 `chain_facts` view did not exist yet; and the Critic of that build accepted such single-computed claims, which its
-rule C2 now rejects. The traces are kept as recorded, not re-run.
+rule C2 now rejects. The traces are kept as recorded, not re-run. The same holds for the text of Conflict k01 in
+`live-ex01-20261022`: its explanation says vet402 lists endpoints "including delisted ones", which was wrong (the
+vet402 count only takes rows with `catalog_status: listed`); the current code instead names the routes vet402 lists
+that the store openapi does not declare (for the fixtures, `/api/maintenance-helper` and `/api/preparar-solicitud`;
+see `../01-seller-audit-textokit/`).
 
 Differences a reader will find between the replay and the live traces are real and expected: the receipts bytes
 have a different sha256 (the store's `receipts.json` carries a `generatedAt` timestamp), the Bazaar 30-day call

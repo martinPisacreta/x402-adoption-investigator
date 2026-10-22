@@ -246,8 +246,9 @@ REGISTRY_BASIS: dict[str, str] = {
 CONFLICT_EXPLANATIONS: dict[str, str] = {
     "endpoint_count_for_host": (
         "Bazaar search is capped at twenty results and lists one row per resource; the store openapi declares paid "
-        "operations; Agent402 counts tools including free ones (paidToolCount is the comparable figure); vet402 lists "
-        "endpoints it has observed, including delisted ones; x402-trust search counts matches across its own index."),
+        "operations; Agent402 counts tools including free ones (paidToolCount is the comparable figure); vet402 counts "
+        "every endpoint it has observed for the host with catalog_status listed, which can include routes the store "
+        "no longer declares; x402-trust search counts matches across its own index."),
     "calls_30d_for_host": (
         "Bazaar l30DaysTotalCalls is a per-endpoint 30-day counter maintained by the facilitator and includes the "
         "seller's own calls; receipts are the seller's own settlement log. Different windows and bases: compare only "
@@ -258,6 +259,13 @@ CONFLICT_EXPLANATIONS: dict[str, str] = {
         "endpoints."),
     "backend_disagreement": "The SQL backend result and the pure-Python reducer disagree over the same exports; the Critic rejects the claim (rule C2) and this conflict stays open until the view layer and the reducer are reconciled.",
     "two_fetches_apart": "Zetaris fetched its own copy of the URL seconds after the Collector; the source moved in between.",
+}
+
+# Data-driven sentences appended to an explanation when the exports show the exact cause (rule-written, no model).
+CONFLICT_DETAILS: dict[str, str] = {
+    "vet402_only_routes": "In this capture vet402 lists {routes}, which the store openapi does not declare as paid operations",
+    "openapi_only_routes": "the store openapi declares {routes} as paid, which vet402 does not list",
+    "accounts_for_difference": "; that accounts for the whole difference between the vet402 and openapi counts",
 }
 
 

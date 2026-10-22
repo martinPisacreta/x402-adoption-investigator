@@ -1,0 +1,16 @@
+{
+  "id": "q14_registry_count_vet402",
+  "params": [],
+  "columns": {
+    "n_listed": "int"
+  },
+  "expected_rows_bound": 1,
+  "sources": [
+    "vet402"
+  ],
+  "fields": [
+    "endpoints",
+    "catalog_status"
+  ],
+  "ansi_only": true
+}

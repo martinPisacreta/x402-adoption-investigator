@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/pisacretamartin/x402-adoption-investigator/investigator/worldmodel/schema/world-event.schema.json",
+  "title": "World Model event line",
+  "description": "One line of world.events.jsonl (SPEC.md 9.1): append-only; seq by append order; payload shape per kind.",
+  "type": "object",
+  "required": ["id", "seq", "kind", "payload", "schemaVersion", "at"],
+  "additionalProperties": false,
+  "properties": {
+    "id": { "type": "string", "pattern": "^evt_[0-9]+$" },
+    "seq": { "type": "integer", "minimum": 1 },
+    "kind": { "enum": ["upsertEntity", "upsertContext", "relate", "assertFact", "snapshot", "tombstone", "alias", "view-rebuild"] },
+    "payload": { "type": "object" },
+    "schemaVersion": { "const": 1 },
+    "at": { "type": "string" }
+  },
+  "$defs": {
+    "provenance": {
+      "type": "object",
+      "required": ["kind", "at"],
+      "properties": {
+        "kind": { "type": "string" }, "at": { "type": "string" }, "by": { "type": "string" },
+        "url": { "type": "string" }, "checksum": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }, "runId": { "type": "string" }
+      }
+    },
+    "entity": { "type": "object", "required": ["type", "id", "attrs", "schemaVersion", "source", "createdAt", "updatedAt", "aliases", "state"] },
+    "context": { "type": "object", "required": ["type", "id", "attrs", "schemaVersion", "source", "createdAt", "updatedAt"] },
+    "relationship": { "type": "object", "required": ["id", "from", "type", "to", "schemaVersion", "source", "createdAt"] },
+    "fact": { "type": "object", "required": ["id", "about", "predicate", "value", "confidence", "source", "assertedAt"] }
+  }
+}

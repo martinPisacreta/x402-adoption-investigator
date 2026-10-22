@@ -1,0 +1,1 @@
+SELECT payer, n_sales AS top_payer_sales, external_sales_total FROM (SELECT payer, COUNT(*) AS n_sales, SUM(COUNT(*)) OVER () AS external_sales_total FROM sales WHERE own_wallet = 0 GROUP BY payer) t ORDER BY n_sales DESC, payer LIMIT 1

@@ -1,0 +1,23 @@
+{
+  "run_id": "ex02-catalog-concentration",
+  "input": {
+    "question": "Who sells on the CDP Bazaar and how concentrated are the paid calls? What share of listed endpoints saw any call in the last 30 days?",
+    "focus": {
+      "host": null,
+      "wallet": null,
+      "service": null,
+      "query": "cdp bazaar"
+    },
+    "budget": {
+      "max_seconds": 180,
+      "max_fetches": 40,
+      "max_tx_verifications": 5,
+      "max_critic_rounds": 2,
+      "bazaar_pages": 3
+    },
+    "options": {
+      "catalog": "snapshot",
+      "zetaris_source": "captured"
+    }
+  }
+}

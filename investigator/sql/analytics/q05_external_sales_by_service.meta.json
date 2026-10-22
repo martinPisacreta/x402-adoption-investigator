@@ -1,0 +1,19 @@
+{
+  "id": "q05_external_sales_by_service",
+  "params": [],
+  "columns": {
+    "service": "str",
+    "n_sales": "int",
+    "usdc_atomic": "int"
+  },
+  "expected_rows_bound": 100,
+  "sources": [
+    "receipts"
+  ],
+  "fields": [
+    "service",
+    "ownWallet",
+    "amountAtomic"
+  ],
+  "ansi_only": true
+}

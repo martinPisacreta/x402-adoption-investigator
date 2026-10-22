@@ -1,0 +1,1 @@
+SELECT endpoints_listed, endpoints_active, settlements_30d, settled_volume_usd_30d, distinct_payers_30d, distinct_receivers_30d FROM trust_stats

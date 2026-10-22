@@ -1,0 +1,65 @@
+---
+description: Architecture contract for the x402 Adoption Investigator (hackathon build, Track 02). Read before editing anything.
+globs: ["**/*.py", "**/*.sql", "**/*.json", "**/*.md"]
+alwaysApply: true
+---
+
+# x402 Adoption Investigator: rules Cursor must follow
+
+The full specification is `SPEC.md` (frozen). This file is the short version.
+
+## What this is
+A bounded multi-agent investigator that answers "how real is x402 adoption?" with evidence.
+Roles: Planner, Collector, Keeper, Verifier, Analyst, Writer, Critic, plus a deterministic Runner.
+Sponsor tech is structural: Meterless H-MEM + World Model (Python ports of the spec, conformance-tested),
+Zetaris Lightning SQL (live federation), Cursor (this file + docs/BUILD_LOG.md).
+
+## Hard rules
+1. Python 3.11 standard library only at runtime. No pip dependencies. pytest only for tests.
+2. No number lives in code. Every figure is a Claim computed by a committed SQL query in
+   `investigator/sql/analytics/` AND cross-checked by a pure-Python reducer in `investigator/agents/reducers.py`.
+   Never type a pitch number into source. Never hardcode a demo answer: no claim exists to be rejected, no
+   round exists to be retried. A rule is proven in a test (register the bad metric inside the test), and what
+   memory changes is measured with `scripts/memory_ablation.py`, not asserted.
+3. Every Claim carries evidence: an `https://` URL with sha256, a `https://basescan.org/tx/<hash>` decoded by the
+   Verifier, or `log://<run_id>#<seq>`. The World Model claim policy hook refuses agent facts without one.
+4. Generator-backed roles are only Planner, Writer and the Critic's second opinion. The generator never approves a
+   claim and never picks the verdict label (`investigator/agents/verdict.py` does, by rules).
+5. Sample mode (`--mode sample`, the default without keys) must work with zero network and zero keys: a socket guard
+   is installed first, fixtures under `fixtures/raw/` are replayed via MANIFEST request keys, SQLite executes the
+   same SQL, recorded transcripts replace the generator. Never fabricate a missing fixture: emit `fixture_miss`.
+6. Exactly three mount points differ between live and sample: Fetcher, SqlExecutor, Generator.
+   They are printed in `output.mounts`. Do not add a fourth.
+7. SQL rules: analytics queries (`sql/analytics/*.sql`) stay in the ANSI subset: no `explode`, `from_json`,
+   `LATERAL VIEW`, `parse_url`, struct dots, Spark-only functions. All JSON flattening lives in the view layer:
+   SchemaStore views on Zetaris (`zetaris/views_zetaris.py`) and Python-built tables on SQLite
+   (`zetaris/views_sqlite.py`) with the SAME view names and columns (`sql/views/VIEWS.md`).
+   One statement per query, no trailing semicolon, parameters bound by the catalog loader (`:host`, `:wallet`).
+   Zetaris returns every cell as a string: cast per `qNN.meta.json`.
+8. A source that is down is a visible `unavailable` entry, never a silent zero. Every fallback is a `recovery` event.
+9. Bounded everything: deadline, max fetches, max SQL, max generator calls, max critic rounds. No unbounded loops,
+   no sleeps longer than the backoff schedule (0.5 s / 1.5 s).
+10. Secrets only from env (`.env.local`, gitignored). Never print or log them. Never log request headers.
+11. Logs: every event goes through `investigator/eventlog.py` (`run.jsonl` mirrored to stdout, side files share the
+    seq counter). Event types and payload keys are in SPEC.md section 5. Do not print ad-hoc text to stdout.
+12. Shared types live in `investigator/contracts.py` (integrator-owned). Import them; do not redefine or edit them.
+    Builders own disjoint directories (SPEC.md section 12). Do not touch files owned by another builder.
+13. Meterless engines: follow the spec formulas exactly (H-MEM score weights, feedback deltas +0.05/-0.03/-0.20,
+    threshold on the final score; World Model stable-id hashes, provenance rejection, idempotent ingest, bitemporal
+    edges, audit seq). Done means the conformance tests are green. Do not "simplify" a formula.
+14. Zetaris objects are per run (`X402_<RUN8>` database, `x402_<run8>` container) and cleaned up at finalize.
+    REST tables are cached right after creation (`CACHE TABLE`) and uncached before drop.
+15. Code, comments, README and logs in English. Replayed data is flagged `replayed: true` everywhere.
+
+## Where things are
+- Entry: `run.py` -> `investigator/runner.py` (state machine) -> `investigator/agents/*`.
+- Sources and fixtures: `investigator/sources/*`, `fixtures/raw/MANIFEST.json`.
+- Chain: `investigator/chain/{base_rpc,decode}.py` (payer from the Transfer log, never `tx.from`).
+- Meterless: `investigator/worldmodel/**`, `investigator/hmem/**`, seed memories `memory/seed/`.
+- Zetaris: `investigator/zetaris/**`, SQL catalog `investigator/sql/**`.
+- Examples: `examples/*` regenerated only by `scripts/regen_examples.py`.
+
+## When you change behaviour
+Run `python -m pytest -q` and `python run.py --input examples/01-seller-audit-textokit/input.json`;
+if an example output changes, regenerate all three with `scripts/regen_examples.py` (and
+`scripts/memory_ablation.py --write examples/memory-ablation`) and explain why in `docs/BUILD_LOG.md`.

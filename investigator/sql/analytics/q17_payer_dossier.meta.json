@@ -1,0 +1,24 @@
+{
+  "id": "q17_payer_dossier",
+  "params": [
+    "wallet"
+  ],
+  "columns": {
+    "n_sales": "int",
+    "usdc_atomic": "int",
+    "first_at": "str",
+    "last_at": "str",
+    "n_services": "int"
+  },
+  "expected_rows_bound": 1,
+  "sources": [
+    "receipts"
+  ],
+  "fields": [
+    "payer",
+    "amountAtomic",
+    "at",
+    "service"
+  ],
+  "ansi_only": true
+}

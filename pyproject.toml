@@ -1,0 +1,20 @@
+# Metadata only. Runtime is the Python 3.11 standard library; pytest is the only dev dependency.
+[project]
+name = "x402-adoption-investigator"
+version = "0.1.0"
+description = "Bounded multi-agent investigator that answers how real x402 adoption is, with evidence on every claim."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+authors = [{ name = "Martin Pisacreta" }]
+dependencies = []
+
+[project.optional-dependencies]
+test = ["pytest>=8"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.setuptools]
+packages = ["investigator"]

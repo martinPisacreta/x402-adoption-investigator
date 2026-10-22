@@ -1,0 +1,20 @@
+{
+  "id": "q11_catalog_payto_concentration",
+  "params": [],
+  "columns": {
+    "pay_to": "str",
+    "calls_30d_sum": "int",
+    "catalog_calls_30d_sum": "int"
+  },
+  "expected_rows_bound": 10,
+  "sources": [
+    "cdp_catalog_snapshot"
+  ],
+  "fields": [
+    "payTo",
+    "l30DaysTotalCalls"
+  ],
+  "ansi_only": true,
+  "scaffold_note": "page-0 variant (bazaar_resources WHERE page = 0) to be added by B3",
+  "zetaris_note": "window SUM(SUM(calls_30d)) OVER () for the catalog total: a second reference to the same exploded view fails on Zetaris (verified 2026-10-22)"
+}

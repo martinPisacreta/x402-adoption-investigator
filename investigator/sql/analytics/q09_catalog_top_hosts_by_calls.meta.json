@@ -1,0 +1,20 @@
+{
+  "id": "q09_catalog_top_hosts_by_calls",
+  "params": [],
+  "columns": {
+    "host": "str",
+    "calls_30d_sum": "int",
+    "n_resources": "int",
+    "catalog_calls_30d_sum": "int"
+  },
+  "expected_rows_bound": 10,
+  "sources": [
+    "cdp_catalog_snapshot"
+  ],
+  "fields": [
+    "resource",
+    "l30DaysTotalCalls"
+  ],
+  "ansi_only": true,
+  "zetaris_note": "window SUM(SUM(calls_30d)) OVER () for the catalog total: a second reference to the same exploded view fails on Zetaris (verified 2026-10-22)"
+}

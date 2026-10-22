@@ -1,0 +1,1194 @@
+{
+  "run_id": "ex03-payer-dossier",
+  "status": "ok",
+  "output": {
+    "mounts": {
+      "mode": "sample",
+      "fetcher": "fixture",
+      "executor": "sqlite",
+      "generator": "null",
+      "fixtures_captured_at": "2026-10-22T00:05:00Z",
+      "zetaris_version": null,
+      "zetaris_source": null
+    },
+    "sample_mode_notice": "This run replayed committed fixtures captured 2026-10-22T00:05:00Z; no network, no model calls.",
+    "question": "What do we know about the payer 0x097e3F339D0b023605e12A6B81E2d6Cb7571475a: what it bought from tienda.textokit.store, and can the settlement be verified on Base?",
+    "plan": {
+      "playbook": "payer_dossier",
+      "query_ids": [
+        "q16_settlements_vs_receipts",
+        "q17_payer_dossier",
+        "q06_bazaar_host_listings"
+      ],
+      "sources": [
+        "receipts",
+        "cdp_search",
+        "base_rpc"
+      ],
+      "planner_source": "rules",
+      "metrics": [
+        "bazaar_listings_for_host",
+        "settlements_verified",
+        "payer_sales_total",
+        "payer_usdc_atomic",
+        "payer_window",
+        "payer_services",
+        "verified_tx",
+        "usdc_balance_atomic",
+        "tx_count"
+      ],
+      "hypotheses": [],
+      "hmem_memory_ids": [
+        "mem-seed-005"
+      ]
+    },
+    "verdict": {
+      "label": "adoption_thin",
+      "confidence": 0.9,
+      "why": [
+        "c03",
+        "c07"
+      ]
+    },
+    "answer": "The evidence shows thin adoption (verdict adoption_thin) based on [c03], [c07]. The CDP Bazaar search returns 17 listings for tienda.textokit.store [c01]. 1 sampled settlement(s) verified on Base against the receipts [c02]. The receipts list 1 purchase(s) by 0x097e3f339d0b023605e12a6b81e2d6cb7571475a [c03]. Those purchases total 1000 atomic USDC (0.001 USDC) [c04]. The purchases span 2026-10-20T04:51:24.352Z..2026-10-20T04:51:24.352Z [c05]. They cover 1 distinct service(s) [c06]. 1 settlement(s) of this payer verified on Base [c07]. USDC balance at capture: 1043148 atomic (1.043148 USDC) [c08]. Transaction count (nonce) at capture: 24 [c09]. Caveat [payer_from_transfer_log]: payer and seller were read from the Transfer log, not from tx.from [mem-seed-005]; applies to [c02] [c07] [c08] [c09]. Caveat [search_limit_20]: the Bazaar search is capped at twenty results, so its count is a floor [mem-seed-002]; applies to [c01]. Caveat [self_reported_receipts]: receipts are self-reported by the seller [mem-seed-003]; applies to [c02] [c03] [c04] [c05] [c06] [c07]. Sample mode: this answer replays committed fixtures captured 2026-10-22T00:05:00Z; no network, no model calls.",
+    "claims": [
+      {
+        "id": "c01",
+        "metric": "bazaar_listings_for_host",
+        "subject": "seller:host:tienda.textokit.store",
+        "statement": "The CDP Bazaar search returns 17 listings for tienda.textokit.store.",
+        "value": 17,
+        "unit": "count",
+        "period": "all_time",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?urlSubstring=tienda.textokit.store&limit=20",
+            "sha256": "da993b56bae87f758e2bbcbc4780609d1385f6b71a1afaaeee23122a7213002b",
+            "captured_at": "2026-10-22T00:05:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/cdp-discovery-search-urlSubstring-tienda.json"
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex03-payer-dossier#33",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex03-payer-dossier#34",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": "q06_bazaar_host_listings",
+          "sql_sha256": "db6f09d947dbc3619936f1df6808125f6edb184ad20eac06fe5ad5d41556df40",
+          "backend": "sqlite",
+          "reducer": "reducers.bazaar_listings_for_host",
+          "rows": 1,
+          "fields": [
+            "resource",
+            "payTo"
+          ],
+          "sources": [
+            "cdp_search"
+          ],
+          "log_seq": 33
+        },
+        "coverage": {
+          "items_seen": 17,
+          "total_reported": null,
+          "share": null,
+          "basis": "search capped at 20"
+        },
+        "caveats": [
+          "search_limit_20"
+        ],
+        "caveat_memory_ids": {
+          "search_limit_20": "mem-seed-002"
+        },
+        "conflict_ids": [],
+        "confidence": 0.9,
+        "status": "accepted",
+        "cross_checked": true,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      },
+      {
+        "id": "c02",
+        "metric": "settlements_verified",
+        "subject": "seller:host:tienda.textokit.store",
+        "statement": "1 sampled settlement(s) verified on Base against the receipts.",
+        "value": 1,
+        "unit": "count",
+        "period": "all_time",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://tienda.textokit.store/receipts.json",
+            "sha256": "e179af8c286417ecfeb637e8dced806792030422513ff74b97ee84e88b138985",
+            "captured_at": "2026-10-22T00:05:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/store-receipts.json"
+          },
+          {
+            "kind": "url",
+            "ref": "https://mainnet.base.org",
+            "sha256": "c756d78d11b3cdb43099164f6dee151001ab7be4a472e180df47c0b2c51b41f3",
+            "captured_at": "2026-10-22T00:05:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/base-rpc-batch-blockNumber-chainId.json"
+          },
+          {
+            "kind": "tx",
+            "ref": "https://basescan.org/tx/0x62c01526c5beb13cad96634ec80e837e576df496905f1bac8019c6ffa3e358c3",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": true,
+            "stale": false,
+            "http": null,
+            "verified": true,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex03-payer-dossier#31",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex03-payer-dossier#35",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": "q16_settlements_vs_receipts",
+          "sql_sha256": "82a4f8cbe2abce1bb339803cda230200231eeae43845ed91fc3c6e2261ef3815",
+          "backend": "sqlite",
+          "reducer": "reducers.settlements_verified",
+          "rows": 1,
+          "fields": [
+            "transaction",
+            "payer",
+            "amountAtomic"
+          ],
+          "sources": [
+            "receipts",
+            "base_rpc"
+          ],
+          "log_seq": 31
+        },
+        "coverage": null,
+        "caveats": [
+          "payer_from_transfer_log",
+          "self_reported_receipts"
+        ],
+        "caveat_memory_ids": {
+          "payer_from_transfer_log": "mem-seed-005",
+          "self_reported_receipts": "mem-seed-003"
+        },
+        "conflict_ids": [],
+        "confidence": 0.9,
+        "status": "accepted",
+        "cross_checked": true,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      },
+      {
+        "id": "c03",
+        "metric": "payer_sales_total",
+        "subject": "wallet:base:0x097e3f339d0b023605e12a6b81e2d6cb7571475a",
+        "statement": "The receipts list 1 purchase(s) by 0x097e3f339d0b023605e12a6b81e2d6cb7571475a.",
+        "value": 1,
+        "unit": "count",
+        "period": "all_time",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://tienda.textokit.store/receipts.json",
+            "sha256": "e179af8c286417ecfeb637e8dced806792030422513ff74b97ee84e88b138985",
+            "captured_at": "2026-10-22T00:05:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/store-receipts.json"
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex03-payer-dossier#32",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex03-payer-dossier#36",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": "q17_payer_dossier",
+          "sql_sha256": "0bb4552dd849664972041ca1e145310e73735ce8b22ca8513d8319b67699b1e6",
+          "backend": "sqlite",
+          "reducer": "reducers.payer_sales_total",
+          "rows": 1,
+          "fields": [
+            "payer"
+          ],
+          "sources": [
+            "receipts"
+          ],
+          "log_seq": 32
+        },
+        "coverage": null,
+        "caveats": [
+          "self_reported_receipts"
+        ],
+        "caveat_memory_ids": {
+          "self_reported_receipts": "mem-seed-003"
+        },
+        "conflict_ids": [],
+        "confidence": 0.9,
+        "status": "accepted",
+        "cross_checked": true,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      },
+      {
+        "id": "c04",
+        "metric": "payer_usdc_atomic",
+        "subject": "wallet:base:0x097e3f339d0b023605e12a6b81e2d6cb7571475a",
+        "statement": "Those purchases total 1000 atomic USDC (0.001 USDC).",
+        "value": 1000,
+        "unit": "atomic_usdc",
+        "period": "all_time",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://tienda.textokit.store/receipts.json",
+            "sha256": "e179af8c286417ecfeb637e8dced806792030422513ff74b97ee84e88b138985",
+            "captured_at": "2026-10-22T00:05:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/store-receipts.json"
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex03-payer-dossier#32",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex03-payer-dossier#37",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": "q17_payer_dossier",
+          "sql_sha256": "0bb4552dd849664972041ca1e145310e73735ce8b22ca8513d8319b67699b1e6",
+          "backend": "sqlite",
+          "reducer": "reducers.payer_usdc_atomic",
+          "rows": 1,
+          "fields": [
+            "payer",
+            "amountAtomic"
+          ],
+          "sources": [
+            "receipts"
+          ],
+          "log_seq": 32
+        },
+        "coverage": null,
+        "caveats": [
+          "self_reported_receipts"
+        ],
+        "caveat_memory_ids": {
+          "self_reported_receipts": "mem-seed-003"
+        },
+        "conflict_ids": [],
+        "confidence": 0.9,
+        "status": "accepted",
+        "cross_checked": true,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      },
+      {
+        "id": "c05",
+        "metric": "payer_window",
+        "subject": "wallet:base:0x097e3f339d0b023605e12a6b81e2d6cb7571475a",
+        "statement": "The purchases span 2026-10-20T04:51:24.352Z..2026-10-20T04:51:24.352Z.",
+        "value": "2026-10-20T04:51:24.352Z..2026-10-20T04:51:24.352Z",
+        "unit": "iso8601",
+        "period": "all_time",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://tienda.textokit.store/receipts.json",
+            "sha256": "e179af8c286417ecfeb637e8dced806792030422513ff74b97ee84e88b138985",
+            "captured_at": "2026-10-22T00:05:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/store-receipts.json"
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex03-payer-dossier#32",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex03-payer-dossier#38",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": "q17_payer_dossier",
+          "sql_sha256": "0bb4552dd849664972041ca1e145310e73735ce8b22ca8513d8319b67699b1e6",
+          "backend": "sqlite",
+          "reducer": "reducers.payer_window",
+          "rows": 1,
+          "fields": [
+            "payer",
+            "at"
+          ],
+          "sources": [
+            "receipts"
+          ],
+          "log_seq": 32
+        },
+        "coverage": null,
+        "caveats": [
+          "self_reported_receipts"
+        ],
+        "caveat_memory_ids": {
+          "self_reported_receipts": "mem-seed-003"
+        },
+        "conflict_ids": [],
+        "confidence": 0.9,
+        "status": "accepted",
+        "cross_checked": true,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      },
+      {
+        "id": "c06",
+        "metric": "payer_services",
+        "subject": "wallet:base:0x097e3f339d0b023605e12a6b81e2d6cb7571475a",
+        "statement": "They cover 1 distinct service(s).",
+        "value": 1,
+        "unit": "count",
+        "period": "all_time",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://tienda.textokit.store/receipts.json",
+            "sha256": "e179af8c286417ecfeb637e8dced806792030422513ff74b97ee84e88b138985",
+            "captured_at": "2026-10-22T00:05:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/store-receipts.json"
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex03-payer-dossier#32",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex03-payer-dossier#39",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": "q17_payer_dossier",
+          "sql_sha256": "0bb4552dd849664972041ca1e145310e73735ce8b22ca8513d8319b67699b1e6",
+          "backend": "sqlite",
+          "reducer": "reducers.payer_services",
+          "rows": 1,
+          "fields": [
+            "payer",
+            "service"
+          ],
+          "sources": [
+            "receipts"
+          ],
+          "log_seq": 32
+        },
+        "coverage": null,
+        "caveats": [
+          "self_reported_receipts"
+        ],
+        "caveat_memory_ids": {
+          "self_reported_receipts": "mem-seed-003"
+        },
+        "conflict_ids": [],
+        "confidence": 0.9,
+        "status": "accepted",
+        "cross_checked": true,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      },
+      {
+        "id": "c07",
+        "metric": "verified_tx",
+        "subject": "wallet:base:0x097e3f339d0b023605e12a6b81e2d6cb7571475a",
+        "statement": "1 settlement(s) of this payer verified on Base.",
+        "value": 1,
+        "unit": "count",
+        "period": "all_time",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://tienda.textokit.store/receipts.json",
+            "sha256": "e179af8c286417ecfeb637e8dced806792030422513ff74b97ee84e88b138985",
+            "captured_at": "2026-10-22T00:05:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/store-receipts.json"
+          },
+          {
+            "kind": "url",
+            "ref": "https://mainnet.base.org",
+            "sha256": "c756d78d11b3cdb43099164f6dee151001ab7be4a472e180df47c0b2c51b41f3",
+            "captured_at": "2026-10-22T00:05:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/base-rpc-batch-blockNumber-chainId.json"
+          },
+          {
+            "kind": "tx",
+            "ref": "https://basescan.org/tx/0x62c01526c5beb13cad96634ec80e837e576df496905f1bac8019c6ffa3e358c3",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": true,
+            "stale": false,
+            "http": null,
+            "verified": true,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex03-payer-dossier#31",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex03-payer-dossier#40",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": "q16_settlements_vs_receipts",
+          "sql_sha256": "82a4f8cbe2abce1bb339803cda230200231eeae43845ed91fc3c6e2261ef3815",
+          "backend": "sqlite",
+          "reducer": "reducers.verified_tx",
+          "rows": 1,
+          "fields": [
+            "transaction"
+          ],
+          "sources": [
+            "receipts",
+            "base_rpc"
+          ],
+          "log_seq": 31
+        },
+        "coverage": null,
+        "caveats": [
+          "payer_from_transfer_log",
+          "self_reported_receipts"
+        ],
+        "caveat_memory_ids": {
+          "payer_from_transfer_log": "mem-seed-005",
+          "self_reported_receipts": "mem-seed-003"
+        },
+        "conflict_ids": [],
+        "confidence": 0.9,
+        "status": "accepted",
+        "cross_checked": true,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      },
+      {
+        "id": "c08",
+        "metric": "usdc_balance_atomic",
+        "subject": "wallet:base:0x097e3f339d0b023605e12a6b81e2d6cb7571475a",
+        "statement": "USDC balance at capture: 1043148 atomic (1.043148 USDC).",
+        "value": 1043148,
+        "unit": "atomic_usdc",
+        "period": "all_time",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://mainnet.base.org",
+            "sha256": "c756d78d11b3cdb43099164f6dee151001ab7be4a472e180df47c0b2c51b41f3",
+            "captured_at": "2026-10-22T00:05:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/base-rpc-batch-blockNumber-chainId.json"
+          },
+          {
+            "kind": "tx",
+            "ref": "https://basescan.org/tx/0x62c01526c5beb13cad96634ec80e837e576df496905f1bac8019c6ffa3e358c3",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": true,
+            "stale": false,
+            "http": null,
+            "verified": true,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex03-payer-dossier#41",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": null,
+          "sql_sha256": null,
+          "backend": null,
+          "reducer": "reducers.usdc_balance_atomic",
+          "rows": 0,
+          "fields": [
+            "balanceOf"
+          ],
+          "sources": [
+            "base_rpc"
+          ],
+          "log_seq": 41
+        },
+        "coverage": null,
+        "caveats": [
+          "payer_from_transfer_log"
+        ],
+        "caveat_memory_ids": {
+          "payer_from_transfer_log": "mem-seed-005"
+        },
+        "conflict_ids": [],
+        "confidence": 0.7,
+        "status": "accepted",
+        "cross_checked": false,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      },
+      {
+        "id": "c09",
+        "metric": "tx_count",
+        "subject": "wallet:base:0x097e3f339d0b023605e12a6b81e2d6cb7571475a",
+        "statement": "Transaction count (nonce) at capture: 24.",
+        "value": 24,
+        "unit": "count",
+        "period": "all_time",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://mainnet.base.org",
+            "sha256": "c756d78d11b3cdb43099164f6dee151001ab7be4a472e180df47c0b2c51b41f3",
+            "captured_at": "2026-10-22T00:05:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/base-rpc-batch-blockNumber-chainId.json"
+          },
+          {
+            "kind": "tx",
+            "ref": "https://basescan.org/tx/0x62c01526c5beb13cad96634ec80e837e576df496905f1bac8019c6ffa3e358c3",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": true,
+            "stale": false,
+            "http": null,
+            "verified": true,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex03-payer-dossier#42",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": null,
+          "sql_sha256": null,
+          "backend": null,
+          "reducer": "reducers.tx_count",
+          "rows": 0,
+          "fields": [
+            "eth_getTransactionCount"
+          ],
+          "sources": [
+            "base_rpc"
+          ],
+          "log_seq": 42
+        },
+        "coverage": null,
+        "caveats": [
+          "payer_from_transfer_log"
+        ],
+        "caveat_memory_ids": {
+          "payer_from_transfer_log": "mem-seed-005"
+        },
+        "conflict_ids": [],
+        "confidence": 0.7,
+        "status": "accepted",
+        "cross_checked": false,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      }
+    ],
+    "rejected_claims": [],
+    "conflicts": [],
+    "unavailable": [],
+    "sources": [
+      {
+        "name": "store_receipts",
+        "family": "receipts",
+        "url": "https://tienda.textokit.store/receipts.json",
+        "status": "ok",
+        "http": 200,
+        "sha256": "e179af8c286417ecfeb637e8dced806792030422513ff74b97ee84e88b138985",
+        "captured_at": "2026-10-22T00:05:00Z",
+        "replayed": true,
+        "stale": false,
+        "error": null,
+        "fixture_file": "fixtures/raw/store-receipts.json",
+        "request_key": "GET https://tienda.textokit.store/receipts.json"
+      },
+      {
+        "name": "cdp_search_host",
+        "family": "cdp_search",
+        "url": "https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?urlSubstring=tienda.textokit.store&limit=20",
+        "status": "ok",
+        "http": 200,
+        "sha256": "da993b56bae87f758e2bbcbc4780609d1385f6b71a1afaaeee23122a7213002b",
+        "captured_at": "2026-10-22T00:05:00Z",
+        "replayed": true,
+        "stale": false,
+        "error": null,
+        "fixture_file": "fixtures/raw/cdp-discovery-search-urlSubstring-tienda.json",
+        "request_key": "GET https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?limit=20&urlSubstring=tienda.textokit.store"
+      },
+      {
+        "name": "rpc_chain_id",
+        "family": "base_rpc",
+        "url": "https://mainnet.base.org",
+        "status": "ok",
+        "http": 200,
+        "sha256": "c756d78d11b3cdb43099164f6dee151001ab7be4a472e180df47c0b2c51b41f3",
+        "captured_at": "2026-10-22T00:05:00Z",
+        "replayed": true,
+        "stale": false,
+        "error": null,
+        "fixture_file": "fixtures/raw/base-rpc-batch-blockNumber-chainId.json",
+        "request_key": "RPC eth_chainId 4f53cda18c2baa0c"
+      },
+      {
+        "name": "rpc_receipt_0x62c01526c5beb13cad96634ec80e837e576df496905f1bac8019c6ffa3e358c3",
+        "family": "base_rpc",
+        "url": "https://mainnet.base.org",
+        "status": "ok",
+        "http": 200,
+        "sha256": "f7d915c990742d978d599a83c54530e59c88b2747bdfae9a9072482a363b080e",
+        "captured_at": "2026-10-22T00:05:00Z",
+        "replayed": true,
+        "stale": false,
+        "error": null,
+        "fixture_file": "fixtures/raw/base-rpc-eth_getTransactionReceipt.json",
+        "request_key": "RPC eth_getTransactionReceipt 54fa30d4aadcf1af"
+      },
+      {
+        "name": "rpc_tx_0x62c01526c5beb13cad96634ec80e837e576df496905f1bac8019c6ffa3e358c3",
+        "family": "base_rpc",
+        "url": "https://mainnet.base.org",
+        "status": "ok",
+        "http": 200,
+        "sha256": "505491d34af383d44ba1e0b2c6b3a152893c31a8df1fb6b11989fadff7cd6ca5",
+        "captured_at": "2026-10-22T00:05:00Z",
+        "replayed": true,
+        "stale": false,
+        "error": null,
+        "fixture_file": "fixtures/raw/base-rpc-eth_getTransactionByHash.json",
+        "request_key": "RPC eth_getTransactionByHash 54fa30d4aadcf1af"
+      },
+      {
+        "name": "rpc_receipt_0x58ddb2e77e574ddda75fd74df6f3dbf94e2795e22c36f8a01a506c544ff4ada3",
+        "family": "base_rpc",
+        "url": "https://mainnet.base.org",
+        "status": "fixture_miss",
+        "http": null,
+        "sha256": null,
+        "captured_at": "2026-10-22T00:05:00.033Z",
+        "replayed": true,
+        "stale": false,
+        "error": "no fixture for this request key",
+        "fixture_file": null,
+        "request_key": "RPC eth_getTransactionReceipt 4abbe9fcb6a985ee"
+      },
+      {
+        "name": "rpc_receipt_0x3ca4f2791f4f851a574f4abd7cb949e1b05fb00dadeb77b83fb3d0e36a608fb2",
+        "family": "base_rpc",
+        "url": "https://mainnet.base.org",
+        "status": "fixture_miss",
+        "http": null,
+        "sha256": null,
+        "captured_at": "2026-10-22T00:05:00.038Z",
+        "replayed": true,
+        "stale": false,
+        "error": "no fixture for this request key",
+        "fixture_file": null,
+        "request_key": "RPC eth_getTransactionReceipt 02dd57d3607fdcef"
+      },
+      {
+        "name": "rpc_receipt_0x068b1930266c6235ee31cbfa87690b8ef14c519bba4f1dafd0b36872b836fe95",
+        "family": "base_rpc",
+        "url": "https://mainnet.base.org",
+        "status": "fixture_miss",
+        "http": null,
+        "sha256": null,
+        "captured_at": "2026-10-22T00:05:00.043Z",
+        "replayed": true,
+        "stale": false,
+        "error": "no fixture for this request key",
+        "fixture_file": null,
+        "request_key": "RPC eth_getTransactionReceipt c92835315f095781"
+      },
+      {
+        "name": "rpc_balance_0x097e3f339d0b023605e12a6b81e2d6cb7571475a",
+        "family": "base_rpc",
+        "url": "https://mainnet.base.org",
+        "status": "ok",
+        "http": 200,
+        "sha256": "27c49155eb0252613b27d35520c5a87616940193528ee069aacab73e833ab738",
+        "captured_at": "2026-10-22T00:05:00Z",
+        "replayed": true,
+        "stale": false,
+        "error": null,
+        "fixture_file": "fixtures/raw/base-rpc-eth_call-usdc-balanceOf-payer.json",
+        "request_key": "RPC eth_call db248b8bcb7ad3bb"
+      },
+      {
+        "name": "rpc_nonce_0x097e3f339d0b023605e12a6b81e2d6cb7571475a",
+        "family": "base_rpc",
+        "url": "https://mainnet.base.org",
+        "status": "ok",
+        "http": 200,
+        "sha256": "6eb3a48cce1432c174fd659dd5173c759b3775ce2ffd808cc0e3dc3140a658d8",
+        "captured_at": "2026-10-22T00:05:00Z",
+        "replayed": true,
+        "stale": false,
+        "error": null,
+        "fixture_file": "fixtures/raw/base-rpc-eth_getTransactionCount-payer.json",
+        "request_key": "RPC eth_getTransactionCount 0c40644bd8fdd8d1"
+      }
+    ],
+    "verifications": [
+      {
+        "tx": "0x62c01526c5beb13cad96634ec80e837e576df496905f1bac8019c6ffa3e358c3",
+        "status": "verified",
+        "payer": "0x097e3f339d0b023605e12a6b81e2d6cb7571475a",
+        "seller": "0x6b5af9924f4cd35643c11a9fd1c983f77261a6e1",
+        "amount_atomic": 1000,
+        "block": 52841269,
+        "block_time": "2026-10-20T04:51:25.000Z",
+        "facilitator_from": "0x8f5cb67b49555e614892b7233cfddebfb746e531",
+        "basescan_url": "https://basescan.org/tx/0x62c01526c5beb13cad96634ec80e837e576df496905f1bac8019c6ffa3e358c3",
+        "decoded_from": "Transfer log",
+        "receipt_match": true,
+        "reason": null
+      },
+      {
+        "tx": "0x58ddb2e77e574ddda75fd74df6f3dbf94e2795e22c36f8a01a506c544ff4ada3",
+        "status": "unverifiable",
+        "payer": null,
+        "seller": null,
+        "amount_atomic": null,
+        "block": null,
+        "block_time": null,
+        "facilitator_from": null,
+        "basescan_url": "https://basescan.org/tx/0x58ddb2e77e574ddda75fd74df6f3dbf94e2795e22c36f8a01a506c544ff4ada3",
+        "decoded_from": "none",
+        "receipt_match": null,
+        "reason": "fixture_miss"
+      },
+      {
+        "tx": "0x3ca4f2791f4f851a574f4abd7cb949e1b05fb00dadeb77b83fb3d0e36a608fb2",
+        "status": "unverifiable",
+        "payer": null,
+        "seller": null,
+        "amount_atomic": null,
+        "block": null,
+        "block_time": null,
+        "facilitator_from": null,
+        "basescan_url": "https://basescan.org/tx/0x3ca4f2791f4f851a574f4abd7cb949e1b05fb00dadeb77b83fb3d0e36a608fb2",
+        "decoded_from": "none",
+        "receipt_match": null,
+        "reason": "fixture_miss"
+      },
+      {
+        "tx": "0x068b1930266c6235ee31cbfa87690b8ef14c519bba4f1dafd0b36872b836fe95",
+        "status": "unverifiable",
+        "payer": null,
+        "seller": null,
+        "amount_atomic": null,
+        "block": null,
+        "block_time": null,
+        "facilitator_from": null,
+        "basescan_url": "https://basescan.org/tx/0x068b1930266c6235ee31cbfa87690b8ef14c519bba4f1dafd0b36872b836fe95",
+        "decoded_from": "none",
+        "receipt_match": null,
+        "reason": "fixture_miss"
+      }
+    ],
+    "world": {
+      "first_pass": {
+        "runId": "run_af5f68fd9bd3",
+        "processed": 2,
+        "skippedUnchanged": 0,
+        "eventsAppended": 370,
+        "changed": true
+      },
+      "second_pass": {
+        "runId": "run_af5f68fd9bd3",
+        "processed": 0,
+        "skippedUnchanged": 2,
+        "eventsAppended": 0,
+        "changed": false
+      },
+      "quarantined": 0,
+      "claims_asserted": 9,
+      "counts": {
+        "entities": 30,
+        "contexts": 8,
+        "relationships": 153,
+        "facts": 67
+      }
+    },
+    "memory": {
+      "retrieved": [
+        {
+          "memory_id": "mem-seed-005",
+          "actor": "planner",
+          "score": 0.3712
+        },
+        {
+          "memory_id": "mem-seed-005",
+          "actor": "writer",
+          "score": 0.3893
+        },
+        {
+          "memory_id": "mem-seed-005",
+          "actor": "critic",
+          "score": 0.3533
+        },
+        {
+          "memory_id": "mem-seed-003",
+          "actor": "critic",
+          "score": 0.4696
+        },
+        {
+          "memory_id": "mem-seed-006",
+          "actor": "critic",
+          "score": 0.3526
+        }
+      ],
+      "cited": [
+        "mem-seed-002",
+        "mem-seed-003",
+        "mem-seed-005"
+      ],
+      "feedback": [
+        {
+          "memory_id": "mem-seed-002",
+          "kind": "helpful",
+          "reason": "caveat search_limit_20 required and attached to c01"
+        },
+        {
+          "memory_id": "mem-seed-003",
+          "kind": "helpful",
+          "reason": "caveat self_reported_receipts required and attached to c02"
+        },
+        {
+          "memory_id": "mem-seed-005",
+          "kind": "helpful",
+          "reason": "caveat payer_from_transfer_log required and attached to c02"
+        },
+        {
+          "memory_id": "mem-seed-006",
+          "kind": "not_helpful",
+          "reason": "retrieved for critic but not cited"
+        }
+      ],
+      "mined": 9
+    },
+    "agents": [
+      {
+        "role": "planner",
+        "generator_backed": true,
+        "generator_used": "none",
+        "attempts": 1,
+        "status": "ok",
+        "notes": []
+      },
+      {
+        "role": "collector",
+        "generator_backed": false,
+        "generator_used": null,
+        "attempts": 1,
+        "status": "ok",
+        "notes": [
+          "2 ok, 0 stale fixture fallback(s), 0 fixture miss(es), 0 unavailable, 1 deferred to the verifier",
+          "deferred: base_rpc_batch"
+        ]
+      },
+      {
+        "role": "keeper",
+        "generator_backed": false,
+        "generator_used": null,
+        "attempts": 3,
+        "status": "ok",
+        "notes": [
+          "chain facts asserted: 3",
+          "claims asserted as agent facts: 9",
+          "ingested 2 observations, 370 events appended",
+          "second pass: {'runId': 'run_af5f68fd9bd3', 'processed': 0, 'skippedUnchanged': 2, 'eventsAppended': 0, 'changed': False}"
+        ]
+      },
+      {
+        "role": "verifier",
+        "generator_backed": false,
+        "generator_used": null,
+        "attempts": 1,
+        "status": "ok",
+        "notes": [
+          "4 tx sampled (sales of focus.wallet first, then most recent external sale per distinct payer, capped at max_tx_verifications): 1 verified, 0 failed, 3 unverifiable (fixture_miss x3); chain facts: 3; cross-checks: 2; settlements export: yes"
+        ]
+      },
+      {
+        "role": "analyst",
+        "generator_backed": false,
+        "generator_used": null,
+        "attempts": 1,
+        "status": "ok",
+        "notes": [
+          "views without export: bazaar_resources, catalog_resources, openapi_paid_ops, agent402_tools, agent402_seller, vet402_endpoints, trust_search, trust_stats"
+        ]
+      },
+      {
+        "role": "writer",
+        "generator_backed": true,
+        "generator_used": "none",
+        "attempts": 1,
+        "status": "ok",
+        "notes": []
+      },
+      {
+        "role": "critic",
+        "generator_backed": true,
+        "generator_used": "none",
+        "attempts": 1,
+        "status": "ok",
+        "notes": []
+      }
+    ],
+    "critique_rounds": 1,
+    "report_path": "logs/ex03-payer-dossier/report.md",
+    "log_files": [
+      "fetch.jsonl",
+      "hmem.trace.jsonl",
+      "run.jsonl",
+      "sql.jsonl",
+      "world.audit.jsonl",
+      "world.events.jsonl",
+      "world.observations.jsonl"
+    ]
+  }
+}

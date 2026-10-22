@@ -1,0 +1,436 @@
+# x402-trust: machine-readable trust & reliability data for the x402 ecosystem
+
+> https://x402-trust.com
+> A live, continuously-updated registry of every publicly listed x402 endpoint
+> (Base + Solana): what is reachable, spec-compliant, and what actually SETTLES
+> in real on-chain USDC, with deterministic trust scores, observation history,
+> semantic alternatives and 30-day endpoint watches.
+>
+> Read this file first. It tells you what exists, what it costs, and how to
+> pay. For exact request/response schemas see /openapi.json. For MCP see
+> /mcp.json (and the hosted endpoint POST /mcp); the local MCP server never
+> auto-pays unless you set a key, and even then only within hard caps you
+> control (see "MCP security" below). For the human-readable
+> failure taxonomy see /failure-modes.
+
+## What this is and what it is not
+
+We are an independent OBSERVER. We probe listed endpoints many times a day
+(polite unpaid requests; HTTP-native endpoints directly, MCP-native paywalls
+through a real MCP handshake), parse their 402 envelopes, and index real
+on-chain USDC settlement (Base via CDP beacons, Solana via RPC token-account
+scans). We deliberately do NOT verify "did the seller deliver what was
+advertised after payment". No scanner can do that economically. Trust here
+means:
+- the endpoint answers, answers fast, and its 402 envelope is spec-correct;
+- it has REAL settlement history (un-fakeable: money moved on-chain);
+- its advertised payTo/price/network have been stable, or the variance is
+  explained (see /failure-modes).
+
+A trust score is therefore evidence FOR proceeding, never a guarantee.
+
+## Quickstart for an agent
+
+1. Call /trust/stats first (free) to gauge the whole ecosystem.
+2. Before paying ANY endpoint you do not already trust: get its report via
+   POST /v1/x402-trust (paid, ~$0.005) or its endpoint page
+   (/endpoint/:id, free). A "avoid" verdict or a severity:error flag means do
+   not pay.
+3. If an endpoint looks dead/poor, ask for its best better-scored equivalent
+   via POST /v1/similar (paid, ~$0.005). To discover candidates
+   by capability in the first place, use POST /v1/semantic-search (free);
+   to look endpoints up by host/URL substring
+   (e.g. every endpoint of one provider), use the free GET /trust/search.
+4. To stay current on a partner endpoint, open a 30-day watch
+   (POST /v1/watch-endpoint-30d, paid, $0.2) and poll
+   /v1/watch/:id/events.
+
+## Free endpoints (GET, no payment)
+
+- /trust/stats: aggregate snapshot of endpoints listed/active/delisted,
+  reachability, envelope compliance, 30-day settlements + settled USDC volume,
+  distinct receivers/payers, and ALL-TIME ecosystem-wide settlement volume
+  across every known facilitator (ecosystemAllTimeUsd).
+- /trust/leaderboard: hosts (providers) by trust score as JSON, paged with
+  limit (1-25, default 25) + offset over a materialized top-100 board (the
+  response echoes limit/offset and carries total = ranked hosts on the
+  board). Each host score is the probe-weighted mean of its listed endpoints,
+  so one provider cannot flood the board with path variants (latency from a
+  single EU vantage point is only lightly weighted). /leaderboard renders the
+  same feed as a filterable top-100 page.
+- /trust/search?q=<substring>&limit=&offset=: free KEYWORD search over the
+  whole catalog (listed AND delisted endpoints), matched case-insensitively
+  against host, resource URL and service name - the lookup for "every
+  endpoint of example.org" or "is this URL cataloged?" that the semantic
+  search (by meaning, also free) does not answer. Paged like the leaderboard
+  (limit 1-25, total = unpaged matches). Rows carry id, resource, host,
+  serviceName, description, delisted flag, cached score/grade, the
+  providerVerified/providerName marks (same naming as the trust report) and
+  the free endpoint page URL; verdict details stay paid-report content.
+  The leaderboard and the free semantic search carry the same two marks, so
+  a verified provider is recognizable on every listing surface.
+- /verified.json: the /verified page as JSON - provider-verified hosts
+  (domain key file + confirmed contact email) with their public profile
+  (orgName, supportUrl, docsUrl, address, description, contactEmail once
+  confirmed) and leaderboard-style host score, paged via limit (1-25) +
+  offset. Informational only; verification never changes a score.
+- /trust/report: human report page; /trust/report.json is its raw data.
+- /v1/x402-trust-preview: FREE full paid-grade sample reports for three fixed
+  picks (best / median / worst), so you see exactly what a paid report looks
+  like before paying.
+- /facilitators: facilitator leaderboard; /facilitator/:id detail (settlers,
+  per-chain volume, 90d chart). JSON: /v1/facilitators(+/:id).
+- /endpoint/:id: per-endpoint page (score, verdict, probe + settlement history,
+  all advertised payment options/networks). Risk-flag DETAILS are not on the
+  page: they are paid-report content (POST /v1/x402-trust). A resource URL is
+  resolved to its id via /endpoint?resource=<url>.
+- Browse the catalog without an id: /providers (provider directory,
+  /provider/:slug lists one host's endpoints with grades), /network and
+  /network/:net (per-chain facets), /grade/:g (everything currently graded A
+  through F), /cheapest (all endpoints priced at $0.01 or less, cheapest
+  first), /verified (only providers whose host completed domain + email
+  verification, one row per provider; informational, never changes the
+  score), /search?q=
+  (substring search; free semantic matches load into the same page for
+  non-URL queries).
+- /badge/:id.svg, /card/:id.svg, /card/:id.png AND the resource-keyed forms
+  /badge.svg?resource=<url>, /card.svg?resource=<url>, /card.png?resource=<url>:
+  embeddable status shields (zero-integration proof for directories). Branded
+  1200x628 share cards exist for the hub pages too: /og.png and
+  /trust/report/og.png (PNG only), plus /search/card.png, /providers/card.png,
+  /verified/card.png, /cheapest/card.png, /grade/:g/card.png,
+  /network/card.png, /network/:net/card.png, /leaderboard/card.png,
+  /facilitators/card.png, /provider/:slug/card.png and
+  /facilitator/:id/card.png (all but the first two also as .svg), and the
+  static content-page cards /x402/card.png, /x402/simple/card.png and
+  /schemas/card.png (both as .svg too).
+- /failure-modes: the human-readable taxonomy of what a 402 CANNOT rule out
+  (uncollectable Solana ATAs, facilitator network mismatches, EIP-712 domain
+  names, transport-version skew). Read it before trusting a score.
+- /x402: plain-language tutorial answering "what is x402": the problem it
+  solves, the quote-signature-settle flow with the official flow diagram,
+  schemes and facilitators, the ecosystem's state (foundation, members, live
+  numbers), and how this site's trust monitoring fits in. Agent-safe to crawl.
+  /x402/simple is the no-tech companion tour with interactive demos.
+- /try: browser console that walks a human through paying each single-endpoint
+  product with a wallet (no code, no API key).
+- /api/activity.json: live feed of OUR OWN recent settled sales (endpoint,
+  network, amount, redacted payer, tx hash) plus lifetime totals.
+- /submit: let a human or agent submit an endpoint that is not yet listed
+  (must carry a live x402 challenge to be accepted: an HTTP 402 or an
+  MCP-served one).
+- /verify: provider verification for the operator of a host. Prove domain
+  control by publishing a P-256 public key at
+  https://<host>/.well-known/x402-trust.txt (line
+  "x402-trust-verification=v1:<base64url SPKI>"), confirm a contact email, and
+  the host's endpoints get the provider-verified badge and a published
+  contact (providerVerified/providerName/providerContact in the trust
+  report). Signed actions (private key over a one-shot challenge)
+  manage profile, alerts opt-in, email rotation, and removal; a
+   "x402-trust-remove" line in the same file is the no-key removal fallback.
+   Removal deletes the provider's data and blocklists the host against all
+   automated discovery, permanently. The full agent how-to is in the
+   "Provider verification" section below.
+- /health: liveness probe (no trust data).
+- POST /v1/semantic-search: POST but FREE (no payment; a per-IP rate limit
+  answers 429 on excess). Free-text semantic search over the whole catalog
+  (body {"query": "weather forecast"}). Returns up to 25 closest endpoints by
+  meaning, ranked deterministically: cosine similarity bucketed to whole
+  percentage points (80.3% and 80.5% tie), then trust score, then
+  described-before-undescribed, then endpoint id. Matches below a 0.5
+  cosine-similarity floor are dropped (a query may return fewer, or none).
+  Missing description = no fixed malus: the endpoint is matched via its service
+  name and URL path tokens (typically lower similarity), and loses only the
+  tiebreak when bucket AND score are equal. Each match has resource, score,
+  grade, similarity (raw), description and a free endpoint page. Discovery
+  only: no verdict or flag detail (that is /v1/x402-trust). Also accepts GET
+  with ?query=...&limit=....
+
+## Paid endpoints (POST, pay-per-call over x402)
+
+- POST /v1/x402-trust: full trust report for one endpoint. Score 0-100, grade
+  A-F (or "?" when unmeasured), recommendation
+  proceed|caution|avoid|parameterize|unverified|not-payable|free, advertised
+  price, scoreRange, per-component breakdown, 30d settlement stats, and
+  structured flags (any severity:error = avoid). "free" means the endpoint
+  answers plain requests with data and never presented a payment challenge (no
+  payment flow to grade). Works for UNCATALOGED endpoints too:
+  they are live-probed on first query, scored with a low-confidence
+  first-contact flag, and adopted into the catalog. For a host whose operator
+  completed verification, the report additionally carries providerVerified:
+  true, providerName (organization) and providerContact (the confirmed contact
+  address); verified endpoints carry the provider-verified info flag;
+  verification never changes the score. The report also carries 'sources': the
+  discovery sources the endpoint was sighted in (bazaar, facilitator lists
+  such as thirdweb or payai, x402scan, mcpregistry, manual, customer), sorted
+  curated-catalogs-first; informational provenance, never a score input.
+  ~$0.005/call.
+- POST /v1/x402-history: raw observation time-series 1-90d. List/delist events,
+  advertised price and payTo changes, and per-probe outcome (ok, latencyMs,
+  status, httpStatus, error, excluded). Excluded probes carry no endpoint
+  signal (rate limits, unresolved URL templates, resolver outages on our side)
+  and never count as downtime. A probeSummary aggregates the window: counts by
+  status, longest failure streak, per-day failure breakdown.
+  $0.02/call.
+- POST /v1/similar: the endpoints whose advertised purpose most closely matches
+  the given URL AND currently out-score it (semantic + trust re-routing).
+  ~$0.005/call.
+- POST /v1/x402-trust-bulk-{10|50|100|200|500}: score many endpoints in one
+  paid call (smallest fitting tier is the cheapest; dedupe happens server-side):
+/v1/x402-trust-bulk-10 (≤10 endpoints, $0.045/call)
+/v1/x402-trust-bulk-50 (≤50 endpoints, $0.2/call)
+/v1/x402-trust-bulk-100 (≤100 endpoints, $0.325/call)
+/v1/x402-trust-bulk-200 (≤200 endpoints, $0.4/call)
+/v1/x402-trust-bulk-500 (≤500 endpoints, $0.5/call)
+  Cache rows older than ~15min are recomputed on-demand (≤50 endpoints/8s per
+  request; recompute_limit_hit tells you when you hit the cap). Resources out
+  of our observation set return found:false, but you still pay for the batch.
+- POST /v1/watch-endpoint-30d: 30-day monitor of one endpoint. Alerts on
+  payTo/price/asset/network changes, 402-spec regressions, delisting, and
+  liveness down/recovered + flapping (coalesced). Optional push delivery to
+  signed HTTPS webhooks and/or Slack/Discord (max 5 each; URLs are
+  connection-tested BEFORE payment, unreachable = no charge). $0.2/call.
+- POST /v1/watch/:id/renew: extend a watch +30d. $0.2/call.
+
+The three paid single-endpoint products (trust, history, similar)
+also accept GET with the same params in the query string (?resource=...,
+?days=..., ?limit=..., ?minScoreDelta=...). That form exists for
+the browser paywall: the wallet retry preserves the query string, which is
+how /try works. Machine clients should POST JSON.
+
+## Watch management (free, bearer-authed with the watch secret)
+
+- GET /v1/watch/:id/events: append-only event log (endpoint events + lifecycle
+  events); page by the returned cursors (they are GLOBAL sequences, do not
+  assume they start at 1). Cancelled watches stay readable until the original
+  expiry.
+- PATCH /v1/watch/:id: edit delivery URLs (full-replace per channel), liveness
+  sensitivity (1-10), or subscribed events. New URLs are connection-tested
+  before the change is persisted.
+- DELETE /v1/watch/:id: soft-cancel (no new events; log stays readable).
+
+## Provider verification (self-service, free)
+
+For the operator of a host that is already in the catalog. Everything is
+plain HTTPS POST/GET with JSON bodies accepted, no payment, and no auth
+beyond the one-time email token and the provider key signature. All of
+these endpoints are rate-limited per IP and served noindex.
+
+Claim flow:
+1. Generate a P-256 ECDSA keypair locally (node:crypto one-liner; line 1 of
+   the output is the public key as base64url SPKI, line 2 the private key
+   PEM to keep):
+   node -e 'const{generateKeyPairSync}=require("node:crypto");const k=generateKeyPairSync("ec",{namedCurve:"P-256"});console.log(k.publicKey.export({format:"der",type:"spki"}).toString("base64url"));console.log(k.privateKey.export({format:"pem",type:"pkcs8"}))'
+2. POST /verify with {"host","email","pubkey","consent":true} plus optional
+   "notifyOptin":true, "orgName", "supportUrl", "docsUrl", "address",
+   "description". pubkey is the base64url SPKI from step 1 (base64 SPKI and
+   PEM work too). consent is required: boolean true, or "on"/"1"/"true".
+3. Publish https://<host>/.well-known/x402-trust.txt containing the line
+   x402-trust-verification=v1:<pubkey>
+4. Confirm the email via the one-time link mailed to the address (a human
+   step, or a mailbox-reading agent). The claim flips to verified only when
+   BOTH the file was seen and the email is confirmed.
+5. POST /verify/<host>/check runs the domain-file check immediately (the
+   daily scanner also covers it). GET /verify/<host> shows the HTML status
+   page.
+
+Signed actions (the private key manages the claim):
+1. POST /verify/<host>/action-nonce with {"action":"remove"} (or
+   "rotate-email", "update-profile", "set-notify", "set-alert-prefs",
+   "remove-endpoints", "restore-endpoints") returns
+   JSON {nonce, message, expiresInSec}. The nonce is one-shot and expires in
+   5 minutes.
+2. Sign the exact message bytes ("x402-trust action=<a> host=<h> nonce=<n>")
+   with ECDSA P-256 + SHA-256. Both IEEE-P1363 and DER signatures are
+   accepted, base64url or base64 encoded. node:crypto one-liner:
+   node -e 'const{sign}=require("node:crypto");const{readFileSync}=require("node:fs");console.log(sign("sha256",Buffer.from(process.argv[1],"utf8"),{key:readFileSync(process.argv[2],"utf8"),dsaEncoding:"ieee-p1363"}).toString("base64url"))' '<message>' provider-key.pem
+3. POST /verify/<host>/action with {"action","nonce","signature"} plus the
+   payload: "newEmail" for rotate-email; "orgName"/"supportUrl"/"docsUrl"/
+   "address"/"description" for update-profile; "enabled":"1"/"0" for
+   set-notify; "prefs":{"<endpointId>":"1"/"0", ...} for set-alert-prefs
+   (per-endpoint provider-alert overrides; ids must belong to the host; at
+   most 5000 ids per call, batch with several signed calls for more; a value
+   equal to the default - listed endpoints alert, delisted stay quiet -
+   clears the override; muting also forgets the endpoint's alert state; the
+   alert scan covers the host's full endpoint set, so every pref takes
+   effect). "ids":[<endpointId>, ...] for remove-endpoints and
+   restore-endpoints (per-endpoint catalog self-service; ids must belong to
+   the host; at most 5000 ids per call, batch with several signed calls for
+   more. remove-endpoints takes the endpoints out of the public catalog:
+   pages and badges answer 410, probing and alert mails for them stop, and
+   discovery never re-adds a removed endpoint - not even a fresh /submit or
+   a re-listing under a new query spelling. restore-endpoints brings them
+   back with their history intact; it cannot undo a host-wide removal).
+   remove and rotate-email additionally re-check the
+   LIVE file carrying the same key, so a stolen key alone cannot remove a
+   listing. action-nonce answers JSON; the other routes render the HTML
+   status page.
+
+Lost key: POST /verify/<host>/rotate-request mails a one-shot rotation link
+to the contact address on file. POST /verify with that link's token as
+"rotationToken" replaces key, email and profile (fresh consent required).
+
+Removal without the key: put the line x402-trust-remove in the verification
+file; the daily scanner (or POST /verify/<host>/check) processes the
+takedown.
+
+Consequences: a verified host gets the provider-verified badge and a
+published contact (providerVerified/providerName/providerContact in the
+trust report). Verification never changes the trust score. Removal deletes
+the stored personal data and blocklists the host against re-discovery.
+
+## MCP
+
+Two transports share the SAME 15 tools (single-sourced in tool-spec, no drift):
+- Local: npx -y x402-trust-mcp (stdio; auto-pays over x402 if X402_PRIVATE_KEY
+  is set; without it, returns the quote so you can pay with your own wallet).
+- Hosted, zero-install: POST /mcp (stateless Streamable HTTP). Free tools work
+  as-is. Paid tools return the x402 quote IN-BAND ({ paid:false, status:402,
+  quote, hint }). Retry the same tools/call with a PAYMENT-SIGNATURE header to
+  settle; the PAYMENT-RESPONSE header + decoded 'payment' field carry the
+  settlement receipt.
+
+Tools (free): x402_ecosystem_stats, x402_trust_leaderboard, x402_trust_preview,
+x402_verified_providers, x402_search, x402_semantic_search, x402_watch_events,
+x402_watch_edit, x402_watch_cancel. The list tools (leaderboard,
+verified_providers, search)
+return one page of at most 25 entries plus a total; page with the optional
+offset argument instead of pulling long lists into context at once.
+Tools (paid): x402_trust_score, x402_endpoint_history, x402_find_alternatives,
+x402_trust_bulk, x402_watch_create, x402_watch_renew.
+
+### MCP security
+
+- Use a burner wallet. X402_PRIVATE_KEY enables autonomous spending, so fund
+  a dedicated throwaway Base wallet with only what you are comfortable
+  spending on lookups (a few USDC is plenty; the default per-process cap
+  keeps a single run under $1.00). Never a primary or high-value wallet.
+- No auto-pay by default. Without X402_PRIVATE_KEY the server never spends:
+  paid tools return the x402 quote and your host pays. The free tools need no
+  configuration; a set-but-malformed key fails loudly and leaves auto-pay
+  off.
+- The wallet key never leaves the machine. It signs EIP-3009 USDC
+  transferWithAuthorization payloads locally for each paid call.
+- Every 402 quote is validated BEFORE signing. A 402 is fully
+  attacker-controlled (it picks chain, asset, payTo and amount), so the
+  server refuses to sign unless the network is an allow-listed chain (Base
+  mainnet by default), the asset is the canonical USDC contract for that
+  chain (never an arbitrary token), both addresses are well-formed, and the
+  amount is an integer. A malicious endpoint cannot redirect the payment.
+- Spend guards a hostile server cannot raise: per-call ceiling X402_MAX_USD
+  (default $0.05; 0 disables auto-pay), cumulative per-process cap
+  X402_MAX_TOTAL_USD (default $1.00), max paid calls X402_MAX_CALLS (default
+  1000). A runaway loop cannot drain the wallet.
+- Result integrity: tool results wrap the same provider-signed response the
+  API returns (Ed25519 over the JCS-canonicalized body). Verify against a
+  PINNED key, never against signature.publicKeys from the response you are
+  checking (full procedure in "Schema & stability"). Watch-management results
+  are unsigned by design because they carry capability secrets.
+- Webhook integrity: if a watch pushes to your HTTPS endpoint, verify the
+  x-signature header equals sha256= + HMAC-SHA256(body) keyed by
+  hex(sha256(secret)), NOT the raw secret. The delivery worker only ever
+  holds that hash.
+- The hosted transport (POST /mcp) is stateless and zero-install: a thin
+  loopback proxy onto our own API. The caller's Authorization header is never
+  forwarded, and the backend does all payment verification and settlement, so
+  the hosted endpoint holds no wallet or secret on your behalf.
+
+## Discovery & metadata files
+
+- /openapi.json: canonical machine schema (per x402scan strict-mode rules:
+  every paid path declares x-payment-info + a 402 response). The live 402
+  remains authoritative for pricing.
+- /schemas/<name>.schema.json: JSON Schema documents for every paid and free
+  DATA response. Each of those carries a $schema pointer plus schemaVersion and
+  schemaType, so you can validate the response before letting it influence a
+  decision. Operations responses (/health, /.well-known/x402, /mcp.json,
+  /api/activity.json, the localhost-only /metrics, and 402 payment bodies)
+  carry no envelope.
+- /.well-known/x402: the x402 scan/crawl contract (which paths are paywalled).
+- /.well-known/x402-trust-keys.json: the Ed25519 public keys for response
+  signature verification (current + retired keys, so frozen evidence stays
+  verifiable).
+- /mcp.json: MCP server manifests (stdio + hosted transport, full tool list).
+- /sitemap.xml, /robots.txt: human-crawl surfaces.
+
+## Schema & stability
+
+Every paid and free data response is self-describing. Top-level envelope
+fields on each of them:
+
+- $schema: absolute URL of the JSON Schema document for this response shape.
+- schemaVersion: semver for that schema (currently 1.0.0 across the board).
+- schemaType: discriminator naming the schema (identical to the endpoint, e.g.
+  "x402-trust" or "x402-history").
+
+Signed responses additionally carry a top-level signature object: an Ed25519
+signature over the JCS-canonicalized (RFC 8785) response WITHOUT the signature
+field, with the SHA-256 of those canonical bytes in signature.digest. Verify
+against a PINNED trust anchor: hardcode the keyId-to-publicKey mapping in your
+client, or pin the key document URL
+(https://x402-trust.com/.well-known/x402-trust-keys.json) and fetch it once at
+bootstrap. NEVER follow the signature.publicKeys URL from an unverified
+response: it is a discovery hint only, and a forged response would point at
+the attacker's own key document and still verify. The full procedure, a worked
+test vector, and a reference verifier are on /schemas. watch and watch-view
+responses are unsigned by design (they carry capability secrets). MCP tool
+results wrap the same signed HTTP response inside 'result'.
+
+The schemas are the compatibility contract, and they are lenient by design
+(additionalProperties: true at every level, not just the top). Compatibility
+rules:
+
+- Adding new optional fields is backward compatible and does not bump the
+  version.
+- Removing or renaming a field, or changing a field's semantics, is a new
+  major version.
+- Adding a new enum value (for example a new recommendation verdict) is a
+  documented version change, because a strict buyer may reject unknown values.
+
+The closed enums you should pin: recommendation is one of proceed, caution,
+avoid, parameterize, unverified, not-payable, free. grade is one of A, B, C,
+D, F, or "?" for unmeasured. "free" means the endpoint answers plain requests
+with data and never presented a payment challenge, so there is no payment
+flow to grade. Each flagsDetailed entry has a severity of info, warn, or
+error (error-severity flags mean avoid). Flag codes themselves are additive,
+not a closed enum: new codes appear as we find new failure modes, so treat
+unknown codes as informative rather than rejecting the response.
+
+## Making an x402 payment (for agents)
+
+1. POST the paid route with NO payment header. The server answers HTTP 402
+   with a JSON PaymentRequired body: { resource, accepts: [...] } and a
+   base64 PAYMENT-REQUIRED response header encoding the same JSON.
+2. Pick accepts[0]. Sign an EIP-3009 USDC transfer: asset = the quoted USDC
+   contract on the quoted network, amount = accept.amount (Exact scheme),
+   payTo = the quoted receiving address. NOTE the domain: mainnet USDC's
+   on-chain name is "USD Coin" (Base Sepolia test token: "USDC"). An EIP-712
+   domain mismatch fails recovery for EVERY payment. For templated per-item
+   endpoints, always pay the payTo in the LIVE 402 quote, never a cached one.
+3. Retry the SAME request with the Authorization-free header
+   PAYMENT-SIGNATURE (base64 of the signed PaymentPayload; legacy X-PAYMENT
+   also accepted). The server verifies, settles on-chain via the facilitator,
+   and answers. Replay protection: each nonce settles once, so do not reuse it.
+4. Settlement receipt: PAYMENT-RESPONSE response header (base64 settlement
+   response), also echoed legacy X-PAYMENT-RESPONSE.
+
+On 402 with the payment header present but settlement failing, the server
+refuses with a 402 and an error reason. The money was NOT taken.
+
+## Notes & limitations
+
+- probes originate from one EU vantage point; latency includes network
+  distance. See stats.latencyVantage on per-endpoint reports.
+- flags are only produced from double-confirmed observations (≥6h apart);
+  an RPC/fetch outage can never manufacture a false flag.
+- Score freshness: free /endpoint/:id pages, badges and cards serve a
+  precomputed cache (OBSERVER_SCORE_STALE_HOURS, default 24h) and stamp the
+  last recompute time in UTC. A paid trust call (POST /v1/x402-trust, or the
+  bulk tiers for the stale rows they recompute) refreshes the cached row, so
+  the free surfaces (page, badge, card) update immediately after one paid
+  call — the operator lever to rotate a stale badge right after an outage.
+- a delisted endpoint keeps being probed and keeps its grade as long as it
+  still answers ("delisted but alive"); only an endpoint that is delisted AND
+  unreachable for days collapses to "? no data".
+- new observability is the moat: every day of observation is history nobody
+  can backfill.

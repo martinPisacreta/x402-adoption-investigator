@@ -1,0 +1,367 @@
+{
+ "example": "01-seller-audit-textokit",
+ "removed_memory": {
+  "memory_id": "mem-seed-003",
+  "content": "receipts.json is self-reported by the seller; rows with ownWallet: true are self-settlement, not external demand.",
+  "entities": [
+   "source:receipts"
+  ],
+  "caveat_codes": [
+   "self_reported_receipts"
+  ]
+ },
+ "mode": "sample (same fixtures, same code, same input)",
+ "diff": {
+  "status": [
+   "ok",
+   "ok"
+  ],
+  "verdict": [
+   "self_settled_mostly",
+   "self_settled_mostly"
+  ],
+  "critique_rounds": [
+   1,
+   1
+  ],
+  "claims": [
+   19,
+   19
+  ],
+  "claim_changes": [
+   {
+    "claim_id": "c01",
+    "metric": "sales_total",
+    "caveats_lost": [],
+    "caveats_gained": [],
+    "memory_ids_lost": {
+     "self_reported_receipts": "mem-seed-003"
+    },
+    "status": [
+     "accepted",
+     "accepted"
+    ],
+    "confidence": [
+     0.9,
+     0.9
+    ]
+   },
+   {
+    "claim_id": "c02",
+    "metric": "own_wallet_sales",
+    "caveats_lost": [],
+    "caveats_gained": [],
+    "memory_ids_lost": {
+     "self_reported_receipts": "mem-seed-003"
+    },
+    "status": [
+     "accepted",
+     "accepted"
+    ],
+    "confidence": [
+     0.9,
+     0.9
+    ]
+   },
+   {
+    "claim_id": "c03",
+    "metric": "own_wallets_total",
+    "caveats_lost": [],
+    "caveats_gained": [],
+    "memory_ids_lost": {
+     "self_reported_receipts": "mem-seed-003"
+    },
+    "status": [
+     "accepted",
+     "accepted"
+    ],
+    "confidence": [
+     0.9,
+     0.9
+    ]
+   },
+   {
+    "claim_id": "c04",
+    "metric": "external_sales_total",
+    "caveats_lost": [],
+    "caveats_gained": [],
+    "memory_ids_lost": {
+     "self_reported_receipts": "mem-seed-003"
+    },
+    "status": [
+     "accepted",
+     "accepted"
+    ],
+    "confidence": [
+     0.9,
+     0.9
+    ]
+   },
+   {
+    "claim_id": "c05",
+    "metric": "external_usdc_atomic",
+    "caveats_lost": [],
+    "caveats_gained": [],
+    "memory_ids_lost": {
+     "self_reported_receipts": "mem-seed-003"
+    },
+    "status": [
+     "accepted",
+     "accepted"
+    ],
+    "confidence": [
+     0.9,
+     0.9
+    ]
+   },
+   {
+    "claim_id": "c06",
+    "metric": "external_payers_total",
+    "caveats_lost": [],
+    "caveats_gained": [],
+    "memory_ids_lost": {
+     "self_reported_receipts": "mem-seed-003"
+    },
+    "status": [
+     "accepted",
+     "accepted"
+    ],
+    "confidence": [
+     0.9,
+     0.9
+    ]
+   },
+   {
+    "claim_id": "c07",
+    "metric": "self_settlement_share",
+    "caveats_lost": [],
+    "caveats_gained": [],
+    "memory_ids_lost": {
+     "self_reported_receipts": "mem-seed-003"
+    },
+    "status": [
+     "accepted",
+     "accepted"
+    ],
+    "confidence": [
+     0.9,
+     0.9
+    ]
+   },
+   {
+    "claim_id": "c08",
+    "metric": "repeat_external_payers",
+    "caveats_lost": [],
+    "caveats_gained": [],
+    "memory_ids_lost": {
+     "self_reported_receipts": "mem-seed-003"
+    },
+    "status": [
+     "accepted",
+     "accepted"
+    ],
+    "confidence": [
+     0.9,
+     0.9
+    ]
+   },
+   {
+    "claim_id": "c09",
+    "metric": "top_payer_share",
+    "caveats_lost": [],
+    "caveats_gained": [],
+    "memory_ids_lost": {
+     "self_reported_receipts": "mem-seed-003"
+    },
+    "status": [
+     "accepted",
+     "accepted"
+    ],
+    "confidence": [
+     0.9,
+     0.9
+    ]
+   },
+   {
+    "claim_id": "c10",
+    "metric": "external_window",
+    "caveats_lost": [],
+    "caveats_gained": [],
+    "memory_ids_lost": {
+     "self_reported_receipts": "mem-seed-003"
+    },
+    "status": [
+     "accepted",
+     "accepted"
+    ],
+    "confidence": [
+     0.9,
+     0.9
+    ]
+   },
+   {
+    "claim_id": "c11",
+    "metric": "external_sales_by_service",
+    "caveats_lost": [],
+    "caveats_gained": [],
+    "memory_ids_lost": {
+     "self_reported_receipts": "mem-seed-003"
+    },
+    "status": [
+     "accepted",
+     "accepted"
+    ],
+    "confidence": [
+     0.9,
+     0.9
+    ]
+   },
+   {
+    "claim_id": "c12",
+    "metric": "external_sales_by_day",
+    "caveats_lost": [],
+    "caveats_gained": [],
+    "memory_ids_lost": {
+     "self_reported_receipts": "mem-seed-003"
+    },
+    "status": [
+     "accepted",
+     "accepted"
+    ],
+    "confidence": [
+     0.9,
+     0.9
+    ]
+   },
+   {
+    "claim_id": "c13",
+    "metric": "external_sales_30d",
+    "caveats_lost": [],
+    "caveats_gained": [],
+    "memory_ids_lost": {
+     "self_reported_receipts": "mem-seed-003"
+    },
+    "status": [
+     "accepted",
+     "accepted"
+    ],
+    "confidence": [
+     0.9,
+     0.9
+    ]
+   },
+   {
+    "claim_id": "c17",
+    "metric": "bazaar_payto_matches_seller",
+    "caveats_lost": [],
+    "caveats_gained": [],
+    "memory_ids_lost": {
+     "self_reported_receipts": "mem-seed-003"
+    },
+    "status": [
+     "accepted",
+     "accepted"
+    ],
+    "confidence": [
+     0.9,
+     0.9
+    ]
+   },
+   {
+    "claim_id": "c19",
+    "metric": "settlements_verified",
+    "caveats_lost": [
+     "self_reported_receipts"
+    ],
+    "caveats_gained": [],
+    "memory_ids_lost": {
+     "self_reported_receipts": "mem-seed-003"
+    },
+    "status": [
+     "accepted",
+     "accepted"
+    ],
+    "confidence": [
+     0.9,
+     0.9
+    ]
+   }
+  ],
+  "answer_sentences_only_with_memory": [
+   "Caveat [self_reported_receipts]: receipts are self-reported by the seller [mem-seed-003]; applies to [c01] [c02] [c03] [c04] [c05] [c06] [c07] [c08] [c09] [c10] [c11] [c12] [c13] [c17] [c19]"
+  ],
+  "answer_sentences_only_without_memory": [
+   "Caveat [self_reported_receipts]: receipts are self-reported by the seller; applies to [c01] [c02] [c03] [c04] [c05] [c06] [c07] [c08] [c09] [c10] [c11] [c12] [c13] [c17]"
+  ],
+  "memory_cited": [
+   [
+    "mem-seed-002",
+    "mem-seed-003",
+    "mem-seed-004",
+    "mem-seed-005",
+    "mem-seed-007"
+   ],
+   [
+    "mem-seed-002",
+    "mem-seed-004",
+    "mem-seed-005",
+    "mem-seed-007"
+   ]
+  ],
+  "memory_feedback": [
+   [
+    {
+     "memory_id": "mem-seed-002",
+     "kind": "helpful",
+     "reason": "caveat search_limit_20 required and attached to c14"
+    },
+    {
+     "memory_id": "mem-seed-003",
+     "kind": "helpful",
+     "reason": "caveat self_reported_receipts required and attached to c01"
+    },
+    {
+     "memory_id": "mem-seed-004",
+     "kind": "helpful",
+     "reason": "caveat third_party_aggregate required and attached to c18"
+    },
+    {
+     "memory_id": "mem-seed-005",
+     "kind": "helpful",
+     "reason": "caveat payer_from_transfer_log required and attached to c19"
+    },
+    {
+     "memory_id": "mem-seed-007",
+     "kind": "helpful",
+     "reason": "caveat basis_mismatch required and attached to c13"
+    }
+   ],
+   [
+    {
+     "memory_id": "mem-seed-002",
+     "kind": "helpful",
+     "reason": "caveat search_limit_20 required and attached to c14"
+    },
+    {
+     "memory_id": "mem-seed-004",
+     "kind": "helpful",
+     "reason": "caveat third_party_aggregate required and attached to c18"
+    },
+    {
+     "memory_id": "mem-seed-005",
+     "kind": "helpful",
+     "reason": "caveat payer_from_transfer_log required and attached to c19"
+    },
+    {
+     "memory_id": "mem-seed-007",
+     "kind": "helpful",
+     "reason": "caveat basis_mismatch required and attached to c13"
+    }
+   ]
+  ],
+  "memory_retrieved_count": [
+   7,
+   2
+  ]
+ }
+}

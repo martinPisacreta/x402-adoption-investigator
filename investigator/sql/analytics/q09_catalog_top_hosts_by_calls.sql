@@ -1,0 +1,1 @@
+SELECT host, calls_30d_sum, n_resources, catalog_calls_30d_sum FROM (SELECT host, SUM(calls_30d) AS calls_30d_sum, COUNT(*) AS n_resources, SUM(SUM(calls_30d)) OVER () AS catalog_calls_30d_sum FROM catalog_resources GROUP BY host) t ORDER BY calls_30d_sum DESC, host LIMIT 10

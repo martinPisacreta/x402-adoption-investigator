@@ -1,0 +1,20 @@
+{
+  "id": "q08_catalog_size",
+  "params": [],
+  "columns": {
+    "n_resources": "int",
+    "n_hosts": "int",
+    "n_pay_to": "int",
+    "calls_30d_sum": "int"
+  },
+  "expected_rows_bound": 1,
+  "sources": [
+    "cdp_catalog_snapshot"
+  ],
+  "fields": [
+    "resource",
+    "payTo",
+    "l30DaysTotalCalls"
+  ],
+  "ansi_only": true
+}

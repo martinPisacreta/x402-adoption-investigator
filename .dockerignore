@@ -1,0 +1,17 @@
+# Never bake secrets or runtime state into the image.
+.env
+.env.local
+*.local
+logs/*
+!logs/.gitkeep
+memory/state/*
+!memory/state/.gitkeep
+.git
+.gitignore
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+scratch/
+.vscode/
+.idea/

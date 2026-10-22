@@ -1,0 +1,17 @@
+{
+  "id": "q15_registry_count_trust_search",
+  "params": [],
+  "columns": {
+    "total_reported": "int",
+    "n_returned": "int"
+  },
+  "expected_rows_bound": 1,
+  "sources": [
+    "x402_trust"
+  ],
+  "fields": [
+    "total",
+    "results"
+  ],
+  "ansi_only": true
+}

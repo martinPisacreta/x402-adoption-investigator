@@ -1,0 +1,30 @@
+# secrets
+.env
+.env.local
+*.local
+
+# runtime logs (keep the folder)
+logs/*
+!logs/.gitkeep
+
+# live-mode persistent memory (sample mode uses memory/seed, committed)
+memory/state/*
+!memory/state/.gitkeep
+
+# python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+*.egg-info/
+
+# editors / os
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# per-run sqlite + tracebacks live under logs/ (already ignored)
+
+# scratch
+scratch/

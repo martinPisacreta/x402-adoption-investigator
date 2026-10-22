@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/pisacretamartin/x402-adoption-investigator/investigator/schemas/input.schema.json",
+  "title": "run.py input",
+  "description": "Request body for run.py (CLI --input file or stdin, or HTTP POST /run). SPEC.md section 4.2.",
+  "type": "object",
+  "required": ["input"],
+  "additionalProperties": false,
+  "properties": {
+    "run_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._-]{1,64}$",
+      "description": "Optional; default run-<utc compact>-<4 hex>. Examples pin it."
+    },
+    "input": {
+      "type": "object",
+      "required": ["question"],
+      "additionalProperties": false,
+      "properties": {
+        "question": { "type": "string", "minLength": 3, "maxLength": 1000 },
+        "focus": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "host": { "type": ["string", "null"], "maxLength": 253 },
+            "wallet": { "type": ["string", "null"], "pattern": "^0x[0-9a-fA-F]{40}$" },
+            "service": { "type": ["string", "null"], "maxLength": 200 },
+            "query": { "type": ["string", "null"], "maxLength": 200 }
+          }
+        },
+        "budget": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "max_seconds": { "type": "integer", "minimum": 1, "maximum": 600 },
+            "max_fetches": { "type": "integer", "minimum": 0, "maximum": 200 },
+            "max_sql": { "type": "integer", "minimum": 0, "maximum": 200 },
+            "max_generator_calls": { "type": "integer", "minimum": 0, "maximum": 12 },
+            "max_critic_rounds": { "type": "integer", "minimum": 0, "maximum": 4 },
+            "max_tx_verifications": { "type": "integer", "minimum": 0, "maximum": 20 },
+            "bazaar_pages": { "type": "integer", "minimum": 0, "maximum": 30 }
+          }
+        },
+        "options": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "catalog": { "enum": ["pages", "snapshot"] },
+            "zetaris_source": { "enum": ["captured", "direct"] }
+          }
+        }
+      }
+    }
+  }
+}

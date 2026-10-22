@@ -1,0 +1,20 @@
+{
+  "id": "q01_sales_by_wallet_class",
+  "params": [],
+  "columns": {
+    "own_wallet": "int",
+    "n_sales": "int",
+    "n_payers": "int",
+    "usdc_atomic": "int"
+  },
+  "expected_rows_bound": 2,
+  "sources": [
+    "receipts"
+  ],
+  "fields": [
+    "ownWallet",
+    "payer",
+    "amountAtomic"
+  ],
+  "ansi_only": true
+}

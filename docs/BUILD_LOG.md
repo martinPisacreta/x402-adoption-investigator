@@ -307,6 +307,14 @@ that were not true. Each was fixed in code where that was cheap and in the text 
   only the gaps between segments, the longest the 3.2 s after the run; 14 frames looked at (1, 60, 90, 114.9,
   115.4, 116.2, 125, 135, 144.5, 146.8, 150, 178, 190 and 205 s: slides 1, 5, 6, 9, 10 and 12, the run from its
   first frame to the closing note, the viewer).
+- Verified on the tree of da37be7: `python -m unittest discover -s tests` = 225 tests OK, 0 skips, in a fresh
+  default Windows clone (`core.autocrlf=true`, Python 3.11.9) and in the Docker image built from another fresh
+  clone (`--network none`, Python 3.11.17). In the Windows clone the eight example inputs ran with `--sample`
+  (exit 0; 01-03 `ok`, 04 `partial`) and rewrote the committed example files byte for byte,
+  `scripts/memory_ablation.py` reproduced `examples/memory-ablation/`, and `scripts/one_command.sh` (Git Bash) and
+  `scripts/one_command.ps1` (Windows PowerShell 5.1.26100) exited 0 with pytest absent; both picked the machine's
+  Python 3.13, on which the suite passed as well. In the image, `scripts/one_command.sh`, the default command and
+  `--sample --input examples/ex4.json` (status `partial`) exited 0.
 
 ## Cursor sessions (what was actually done in Cursor)
 

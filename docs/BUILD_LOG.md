@@ -342,7 +342,7 @@ Code session afterwards, which is why they have Claude Code trailers.
 - **Rules that mattered:** rule 2 (no invented pitch numbers), English copy, only the listed files.
 - **Later:** Claude Code rewrote that section in the fix rounds of the same day, for the 12-slide deck and the
   rebuilt video. The current text, including the video length it quotes, is Claude Code's; of the Cursor draft
-  only the link lines remain. The viewer, by contrast, is still the page this Cursor session wrote.
+  only the layout of the link lines remains. The viewer, by contrast, is still the page this Cursor session wrote.
 
 ## Later days
 

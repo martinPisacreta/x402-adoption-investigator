@@ -104,7 +104,7 @@
     "cursor": {
       "used": true,
       "required": "No. Cursor became optional on 2026-10-22 12:45 UTC (HackOS announcement: any AI coding tool).",
-      "what_was_done": "Two headless Cursor Agent CLI (cursor-agent) sessions on 2026-10-22, both under .cursor/rules/project.mdc: one built the static report viewer viewer/index.html (unchanged since), the other a first draft of the Pitch section of README.md, which Claude Code later rewrote for the 12-slide deck and the rebuilt video, keeping only its link lines. The git commits for that work (901b109, e654f59) were made afterwards from the Claude Code session, which is why they carry Claude Code trailers.",
+      "what_was_done": "Two headless Cursor Agent CLI (cursor-agent) sessions on 2026-10-22, both under .cursor/rules/project.mdc: one built the static report viewer viewer/index.html (unchanged since), the other a first draft of the Pitch section of README.md, which Claude Code later rewrote for the 12-slide deck and the rebuilt video, keeping the layout of its link lines. The git commits for that work (901b109, e654f59) were made afterwards from the Claude Code session, which is why they carry Claude Code trailers.",
       "rules": ".cursor/rules/project.mdc was written at the start of the build window as the architecture contract and given to every coding agent, Claude Code included.",
       "not_done_in_cursor": "Everything else (engines, agents, Zetaris layer, tests, examples, deck, narration, video and the current README Pitch text) was written by Claude Code.",
       "evidence": ["docs/BUILD_LOG.md", ".cursor/rules/project.mdc", "viewer/index.html"]

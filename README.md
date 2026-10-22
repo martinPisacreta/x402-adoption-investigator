@@ -443,8 +443,8 @@ same session, and so were the pre-submission verification and the fix rounds of 
 **Cursor** was required when the build started and became optional on 2026-10-22 at 12:45 UTC. Two scoped tasks
 were done in headless Cursor Agent CLI sessions: the static report viewer (`viewer/index.html`), which is still
 Cursor's page, and a first draft of the README Pitch section (a few lines linking the video and the deck). Claude
-Code rewrote that section in the fix rounds for the 12-slide deck and the rebuilt video, keeping only its link
-lines. The Cursor prompts said not to run git, so the commits that carry that work (901b109, e654f59) were made
+Code rewrote that section in the fix rounds for the 12-slide deck and the rebuilt video, keeping the layout of
+its link lines. The Cursor prompts said not to run git, so the commits that carry that work (901b109, e654f59) were made
 from the Claude Code session and have its trailers. OpenAI Codex was not used.
 
 `.cursor/rules/project.mdc` is the architecture contract (always applied, every file type): standard library only,

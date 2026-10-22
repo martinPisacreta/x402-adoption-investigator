@@ -491,7 +491,7 @@ Suites: World Model conformance (8/8), H-MEM conformance (13/13 vectors), adapte
 H-MEM investigator surface, fetcher and collector, settlement decoding, the Verifier, Zetaris views / executor /
 fallback matrix (faked HTTP), SQL dual backend (recorded Zetaris result sets == SQLite), Critic rules, the agents
 pipeline, the run contract (schemas, error codes, status rule, CLI exit codes, `--serve` HTTP statuses, `LOG_DIR`,
-the no-hardcoded-numbers grep),
+the wall-clock deadline in sample mode, the no-hardcoded-numbers grep),
 dual computation with a deliberately broken half (C2), example 04's organic C1 rejection, H-MEM injection into the
 generator prompts through an in-process OpenAI-compatible double plus `RecordedGenerator` replay, sample-mode
 offline proof, byte-for-byte reproducibility of the committed examples, and `metadata.json` (every path it names

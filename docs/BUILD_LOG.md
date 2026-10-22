@@ -260,7 +260,7 @@ it. A Claude Code agent replaced it; the scripts are in `docs/pitch/video/`:
   scale 1.5, `--lang=en-US`), then panned from the run header to the rejected claim with the sticky header kept on
   top. It takes the narration of slide 11; the slide 11 image is not shown.
 - Order: s01-s07, the recorded run, the viewer (s11), s08, s09, s10, s12, with 0.5 s crossfades. Output: 209.6 s
-  (3 min 30 s), 1920x1080, 30 fps, H.264 High yuv420p, AAC 44.1 kHz, `+faststart` (moov before mdat), 13.6 MB. The
+  (3 min 30 s; rebuilt in the last round below at 217.9 s), 1920x1080, 30 fps, H.264 High yuv420p, AAC 44.1 kHz, `+faststart` (moov before mdat), 13.6 MB. The
   terminal part needs a wide motion search (`me=umh:merange=256`); with the default range it alone was about 14 MB.
 - Checks on the file: `ffprobe` streams as above (6288 frames); `ffmpeg -v error` decode with no output; volumedetect
   mean -22.0 dB, max -4.1 dB; blackdetect found nothing; the only silences over 0.9 s are the gaps between segments.

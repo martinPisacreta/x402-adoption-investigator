@@ -240,7 +240,7 @@ def _sha(text: str) -> str:
 # ---------------------------------------------------------------------------------------------------------
 
 def refine_with_generator(ctx: "RunContext", question: str, focus: Focus, reinjection: str,
-                          playbook: str) -> tuple[Optional[dict[str, Any]], str]:
+                          playbook: str, memory_ids: Optional[list[str]] = None) -> tuple[Optional[dict[str, Any]], str]:
     """One prompts/planner.txt call (max_tokens 400) -> {playbook, hypotheses, extra_metrics} validated by
     plan.schema.json $defs/generator_response; one retry with the validator message appended; else None."""
     schema = load_schema("plan")
@@ -254,7 +254,8 @@ def refine_with_generator(ctx: "RunContext", question: str, focus: Focus, reinje
     prompt = base_prompt
     source = "rules"
     for attempt in (1, 2):
-        result = generate(ctx, "planner", "planner", prompt, max_tokens=PLANNER_MAX_TOKENS, attempt=attempt)
+        result = generate(ctx, "planner", "planner", prompt, max_tokens=PLANNER_MAX_TOKENS, attempt=attempt,
+                          reinjection=reinjection, memory_ids=memory_ids)
         if result is None:
             return None, source
         source = "recorded-generator" if result.recorded else "generator"
@@ -290,7 +291,7 @@ def run_planner(ctx: "RunContext") -> AgentResult:
     hypotheses: list[str] = []
     extra_metrics: list[str] = []
     planner_source = "rules"
-    refined, source = refine_with_generator(ctx, question, focus, reinjection, playbook)
+    refined, source = refine_with_generator(ctx, question, focus, reinjection, playbook, memory_ids)
     if refined is not None:
         planner_source = source
         proposed = refined.get("playbook")

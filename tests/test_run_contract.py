@@ -1,8 +1,8 @@
 """run.py I/O contract: schemas, error codes, the partial rule, and the sample-mode end-to-end runs (SPEC.md 4). Owner: B4.
 
 Written with unittest so it runs with `python -m unittest discover tests` (no pytest needed) and under pytest.
-Examples 01-03 are `ok` in sample mode and example 04 is `partial` (its Critic rejection is organic, see
-tests/test_example_04_critic.py). The status rule (any rejected claim -> `partial`) and the Critic's C4
+Examples 01-03 and 05 are `ok` in sample mode and example 04 is `partial` (its Critic rejection is organic, see
+tests/test_example_04_critic.py; example 05 replays two transient failures, see tests/test_retry.py). The status rule (any rejected claim -> `partial`) and the Critic's C4
 scope rule are exercised here with a metric registered only for the duration of one test, never shipped in the
 registry (rule 2 of .cursor/rules/project.mdc: no hardcoded demo answer).
 """
@@ -33,6 +33,7 @@ EXAMPLES = {
     "02-catalog-concentration": ("ex02-catalog-concentration", "catalog_concentration"),
     "03-payer-dossier-onchain": ("ex03-payer-dossier", "payer_dossier"),
     "04-payer-dossier-unverifiable": ("ex04-unverified", "payer_dossier"),
+    "05-payer-dossier-retry": ("ex05-retry", "payer_dossier"),
 }
 PITCH_NUMBERS = ("28462", "2713", "824796", "44000", "85.7")
 
@@ -92,8 +93,22 @@ class SampleRunContract(unittest.TestCase):
         types = {l["type"] for l in lines}
         for required in ("plan", "handoff", "fetch", "sql", "claim", "conflict", "critique", "narrative_map", "memory", "recovery"):
             self.assertIn(required, types, required)
-        self.assertNotIn("retry", types)
+        self.assertNotIn("retry", types, "example 01 has no fault script: every request answers on its first attempt")
         self.assertEqual(output["report_path"], "logs/ex01-seller-audit/report.md")
+
+    def test_committed_logs_match_the_payload_schema_of_each_event_type(self) -> None:
+        """Every line of every committed run.jsonl matches events.schema.json, its payload included
+        ($defs/payloads/<type>: required keys and, for retry and fetch, the typed retry fields)."""
+        schema = load_schema("events")
+        for folder in EXAMPLES:
+            path = REPO_ROOT / "examples" / folder / "run.jsonl"
+            for raw in path.read_text(encoding="utf-8").splitlines():
+                line = json.loads(raw)
+                errors = validate(line, schema)
+                payload_schema = schema["$defs"]["payloads"].get(line["type"])
+                self.assertIsNotNone(payload_schema, line["type"])
+                errors += validate(line["payload"], payload_schema, "$.payload", schema)
+                self.assertEqual(errors, [], f"{folder} seq {line['seq']}")
 
     def test_all_examples_pick_their_playbook(self) -> None:
         for folder, (run_id, playbook) in EXAMPLES.items():

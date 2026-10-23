@@ -355,3 +355,45 @@ Code session afterwards, which is why they have Claude Code trailers.
 ## Later days
 
 Entries are added here only for work actually done after 2026-10-22.
+
+### 2026-10-23 (from 00:10 UTC) — Claude Code: one retry policy for both modes, and example 05
+
+- **Tool:** Claude Code (Claude Opus 5.5), one agent of a workflow run from the same session. The deck, narration
+  and video were not touched: they were submitted on 2026-10-22 and do not mention example 05.
+- **Why:** the organizers' Day-2 guidance asks for evaluation or critique steps, retries, branching and shared
+  context, logged so judges can see how the agents reached their output. Critique, recoveries, playbook branching
+  and the World Model were in the committed logs; a `retry` was not, and the README said so. The LiveFetcher had
+  its own retry loop, but only a live failure could trigger it and no committed live trace had one.
+- **What changed:**
+  - `investigator/sources/retry.py`: `call_with_retries`, the one retry loop. Transient = HTTP 429 or 5xx,
+    timeout, connection error. 408 and 425, which the old loop retried, now stop at once like every 4xx other
+    than 429. Retries come from `RunConfig.fetch_retries` (`run.py --fetch-retries N`, default 2, clamped to 0-5);
+    backoff 500 ms then 1500 ms; a backoff that does not fit in what is left of `budget.max_seconds` is not taken
+    (the old loop slept regardless of the deadline). LiveFetcher really sleeps.
+  - Sample mode: `SampleClock.sleep` advances the deterministic clock by the backoff instead of waiting.
+    `FixtureFetcher` now runs every attempt through the same function; with a fault script
+    (`investigator/sources/transient.py`, convention in `fixtures/transient/README.md`) it raises the scripted
+    failure on its attempt, and the policy decides what happens next. Without a script the first attempt returns
+    exactly as before, so examples 01-04 came out of `scripts/regen_examples.py` byte-identical.
+  - Logs: a `retry` line now carries `stage`, `url`, `method`, `next_attempt`, `kind`, `http` and `replayed` (plus
+    `fault_file` for a replayed failure) and is emitted by the agent whose request it was (the Verifier's Base RPC
+    retries used to be labelled `collector`); the outcome `fetch` line carries `attempts` when more than one was
+    needed. `events.schema.json` types those fields and makes `stage` required; the Planner's re-ask line uses the
+    same meaning of `attempt` (the attempt that failed). The Collector's and Verifier's notes name each retried
+    request, and `sample_mode_notice` names the fault script and says whether it is simulated.
+  - `examples/05-payer-dossier-retry/` (`ex5.json`, run_id `ex05-retry`): example 03's input with
+    `fixtures/transient/05-payer-dossier-retry/faults.json`, written by hand and marked `simulated: true`: attempt 1
+    of the store's `receipts.json` answers 503, attempt 1 of the Base RPC receipt of `0x62c0...58c3` answers 429.
+    Generated with `scripts/regen_examples.py`, which now covers five examples.
+- **What example 05 shows, and what it does not:** two `retry` lines (seq 7, agent `collector`; seq 14, agent
+  `verifier`), each followed 500 ms later on the deterministic clock by the `fetch` of the same request key with
+  `attempts: 2` and the fixture's sha256, then example 03's pipeline (handoffs, verification, SQL, claims, critique
+  C1-C7 accepted in one round). Its 9 claims, verdict and answer equal example 03's. The failures are simulated, not
+  captured: no committed live trace needed a retry, so no real transient failure is on record.
+  `scripts/assert_idempotent.py` printed PASS on fresh sample runs of all five examples.
+- **Tests:** `tests/test_retry.py` (27 tests: the policy, the deadline cap, live and sample through the same function
+  on a fake HTTP layer with identical retry records, replayed faults, example 05 committed and re-run) and one test
+  in `tests/test_run_contract.py` that validates every committed log line against its payload schema (the schema's
+  description already said that file asserted the payload keys; nothing did). 225 -> 253 tests.
+  `tests/test_metadata.py` now checks the deck against `metadata.json` `tests.count_in_submitted_deck` (225), since
+  the submitted deck is not edited, and the README against the current count.

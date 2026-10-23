@@ -264,7 +264,8 @@ def refine_with_generator(ctx: "RunContext", question: str, focus: Focus, reinje
         if not errors:
             return data, source
         if attempt == 1:
-            ctx.log.emit("retry", "planner", {"target": "planner", "attempt": 2, "max_attempts": 2,
+            ctx.log.emit("retry", "planner", {"stage": "planner", "target": "planner", "attempt": 1, "next_attempt": 2,
+                                              "max_attempts": 2,
                                               "reason": "generator JSON failed plan.schema.json: " + "; ".join(errors[:3]),
                                               "backoff_ms": 0})
             prompt = base_prompt + "\n\nYour previous reply was invalid: " + "; ".join(errors[:5]) + \

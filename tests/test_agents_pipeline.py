@@ -184,7 +184,7 @@ class SellerAuditPipeline(unittest.TestCase):
         for required in ("plan", "handoff", "fetch", "ingest", "verify", "sql", "claim", "conflict", "critique",
                          "narrative_map", "memory", "recovery"):
             self.assertIn(required, types, required)
-        self.assertNotIn("retry", types, "sample mode replays fixtures: nothing is retried, so no retry is staged")
+        self.assertNotIn("retry", types, "example 01 has no fault script (fixtures/transient/): nothing is retried")
         self.assertEqual(types.count("ingest"), 2)
         critiques = [l for l in lines if l["type"] == "critique"]
         # The Analyst attaches every caveat the policy memories require, so round 1 is clean: the Critic logs one

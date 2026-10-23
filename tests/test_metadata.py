@@ -2,7 +2,9 @@
 
 - every repository path it names exists;
 - the test count it states is the number of tests unittest discovers in tests/ (this module included);
-- README.md and the deck source quote that same count, so the pitch cannot drift from the suite.
+- README.md quotes that same count, and the submitted deck source quotes the count recorded for it
+  (tests.count_in_submitted_deck): the deck, narration and video were submitted on 2026-10-22 and are not edited
+  afterwards, so the suite may have grown since, and metadata.json says by how much instead of the deck drifting.
 """
 from __future__ import annotations
 
@@ -48,13 +50,15 @@ class MetadataManifest(unittest.TestCase):
     def test_stated_test_count_is_the_discovered_count(self) -> None:
         suite = unittest.TestLoader().discover(str(TESTS_DIR), top_level_dir=str(TESTS_DIR))
         self.assertEqual(self.meta["tests"]["count"], suite.countTestCases(),
-                         "update tests.count in metadata.json, README.md and docs/pitch/deck.html")
+                         "update tests.count in metadata.json and the count README.md quotes")
 
-    def test_readme_and_deck_quote_the_same_count(self) -> None:
-        count = self.meta["tests"]["count"]
-        for rel in ("README.md", "docs/pitch/deck.html"):
+    def test_readme_quotes_the_count_and_the_deck_the_submitted_one(self) -> None:
+        expected = {"README.md": self.meta["tests"]["count"],
+                    "docs/pitch/deck.html": self.meta["tests"]["count_in_submitted_deck"]}
+        self.assertLessEqual(expected["docs/pitch/deck.html"], expected["README.md"])
+        for rel, count in expected.items():
             quoted = {int(n) for n in QUOTED_COUNT_RE.findall((REPO_ROOT / rel).read_text(encoding="utf-8"))}
-            self.assertEqual(quoted, {count}, f"{rel} quotes a test count other than metadata.json's")
+            self.assertEqual(quoted, {count}, f"{rel} quotes a test count other than the one metadata.json records for it")
 
 
 if __name__ == "__main__":

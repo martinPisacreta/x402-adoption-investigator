@@ -46,12 +46,14 @@ class NetworkGuard(unittest.TestCase):
                 urllib.request.urlopen("https://mainnet.base.org", timeout=1)
 
     def test_full_sample_pipeline_never_touches_a_socket(self) -> None:
-        """All four examples run with the guard installed first; every source comes from a fixture (replayed),
+        """All five examples run with the guard installed first; every source comes from a fixture (replayed),
         every fetch event says so, and any socket use would have surfaced as E_INTERNAL (NetworkDisabledError).
-        Example 04 is `partial` by design: the Critic rejects a claim its fixtures cannot support."""
+        Example 04 is `partial` by design: the Critic rejects a claim its fixtures cannot support. Example 05's two
+        retried requests are replayed too: the failed attempt comes from its fault script, the next from a fixture."""
         with tempfile.TemporaryDirectory() as tmp:
             config = build_config(type("Args", (), {"mode": "sample", "sample": True, "out": tmp})(), load_dotenv=False)
-            for example, status in (("ex1.json", "ok"), ("ex2.json", "ok"), ("ex3.json", "ok"), ("ex4.json", "partial")):
+            for example, status in (("ex1.json", "ok"), ("ex2.json", "ok"), ("ex3.json", "ok"), ("ex4.json", "partial"),
+                                    ("ex5.json", "ok")):
                 payload = json.loads((REPO_ROOT / "examples" / example).read_text(encoding="utf-8"))
                 envelope = run_investigation(payload, config, echo_stdout=False)
                 self.assertEqual(envelope["status"], status, (example, envelope.get("error")))

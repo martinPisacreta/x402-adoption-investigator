@@ -2,7 +2,7 @@
 
 Canonical layout (SPEC.md section 11): one folder per example with `input.json` and, produced by
 `scripts/regen_examples.py` in sample mode, `output.json`, `report.md`, `run.jsonl`, `sql.jsonl`,
-`hmem.trace.jsonl`. Outputs are never edited by hand; `tests/test_examples_reproducible.py` re-runs the four
+`hmem.trace.jsonl`. Outputs are never edited by hand; `tests/test_examples_reproducible.py` re-runs the five
 inputs and compares `output.json`, `run.jsonl`, `sql.jsonl`, `hmem.trace.jsonl` and `report.md` byte for byte (no
 committed file carries a machine path: `sql.jsonl` names exports as `logs/<run_id>/exports/<file>`).
 
@@ -12,15 +12,27 @@ committed file carries a machine path: `sql.jsonl` names exports as `logs/<run_i
 | `02-catalog-concentration/` | `ex02-catalog-concentration` | catalog_concentration | `ok` | 11 claims with coverage, Conflict `ecosystem_size`, the per-endpoint unique-payer counter reported as a max with the caveat from mem-seed-001 (never summed) |
 | `03-payer-dossier-onchain/` | `ex03-payer-dossier` | payer_dossier | `ok` | 9 claims, settlement decoded from the Transfer log, balance and nonce from the RPC fixtures (decoded twice: by the view layer for SQL, by the Verifier for the reducer) |
 | `04-payer-dossier-unverifiable/` | `ex04-unverified` | payer_dossier | `partial` | the same question about another external payer, whose one settlement is not in the RPC fixtures: the Analyst computes `verified_tx` = 0 (SQL and reducer agree), the Critic's rule C1 rejects it because no settlement of that wallet was decoded, the Writer's second round drops and names it, verdict `insufficient_evidence`; balance and nonce `unavailable` (`fixture_miss`) |
+| `05-payer-dossier-retry/` | `ex05-retry` | payer_dossier | `ok` | example 03's input with two transient failures replayed from `fixtures/transient/05-payer-dossier-retry/faults.json` (simulated: written by hand): the store's `receipts.json` answers 503 and the Base RPC receipt 429 on attempt 1; each is a `retry` line (500 ms backoff on the deterministic clock) and attempt 2 is served from the fixture; the same 9 claims, verdict and answer as example 03 |
 
-All 45 accepted claims of the four examples are computed twice (committed SQL on SQLite and a Python reducer) and
+All 54 accepted claims of the five examples are computed twice (committed SQL on SQLite and a Python reducer) and
 agree; example 04's rejected claim agreed too, which is why its rejection comes from C1 (evidence), not C2.
 Example 04 is not staged: its input differs from example 03 only in the wallet, the registry has no entry written
 for it, and the same transaction is `verified` in `live-trace/live-ex01-20261022/` (block 52,914,075), so the gap
 is the offline fixtures, exactly what the answer says. `tests/test_example_04_critic.py` checks the committed files
 and re-runs the input offline.
 
-Short paths: `ex1.json` to `ex4.json` are byte-identical copies of the four `input.json` files
+Example 05 is the committed log with retries. Its failures are scripted, not captured (no committed live trace
+needed a retry, so there is no real transient failure to replay), and both the fault file and the output's
+`sample_mode_notice` say so; the retry itself runs through `investigator/sources/retry.py`, the code live runs use.
+Each `retry` line in `05-payer-dossier-retry/run.jsonl` names the stage, the request key, the failed attempt, the
+reason and the backoff, and the next `fetch` line of that request key is the successful second attempt
+(`attempts: 2`). Against example 03's `output.json`, what differs is the `log://` references and `derivation.log_seq`
+(shifted by the two `retry` lines), the capture stamps of the three `fixture_miss` RPC elements (read from the clock after the
+backoffs), `report_path`, the `sample_mode_notice` and the Collector's and Verifier's notes; every number is equal.
+`tests/test_retry.py` checks the committed files and re-runs the input offline. The convention is in
+[`../fixtures/transient/README.md`](../fixtures/transient/README.md).
+
+Short paths: `ex1.json` to `ex5.json` are byte-identical copies of the five `input.json` files
 (`python run.py --sample --input examples/ex1.json`), and `outputs/exN.output.json` / `outputs/exN.report.md` are
 byte-identical copies of the corresponding `output.json` / `report.md`. The folders are the source of truth.
 

@@ -1,7 +1,10 @@
 """Collector: Plan.fetch_list -> Observations via the Fetcher; evidence index; raw exports (SPEC.md 6.2). Owner: B1.
 
-Executes the fetch_list in priority order (per request timeout 10 s, 2 retries at 0.5 s / 1.5 s on timeout/5xx
-inside LiveFetcher, each one a `retry` event; identifying User-Agent). Writes raw bytes to
+Executes the fetch_list in priority order (per request timeout 10 s; identifying User-Agent). Every request goes
+through the Fetcher's retry policy (sources/retry.py: 429, 5xx, timeouts and connection errors, 2 retries at
+0.5 s / 1.5 s by default, no backoff past the deadline); bind_fetcher() makes each retry one `retry` event whose
+agent is the stage that asked (collector here, verifier for the Base RPC calls), and the `fetch` event of a request
+that needed more than one attempt carries `attempts`. Writes raw bytes to
 logs/<run_id>/raw/<name>.<ext> and the parsed payload to logs/<run_id>/exports/<name>.json (what both SQL
 backends and the reducers read; what the artifact server serves). Live failure after retries -> the mounted
 FallbackFetcher serves the fixture with stale=True and the Collector logs recovery fixture_fallback; no fixture
@@ -27,7 +30,7 @@ from ..contracts import AgentResult, Observation, Plan
 from ..errors import InvestigatorError
 from ..sources import catalog as catalog_mod
 from ..sources import normalize
-from ..sources.fetcher import FetchError, _ext_for
+from ..sources.fetcher import FetchError, _ext_for, attempts_used
 from ..sources.registry import default_fetch_list
 
 if TYPE_CHECKING:
@@ -185,6 +188,42 @@ def absolute_path(ctx: "RunContext", portable: str) -> Path:
     return ctx.config.repo_root / path
 
 
+def bind_fetcher(ctx: "RunContext") -> None:
+    """Route the Fetcher's retries into the run: one `retry` event per retry, logged by the stage that made the
+    request (collector, or verifier for Base RPC) with that stage in the payload, and the run's deadline
+    (RunContext.time_left_ms) as the cap on every backoff."""
+    def on_retry(info: dict[str, Any]) -> None:
+        payload = {"stage": ctx.stage, **info}
+        ctx.scratch.setdefault("retries", []).append(payload)
+        ctx.log.emit("retry", ctx.stage or "collector", payload)
+
+    if hasattr(ctx.fetcher, "on_retry"):
+        ctx.fetcher.on_retry = on_retry
+    if hasattr(ctx.fetcher, "time_left_ms"):
+        ctx.fetcher.time_left_ms = ctx.time_left_ms
+
+
+def retry_notes(ctx: "RunContext", stage: str, observations: list[Observation]) -> list[str]:
+    """One agent note naming every request of `stage` that was retried and how it ended (empty when none was)."""
+    retries = [r for r in ctx.scratch.get("retries", []) if r.get("stage") == stage]
+    if not retries:
+        return []
+    by_key: dict[str, list[dict[str, Any]]] = {}
+    for entry in retries:
+        by_key.setdefault(str(entry.get("target")), []).append(entry)
+    final = {o.request_key: o for o in observations}
+    parts: list[str] = []
+    for key, entries in by_key.items():
+        obs = final.get(key)
+        last = entries[-1]
+        failed = "; ".join(f"attempt {e['attempt']}: {e['reason']}" for e in entries)
+        origin = f"; replayed from {last['fault_file']}" if last.get("fault_file") else ""
+        parts.append(f"{obs.name if obs else key} {obs.status if obs else 'unknown'} on attempt {last['next_attempt']} "
+                     f"of {last['max_attempts']} ({failed}{origin})")
+    count = len(retries)
+    return [f"{count} retr{'y' if count == 1 else 'ies'}: " + " | ".join(parts)]
+
+
 def record_observation(ctx: "RunContext", obs: Observation, attempted: bool = True) -> None:
     """fetch event + fetch.jsonl line, raw copy, export, and the recovery that explains any degradation."""
     data = _raw_bytes(ctx, obs) if obs.status == "ok" else None
@@ -196,6 +235,9 @@ def record_observation(ctx: "RunContext", obs: Observation, attempted: bool = Tr
         "bytes": len(data) if data is not None else 0, "sha256": obs.bytes_sha256, "latency_ms": obs.latency_ms,
         "replayed": obs.replayed, "stale": obs.stale, "status": obs.status, "request_key": obs.request_key,
     }
+    attempts = attempts_used(ctx.fetcher, obs.request_key) if attempted and obs.request_key else 1
+    if attempts > 1:                    # only a retried request says so: a first-attempt fetch line is unchanged
+        payload["attempts"] = attempts
     if obs.fixture_file:
         payload["fixture_file"] = obs.fixture_file
     if obs.error:
@@ -218,8 +260,7 @@ def fetch_all(ctx: "RunContext", plan: Plan, fetch_list: Optional[list[dict[str,
     """Run every fetch_list item through ctx.fetcher within budget.max_fetches; emit `fetch` events and
     fetch.jsonl lines; catalog snapshot from fixtures; export each observation; derived exports at the end."""
     items = ordered(fetch_list if fetch_list is not None else ensure_fetch_list(ctx, plan))
-    if hasattr(ctx.fetcher, "on_retry"):
-        ctx.fetcher.on_retry = lambda info: ctx.log.emit("retry", "collector", dict(info))
+    bind_fetcher(ctx)
     observations: list[Observation] = []
     deadline_passed = False
     for item in items:
@@ -363,4 +404,5 @@ def run_collector(ctx: "RunContext", plan: Plan) -> AgentResult:
     if not observations:
         return AgentResult("collector", "failed", [], notes=["fetch_list had no fetchable item (all deferred?)"])
     status, notes = collector_status(items, observations)
+    notes.extend(retry_notes(ctx, "collector", observations))
     return AgentResult("collector", status, observations, notes=notes)  # type: ignore[arg-type]

@@ -55,7 +55,10 @@ def build_parser() -> argparse.ArgumentParser:
                         help="live: do not drop the per-run Zetaris database/container at finalize")
     parser.add_argument("--hmem-sleep", dest="hmem_sleep", action="store_true",
                         help="live: execute the H-MEM sleep cycle after the preview")
-    parser.add_argument("--example", help="transcripts folder under fixtures/transcripts (default: by run_id)")
+    parser.add_argument("--example", help="fixtures folder name for recorded transcripts (fixtures/transcripts/) and "
+                                          "replayed transient faults (fixtures/transient/); default: by run_id")
+    parser.add_argument("--fetch-retries", dest="fetch_retries", type=int, metavar="N",
+                        help="retries per source request on 429, 5xx, timeouts and connection errors (0-5, default 2)")
     parser.add_argument("--serve", type=int, metavar="PORT", help="start an HTTP server: POST /run with the same JSON body")
     parser.add_argument("--host", default="127.0.0.1", metavar="ADDR",
                         help="--serve bind address (default 127.0.0.1; use 0.0.0.0 inside a container)")

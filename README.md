@@ -17,7 +17,7 @@ USDC, here on Base; the CDP Bazaar is Coinbase's x402 discovery catalog.)
 | **Problem** | Ask four registries and the store itself how many paid endpoints one store has and you get five answers: 17, 17, 17, 19 and 36. Three agree, two differ, and none says why. Activity disagrees too: 60 Bazaar calls in 30 days against 77 settled sales in the receipts, 56 of them paid by the seller itself. |
 | **What the agents do** | Seven roles in a bounded loop. Planner: playbook, sources, queries. Collector: fetch and hash. Keeper: Meterless World Model. Verifier: settlements decoded on Base. Analyst: every metric twice, in committed SQL and in a Python reducer. Writer: an answer where every number cites a claim. Critic: rules C1-C7 and a narrative pass; it rejects claims or sends the answer back. |
 | **Try it** | `python run.py --sample --input examples/ex1.json` from a clean clone: offline, no keys, Python 3.11 standard library only. Docker: `docker run --rm --network none x402-investigator`. [Quick start](#quick-start-clean-clone-one-command). |
-| **Critique and recovery** | Example 04 (`examples/ex4.json`): the Critic rejects a "0 verified" count that no decoded settlement supports, the Writer's second round drops and names it, status `partial`, verdict `insufficient_evidence`. [Examples](#examples). |
+| **Critique, recovery and retries** | Example 04 (`examples/ex4.json`): the Critic rejects a "0 verified" count that no decoded settlement supports, the Writer's second round drops and names it, status `partial`, verdict `insufficient_evidence`. Example 05 (`examples/ex5.json`): a 503 from the store and a 429 from the Base RPC, replayed from a hand-written fault script, are each retried after a logged backoff by the same retry code live runs use, and the answer comes out with example 03's numbers. [Examples](#examples). |
 | **Sponsor tech** | Zetaris Lightning SQL is the live federation layer; Meterless World Model and H-MEM are mounted and conformance-tested; Cursor (optional since 22 Oct): two Cursor Agent sessions, the report viewer and a first draft of the README Pitch section; NVIDIA: not used. [Summary](#sponsor-technology), machine-readable in [metadata.json](metadata.json). |
 | **Honesty** | No language model ran in any committed run: the generator-backed roles fell back to rules and templates ([Limitations](#limitations-and-honesty-notes)). Pre-existing: the author's own Automata store, used only as a data source ([declared](#pre-existing-components-declared)). |
 
@@ -130,7 +130,11 @@ every step and inside the loops, but a stage that is already running, such as fo
 interrupted, so a tight budget can end a few seconds late; in sample mode the logged timestamps come from the deterministic clock, which
 advances 1 ms per call and never reaches the deadline by itself, so the monotonic clock is what stops a slow sample
 run, `tests/test_run_contract.py`), `max_fetches`, `max_sql`,
-`max_generator_calls`, `max_critic_rounds`, `max_tx_verifications`; retries use a fixed 0.5 s / 1.5 s backoff.
+`max_generator_calls`, `max_critic_rounds`, `max_tx_verifications`. Source requests have one bounded retry policy
+in both modes (`investigator/sources/retry.py`): HTTP 429 and 5xx, timeouts and connection errors are retried,
+any other 4xx is not; at most `--fetch-retries` retries (default 2); a fixed 0.5 s / 1.5 s backoff, really slept in
+live mode and advanced on the deterministic clock in sample mode, and never taken when it would pass
+`max_seconds`; one `retry` event per retry, logged by the agent whose request it was (`tests/test_retry.py`).
 
 Exactly three mount points differ between live and sample mode and they are the first key of every output
 (`mounts`): the Fetcher (`live+fixture-fallback` | `fixture`), the SQL executor (`zetaris` | `sqlite`) and the
@@ -148,6 +152,7 @@ Microsoft Store `python3` stub on Windows is skipped; `scripts/one_command.ps1` 
 git clone https://github.com/martinPisacreta/x402-adoption-investigator && cd x402-adoption-investigator
 python run.py --sample --input examples/01-seller-audit-textokit/input.json --print-output
 python run.py --sample --input examples/ex4.json --print-output    # the Critic rejects a claim (example 04)
+python run.py --sample --input examples/ex5.json --print-output    # two requests fail once and are retried (example 05)
 ```
 
 The run is in sample mode: the first stdout line is `guard` (network disabled), then the JSONL event stream
@@ -181,7 +186,7 @@ wallet files, `logs/` and `memory/state/`); the two commands above were run on t
 ```
 python run.py --input <file|-> [--run-id ID] [--mode sample|live|auto] [--sample]
               [--require-zetaris] [--require-generator] [--zetaris-source captured|direct]
-              [--catalog pages|snapshot] [--out DIR] [--output FILE] [--print-output] [--quiet]
+              [--catalog pages|snapshot] [--fetch-retries N] [--out DIR] [--output FILE] [--print-output] [--quiet]
 python run.py --serve 8080        # POST /run with the same JSON body; GET /health
 ```
 
@@ -218,7 +223,7 @@ second and example 02 about 15 s (it folds the 32 MB catalog snapshot); the live
 Sample mode is the default whenever no credentials are configured (`--sample` or `SAMPLE_MODE=1` force it). It is
 proven offline, not asserted: `investigator/guard.py` patches `socket.socket.connect`, `connect_ex`,
 `create_connection`, `getaddrinfo` and `urllib.request.urlopen` before the first event, and
-`tests/test_sample_offline.py` runs the four examples with the guard installed (any socket use would surface as
+`tests/test_sample_offline.py` runs the five examples with the guard installed (any socket use would surface as
 `E_INTERNAL`). What is replayed:
 
 - 27 request keys over 26 files in `fixtures/raw/` captured read-only on 2026-10-22 (`MANIFEST.json` maps the
@@ -230,6 +235,13 @@ proven offline, not asserted: `investigator/guard.py` patches `socket.socket.con
 - The seven seed pitfall memories (`memory/seed/`) copied into `logs/<run_id>/hmem/`; live runs use `memory/state/`.
 - The committed SQL executed by the SQLite view layer; `fixtures/zetaris/qNN_*.json` are the result sets the real
   Zetaris instance produced for the same exports, and `tests/test_sql_dual_backend.py` proves both backends agree.
+- Transient failures, only where an example scripts them: `fixtures/transient/<example>/faults.json` names the
+  attempts of a request key that fail (an HTTP status, a timeout or a reset), and every other attempt is served
+  from the fixture. The failure goes through the same retry function as a live one, which decides whether to retry
+  and how long to back off (on the deterministic clock), so the log shows real policy decisions over a scripted
+  failure. Only example 05 has a script, and it is simulated: written by hand, not captured from the sources (no
+  committed live trace needed a retry); its `sample_mode_notice` says so. Convention:
+  [fixtures/transient/README.md](fixtures/transient/README.md).
 - No model call: the generator mount is `null`, Planner and Writer use rules and templates and the Critic runs its
   deterministic rules only. No transcript was recorded because no `OPENAI_API_KEY` was available during the build
   window (honesty note below); `RecordedGenerator` replays `fixtures/transcripts/` when they exist.
@@ -291,7 +303,7 @@ whose `source.runId` is missing. The Keeper asserts every accepted claim as such
 (`tests/test_meterless_keeper.py`). Idempotent ingest is proven in every run: the Keeper re-ingests the same
 observations at the end and writes `output.world.second_pass = {eventsAppended: 0, changed: false}`;
 `python scripts/assert_idempotent.py logs/<run_id>` replays the run's observation manifest into a fresh model twice
-and exits 0 only when nothing differs (PASS on the four examples).
+and exits 0 only when nothing differs (PASS on the five examples).
 
 **H-MEM** (`investigator/hmem/`: `types.py`, `embeddings.py`, `ledger.py`, `store.py`, `retrieval.py`, `mining.py`,
 `sleep.py`, `conflicts.py`, `dreaming.py`, `facade.py`) is the memory that adds the caveats a claim must carry.
@@ -367,10 +379,14 @@ the syntax facts learned on the instance are in [docs/ZETARIS.md](docs/ZETARIS.m
 `logs/<run_id>/run.jsonl` is mirrored to stdout line by line: `{"seq", "at", "run_id", "type", "agent", "payload"}`
 with types `guard`, `run_start`, `plan`, `handoff`, `fetch`, `retry`, `recovery`, `ingest`, `verify`, `crosscheck`,
 `sql`, `claim`, `conflict`, `critique`, `narrative_map`, `memory`, `timeout`, `result`, `error` (schema in
-`investigator/schemas/events.schema.json`, validated line by line in the tests). `retry` is emitted only for a real
-retry (the live Fetcher's 0.5 s / 1.5 s backoff on timeouts, connection errors and 5xx, `tests/test_fetcher.py`);
-sample runs replay fixtures and carry none, and a second Writer round is a `handoff` from the Critic with its
-issues, not a retry. Side files share the same `seq`
+`investigator/schemas/events.schema.json`, validated line by line, payload included, in the tests). A `retry` line
+is written for each retried request, before its backoff, by the agent that made the request (`collector`, or
+`verifier` for Base RPC): `{stage, target (the request key), url, method, attempt (the one that failed),
+next_attempt, max_attempts, reason, kind, http, backoff_ms, replayed}` plus `fault_file` when the failure was
+replayed from a fault script; the outcome is the next `fetch` line of the same `request_key`, which carries
+`attempts` whenever more than one was needed. Example 05 is the committed log with retries (two, both replayed
+from a simulated fault script); examples 01-04 have none. A second Writer round is a `handoff` from the Critic with
+its issues, not a retry. Side files share the same `seq`
 counter so `log://<run_id>#<seq>` is unambiguous: `fetch.jsonl` (request keys, sha256, export and raw paths written
 run-relative as `logs/<run_id>/...` even when `--out` points elsewhere, never as a machine path), `sql.jsonl`
 (SQL text, params, headers, first rows, executor, Zetaris version, tables with `source_url` = the export path
@@ -386,12 +402,13 @@ claim is rejected: example 04's C1 on `verified_tx`, followed by a `handoff` cri
 `recovery{narrative_trimmed}` naming the claim), `memory` `op: "inject"` lines when a generator is mounted, a
 `narrative_map` with
 `unsourced: []`, `verify` lines with `receipt_match`, `recovery` lines for every fallback (`fixture_miss` in the
-sample seller audit, `zetaris_unreachable` / `generator_fallback` in the degraded live trace), and `ingest` pass 2
-with `eventsAppended: 0`.
+sample seller audit, `zetaris_unreachable` / `generator_fallback` in the degraded live trace), `retry` lines each
+followed by the `fetch` of the same request key with `attempts: 2` (example 05), and `ingest` pass 2 with
+`eventsAppended: 0`.
 
 ## Examples
 
-Four inputs with their outputs are committed under `examples/` (`exN.json` are short aliases of the folder inputs,
+Five inputs with their outputs are committed under `examples/` (`exN.json` are short aliases of the folder inputs,
 `examples/outputs/exN.output.json` byte-identical copies of the outputs); `scripts/regen_examples.py` is the only
 way they are updated and `tests/test_examples_reproducible.py` keeps them honest.
 
@@ -401,17 +418,30 @@ way they are updated and `tests/test_examples_reproducible.py` keeps them honest
 | `02-catalog-concentration` (`ex2.json`) | Who sells on the CDP Bazaar and how concentrated are the paid calls? What share of listed endpoints saw any call in the last 30 days? | `concentrated` (0.9) | `ok` | 28,462 resources (coverage 28,462 of 28,472 reported, 0.9996); 2,680 hosts; 1,785 payTo wallets; 824,796 calls; active 28,347/28,462 = 99.6 %; top host `www.ax1.vc` 243,580 = 29.5 %; top-10 hosts 604,248 = 73.3 %; top payTo 29.5 %; most listings `saylorinnovations.com` 1,568; largest per-endpoint unique-payer counter 2,708 (caveat `unique_payers_not_dedupable` from `mem-seed-001`); x402-trust 286,358 listed / 210,375 active (Conflict k01 `ecosystem_size`) |
 | `03-payer-dossier-onchain` (`ex3.json`) | What do we know about payer 0x097e...475a, what it bought from tienda.textokit.store, can the settlement be verified on Base? | `adoption_thin` (0.9) | `ok` | 1 purchase, 1,000 atomic USDC, 1 service, 2026-10-20T04:51Z; settlement verified: payer and seller from the Transfer log, 1,000 atomic, block 52,841,269, facilitator `0x8f5c...e531`, `receipt_match: true`; USDC balance 1,043,148 atomic (1.043148 USDC) and nonce 24 at capture (SQL decodes the RPC hex in the view layer, the reducer reads the Verifier's decoding) |
 | `04-payer-dossier-unverifiable` (`ex4.json`) | The same question about payer 0xA1d1...1978 | `insufficient_evidence` (0.0) | `partial` | 1 purchase, 1,000 atomic USDC, 1 service, 2026-10-21T21:18Z; its settlement is not in the RPC fixtures (`unverifiable: fixture_miss`), so `verified_tx` = 0 (SQL and reducer agree) is rejected by the Critic's rule C1 and dropped and named by the Writer's second round; balance and nonce `unavailable` (`fixture_miss`); the same settlement is `verified` in `examples/live-trace/live-ex01-20261022` |
+| `05-payer-dossier-retry` (`ex5.json`) | Example 03's question, with two transient failures replayed from `fixtures/transient/05-payer-dossier-retry/faults.json` (simulated) | `adoption_thin` (0.9) | `ok` | attempt 1 of the store's `receipts.json` answers 503 (Collector) and attempt 1 of the Base RPC receipt of `0x62c0...58c3` answers 429 (Verifier): two `retry` lines with a 500 ms backoff each on the deterministic clock, then the fixture on attempt 2 (`fetch` with `attempts: 2`); handoffs, verification, SQL, claims and critique as in example 03, and the same 9 claims, verdict and answer (`tests/test_retry.py`) |
 
 Examples 01-03 are `ok`: every planned source answered (from fixtures), every claim passed C1-C7 in one round
-and, in 01 and 03, the one settlement the fixtures cover decodes and matches. Example 04 is `partial` because the
-Critic rejected a claim: its input differs from example 03 only in the wallet, and nothing in the registry is
-written for it (`tests/test_example_04_critic.py` checks the committed files and re-runs it offline). The other
+and, in 01 and 03, the one settlement the fixtures cover decodes and matches. Example 05 is `ok` for the same
+reasons as 03: its two failed attempts were retried and the second attempts answered, which degrades nothing.
+Example 04 is `partial` because the Critic rejected a claim: its input differs from example 03 only in the wallet,
+and nothing in the registry is written for it (`tests/test_example_04_critic.py` checks the committed files and re-runs it offline). The other
 rejection paths are proven by tests with a deliberately broken half: `tests/test_dual_computation.py` (an
 off-by-one reducer leaves an open `backend_disagreement` Conflict and C2 rejects the claim; an SQL budget of five
 rejects every claim whose query never ran; with no SQL executor at all nothing survives) and
 `tests/test_run_contract.py` (C4, with a metric that exists only inside that test). `examples/memory-ablation/` is
 a further committed run pair: the same example 01 with and without one seed memory, and the diff between the two
 outputs (`summary.json`).
+
+Example 05 is how a retry is shown offline. Its input is example 03's (only the `run_id` differs), and its fault
+script makes the first attempt of two request keys fail as a live request can: 503 from the store, 429 from the
+public RPC. Those failures are simulated, written by hand on 2026-10-23, and the output's `sample_mode_notice`
+says so; what is not simulated is the code that handles them: the same `call_with_retries` that live runs use
+classifies each failure as transient, logs the `retry`, spends the 500 ms backoff (here on the deterministic
+clock, so the next line's `at` is 500 ms later; live mode sleeps) and serves the second attempt. The run then
+continues exactly as example 03 and its claims, verdict and answer are identical to example 03's; the `log://`
+references shift by the two extra lines and the capture stamps of the three `fixture_miss` RPC elements come after
+the backoffs (`tests/test_retry.py` checks all of this, and that a permanent 4xx is not retried and a failure on
+every attempt stops at the limit).
 
 ## Viewer
 
@@ -485,21 +515,24 @@ on 2026-10-22 between 00:02 and 00:08 UTC.
 ## Tests
 
 ```
-python -m unittest discover -s tests     # 225 tests, no third-party dependency
+python -m unittest discover -s tests     # 253 tests, no third-party dependency
 python -m pytest -q                      # same suite under pytest if installed
 ```
 
 Suites: World Model conformance (8/8), H-MEM conformance (13/13 vectors), adapters over the fixtures, Keeper and
-H-MEM investigator surface, fetcher and collector, settlement decoding, the Verifier, Zetaris views / executor /
-fallback matrix (faked HTTP), SQL dual backend (recorded Zetaris result sets == SQLite), Critic rules, the agents
-pipeline, the run contract (schemas, error codes, status rule, CLI exit codes, `--serve` HTTP statuses, `LOG_DIR`,
-the wall-clock deadline in sample mode, the no-hardcoded-numbers grep),
+H-MEM investigator surface, fetcher and collector, the retry policy (transient vs permanent failures, the limit,
+the backoff and its budget cap, live and sample through the same function on a fake HTTP layer, example 05),
+settlement decoding, the Verifier, Zetaris views / executor / fallback matrix (faked HTTP), SQL dual backend
+(recorded Zetaris result sets == SQLite), Critic rules, the agents pipeline, the run contract (schemas and the
+payload schema of every committed log line, error codes, status rule, CLI exit codes, `--serve` HTTP statuses,
+`LOG_DIR`, the wall-clock deadline in sample mode, the no-hardcoded-numbers grep),
 dual computation with a deliberately broken half (C2), example 04's organic C1 rejection, H-MEM injection into the
 generator prompts through an in-process OpenAI-compatible double plus `RecordedGenerator` replay, sample-mode
 offline proof, byte-for-byte reproducibility of the committed examples, and `metadata.json` (every path it names
-exists, its test count is the discovered one, and README and deck quote the same count).
+exists, its test count is the discovered one and README quotes it; the deck, submitted on 2026-10-22, quotes the
+count of that day, which `metadata.json` records as `tests.count_in_submitted_deck`).
 
-On 2026-10-22, on the tree of da37be7, the suite ran green (225 tests, 0 failures, 0 skips) in a fresh Windows
+On 2026-10-22, on the tree of da37be7, the suite of that day ran green (0 failures, 0 skips) in a fresh Windows
 clone with the Git for Windows default `core.autocrlf=true` (Python 3.11.9) and in the Docker image built from
 another fresh clone (`docker run --network none ... -m unittest discover -s tests`, Python 3.11.17); earlier rounds
 also checked a `core.autocrlf=false` clone (docs/BUILD_LOG.md). In the Windows clone, `python run.py --sample` on
@@ -529,12 +562,13 @@ are records of live runs and are not re-run offline.
   reason.
 - **Sample mode verifies one settlement.** The fixtures cover one transaction; the other sampled hashes are
   `unverifiable: fixture_miss`. Live runs verify 4 of 4 (`examples/live-trace/`).
-- **Where critique and recovery show up.** Examples 01-03 finish in one Critic round: the Analyst already attaches
-  what the pitfall memories require. Example 04 shows a real rejection (C1), a second Writer round and the
-  recoveries behind it. Sample mode never emits `retry` (fixtures do not time out): the Fetcher's retries are
-  covered by unit tests and can only occur in live runs (none of the committed live traces needed one), and the live
-  traces show the real recoveries (`zetaris_unreachable`, `generator_fallback`). The C2 and C4 rejection paths are proven by tests with
-  deliberately broken halves, not by a committed example.
+- **Where critique, recovery and retries show up.** Examples 01-03 and 05 finish in one Critic round: the Analyst
+  already attaches what the pitfall memories require. Example 04 shows a real rejection (C1), a second Writer round
+  and the recoveries behind it. Example 05 is the only committed log with `retry` lines, and the failures it retries
+  are simulated (a hand-written fault script in sample mode), not captured: none of the committed live traces needed
+  a retry, so no real transient failure is on record. The retry code itself is the one live runs use, tested on a
+  fake HTTP layer. The live traces show the real recoveries (`zetaris_unreachable`, `generator_fallback`). The C2
+  and C4 rejection paths are proven by tests with deliberately broken halves, not by a committed example.
 - **Memory changes caveats and citations, not the verdict**, in these examples: `examples/memory-ablation/`
   measures exactly what one seed memory adds (a caveat on one claim, a citation on fifteen, feedback entries) and
   shows the verdict label unchanged.

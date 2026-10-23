@@ -458,6 +458,7 @@ def run_verifier(ctx: "RunContext", plan: Plan, observations: list[Observation])
     notes.insert(0, f"{len(sample)} tx sampled ({plan.tx_sample_rule}): {counts['verified']} verified, {counts['failed']} failed, "
                     f"{counts['unverifiable']} unverifiable ({reason_text}); chain facts: {len(chain_facts)}; "
                     f"cross-checks: {len(crosschecks)}; settlements export: {export_note}")
+    notes.extend(collector_mod.retry_notes(ctx, "verifier", client.observations))
     status = "degraded" if (rpc_down or wrong_chain or deadline_skipped) else "ok"
     payload.update({"verifications": verifications, "crosschecks": crosschecks, "conflicts": conflicts,
                     "chain_facts": chain_facts, "settlements": settlements, "observations": list(client.observations)})

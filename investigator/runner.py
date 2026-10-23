@@ -33,7 +33,7 @@ from .errors import InvestigatorError
 from .eventlog import EventLog
 from .generator import build_generator
 from .guard import NetworkDisabledError, install_network_guard
-from .sources.fetcher import build_fetcher
+from .sources.fetcher import build_fetcher, fixture_fetcher_for
 from .sources.manifest import Manifest, load_manifest
 from .zetaris.executor import build_executor
 
@@ -247,12 +247,12 @@ def build_context(run_id: str, inp: RunInput, config: RunConfig, echo_stdout: bo
         patched = install_network_guard()
         log.emit("guard", "runner", {"network": "disabled", "patched": patched})
 
-    fetcher = build_fetcher(config, manifest, clock, run_dir)
+    example_name = config.example_name or find_example_name(config, run_id)
+    fetcher = build_fetcher(config, manifest, clock, run_dir, example_name)
     try:
         executor = build_executor(config, run_dir, log, run_id, zetaris_source=inp.options.get("zetaris_source"))
     except TypeError:
         executor = build_executor(config, run_dir, log, run_id)
-    example_name = config.example_name or find_example_name(config, run_id)
     generator = build_generator(config, example_name)
 
     if config.mode == "live" and config.require_zetaris and not config.env.has_zetaris():
@@ -394,7 +394,8 @@ def run_pipeline(ctx: RunContext) -> dict[str, Any]:
             break
         issues = list(critic_payload.issues)
         # The next round is a revision driven by the Critic's issues (the `handoff` critic -> writer carries them),
-        # not a retry of a failed operation: `retry` events are reserved for real retries (fetcher backoff, generator).
+        # not a retry of a failed operation: `retry` events are reserved for retried requests (the Fetcher's retry
+        # policy, sources/retry.py) and the Planner's one re-ask after an invalid generator reply.
     finalize_claims(ctx, claims, rounds)
     if answer is None:
         answer = writer.render_template(claims, conflicts, unavailable, compute_verdict(plan.playbook, []), None, [], False, rounds)
@@ -438,6 +439,13 @@ def run_pipeline(ctx: RunContext) -> dict[str, Any]:
         captured = ctx.mounts.fixtures_captured_at or "unknown date"
         output["sample_mode_notice"] = (
             f"This run replayed committed fixtures captured {captured}; no network, no model calls.")
+        faults = getattr(fixture_fetcher_for(ctx.fetcher), "faults", None)
+        if faults is not None:
+            origin = ("simulated: written by hand, not captured from the sources" if faults.simulated
+                      else "captured from the sources")
+            output["sample_mode_notice"] += (
+                f" It also replayed the {faults.count()} transient failure(s) scripted in {faults.rel_path} ({origin}) "
+                "through the retry policy live runs use; the `retry` events in run.jsonl show each one.")
     if stub_notes:
         output["scaffold_notice"] = (
             "SCAFFOLD: some modules are still stubs, so parts of this run were skipped and are reported as such. "

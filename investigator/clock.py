@@ -1,7 +1,8 @@
 """Clock protocol: SystemClock for live runs, SampleClock for deterministic sample runs (SPEC.md section 3).
 
 SampleClock starts at a fixed instant (MANIFEST.fetchedAt) and advances exactly 1 ms per call, so every `at`
-field in the logs of a sample run is reproducible byte for byte.
+field in the logs of a sample run is reproducible byte for byte. sleep() is how a retry backoff is spent: the
+SystemClock really waits, the SampleClock moves forward by the backoff without waiting (sources/retry.py).
 """
 from __future__ import annotations
 
@@ -32,6 +33,7 @@ def parse_iso_ms(iso: str) -> int:
 class Clock(Protocol):
     def now_iso(self) -> str: ...
     def now_ms(self) -> int: ...
+    def sleep(self, seconds: float) -> None: ...
 
 
 class SystemClock:
@@ -44,6 +46,9 @@ class SystemClock:
 
     def now_iso(self) -> str:
         return iso_from_ms(self.now_ms())
+
+    def sleep(self, seconds: float) -> None:
+        time.sleep(max(0.0, seconds))
 
 
 class SampleClock:
@@ -63,3 +68,7 @@ class SampleClock:
 
     def now_iso(self) -> str:
         return iso_from_ms(self.now_ms())
+
+    def sleep(self, seconds: float) -> None:
+        """Advance the clock by `seconds` (rounded to ms) without waiting: a replayed backoff is deterministic."""
+        self._ticks += max(0, int(round(seconds * 1000)))

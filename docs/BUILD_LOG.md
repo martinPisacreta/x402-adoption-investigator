@@ -397,3 +397,12 @@ Entries are added here only for work actually done after 2026-10-22.
   description already said that file asserted the payload keys; nothing did). 225 -> 253 tests.
   `tests/test_metadata.py` now checks the deck against `metadata.json` `tests.count_in_submitted_deck` (225), since
   the submitted deck is not edited, and the README against the current count.
+- **Verified on the tree of 53dc069:** `python -m unittest discover -s tests` = 253 tests OK, 0 skips, in the author
+  tree, in a fresh default Windows clone (`core.autocrlf=true`, Python 3.11.9, cloned into a short temporary path)
+  and in the Docker image built from a fresh `core.autocrlf=false` clone (`--network none`, Python 3.11.17). In the
+  Windows clone the ten example inputs ran with `--sample` (exit 0; 01-03 and 05 `ok`, 04 `partial`) and rewrote
+  the committed example files byte for byte, and `scripts/memory_ablation.py` reproduced
+  `examples/memory-ablation/`. In the image, `--sample --input examples/ex5.json` exited 0 (`ok`, its five files
+  byte-identical to the committed ones, the two `retry` lines at seq 7 and 14), and the default command,
+  `--sample --input examples/ex4.json` and `scripts/one_command.sh` exited 0. The one-command scripts were not
+  re-run on Windows in this round. The image was removed afterwards.

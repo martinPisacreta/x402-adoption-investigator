@@ -176,7 +176,7 @@
     "count_in_submitted_deck": 225,
     "count_note": "docs/pitch/deck.html, deck.pdf, narration.txt and demo.mp4 were submitted on 2026-10-22 with the 225 tests of that day and are not edited afterwards; the 28 tests added on 2026-10-23 cover the retry policy and example 05 (tests/test_retry.py) and the payload schema of every committed log line (tests/test_run_contract.py).",
     "third_party_dependencies": "none",
-    "verified": "Green (0 failures, 0 skips) on 2026-10-22 on the tree of da37be7 in a fresh Windows clone with the default core.autocrlf=true (Python 3.11.9) and in the Docker image built from a fresh clone (--network none, Python 3.11.17); earlier rounds also checked a clone with core.autocrlf=false."
+    "verified": "Green (253 tests, 0 failures, 0 skips) on 2026-10-23 on the tree of 53dc069 in the author tree, in a fresh Windows clone with the default core.autocrlf=true (Python 3.11.9) and in the Docker image built from a fresh core.autocrlf=false clone (--network none, Python 3.11.17), where example 05 also ran and wrote its committed files byte for byte; the round of 2026-10-22 (tree da37be7) also checked a core.autocrlf=false Windows clone and the one-command scripts on Windows."
   },
   "docs": ["README.md", "SPEC.md", "docs/BUILD_LOG.md", "fixtures/transient/README.md", "docs/METERLESS.md", "docs/ZETARIS.md", "docs/DEMO_SCRIPT.md", "examples/README.md", "examples/live-trace/README.md", "docs/pitch/deck.pdf", "docs/pitch/deck.html", "docs/pitch/narration.txt", "docs/pitch/demo.mp4", "docs/pitch/video/build_video.py", "docs/pitch/video/run-capture.json"],
   "limitations": [

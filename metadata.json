@@ -142,7 +142,7 @@
       "name": "Automata agent and its x402 store https://tienda.textokit.store",
       "owner": "The author (Martin Pisacreta, Team Automata).",
       "built": "Before the build window (before 2026-10-22).",
-      "use_here": "Only as a live, read-only public data source and the subject of examples 01, 03 and 04 and of the live traces (receipts.json, openapi.json). Its receipts are treated as self-reported (caveat self_reported_receipts, memory mem-seed-003) and checked against the chain. Example 01's finding that 56 of its 77 sales were self-settled is about the author's own store.",
+      "use_here": "Only as a live, read-only public data source and the subject of examples 01, 03, 04 and 05 and of the live traces (receipts.json, openapi.json). Its receipts are treated as self-reported (caveat self_reported_receipts, memory mem-seed-003) and checked against the chain. Example 01's finding that 56 of its 77 sales were self-settled is about the author's own store.",
       "code_in_repo": "None."
     },
     {

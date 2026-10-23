@@ -1,17 +1,22 @@
 """Fetcher implementations (SPEC.md section 7.2). Owner: B1.
 
-- LiveFetcher: urllib, per-request timeout, 2 retries (0.5 s / 1.5 s) on timeout / connection errors / 5xx /
-  429, gzip accepted, sha256 of the raw body bytes, identifying User-Agent; never stores or logs request
-  headers. A failed request after the last attempt raises FetchError (a 4xx other than 429 fails at once).
+- LiveFetcher: urllib, per-request timeout, gzip accepted, sha256 of the raw body bytes, identifying User-Agent;
+  never stores or logs request headers. Attempts run through sources/retry.call_with_retries: HTTP 429 / 5xx,
+  timeouts and connection errors are retried (2 retries by default, 0.5 s / 1.5 s backoff, really slept, never
+  past budget.max_seconds); any other 4xx fails at once. A request that gives up raises FetchError.
   Optional `record_dir` caches every successful raw response as <slug>.<ext> + <slug>.meta.json (how new
   fixtures are captured from a live run; scripts/build_manifest_requests.py then indexes them).
 - FixtureFetcher: request_key -> fixtures/raw/<file> via MANIFEST.requests; replayed=True; captured_at from the
   manifest; latency_ms=0; a key with no fixture -> status fixture_miss (nothing fabricated). A manifest entry
-  with `element` picks one element of a JSON array file (the 2-element JSON-RPC batch capture).
+  with `element` picks one element of a JSON array file (the 2-element JSON-RPC batch capture). Its attempts run
+  through the same call_with_retries: with a fault script (sources/transient.py, sample mode only) a listed
+  attempt fails as recorded and the policy retries it, backing off on the deterministic SampleClock; a request
+  that gives up is status unavailable.
 - FallbackFetcher: LiveFetcher then FixtureFetcher with stale=True on failure; mode "live+fixture-fallback".
 
 All three expose raw_bytes(request_key) so the Collector can write logs/<run_id>/raw/<name>.<ext> without the
-Observation contract carrying bytes.
+Observation contract carrying bytes, and attempts_used(request_key) (the attempts of the last fetch of that key
+when there was more than one) so the `fetch` event can say that a source answered after a retry.
 """
 from __future__ import annotations
 
@@ -31,29 +36,24 @@ from .. import USER_AGENT
 from ..clock import Clock
 from ..config import RunConfig
 from ..contracts import Fetcher, Observation
+from . import retry as retry_mod
 from .manifest import Manifest
 from .registry import family_of_key
+from .retry import AttemptFailed, GaveUp, RetryPolicy, connection_failure, http_failure, timeout_failure
+from .transient import FaultScript, load_faults
 
-RETRY_BACKOFF_S: tuple[float, ...] = (0.5, 1.5)
-RETRYABLE_HTTP: frozenset[int] = frozenset({408, 425, 429, 500, 502, 503, 504})
 MAX_BODY_BYTES = 64 * 1024 * 1024
 _SLUG_RE = re.compile(r"[^A-Za-z0-9._-]+")
 
 
 class FetchError(Exception):
-    """A live fetch failed after retries (timeout, connection error, 5xx) or at once (other 4xx)."""
+    """A live fetch gave up: after its retries (timeout, connection error, 429, 5xx), at once (any other 4xx), or
+    because the next backoff did not fit in budget.max_seconds."""
 
     def __init__(self, message: str, http: Optional[int] = None, attempts: int = 1) -> None:
         super().__init__(message)
         self.http = http
         self.attempts = attempts
-
-
-class _Retryable(Exception):
-    def __init__(self, reason: str, http: Optional[int] = None) -> None:
-        super().__init__(reason)
-        self.reason = reason
-        self.http = http
 
 
 def slug_of(request_key: str) -> str:
@@ -107,20 +107,24 @@ class LiveFetcher:
                  user_agent: str = USER_AGENT, *, opener: Optional[Callable[..., Any]] = None,
                  sleep: Optional[Callable[[float], None]] = None,
                  on_retry: Optional[Callable[[dict[str, Any]], None]] = None,
-                 record_dir: Optional[Path] = None, backoff_s: tuple[float, ...] = RETRY_BACKOFF_S) -> None:
+                 record_dir: Optional[Path] = None, policy: Optional[RetryPolicy] = None,
+                 time_left_ms: Optional[Callable[[], Optional[int]]] = None) -> None:
         self.clock = clock
         self.raw_dir = Path(raw_dir) if raw_dir else None
         self.timeout = timeout
         self.user_agent = user_agent
         self._opener = opener
-        self._sleep = sleep or time.sleep
+        self._sleep = sleep or time.sleep            # live mode really waits the backoff out
         self.on_retry = on_retry
+        self.time_left_ms = time_left_ms             # the Collector binds RunContext.time_left_ms
         self.record_dir = Path(record_dir) if record_dir else None
-        self.backoff_s = tuple(backoff_s)
+        self.policy = policy or retry_mod.DEFAULT_POLICY
         self._raw: dict[str, bytes] = {}
+        self._attempts: dict[str, int] = {}
 
     # -- one attempt ---------------------------------------------------------------------------------------
     def _request_once(self, url: str, method: str, body: Any, timeout: float) -> tuple[bytes, int, Optional[str]]:
+        """One HTTP attempt. Every failure becomes an AttemptFailed classified by sources/retry.py."""
         headers = {"User-Agent": self.user_agent, "Accept": "application/json, text/plain;q=0.9, */*;q=0.8",
                    "Accept-Encoding": "gzip"}
         data: Optional[bytes] = None
@@ -136,49 +140,39 @@ class LiveFetcher:
                 content_type = response.headers.get("Content-Type") if getattr(response, "headers", None) else None
                 encoding = response.headers.get("Content-Encoding", "") if getattr(response, "headers", None) else ""
         except urllib.error.HTTPError as exc:
-            if exc.code in RETRYABLE_HTTP:
-                raise _Retryable(f"http {exc.code}", exc.code) from exc
-            raise FetchError(f"http {exc.code} {exc.reason}", http=exc.code) from exc
+            raise http_failure(exc.code, str(exc.reason or "")) from exc
         except urllib.error.URLError as exc:
-            raise _Retryable(f"url error: {exc.reason}") from exc
+            if isinstance(exc.reason, (socket.timeout, TimeoutError)):
+                raise timeout_failure() from exc
+            raise connection_failure(f"url error: {exc.reason}") from exc
         except (socket.timeout, TimeoutError) as exc:
-            raise _Retryable("timeout") from exc
+            raise timeout_failure() from exc
         except (http.client.HTTPException, ConnectionError, OSError) as exc:
-            raise _Retryable(f"{type(exc).__name__}: {exc}") from exc
+            raise connection_failure(f"{type(exc).__name__}: {exc}") from exc
         if len(raw) > MAX_BODY_BYTES:
-            raise FetchError(f"body larger than {MAX_BODY_BYTES} bytes", http=status)
+            raise AttemptFailed(f"body larger than {MAX_BODY_BYTES} bytes", kind="other", transient=False, http=status)
         if encoding and "gzip" in encoding.lower():
             raw = gzip.decompress(raw)
         if status >= 400:
-            if status in RETRYABLE_HTTP:
-                raise _Retryable(f"http {status}", status)
-            raise FetchError(f"http {status}", http=status)
+            raise http_failure(status)
         return raw, status, content_type
 
     # -- public ----------------------------------------------------------------------------------------------
     def fetch(self, request_key: str, url: str, method: str = "GET", body: Any = None,
               timeout: float = 10.0) -> Observation:
-        """urllib request with retries; raises FetchError after the last attempt; caches the raw bytes."""
+        """urllib request through the shared retry policy; raises FetchError when it gives up; caches the bytes."""
         timeout = float(timeout or self.timeout)
-        max_attempts = 1 + len(self.backoff_s)
         started = time.perf_counter()
-        last_reason = "unknown"
-        last_http: Optional[int] = None
-        for attempt in range(1, max_attempts + 1):
-            try:
-                raw, status, content_type = self._request_once(url, method, body, timeout)
-                break
-            except _Retryable as exc:
-                last_reason, last_http = exc.reason, exc.http
-                if attempt == max_attempts:
-                    raise FetchError(f"{exc.reason} after {attempt} attempts", http=exc.http, attempts=attempt) from exc
-                backoff = self.backoff_s[attempt - 1]
-                if self.on_retry:
-                    self.on_retry({"target": request_key, "attempt": attempt, "max_attempts": max_attempts,
-                                   "reason": exc.reason, "backoff_ms": int(backoff * 1000)})
-                self._sleep(backoff)
-        else:  # pragma: no cover - loop always breaks or raises
-            raise FetchError(f"{last_reason} after {max_attempts} attempts", http=last_http, attempts=max_attempts)
+        self._attempts.pop(request_key, None)
+        try:
+            (raw, status, content_type), attempts = retry_mod.call_with_retries(
+                lambda _number: self._request_once(url, method, body, timeout), policy=self.policy,
+                target=request_key, url=url, method=method, sleep=self._sleep, on_retry=self.on_retry,
+                time_left_ms=self.time_left_ms)
+        except GaveUp as gave:
+            self._note_attempts(request_key, gave.attempts)
+            raise FetchError(gave.message, http=gave.http, attempts=gave.attempts) from gave.failure
+        self._note_attempts(request_key, attempts)
         latency_ms = int((time.perf_counter() - started) * 1000)
         digest = hashlib.sha256(raw).hexdigest()
         payload = _parse_payload(raw, content_type)
@@ -187,6 +181,14 @@ class LiveFetcher:
         self._cache(request_key, url, method, raw, payload, status, content_type, captured_at, digest)
         return _observation(request_key, url, method, status="ok", clock=self.clock, http=status, sha256=digest,
                             latency_ms=latency_ms, captured_at=captured_at, payload=payload)
+
+    def _note_attempts(self, request_key: str, attempts: int) -> None:
+        if attempts > 1:
+            self._attempts[request_key] = attempts
+
+    def attempts_used(self, request_key: str) -> int:
+        """Attempts of the last fetch of this key (1 unless it was retried); read once by the Collector."""
+        return self._attempts.pop(request_key, 1)
 
     def raw_bytes(self, request_key: str) -> Optional[bytes]:
         return self._raw.get(request_key)
@@ -209,14 +211,53 @@ class LiveFetcher:
 class FixtureFetcher:
     mode = "fixture"
 
-    def __init__(self, manifest: Optional[Manifest], fixtures_dir: Path, clock: Clock) -> None:
+    def __init__(self, manifest: Optional[Manifest], fixtures_dir: Path, clock: Clock, *,
+                 faults: Optional[FaultScript] = None, policy: Optional[RetryPolicy] = None,
+                 sleep: Optional[Callable[[float], None]] = None,
+                 on_retry: Optional[Callable[[dict[str, Any]], None]] = None,
+                 time_left_ms: Optional[Callable[[], Optional[int]]] = None) -> None:
         self.manifest = manifest
         self.fixtures_dir = Path(fixtures_dir)
         self.clock = clock
+        self.faults = faults
+        self.policy = policy or retry_mod.DEFAULT_POLICY
+        # A replayed backoff advances the deterministic clock (SampleClock.sleep); nothing really waits.
+        self._sleep = sleep or getattr(clock, "sleep", None) or (lambda _seconds: None)
+        self.on_retry = on_retry
+        self.time_left_ms = time_left_ms
         self._raw: dict[str, bytes] = {}
+        self._attempts: dict[str, int] = {}
 
     def fetch(self, request_key: str, url: str, method: str = "GET", body: Any = None,
               timeout: float = 10.0) -> Observation:
+        """Serve the fixture through the shared retry policy. Without a fault for this key the first attempt
+        returns, exactly as before; with one, the recorded failure is raised on its attempt and retried, or not,
+        by the same rules as a live failure."""
+        faults = self.faults.for_key(request_key) if self.faults else {}
+        self._attempts.pop(request_key, None)
+
+        def attempt(number: int) -> Observation:
+            fault = faults.get(number)
+            if fault is not None:
+                raise fault.failure()
+            return self._serve(request_key, url, method)
+
+        extra = {"fault_file": self.faults.rel_path} if (faults and self.faults) else None
+        try:
+            obs, attempts = retry_mod.call_with_retries(
+                attempt, policy=self.policy, target=request_key, url=url, method=method, sleep=self._sleep,
+                on_retry=self.on_retry, time_left_ms=self.time_left_ms, replayed=True, extra=extra)
+        except GaveUp as gave:
+            if gave.attempts > 1:
+                self._attempts[request_key] = gave.attempts
+            source = self.faults.rel_path if self.faults else "a fault script"
+            return _observation(request_key, url, method, status="unavailable", clock=self.clock, http=gave.http,
+                                replayed=True, error=f"replayed failure from {source}: {gave.message}")
+        if attempts > 1:
+            self._attempts[request_key] = attempts
+        return obs
+
+    def _serve(self, request_key: str, url: str, method: str) -> Observation:
         entry = self.manifest.requests.get(request_key) if self.manifest else None
         if entry is None:
             reason = "no fixture for this request key" if self.manifest and self.manifest.requests else (
@@ -247,6 +288,9 @@ class FixtureFetcher:
     def raw_bytes(self, request_key: str) -> Optional[bytes]:
         return self._raw.get(request_key)
 
+    def attempts_used(self, request_key: str) -> int:
+        return self._attempts.pop(request_key, 1)
+
 
 class FallbackFetcher:
     mode = "live+fixture-fallback"
@@ -263,6 +307,14 @@ class FallbackFetcher:
     @on_retry.setter
     def on_retry(self, callback: Optional[Callable[[dict[str, Any]], None]]) -> None:
         self.live.on_retry = callback
+
+    @property
+    def time_left_ms(self) -> Optional[Callable[[], Optional[int]]]:
+        return self.live.time_left_ms
+
+    @time_left_ms.setter
+    def time_left_ms(self, callback: Optional[Callable[[], Optional[int]]]) -> None:
+        self.live.time_left_ms = callback
 
     def fetch(self, request_key: str, url: str, method: str = "GET", body: Any = None,
               timeout: float = 10.0) -> Observation:
@@ -285,12 +337,27 @@ class FallbackFetcher:
     def raw_bytes(self, request_key: str) -> Optional[bytes]:
         return self.live.raw_bytes(request_key) or self.fixture.raw_bytes(request_key)
 
+    def attempts_used(self, request_key: str) -> int:
+        """The live attempts (a stale fixture served after them still reports how many were made)."""
+        return max(self.live.attempts_used(request_key), self.fixture.attempts_used(request_key))
 
-def build_fetcher(config: RunConfig, manifest: Optional[Manifest], clock: Clock, run_dir: Path) -> Fetcher:
-    fixture = FixtureFetcher(manifest, config.fixtures_dir, clock)
+
+def build_fetcher(config: RunConfig, manifest: Optional[Manifest], clock: Clock, run_dir: Path,
+                  example_name: Optional[str] = None) -> Fetcher:
+    """Sample mode: FixtureFetcher, with the example's fault script when it has one (fixtures/transient/).
+    Live mode: LiveFetcher with fixture fallback; fault scripts are never loaded. One RetryPolicy for both."""
+    policy = RetryPolicy.from_retries(getattr(config, "fetch_retries", None))
+    faults = load_faults(config.transient_dir, example_name, config.repo_root) if config.is_sample() else None
+    fixture = FixtureFetcher(manifest, config.fixtures_dir, clock, faults=faults, policy=policy)
     if config.is_sample():
         return fixture
-    return FallbackFetcher(LiveFetcher(clock), fixture)
+    return FallbackFetcher(LiveFetcher(clock, policy=policy), fixture)
+
+
+def attempts_used(fetcher: Any, request_key: str) -> int:
+    """How many attempts the last fetch of `request_key` took (1 for a fetcher that does not say)."""
+    getter = getattr(fetcher, "attempts_used", None)
+    return int(getter(request_key)) if getter else 1
 
 
 def fixture_fetcher_for(fetcher: Any) -> Optional[FixtureFetcher]:

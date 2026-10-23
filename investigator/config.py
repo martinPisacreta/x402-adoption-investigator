@@ -137,7 +137,8 @@ class RunConfig:
     verbose: bool = False
     keep_zetaris_objects: bool = False
     hmem_sleep: bool = False
-    example_name: Optional[str] = None      # transcripts folder under fixtures/transcripts/
+    example_name: Optional[str] = None      # fixtures folder name: transcripts/<name>/ and transient/<name>/
+    fetch_retries: int = 2                  # retries per source request (sources/retry.py); --fetch-retries, 0..5
     env: Env = field(default_factory=Env)
     repo_root: Path = REPO_ROOT
     seed_dir_override: Optional[Path] = None   # scripts/memory_ablation.py: run with a different seed (same mounts)
@@ -161,6 +162,11 @@ class RunConfig:
     @property
     def transcripts_dir(self) -> Path:
         return self.repo_root / "fixtures" / "transcripts"
+
+    @property
+    def transient_dir(self) -> Path:
+        """fixtures/transient/<example>/faults.json: transient failures replayed in sample mode (sources/transient.py)."""
+        return self.repo_root / "fixtures" / "transient"
 
     @property
     def zetaris_results_dir(self) -> Path:
@@ -204,8 +210,15 @@ def build_config(args: Optional[argparse.Namespace] = None, environ: Optional[di
         keep_zetaris_objects=bool(getattr(ns, "keep_zetaris_objects", False)),
         hmem_sleep=bool(getattr(ns, "hmem_sleep", False)),
         example_name=getattr(ns, "example", None),
+        fetch_retries=fetch_retries_from(getattr(ns, "fetch_retries", None)),
         env=env,
     )
+
+
+def fetch_retries_from(value: Any) -> int:
+    """--fetch-retries N -> 0..5 (default 2, the RetryPolicy default)."""
+    from .sources.retry import RetryPolicy
+    return RetryPolicy.from_retries(None if value is None else int(value)).max_retries
 
 
 def default_run_id(now: Optional[_dt.datetime] = None) -> str:

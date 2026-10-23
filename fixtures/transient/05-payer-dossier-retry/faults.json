@@ -1,0 +1,20 @@
+{
+  "simulated": true,
+  "note": "Written by hand on 2026-10-23 to replay two transient failures in example 05; neither was captured from the source. Attempt 1 of each request key below fails as described and every other attempt is served from the committed fixture in fixtures/raw/, so a run that retries gets exactly the bytes example 03 gets. Whether to retry, the backoff and the limit come from investigator/sources/retry.py, the code live runs use.",
+  "faults": [
+    {
+      "request_key": "GET https://tienda.textokit.store/receipts.json",
+      "attempt": 1,
+      "kind": "http",
+      "http": 503,
+      "note": "the store answers 503 Service Unavailable once (Collector stage)"
+    },
+    {
+      "request_key": "RPC eth_getTransactionReceipt 54fa30d4aadcf1af",
+      "attempt": 1,
+      "kind": "http",
+      "http": 429,
+      "note": "the Base JSON-RPC answers 429 Too Many Requests once for the receipt of 0x62c0...58c3 (Verifier stage)"
+    }
+  ]
+}

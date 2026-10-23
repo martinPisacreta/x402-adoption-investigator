@@ -74,6 +74,8 @@ x402-adoption-investigator/
 │   │   ├── registry.py                 # Source families, request builders, canonical request keys
 │   │   ├── fetcher.py                  # Fetcher protocol: LiveFetcher (urllib, retries), FixtureFetcher (MANIFEST), FallbackFetcher (live -> fixture, stale=true)
 │   │   ├── manifest.py                 # Loads fixtures/raw/MANIFEST.json; maps request key -> file, capturedAt, sha256
+│   │   ├── retry.py                    # (added 2026-10-23) the one bounded retry policy both Fetchers run their attempts through
+│   │   ├── transient.py                # (added 2026-10-23) loads fixtures/transient/<example>/faults.json for sample replay
 │   │   └── catalog.py                  # Compact catalog snapshot loader (gz) and live page crawler (<= 3 pages)
 │   ├── chain/
 │   │   ├── __init__.py
@@ -161,6 +163,7 @@ x402-adoption-investigator/
 ├── fixtures/
 │   ├── raw/                            # 27 raw public responses + MANIFEST.json (captured 2026-10-22 ~00:05Z); B1 adds the requests map
 │   ├── zetaris/                        # Recorded Zetaris result sets per query id (used by the dual-backend test)
+│   ├── transient/                      # (added 2026-10-23) scripted transient failures per example: <example>/faults.json + README.md
 │   └── transcripts/                    # Recorded generator transcripts per example: <example>/<prompt_id>-<prompt_sha12>.json
 ├── memory/
 │   ├── seed/memories.jsonl             # Seeded H-MEM records (pitfall memories), committed, with provenance
@@ -191,6 +194,7 @@ x402-adoption-investigator/
 │   ├── test_examples_reproducible.py   # Sample mode run of the 3 examples == committed output.json byte-for-byte
 │   ├── test_sample_offline.py          # Run with guard installed; any socket use fails the test
 │   ├── test_fetcher.py                 # Request keys, fixture resolution for all 27 files, fallback stale flag
+│   ├── test_retry.py                   # (added 2026-10-23) retry policy in both modes on a fake HTTP layer; example 05
 │   ├── test_critic.py                  # C1-C7 + narrative pass B unit tests (token -> claim map)
 │   ├── test_adapters.py                # Each adapter over its fixture: expected entity/fact counts
 │   ├── test_decode.py                  # Transfer / AuthorizationUsed / transferWithAuthorization decoding against the RPC fixture
@@ -460,6 +464,8 @@ python run.py --serve 8080                                                      
 cat input.json | python run.py --input -
 ```
 
+_Amended 2026-10-23:_ `--fetch-retries N` (0-5, default 2) sets the retries per source request (section 7.2).
+
 Mode resolution (`--mode auto`, the default): `sample` if `SAMPLE_MODE=1`, or if neither `OPENAI_API_KEY` nor `ZETARIS_PASSWORD` is set; else `live`. `--mode live` with missing pieces degrades per mount (fetcher live, executor sqlite, generator null) unless `--require-*` is set. `--mode sample` ignores all env and installs the network guard.
 
 Exit code: 0 for `ok` and `partial`, 1 for `error`. Stdout carries the JSONL event stream (one line per event, identical to `logs/<run_id>/run.jsonl`); with `--print-output` the final `output.json` is printed after a line `---output---`; with `--quiet` only the output JSON is printed. In `--serve` mode the HTTP response body is the output JSON and the event stream goes to the server's stdout.
@@ -535,7 +541,7 @@ All files live in `logs/<run_id>/`. `run.jsonl` is mirrored to stdout line by li
 | `plan` | planner | `{playbook, query_ids, sources, fetch_count, hmem_memory_ids, planner_source}` | before any data moves |
 | `handoff` | runner | `{from, to, artifact: {type, count, sha256}}` | every transition |
 | `fetch` | collector | `{name, family, url, method, http, bytes, sha256, latency_ms, replayed, stale, fixture_file?}` | per request (full line in fetch.jsonl) |
-| `retry` | collector / analyst / writer | `{target, attempt, max_attempts, reason, backoff_ms}` | each retry |
+| `retry` | collector / verifier / planner | `{stage, target, attempt, max_attempts, reason, backoff_ms}` plus, for a source request, `url, method, next_attempt, kind, http, replayed, fault_file?` (_amended 2026-10-23_: `attempt` is the attempt that failed; the outcome is the next `fetch` line of the same request key, which carries `attempts` when more than one was needed) | each retry, before its backoff |
 | `recovery` | any | `{reason, from?, to?, detail}` | every fallback or skip; reasons: `planner_fallback`, `fixture_fallback`, `source_unavailable`, `fixture_miss`, `zetaris_unreachable`, `zetaris_query_fallback`, `artifact_server_unreachable`, `rpc_unavailable`, `generator_fallback`, `narrative_trimmed`, `deadline_skip`, `budget_exhausted` |
 | `ingest` | keeper | `{pass: 1|2, report: IngestReport, quarantined: [{externalId, error}]}` | after each ingest |
 | `verify` | verifier | `{tx, status, payer, seller, amount_atomic, basescan_url, receipt_match, reason?}` | per tx |
@@ -595,7 +601,7 @@ Generator usage per run (max 12 calls): Planner <= 2 (one + one retry with the v
 
 ### 6.2 Collector
 
-- Executes `fetch_list` in priority order via the Fetcher; per request timeout 10 s, 2 retries (0.5 s / 1.5 s) on timeout/5xx; identifying `User-Agent: x402-adoption-investigator/<version> (+<repo url>)`.
+- Executes `fetch_list` in priority order via the Fetcher; per request timeout 10 s, 2 retries (0.5 s / 1.5 s) on timeout/5xx; identifying `User-Agent: x402-adoption-investigator/<version> (+<repo url>)`. _Amended 2026-10-23:_ the retries are one policy shared by every Fetcher (section 7.2); the Collector binds it to the run so each retry is a `retry` event logged by the stage that made the request (collector, or verifier for Base RPC) and every backoff is capped by the deadline.
 - Writes raw bytes to `logs/<run_id>/raw/<name>.<ext>` and the parsed payload to `logs/<run_id>/exports/<name>.json` (what both SQL backends and the reducers read; what the artifact server serves).
 - Live failure after retries -> `FallbackFetcher` tries the fixture with `stale: true` and `recovery{reason:"fixture_fallback"}`; no fixture -> `status: "unavailable"`, dependent metrics later go to `unavailable[]`.
 - Catalog: `options.catalog = "pages"` crawls <= `budget.bazaar_pages` pages of `limit=1000` live (coverage basis "live pages (N x 1000)"); `"snapshot"` loads `cdp-discovery-catalog-compact.json.gz` (coverage basis "compact snapshot 2026-10-22", `replayed: true` even in live mode). Sample mode always uses the snapshot for catalog metrics and the committed `p0/p1` pages for page-level views.
@@ -689,6 +695,14 @@ class FixtureFetcher:   # request_key -> fixtures/raw/<file> via MANIFEST.reques
 class FallbackFetcher:  # LiveFetcher then FixtureFetcher with stale=True on failure; mode "live+fixture-fallback"
 ```
 
+_Amended 2026-10-23:_ both LiveFetcher and FixtureFetcher run their attempts through one function,
+`sources/retry.py` `call_with_retries`. Transient = HTTP 429 or 5xx, timeout, connection error; any other 4xx
+(408 and 425 included) and an oversize body stop at once. At most `RunConfig.fetch_retries` retries (default 2,
+`--fetch-retries`, clamped to 0-5); backoff 500 ms then 1500 ms (the last value repeats), slept for real in live
+mode and advanced on the SampleClock in sample mode; a backoff that does not fit in what is left of
+`budget.max_seconds` is not taken and the request gives up (`FetchError` live, `status: "unavailable"` replayed).
+Retries do not count against `max_fetches`.
+
 ### 7.3 Canonical request key
 
 `"<METHOD> <url>"` where the URL has lowercase scheme and host, no fragment, query parameters sorted by key, no trailing slash. For JSON-RPC: `"RPC <method> <sha256(canonical_json(params))[:16]>"` per batch element; a batch is answered element by element and assembled in order (fixtures hold single responses). For the snapshot: `"SNAPSHOT cdp-discovery-catalog-compact"`.
@@ -705,6 +719,7 @@ B1 adds to `fixtures/raw/MANIFEST.json` a `"requests"` map `request_key -> {file
 6. H-MEM persist dir = `logs/<run_id>/hmem/`, initialised by copying `memory/seed/`; the committed seed is never mutated by a run.
 7. `output.sample_mode_notice` and `mounts` state the replay; every evidence item has `replayed: true`.
 8. Base RPC: only fixture-covered calls succeed (`0x62c0...58c3` receipt and tx, balanceOf and nonce for `0x097e...475a`, blockNumber/chainId batch).
+9. _Added 2026-10-23:_ transient failures are replayed only where an example scripts them: `fixtures/transient/<example>/faults.json` (example chosen like the transcripts folder) lists `{request_key, attempt, kind: http|timeout|connection_reset, http?}`; FixtureFetcher raises that failure on that attempt and serves the fixture on every other one, through the same retry function as live mode, so whether and how long to retry is decided by the policy, never by the file. Every file states `simulated: true|false`, and `output.sample_mode_notice` names it. Live mode never reads the folder. Only example 05 has a script, simulated (`fixtures/transient/README.md`).
 
 ---
 
@@ -943,6 +958,8 @@ Playbook `payer_dossier`. Sources: receipts, cdp_search, base_rpc (receipt, tx, 
 Claims: 1 purchase (service as recorded in receipts), 1,000 atomic, at the receipts timestamp; settlement verified: Transfer-log payer = receipt payer, seller `0x6b5a...a6e1`, amount 1,000, block 52,841,269, facilitator_from `0x8f5c...e531`, basescan URL; USDC balance 1,043,148 atomic (1.043148 USDC) at the fixture capture; nonce 24; `receipt_match: true` (q16).
 Verdict: `adoption_thin` (1 sale, 1 verified tx). Shows the Verifier path end to end and `unverifiable: fixture_miss` for any other tx the plan would have sampled.
 
+_Amended 2026-10-23:_ two more examples were committed after this section was written: `04-payer-dossier-unverifiable` (`run_id: ex04-unverified`, see the README) and `05-payer-dossier-retry` (`run_id: ex05-retry`): example 03's input replayed with the simulated faults of `fixtures/transient/05-payer-dossier-retry/faults.json` (attempt 1 of the store's `receipts.json` answers 503, attempt 1 of the Base RPC receipt of `0x62c0...58c3` answers 429). Expected: two `retry` events (stages collector and verifier), each followed by the `fetch` of the same request key with `attempts: 2`, status `ok`, and claims, verdict and answer identical to example 03 (`tests/test_retry.py`).
+
 ---
 
 ## 12. Build order and ownership (4 parallel builders + integrator)
@@ -981,7 +998,7 @@ Contract
 - [ ] A run finishes within `budget.max_seconds` (default 180 s) in both modes on the demo machine; every loop is bounded. _Amended 2026-10-22:_ the deadline is measured with a monotonic wall clock in both modes; in sample mode the deterministic SampleClock (1 ms per call) only stamps the logs and never reaches the deadline by itself (`tests/test_run_contract.py`).
 
 Logs
-- [ ] `run.jsonl` is mirrored to stdout and contains `handoff`, `critique` (accept summaries per rule; revise/reject lines whenever a rule fires), `recovery`, `ingest` x2, `sql`, `claim`, `conflict`, `narrative_map`, `memory`, `result`; `retry` appears only when something was really retried (live Fetcher backoff), never in a sample replay (_amended 2026-10-22_).
+- [ ] `run.jsonl` is mirrored to stdout and contains `handoff`, `critique` (accept summaries per rule; revise/reject lines whenever a rule fires), `recovery`, `ingest` x2, `sql`, `claim`, `conflict`, `narrative_map`, `memory`, `result`; `retry` appears only when something was really retried (live Fetcher backoff), never in a sample replay (_amended 2026-10-22_). _Amended 2026-10-23:_ a sample replay carries `retry` only when its example has a fault script (section 7.4 rule 9); then the retry is real (the shared policy decides it) and the failure it answers is scripted, and the output says so. Examples 01-04 have none; example 05 has two.
 - [ ] Sample runs start with the `guard` line; `tests/test_sample_offline.py` proves no socket use.
 - [ ] `sql.jsonl` lines carry executor, sql, params, rowcount, time_used_ms, zetaris_version, tables.
 - [ ] No secret, token or header value appears in any log (test greps the logs of a live run for the configured password and token prefix).

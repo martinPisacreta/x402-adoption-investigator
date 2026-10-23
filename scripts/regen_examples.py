@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
-"""Re-run the 4 examples in sample mode and rewrite examples/<name>/ (the ONLY way to update them). Owner: B4.
+"""Re-run the 5 examples in sample mode and rewrite examples/<name>/ (the ONLY way to update them). Owner: B4.
 
 Copies output.json, report.md, run.jsonl, sql.jsonl and hmem.trace.jsonl from a fresh sample run into each
 example folder, and a byte-identical copy of output.json to examples/outputs/<alias>.output.json (the short
-paths that pair with examples/ex1.json .. ex4.json). Never edit those files by hand. Refuses to run while any
-agent is still a stub (the output would carry scaffold_notice) unless --allow-scaffold is given.
+paths that pair with examples/ex1.json .. ex5.json). Never edit those files by hand. Example 05 replays the
+transient failures scripted in fixtures/transient/05-payer-dossier-retry/faults.json (found by its run_id, like
+recorded transcripts). Refuses to run while any agent is still a stub (the output would carry scaffold_notice)
+unless --allow-scaffold is given.
 """
 from __future__ import annotations
 
@@ -21,9 +23,10 @@ sys.path.insert(0, str(REPO_ROOT))
 from investigator.config import build_config  # noqa: E402
 from investigator.runner import run as run_investigation  # noqa: E402
 
-EXAMPLES = ("01-seller-audit-textokit", "02-catalog-concentration", "03-payer-dossier-onchain", "04-payer-dossier-unverifiable")
+EXAMPLES = ("01-seller-audit-textokit", "02-catalog-concentration", "03-payer-dossier-onchain", "04-payer-dossier-unverifiable",
+            "05-payer-dossier-retry")
 ALIASES = {"01-seller-audit-textokit": "ex1", "02-catalog-concentration": "ex2", "03-payer-dossier-onchain": "ex3",
-           "04-payer-dossier-unverifiable": "ex4"}
+           "04-payer-dossier-unverifiable": "ex4", "05-payer-dossier-retry": "ex5"}
 COPIED = ("output.json", "report.md", "run.jsonl", "sql.jsonl", "hmem.trace.jsonl")
 OUTPUTS_DIR = REPO_ROOT / "examples" / "outputs"
 

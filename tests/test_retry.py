@@ -458,3 +458,16 @@ class Example05(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class PermanentServerErrors(unittest.TestCase):
+    """501 Not Implemented and 505 HTTP Version Not Supported are answers, not transient failures."""
+
+    def test_501_and_505_are_not_retried(self):
+        from investigator.sources.retry import is_transient_http
+        for code in (501, 505):
+            self.assertFalse(is_transient_http(code), code)
+        for code in (429, 500, 502, 503, 504):
+            self.assertTrue(is_transient_http(code), code)
+        for code in (400, 401, 403, 404, 408, 425, None):
+            self.assertFalse(is_transient_http(code), code)

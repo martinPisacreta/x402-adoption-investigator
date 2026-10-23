@@ -2,7 +2,7 @@
 
 Live requests sometimes fail for a moment: a 503 while a server restarts, a 429 from a rate-limited public RPC, a
 timeout, a reset connection. The investigator retries those with one bounded policy,
-`investigator/sources/retry.py` (`call_with_retries`): HTTP 429 and 5xx, timeouts and connection errors are
+`investigator/sources/retry.py` (`call_with_retries`): HTTP 429 and 5xx (except 501 and 505), timeouts and connection errors are
 retried, any other 4xx is not; at most `--fetch-retries` retries (default 2, so 3 attempts); a fixed backoff of
 500 ms and then 1500 ms; no backoff that would pass `budget.max_seconds`; one `retry` event per retry. Sample mode
 replays committed fixtures, which never fail by themselves, so this folder lets an example replay a failure

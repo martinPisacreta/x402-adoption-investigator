@@ -131,7 +131,7 @@ interrupted, so a tight budget can end a few seconds late; in sample mode the lo
 advances 1 ms per call and never reaches the deadline by itself, so the monotonic clock is what stops a slow sample
 run, `tests/test_run_contract.py`), `max_fetches`, `max_sql`,
 `max_generator_calls`, `max_critic_rounds`, `max_tx_verifications`. Source requests have one bounded retry policy
-in both modes (`investigator/sources/retry.py`): HTTP 429 and 5xx, timeouts and connection errors are retried,
+in both modes (`investigator/sources/retry.py`): HTTP 429 and 5xx (except the permanent 501 and 505), timeouts and connection errors are retried,
 any other 4xx is not; at most `--fetch-retries` retries (default 2); a fixed 0.5 s / 1.5 s backoff, really slept in
 live mode and advanced on the deterministic clock in sample mode, and never taken when it would pass
 `max_seconds`; one `retry` event per retry, logged by the agent whose request it was (`tests/test_retry.py`).
@@ -516,7 +516,7 @@ on 2026-10-22 between 00:02 and 00:08 UTC.
 ## Tests
 
 ```
-python -m unittest discover -s tests     # 253 tests, no third-party dependency
+python -m unittest discover -s tests     # 254 tests, no third-party dependency
 python -m pytest -q                      # same suite under pytest if installed
 ```
 
@@ -533,7 +533,7 @@ offline proof, byte-for-byte reproducibility of the committed examples, and `met
 exists, its test count is the discovered one and README quotes it; the deck, submitted on 2026-10-22, quotes the
 count of that day, which `metadata.json` records as `tests.count_in_submitted_deck`).
 
-On 2026-10-23, on the tree of 53dc069, the suite ran green (253 tests, 0 failures, 0 skips) in the author tree, in
+On 2026-10-23, on the tree of 53dc069, the suite ran green (all 253 at that commit, 0 failures, 0 skips) in the author tree, in
 a fresh Windows clone with the Git for Windows default `core.autocrlf=true` (Python 3.11.9) and in the Docker image
 built from a fresh `core.autocrlf=false` clone (`docker run --network none ... -m unittest discover -s tests`,
 Python 3.11.17). In the Windows clone, `python run.py --sample` on each of the ten example inputs

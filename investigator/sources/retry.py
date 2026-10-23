@@ -4,7 +4,7 @@ call_with_retries() is the only retry loop for source requests. LiveFetcher runs
 FixtureFetcher runs it over replayed attempts, where a recorded fault script can make an attempt fail
 (investigator/sources/transient.py, fixtures/transient/README.md). The policy decides the same way in both modes:
 
-- only transient failures are retried: HTTP 429 and 5xx, timeouts, connection errors (reset, refused, DNS); any
+- only transient failures are retried: HTTP 429 and 5xx (except 501 and 505), timeouts, connection errors (reset, refused, DNS); any
   other 4xx, a body over the size limit and every other error stop at the first attempt;
 - at most `max_retries` retries (RunConfig.fetch_retries, default 2, `run.py --fetch-retries N`), so a request
   makes at most 1 + max_retries attempts;
@@ -32,9 +32,13 @@ DEFAULT_BACKOFF_MS: tuple[int, ...] = (500, 1500)
 MAX_RETRIES_CAP = 5
 
 
+PERMANENT_5XX = frozenset({501, 505})
+
+
 def is_transient_http(code: Optional[int]) -> bool:
-    """429 Too Many Requests and every 5xx are worth another attempt; any other status is an answer."""
-    return code is not None and (code == 429 or 500 <= code <= 599)
+    """429 Too Many Requests and 5xx are worth another attempt, except 501 Not Implemented and
+    505 HTTP Version Not Supported, which are permanent answers; any other status is an answer."""
+    return code is not None and (code == 429 or (500 <= code <= 599 and code not in PERMANENT_5XX))
 
 
 def http_phrase(code: int) -> str:

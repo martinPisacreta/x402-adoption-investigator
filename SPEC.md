@@ -696,7 +696,7 @@ class FallbackFetcher:  # LiveFetcher then FixtureFetcher with stale=True on fai
 ```
 
 _Amended 2026-10-23:_ both LiveFetcher and FixtureFetcher run their attempts through one function,
-`sources/retry.py` `call_with_retries`. Transient = HTTP 429 or 5xx, timeout, connection error; any other 4xx
+`sources/retry.py` `call_with_retries`. Transient = HTTP 429 or 5xx except 501/505 (amended 2026-10-23), timeout, connection error; any other 4xx
 (408 and 425 included) and an oversize body stop at once. At most `RunConfig.fetch_retries` retries (default 2,
 `--fetch-retries`, clamped to 0-5); backoff 500 ms then 1500 ms (the last value repeats), slept for real in live
 mode and advanced on the SampleClock in sample mode; a backoff that does not fit in what is left of

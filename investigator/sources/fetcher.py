@@ -1,7 +1,7 @@
 """Fetcher implementations (SPEC.md section 7.2). Owner: B1.
 
 - LiveFetcher: urllib, per-request timeout, gzip accepted, sha256 of the raw body bytes, identifying User-Agent;
-  never stores or logs request headers. Attempts run through sources/retry.call_with_retries: HTTP 429 / 5xx,
+  never stores or logs request headers. Attempts run through sources/retry.call_with_retries: HTTP 429 / 5xx (not 501/505),
   timeouts and connection errors are retried (2 retries by default, 0.5 s / 1.5 s backoff, really slept, never
   past budget.max_seconds); any other 4xx fails at once. A request that gives up raises FetchError.
   Optional `record_dir` caches every successful raw response as <slug>.<ext> + <slug>.meta.json (how new

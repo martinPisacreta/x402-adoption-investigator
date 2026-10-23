@@ -383,7 +383,8 @@ with types `guard`, `run_start`, `plan`, `handoff`, `fetch`, `retry`, `recovery`
 is written for each retried request, before its backoff, by the agent that made the request (`collector`, or
 `verifier` for Base RPC): `{stage, target (the request key), url, method, attempt (the one that failed),
 next_attempt, max_attempts, reason, kind, http, backoff_ms, replayed}` plus `fault_file` when the failure was
-replayed from a fault script; the outcome is the next `fetch` line of the same `request_key`, which carries
+replayed from a fault script; the outcome is the next `fetch` line of the same `request_key` (fetch lines are
+always recorded by the Collector, also for the Verifier's RPC calls), which carries
 `attempts` whenever more than one was needed. Example 05 is the committed log with retries (two, both replayed
 from a simulated fault script); examples 01-04 have none. A second Writer round is a `handoff` from the Critic with
 its issues, not a retry. Side files share the same `seq`
@@ -500,7 +501,7 @@ applied; an entry is added only for work actually done there.
   Pisacreta, Team Automata) before the build window. Automata is a self-hosted agent on Base (ERC-8004 id 98748);
   its store publishes `receipts.json` (every settled sale with payer, amount, transaction hash and an `ownWallet`
   flag), `openapi.json`, `llms.txt` and a remote MCP at `/mcp`. Here it is only a live, read-only public data
-  source and the subject of examples 01, 03 and 04 and of the live traces: no code from it is in this repository,
+  source and the subject of examples 01, 03, 04 and 05 and of the live traces: no code from it is in this repository,
   and its receipts are treated as self-reported (caveat `self_reported_receipts`, memory `mem-seed-003`) and
   verified against the chain rather than trusted. Example 01's finding (56 of 77 sales self-settled) is about the
   author's own store.

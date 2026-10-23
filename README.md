@@ -532,16 +532,17 @@ offline proof, byte-for-byte reproducibility of the committed examples, and `met
 exists, its test count is the discovered one and README quotes it; the deck, submitted on 2026-10-22, quotes the
 count of that day, which `metadata.json` records as `tests.count_in_submitted_deck`).
 
-On 2026-10-22, on the tree of da37be7, the suite of that day ran green (0 failures, 0 skips) in a fresh Windows
-clone with the Git for Windows default `core.autocrlf=true` (Python 3.11.9) and in the Docker image built from
-another fresh clone (`docker run --network none ... -m unittest discover -s tests`, Python 3.11.17); earlier rounds
-also checked a `core.autocrlf=false` clone (docs/BUILD_LOG.md). In the Windows clone, `python run.py --sample` on
-each of the eight example inputs (`examples/exN.json` and `examples/0N-*/input.json`) exited 0 (status `ok` for
-01-03, `partial` for 04) and rewrote `output.json`, `report.md`, `run.jsonl`, `sql.jsonl` and `hmem.trace.jsonl`
-byte for byte as committed, `scripts/memory_ablation.py` reproduced `examples/memory-ablation/`, and both
-one-command scripts exited 0 without pytest (`one_command.sh` in Git Bash, `one_command.ps1` in Windows PowerShell
-5.1; each picked the Python 3.13 first on that machine's PATH, and the suite passed there too). In the image,
-`scripts/one_command.sh`, the default command and `--sample --input examples/ex4.json` (status `partial`) exited 0.
+On 2026-10-23, on the tree of 53dc069, the suite ran green (253 tests, 0 failures, 0 skips) in the author tree, in
+a fresh Windows clone with the Git for Windows default `core.autocrlf=true` (Python 3.11.9) and in the Docker image
+built from a fresh `core.autocrlf=false` clone (`docker run --network none ... -m unittest discover -s tests`,
+Python 3.11.17). In the Windows clone, `python run.py --sample` on each of the ten example inputs
+(`examples/exN.json` and `examples/0N-*/input.json`) exited 0 (status `ok` for 01-03 and 05, `partial` for 04) and
+rewrote `output.json`, `report.md`, `run.jsonl`, `sql.jsonl` and `hmem.trace.jsonl` byte for byte as committed,
+and `scripts/memory_ablation.py` reproduced `examples/memory-ablation/`. In the image, `--sample --input
+examples/ex5.json` exited 0 with status `ok` and wrote its five files byte-identical to
+`examples/05-payer-dossier-retry/`, and the default command, `--sample --input examples/ex4.json` (status
+`partial`) and `scripts/one_command.sh` exited 0. The previous round (2026-10-22, tree da37be7) also checked a
+`core.autocrlf=false` Windows clone and ran both one-command scripts on Windows without pytest (docs/BUILD_LOG.md).
 Sample mode has no time-dependent field unless the wall-clock deadline fires (the logged clock is pinned to the
 fixture capture time). `.gitattributes` keeps every text file LF on checkout and the code
 writes LF on every OS, so the recorded sha256 values match everywhere. The live traces in `examples/live-trace/`

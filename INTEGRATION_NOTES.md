@@ -504,3 +504,24 @@ route, and a "What was unique" list. The same facts are in `metadata.json` (`spo
 `docs/METERLESS.md` and the metadata checklist no longer say that no committed run had a model (the committed
 examples and the Nemotron live runs carry `memory` inject lines linked to their `generate` events), and the
 archived Llama README names the `derivation.backend` the runs logged (`sqlite-fallback`).
+
+## Review fixes (2026-10-24, commit a8650c4)
+
+What changed for other modules:
+- `investigator/agents/critic.py`: `sentences_rule_b_backs()` returns the sentences whose every number rule B maps to
+  a claim the sentence cites (and nothing else blocks them); a model second-opinion issue on such a sentence is
+  logged as `critique{rule: LLM, verdict: dismissed, dismissed_by: B, claim_ids}` and left out of
+  `CriticResult.issues`, so it neither reaches the Writer nor triggers `trim_unsourced`. `verdict: dismissed` is a
+  new value of the `critique` payload (its schema requires only round, rule, verdict). This changed the round-2
+  Writer prompts of examples 01, 03, 04 and 05, whose round-2 transcripts were re-recorded through Nightshift.
+- `investigator/agents/report.py`: the Planner's hypotheses are printed under a label that says they are untested.
+- `investigator/generator.py`: `NIGHTSHIFT_TIMEOUT_S` 90 s (was 180 s) and `GENERATOR_RESERVE_S` 10 s: a call's
+  timeout is `min(timeout_s, time_left - 10 s)`.
+- `investigator/runner.py`: `run_start.deadline_at` is `iso_from_ms(deadline_ms)` (it logged the start time and
+  consumed one SampleClock tick, so every later sample-mode `at` moved 1 ms earlier); `scrub_paths` skips the home
+  directory when it cannot be determined.
+- `investigator/config.py`: `load_env_files()` reads `.env.local` then `.env`; `ZETARIS_REST_URL` aliases
+  `ZETARIS_BASE_URL`.
+- `run.py`: `--serve` reads an unused request body before answering 404 (and 413), then closes the connection.
+- `docker-compose.yml`: a second service, `investigator-live` (profile `live`), for live runs from a container.
+

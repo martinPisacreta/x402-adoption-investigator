@@ -1,0 +1,53 @@
+{
+  "prompt_id": "writer-r2",
+  "prompt_sha256": "117799aafb943b42927cfeca9e23791294983d2f924d0c8420cc35c2f0474f7e",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "recorded_at": "2026-10-24T18:55:53.411Z",
+  "response": "- 80 total settled sales [c01, self_reported_receipts, basis_mismatch]\n- 56 sales paid from the seller's own wallets [c02, self_reported_receipts, basis_mismatch]\n- 3 distinct own wallets settled those self-payments [c03, self_reported_receipts, basis_mismatch]\n- 24 sales paid by external wallets [c04, self_reported_receipts, basis_mismatch]\n- External sales total 55000 atomic USDC (0.055 USDC) [c05, self_reported_receipts, basis_mismatch]\n- 5 distinct external payers appear in the receipts [c06, self_reported_receipts, basis_mismatch]\n- Self-settlement share: 56 of 80 sales (70.0 %) [c07, self_reported_receipts, basis_mismatch]\n- 1 external payer(s) bought more than once [c08, self_reported_receipts, basis_mismatch]\n- Top external payer 0xec2abd3eda89bed90124736e317e847d5fb6d034 made 20 of 24 external sales (83.3 %) [c09, self_reported_receipts, basis_mismatch]\n- External sales span 2026-10-20T04:51:24.352Z..2026-10-24T14:01:45.472Z [c10, self_reported_receipts, basis_mismatch]\n- External sales by service: cuit-ar=4, normativa-ar=4, x402-ping=2, bcra-indicadores=1, cartas-ar=1, comparar-textos=1, crypto-prices=1, dev-utils=1, direcciones-ar=1, dolar-ar=1, fx-rates=1, polymarket-markets=1, source-bounded-summary=1, translate-es=1, url-text=1, web-read=1, x402-adoption=1 [c11, self_reported_receipts, basis_mismatch]\n- External sales per day: 2026-10-20=20, 2026-10-21=1, 2026-10-23=1, 2026-10-24=2 [c12, self_reported_receipts, basis_mismatch]\n- External sales settled inside the 30-day window ending 2026-10-24: 24 [c13, self_reported_receipts, basis_mismatch, conflict:k02]\n- 17 Bazaar listings pay to the wallet the receipts name as seller [c17, search_limit_20, self_reported_receipts, basis_mismatch]\n- Registries disagree on the endpoint count for tienda.tex",
+  "usage": {
+    "prompt_tokens": 5941,
+    "completion_tokens": 700,
+    "total_tokens": 6641
+  },
+  "provider": "meterless",
+  "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_v4ma9ufl",
+    "decision_id": "req_v4ma9ufl",
+    "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "winning_route": {
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "label": "Nemotron 3.5 Lightning 30B A3B",
+      "provider": "nvidia",
+      "kind": "cloud",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "final_synthesis",
+        "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+        "ms": 12867
+      }
+    ],
+    "latency_ms": 12867,
+    "usage": {
+      "input_tokens": 5941,
+      "output_tokens": 700,
+      "total_tokens": 6641
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "cloud-ok",
+    "wall_ms": 12906
+  },
+  "request": {
+    "max_tokens": 700,
+    "call_options": {
+      "reasoning_effort": "none",
+      "system_turn": "/no_think"
+    }
+  }
+}

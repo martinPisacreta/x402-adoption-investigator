@@ -444,3 +444,48 @@ Entries are added here only for work actually done after 2026-10-22.
   token, no `nvapi-` key, no `Bearer` header and no other credential is visible; the frames show only hashes, public
   wallet and transaction ids, receipt ids and the model ids. The deck, narration and captures were also searched
   for those strings and for the token itself (read from its file inside a script, never printed): none.
+
+### 2026-10-24 (from 18:30 UTC) — Claude Code: review fixes, a live Nightshift request in the video
+
+- **Tool:** Claude Code (Claude Opus 5.5), one agent of a review-and-fix workflow run from the same session.
+- **Why:** a review of the 24 Oct tree found, among others: the video showed no request passing through Nightshift
+  while it ran (only `grep` over committed logs) and a 22 Oct sample run with generator `null`; slide 9 said
+  "Nightshift answers every request with Nemotron" although `meterless/auto` had routed six runs to Llama 3.2 3B;
+  the Planner's hypotheses were printed as if they were findings; most of the model's second-opinion issues were
+  wrong and cut correct, cited sentences; `docs/DEMO_SCRIPT.md` cited seq numbers of older logs; a `--serve` 404
+  could reach a Windows client as a connection reset (one full suite run in two, in a clean clone).
+- **Code (commit a8650c4):** the Critic dismisses a model issue on a sentence whose every number rule B maps to a
+  claim that sentence cites (`critique{verdict: dismissed, dismissed_by: B, claim_ids}`, not acted on); report.md
+  labels the hypotheses untested; `run.py --serve` drains the unused body before a 404; `run_start.deadline_at` is
+  the deadline; `scrub_paths` survives a missing home directory; Nightshift timeout 90 s ending 10 s before the run
+  deadline; `.env` read after `.env.local`; `ZETARIS_REST_URL` alias; `docker-compose.yml` service
+  `investigator-live` (host.docker.internal URLs, proxy-token mounted read-only, artifact server on published port
+  18765). The dismissal changed the round-2 prompts of examples 01, 03, 04 and 05, so their round-2 Writer and
+  Critic answers were re-recorded through Nightshift pinned to `nvidia/nemotron-3.5-lightning-30b-a3b` (8 requests,
+  18:43-18:44 UTC) and the examples and the memory ablation regenerated. One Planner request from a stock
+  `python:3.11-slim` container reached Nightshift through `host.docker.internal` with the token file mounted
+  (`examples/live-trace-nightshift/docker/`).
+- **Live run for the video:** `capture_run.py --env METERLESS_MODEL=nvidia/nemotron-3.5-lightning-30b-a3b -- python
+  run.py --mode live --require-generator --input examples/ex1.json --run-id live-video-ex01-20261024` at 18:55 UTC
+  on the tree of a8650c4: 5 requests, all `routed_model nvidia/nemotron-3.5-lightning-30b-a3b`, kind `cloud`;
+  Zetaris stopped, SQL on SQLite; 48.8 s. Its folder is committed under
+  `examples/live-trace-nightshift/nemotron-cloud/` and its stdout is `docs/pitch/video/live-capture-run.json`.
+- **Deck:** slides 5, 6, 7, 9, 10 and 13 changed (slide 9: "Pinned to Nemotron, every request's receipt names it",
+  the five requests of the video run, the `meterless/auto` caveat; slides 6 and 7 re-condensed from the regenerated
+  examples, with the C3 revisions and the dismissed issues; slide 10 says which live runs used Zetaris; slide 13:
+  318 tests, Nightshift and the models declared as pre-existing). Rendered with the Chrome commands of the 22 Oct
+  entry; `deck.pdf` has 13 pages and none of "NVIDIA: not used", "225 tests" or "No model ran".
+- **Video** (`tts.ps1 -Rate 2`, `build_video.py`; rate 2 because the new narration was 257 s at rate 1, over the
+  4-minute limit): the recorded run is now a sample run of example 04 on the tree of a8650c4 (0.38 s,
+  byte-identical to the committed example, with its five replayed `generate` events and the dismissed issues); the
+  Nightshift part replays the live run's stdout as it streamed, then the `grep` of the committed local-lane log;
+  slide 10's narration runs over the `grep` of the `run_start` and 13 `sql` events of the committed 22 Oct Zetaris
+  log. Output: 234.6 s (3 min 55 s), 1920x1080, 30 fps, 7037 frames, H.264 and AAC, 19.3 MB; `ffmpeg -v error`
+  decodes it with no output. Secrets: tiles of one frame every 5 s were looked at (only hashes, public wallet and
+  transaction ids, receipt and model ids), and the deck, narration, captures and the new run folder were searched
+  for the Nightshift token (read from its file inside a script), `nvapi-`, `Bearer`, `idToken`, a password field and
+  user-profile paths: none.
+- **HackOS:** this round did not touch the HackOS form. The description, deck and video there are the ones of
+  22 Oct until they are replaced; the date of that upload goes here when it happens.
+- **Not done:** the Nightshift Console is not shown in the video; no run has used Zetaris and Nightshift together
+  (Zetaris stays stopped for memory); the Docker image and a fresh clone were not re-checked on this tree.

@@ -51,8 +51,9 @@ ZETARIS_BASE_URL_VARS: tuple[str, ...] = ("ZETARIS_BASE_URL", "ZETARIS_REST_URL"
 # Env files read outside sample mode, in this order; a name set by an earlier file (or the shell) is not overwritten.
 ENV_FILES: tuple[str, ...] = (".env.local", ".env")
 # Thinking off by default: the three generator-backed roles answer in JSON or short prose within 400-700 tokens, and
-# with thinking on both Nemotron routes spent the Critic's 500-token budget thinking and answered nothing (HTTP 502
-# empty_response, 2026-10-24, examples/live-trace-nightshift/nemotron-*/smoke/). "default" sends no thinking control.
+# with thinking on both Nemotron routes answered HTTP 502 empty_response, the hosted one also with max_tokens 3000
+# (most likely the reasoning used up the budget; the logs show only the error; 2026-10-24,
+# examples/live-trace-nightshift/nemotron-*/smoke/). "default" sends no thinking control.
 NIGHTSHIFT_DEFAULT_REASONING_EFFORT = "none"
 NIGHTSHIFT_REASONING_EFFORTS: tuple[str, ...] = ("none", "minimal", "low", "medium", "high", "xhigh", "default")
 METERLESS_LINUX_STATE_DIR = "/var/lib/meterless"   # the ns CLI's DEFAULT_STATE_DIR (Linux / packaged DGX daemon)

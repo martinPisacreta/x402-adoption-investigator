@@ -13,8 +13,11 @@ Critic second-opinion request went to the local Nightshift runtime, which handed
   Llama 3.2 3B Q8 lane through `meterless/auto`; archived with its own README and `machine.txt`, and with the 25
   transcripts the committed examples replayed until the fixture set was re-recorded with Nemotron.
 
-Nothing here is edited by hand: each run folder is a copy of `logs/<run_id>/`, and `machine.txt` is the output of
-the commands it lists.
+Nothing here is edited by hand: the run folders are unedited copies of files of `logs/<run_id>/` (which files, see
+Files), and `machine.txt` is command output with the redactions and filters it states inline.
+
+Also here: `nemotron-cloud/live-video-ex01-20261024/`, the run recorded for the demo video (below), and `docker/`, one
+Nightshift request made from a container (its own README).
 
 ## What ran
 
@@ -36,17 +39,22 @@ METERLESS_MODEL=local-runtime/nvidia-nvidia-nemotron-nano-9b-v2-q4-k-m \
 | `nemotron-cloud/nemotron-cloud-ex04-20261024/` | `examples/ex4.json` | 2026-10-24T17:29:51Z | 5 | `partial` | rcpt_req_rndytkid, rcpt_req_2e5tkn76, rcpt_req_u4kee2r4, rcpt_req_a2qt0mtx, rcpt_req_frnojjiy |
 | `nemotron-cloud/nemotron-cloud-ex05-20261024/` | `examples/ex5.json` | 2026-10-24T17:30:28Z | 6 (planner x2) | `partial` | rcpt_req_ux64zdry, rcpt_req_bqatoqo7, rcpt_req_9i8bn59m, rcpt_req_qkqvqvj6, rcpt_req_8fvibwro, rcpt_req_zgfddbsp |
 | `nemotron-local/nemotron-local-ex01-20261024/` (complete) | `examples/ex1.json` | 2026-10-24T17:31:26Z | 5 | `partial` | rcpt_req_2j2p2eb0, rcpt_req_zyml4lfk, rcpt_req_70mpt2bw, rcpt_req_f3ake0ah, rcpt_req_vu51m066 |
+| `nemotron-cloud/live-video-ex01-20261024/` (complete; build a8650c4) | `examples/ex1.json` | 2026-10-24T18:55:18Z | 5 | `partial` | rcpt_req_t1f1teb8, rcpt_req_c0jovllr, rcpt_req_pl9z663t, rcpt_req_v4ma9ufl, rcpt_req_y94ho7dr |
 
 No other Nightshift variable was set: Auto Detect found the runtime at `http://127.0.0.1:8088/v1` and the token was
 read from the runtime's own `<stateDir>/proxy-token` (`run_start.payload.generator_mount`: `found_by: auto_detect`,
 `token_source: <stateDir>/proxy-token (default stateDir)`). `NIGHTSHIFT_REASONING_EFFORT` was unset, so its default
 `none` applied: `generator_mount.call_options` and every `generator.jsonl` line say
-`{"reasoning_effort": "none", "system_turn": "/no_think"}` (next section). Each run took 28-44 s (`run_start` to
-`result`).
+`{"reasoning_effort": "none", "system_turn": "/no_think"}` (next section). Each of the first six runs took 28-44 s
+(`run_start` to `result`), the video run 41 s. The last row was made with `docs/pitch/video/capture_run.py --env
+METERLESS_MODEL=nvidia/nemotron-3.5-lightning-30b-a3b -- python run.py --mode live --require-generator --input
+examples/ex1.json --run-id live-video-ex01-20261024`; its stdout, as it streamed, is
+`docs/pitch/video/live-capture-run.json` and equals the folder's `run.jsonl`.
 
 ## Which model handled each request
 
-- **Cloud, 27 requests.** Every `generate` event of the five `nemotron-cloud-*` runs (`run.jsonl`, repeated with the
+- **Cloud, 27 + 5 requests.** Every `generate` event of the five `nemotron-cloud-*` runs (and of
+  `live-video-ex01-20261024`, five more, latency 1,955 to 12,867 ms) (`run.jsonl`, repeated with the
   call parameters in `generator.jsonl`) says `provider: meterless`, `requested_model` and `model`
   `nvidia/nemotron-3.5-lightning-30b-a3b`, and carries `routing`, the facts of the answer's Meterless compute
   receipt: `routed_model: nvidia/nemotron-3.5-lightning-30b-a3b`, `winning_route` (`label: "Nemotron 3.5 Lightning
@@ -64,9 +72,12 @@ read from the runtime's own `<stateDir>/proxy-token` (`run_start.payload.generat
 
 ## Thinking off: why every request carries `reasoning_effort: "none"` and `/no_think`
 
-Both Nemotron models think before they answer, and the thinking counts against `max_tokens` (Planner 400, Writer
-700, Critic 500). Five single requests made with `scripts/nightshift_smoke.py` (`nemotron-cloud/smoke/`,
-`nemotron-local/smoke/`: `run.jsonl`, and for the answered ones `generator.jsonl` and `transcripts/`) decided it:
+Both Nemotron models think before they answer, and the thinking most likely counts against `max_tokens` (Planner
+400, Writer 700, Critic 500); the logs show only the error, not a reasoning token count. Single requests made with
+`scripts/nightshift_smoke.py` (`nemotron-cloud/smoke/`, `nemotron-local/smoke/`: `run.jsonl`, and for the answered
+ones `generator.jsonl` and `transcripts/`) show it. The cloud ones (17:13-17:16 UTC) came before the cloud runs and
+decided the default; the local one (17:37 UTC) was made after the local run (17:31 UTC), to confirm the same failure
+on that route:
 
 | run id | route | prompt, `max_tokens` | thinking control | result |
 |---|---|---|---|---|
@@ -107,7 +118,8 @@ change.
   first reply was not valid JSON ("response is not a JSON object": a stray `}` closed the object right after the
   hypotheses list); the one re-ask is
   logged as a `retry` line (agent `planner`) and its answer was used. No `planner_fallback`, no repair.
-- **Critic second opinion.** None of the 12 replies was cut: no `generator_reply_repaired` in any run; the longest
+- **Critic second opinion.** In the six runs of 17:27-17:31 UTC none of the 12 replies was cut: no
+  `generator_reply_repaired` in those runs; the longest
   cloud reply was 498 of 500 tokens (ex04 critic-r2). The cloud Critic added 7/2, 2/6, 2/8, 11/8 and 10/6 issues
   (rounds 1/2, ex01-ex05; `critique` lines with `rule: "LLM"`); several are wrong (they call a restated claim value
   "not derivable from" another claim). The local Nano answered `[]` in both rounds (2 tokens each). The second
@@ -123,6 +135,18 @@ change.
   `adoption_thin` with 9 claims here because its settlement is verified live, while the offline replay
   (`../04-payer-dossier-unverifiable/`) cannot verify it and rejects `verified_tx`.
 
+## The run recorded for the demo video (`nemotron-cloud/live-video-ex01-20261024/`, 18:55 UTC)
+
+Made with the build of a8650c4, after the review: a second-opinion issue on a sentence whose every number rule B maps
+to a claim that sentence cites is logged as `critique{verdict: dismissed}` and not acted on, and the Nightshift timeout
+is 90 s. Five requests, all `routed_model: nvidia/nemotron-3.5-lightning-30b-a3b`, kind `cloud`. Unlike the six runs
+above, both Critic replies and the second Writer draft reached their budgets (500, 500 and 700 output tokens in the
+receipts; the Critic arrays kept 8 and 9 complete items, `recovery{generator_reply_repaired}` at seq 132 and 175).
+The second opinion raised 8 issues in round 1, 4 of them dismissed, and 6 in round 2; 6 sentences were cut after
+round 2 and the conflicts, caveats and verdict sentence added from the claims (seq 182-184). Claims and verdict: the
+same 19 claims and `self_settled_mostly` as the 17:27 run, with one value moved, the Bazaar 30-day counter of the
+host (c16), from 63 to 64. Zetaris was stopped (seq 1), so its SQL ran on SQLite.
+
 ## Compared with the Llama 3.2 3B run (`llama-3.2-3b/`)
 
 Same inputs, same budgets, Zetaris stopped in both; the Llama runs used the prompts before the tightening above.
@@ -130,7 +154,7 @@ Same inputs, same budgets, Zetaris stopped in both; the Llama runs used the prom
 | | Llama 3.2 3B, local (`llama-3.2-3b/nightshift-ex0N-20261024/`) | Nemotron 3.5 Lightning, hosted (`nemotron-cloud/`) |
 |---|---|---|
 | Planner | ex01: invalid JSON twice, rules plan kept (`planner_fallback`); ex03-05 brought inside the schema (`generator_reply_repaired`) | used in 5 of 5; ex02 and ex05 after one re-ask |
-| Critic replies cut at 500 tokens | 7 of 10 | 0 of 10 |
+| Critic replies that were unterminated JSON arrays | 7 of 10 (5 of them at the 500-token limit) | 0 of 10 |
 | Critic issues added (rounds 1/2, ex01-05) | 20/19, 11/10, 12/13, 13/8, 12/13 | 7/2, 2/6, 2/8, 11/8, 10/6 |
 | Sentences cut after round 2 | 10, 10, 13, 8, 13 | 2, 6, 8, 8, 6 |
 | Verdict sentence added by code | 5 of 5 | 5 of 5 |
@@ -144,7 +168,8 @@ got different writer-r1 replies.
 
 ## Zetaris fell back to SQLite
 
-Zetaris was stopped on purpose (the machine had about 4 GB of free memory). Every run starts with
+Zetaris was stopped on purpose (the machine was short of memory: about 4 GB free, a reading of the session that is
+not committed). Every run starts with
 `recovery{zetaris_unreachable}` at seq 1 ("connection refused"; `zetaris.jsonl` of the two complete folders shows
 the failed login) and runs the whole SQL on SQLite (`mounts.executor: "sqlite"`, `derivation.backend:
 "sqlite-fallback"` on every claim), which is why every status is `partial`. The live trace computed on Zetaris Lightning SQL is `../live-trace/live-ex01-20261022/` (2026-10-22,
@@ -152,14 +177,15 @@ before Nightshift was installed, generator `null`).
 
 ## Relation to the sample-mode replays
 
-The committed examples replay 25 other Nemotron answers (`../../fixtures/transcripts/<example>/`, recorded
-17:15-17:24 UTC with `METERLESS_MODEL=nvidia/nemotron-3.5-lightning-30b-a3b python scripts/record_transcripts.py
+The committed examples replay 25 other Nemotron answers (`../../fixtures/transcripts/<example>/`, 17 recorded
+17:15-17:24 UTC and the round-2 Writer and Critic answers of examples 01, 03, 04 and 05 (8) re-recorded 18:43-18:44
+UTC, after the dismissal of rule-B-backed issues changed those prompts, both with `METERLESS_MODEL=nvidia/nemotron-3.5-lightning-30b-a3b python scripts/record_transcripts.py
 <example> --on-fixtures --prune`; see that folder's README). A transcript is keyed by the sha256 of its exact
 prompt, and the live prompts here carry live data, so they never occur offline.
 
 ## Files
 
-The complete folders (`nemotron-cloud-ex01-20261024/`, `nemotron-local-ex01-20261024/`): `output.json`,
+The complete folders (`nemotron-cloud-ex01-20261024/`, `nemotron-local-ex01-20261024/`, `live-video-ex01-20261024/`): `output.json`,
 `report.md`, `run.jsonl`, `generator.jsonl`, `sql.jsonl`, `hmem.trace.jsonl`, `fetch.jsonl`, `zetaris.jsonl` and
 `transcripts/` (each call's reply with its routing and `request` {`max_tokens`, `call_options`}, and the exact
 prompt beside it). The other run folders: `output.json`, `report.md`, `run.jsonl`, `generator.jsonl`,

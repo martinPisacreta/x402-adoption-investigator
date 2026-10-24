@@ -1,0 +1,950 @@
+{
+ "cmd": [
+  "python",
+  "run.py",
+  "--mode",
+  "live",
+  "--require-generator",
+  "--input",
+  "examples/ex1.json",
+  "--run-id",
+  "live-video-ex01-20261024"
+ ],
+ "meta": {
+  "commit": "a8650c4"
+ },
+ "started_utc": "2026-10-24T18:55:10+00:00",
+ "rc": 0,
+ "total_s": 48.838,
+ "stderr": "",
+ "lines": [
+  {
+   "t": 8.2286,
+   "line": "{\"seq\":1,\"at\":\"2026-10-24T18:55:18.417Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"recovery\",\"agent\":\"runner\",\"payload\":{\"reason\":\"zetaris_unreachable\",\"detail\":\"zetaris_unreachable: Zetaris unreachable: URLError: [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión; whole run on SQLite\",\"to\":\"sqlite\"}}"
+  },
+  {
+   "t": 8.274,
+   "line": "{\"seq\":2,\"at\":\"2026-10-24T18:55:18.462Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"run_start\",\"agent\":\"runner\",\"payload\":{\"mounts\":{\"mode\":\"live\",\"fetcher\":\"live+fixture-fallback\",\"executor\":\"sqlite\",\"generator\":\"nightshift:nvidia/nemotron-3.5-lightning-30b-a3b\",\"fixtures_captured_at\":\"2026-10-22T00:05:00Z\",\"zetaris_version\":null,\"zetaris_source\":null},\"input_sha256\":\"460f353bbe613207dbf9a81fcda3e13469b9c7018b5c46184a3c9694746e16d5\",\"budget\":{\"max_seconds\":180,\"max_fetches\":40,\"max_sql\":60,\"max_generator_calls\":12,\"max_critic_rounds\":2,\"max_tx_verifications\":5,\"bazaar_pages\":3},\"deadline_at\":\"2026-10-24T18:58:18.462Z\",\"version\":\"0.1.0\",\"engines\":{\"hmem\":true,\"world_model\":true},\"generator_mount\":{\"provider\":\"meterless\",\"base_url\":\"http://127.0.0.1:8088/v1\",\"routing_mode\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"found_by\":\"auto_detect\",\"models\":[\"meterless/auto\",\"meterless/fast\",\"meterless/deep\",\"meterless/cheap\",\"meterless/local\",\"meterless/fusion\",\"meterless/cluster\",\"meterless/text\",\"meterless/code\",\"meterless/vision\",\"meterless/perception\",\"meterless/image\",\"meterless/video\",\"meterless/speech\",\"meterless/transcribe\",\"meterless/music\",\"meterless/embed\",\"meterless/judge\"],\"timeout_s\":90.0,\"call_options\":{\"reasoning_effort\":\"none\",\"system_turn\":\"/no_think\"},\"token_source\":\"<stateDir>/proxy-token (default stateDir)\"}}}"
+  },
+  {
+   "t": 8.274,
+   "line": "{\"seq\":3,\"at\":\"2026-10-24T18:55:18.463Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"handoff\",\"agent\":\"runner\",\"payload\":{\"from\":\"runner\",\"to\":\"planner\",\"artifact\":{\"type\":\"input\",\"count\":1,\"sha256\":\"5ba716578ed17cf3cd223b62cbab288f22ddabe756fb2d7eaba990edc558b381\"}}}"
+  },
+  {
+   "t": 8.2905,
+   "line": "{\"seq\":4,\"at\":\"2026-10-24T18:55:18.479Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"planner\",\"payload\":{\"op\":\"retrieve\",\"actor\":\"planner\",\"memory_ids\":[\"mem-33\",\"mem-61\",\"mem-8\",\"mem-28\",\"mem-43\"],\"details\":{\"threshold\":0.35,\"top_n\":5,\"hits\":[{\"memory_id\":\"mem-33\",\"score\":0.3962},{\"memory_id\":\"mem-61\",\"score\":0.3962},{\"memory_id\":\"mem-8\",\"score\":0.3962},{\"memory_id\":\"mem-28\",\"score\":0.3661},{\"memory_id\":\"mem-43\",\"score\":0.3661}],\"query_sha256\":\"5ae64807b7142ea4fe6595fd4c82848e048cb97e8f3cfcd9c3d6bdaa83e76974\"}}}"
+  },
+  {
+   "t": 8.2918,
+   "line": "{\"seq\":5,\"at\":\"2026-10-24T18:55:18.481Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"planner\",\"payload\":{\"op\":\"inject\",\"actor\":\"planner\",\"memory_ids\":[\"mem-33\",\"mem-61\",\"mem-8\",\"mem-28\",\"mem-43\"],\"details\":{\"prompt_id\":\"planner\",\"attempt\":1,\"prompt_sha256\":\"be14e8121cf449aa59326256b368c8d60a51c595eb7fc7cbd914a8049bcc04b2\",\"reinjection_sha256\":\"34d3c96178e7700dd88243ee83aa0339baba79c9fd96e153ad7278d4d04de2c0\"}}}"
+  },
+  {
+   "t": 10.2803,
+   "line": "{\"seq\":6,\"at\":\"2026-10-24T18:55:20.469Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"generate\",\"agent\":\"planner\",\"payload\":{\"prompt_id\":\"planner\",\"attempt\":1,\"generator\":\"nightshift:nvidia/nemotron-3.5-lightning-30b-a3b\",\"provider\":\"meterless\",\"requested_model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"recorded\":false,\"prompt_sha256\":\"be14e8121cf449aa59326256b368c8d60a51c595eb7fc7cbd914a8049bcc04b2\",\"response_sha256\":\"3f34271e55a33bb254325720dbf16c4fbad9c11f7c144c5764d8a4dbb14c04cf\",\"routing\":{\"source\":\"meterless_receipt\",\"schema\":\"meterless.compute_receipt.v1\",\"receipt_id\":\"rcpt_req_t1f1teb8\",\"decision_id\":\"req_t1f1teb8\",\"requested_model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"routed_model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"winning_route\":{\"model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"label\":\"Nemotron 3.5 Lightning 30B A3B\",\"provider\":\"nvidia\",\"kind\":\"cloud\",\"tier\":\"A\"},\"phases\":[{\"phase\":\"final_synthesis\",\"model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"ms\":1955}],\"latency_ms\":1955,\"usage\":{\"input_tokens\":777,\"output_tokens\":166,\"total_tokens\":943},\"cache\":\"miss\",\"from_cache\":false,\"privacy_path\":\"cloud-ok\",\"wall_ms\":1984}}}"
+  },
+  {
+   "t": 10.2819,
+   "line": "{\"seq\":7,\"at\":\"2026-10-24T18:55:20.471Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"plan\",\"agent\":\"planner\",\"payload\":{\"playbook\":\"seller_profile\",\"query_ids\":[\"q01_sales_by_wallet_class\",\"q02_external_payers\",\"q03_repeat_external_payers\",\"q04_top_payer_share\",\"q05_external_sales_by_service\",\"q06_bazaar_host_listings\",\"q07_bazaar_payto_vs_receipts_seller\",\"q12_registry_count_openapi\",\"q13_registry_count_agent402\",\"q14_registry_count_vet402\",\"q15_registry_count_trust_search\",\"q16_settlements_vs_receipts\",\"q18_external_sales_by_day\"],\"sources\":[\"receipts\",\"store_openapi\",\"cdp_search\",\"agent402\",\"vet402\",\"x402_trust\",\"base_rpc\"],\"fetch_count\":10,\"hmem_memory_ids\":[\"mem-33\",\"mem-61\",\"mem-8\",\"mem-28\",\"mem-43\"],\"planner_source\":\"generator\",\"metrics\":[\"sales_total\",\"own_wallet_sales\",\"own_wallets_total\",\"external_sales_total\",\"external_usdc_atomic\",\"external_payers_total\",\"self_settlement_share\",\"repeat_external_payers\",\"top_payer_share\",\"external_window\",\"external_sales_by_service\",\"external_sales_by_day\",\"external_sales_30d\",\"bazaar_listings_for_host\",\"bazaar_payto_for_host\",\"bazaar_calls_30d_for_host\",\"bazaar_payto_matches_seller\",\"endpoint_count_for_host\",\"settlements_verified\"],\"hypotheses\":[\"The host tienda.textokit.store has a single dominant wallet driving most sales volume.\",\"Repeat external payers are rare, indicating one-time speculative registrations rather than sustained adoption.\",\"Registries disagree because CDP Bazaar counts listings while receipts count settled sales, creating a mismatch between visibility and revenue.\",\"The wallet paying for tienda.textokit.store interacts predominantly via atomic USDC transfers, suggesting x402 trust constraints.\",\"External sales are concentrated in a short window after listing, after which activity drops off sharply.\"]}}"
+  },
+  {
+   "t": 10.282,
+   "line": "{\"seq\":8,\"at\":\"2026-10-24T18:55:20.471Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"handoff\",\"agent\":\"runner\",\"payload\":{\"from\":\"planner\",\"to\":\"collector\",\"artifact\":{\"type\":\"plan\",\"count\":10,\"sha256\":\"abce43a721e72a0dfcaadc89671b42c3c8590d76998befd9b1cf9f63e0bcec67\"}}}"
+  },
+  {
+   "t": 10.4427,
+   "line": "{\"seq\":9,\"at\":\"2026-10-24T18:55:20.632Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"fetch\",\"agent\":\"collector\",\"payload\":{\"name\":\"store_receipts\",\"family\":\"receipts\",\"url\":\"https://tienda.textokit.store/receipts.json\",\"method\":\"GET\",\"http\":200,\"bytes\":26832,\"sha256\":\"bfb83fcc6f5092ee25af5c5e3475df6f1ec1f97ead8a0a86f737f4a959e192ff\",\"latency_ms\":158,\"replayed\":false,\"stale\":false,\"status\":\"ok\",\"request_key\":\"GET https://tienda.textokit.store/receipts.json\"}}"
+  },
+  {
+   "t": 10.6137,
+   "line": "{\"seq\":10,\"at\":\"2026-10-24T18:55:20.802Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"fetch\",\"agent\":\"collector\",\"payload\":{\"name\":\"store_openapi\",\"family\":\"store_openapi\",\"url\":\"https://tienda.textokit.store/openapi.json\",\"method\":\"GET\",\"http\":200,\"bytes\":168635,\"sha256\":\"c5c75d2969a043b8a1deee00f394f771cac49fa8b7eb6f3770802fd5675f8129\",\"latency_ms\":165,\"replayed\":false,\"stale\":false,\"status\":\"ok\",\"request_key\":\"GET https://tienda.textokit.store/openapi.json\"}}"
+  },
+  {
+   "t": 11.0029,
+   "line": "{\"seq\":11,\"at\":\"2026-10-24T18:55:21.191Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"fetch\",\"agent\":\"collector\",\"payload\":{\"name\":\"cdp_search_host\",\"family\":\"cdp_search\",\"url\":\"https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?urlSubstring=tienda.textokit.store&limit=20\",\"method\":\"GET\",\"http\":200,\"bytes\":49572,\"sha256\":\"5ab7274e8a9148b3da42b50823fecea5009ff73e3056abe29cc928b621b26bb1\",\"latency_ms\":381,\"replayed\":false,\"stale\":false,\"status\":\"ok\",\"request_key\":\"GET https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?limit=20&urlSubstring=tienda.textokit.store\"}}"
+  },
+  {
+   "t": 11.6697,
+   "line": "{\"seq\":12,\"at\":\"2026-10-24T18:55:21.859Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"fetch\",\"agent\":\"collector\",\"payload\":{\"name\":\"agent402_index\",\"family\":\"agent402\",\"url\":\"https://agent402.tools/api/index?seller=tienda.textokit.store\",\"method\":\"GET\",\"http\":200,\"bytes\":45933,\"sha256\":\"000cf0140009d32aafd5fa96531a42c69b473bcd58e66f35ffdcdbae5188a54a\",\"latency_ms\":664,\"replayed\":false,\"stale\":false,\"status\":\"ok\",\"request_key\":\"GET https://agent402.tools/api/index?seller=tienda.textokit.store\"}}"
+  },
+  {
+   "t": 12.4771,
+   "line": "{\"seq\":13,\"at\":\"2026-10-24T18:55:22.666Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"fetch\",\"agent\":\"collector\",\"payload\":{\"name\":\"agent402_route\",\"family\":\"agent402\",\"url\":\"https://agent402.tools/api/route?q=x402%20adoption&include=external\",\"method\":\"GET\",\"http\":200,\"bytes\":20558,\"sha256\":\"40c11fc3e168d171f4337a968063b661634fcda33a2b520a14fa5549815be2b6\",\"latency_ms\":805,\"replayed\":false,\"stale\":false,\"status\":\"ok\",\"request_key\":\"GET https://agent402.tools/api/route?include=external&q=x402+adoption\"}}"
+  },
+  {
+   "t": 13.2464,
+   "line": "{\"seq\":14,\"at\":\"2026-10-24T18:55:23.435Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"fetch\",\"agent\":\"collector\",\"payload\":{\"name\":\"vet402_resolve\",\"family\":\"vet402\",\"url\":\"https://vet402.com/api/v1/resolve?q=tienda.textokit.store\",\"method\":\"GET\",\"http\":200,\"bytes\":9401,\"sha256\":\"03818eb8c68d0aee389622401aa290dd0c96215faae09a2663ee1acdfb56ce2b\",\"latency_ms\":767,\"replayed\":false,\"stale\":false,\"status\":\"ok\",\"request_key\":\"GET https://vet402.com/api/v1/resolve?q=tienda.textokit.store\"}}"
+  },
+  {
+   "t": 15.3703,
+   "line": "{\"seq\":15,\"at\":\"2026-10-24T18:55:25.559Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"fetch\",\"agent\":\"collector\",\"payload\":{\"name\":\"trust_search\",\"family\":\"x402_trust\",\"url\":\"https://x402-trust.com/trust/search?q=tienda.textokit.store&limit=25&offset=0\",\"method\":\"GET\",\"http\":200,\"bytes\":15486,\"sha256\":\"697322351f479b927ecd0101af9617c7b30abf1b722676da8a5a2c446094f682\",\"latency_ms\":2121,\"replayed\":false,\"stale\":false,\"status\":\"ok\",\"request_key\":\"GET https://x402-trust.com/trust/search?limit=25&offset=0&q=tienda.textokit.store\"}}"
+  },
+  {
+   "t": 15.7244,
+   "line": "{\"seq\":16,\"at\":\"2026-10-24T18:55:25.913Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"fetch\",\"agent\":\"collector\",\"payload\":{\"name\":\"trust_stats\",\"family\":\"x402_trust\",\"url\":\"https://x402-trust.com/trust/stats\",\"method\":\"GET\",\"http\":200,\"bytes\":1736,\"sha256\":\"ec62352a515200ffac76be6f75d5ee38a64bf2fd41bb1081056090e00cea3aa0\",\"latency_ms\":352,\"replayed\":false,\"stale\":false,\"status\":\"ok\",\"request_key\":\"GET https://x402-trust.com/trust/stats\"}}"
+  },
+  {
+   "t": 16.117,
+   "line": "{\"seq\":17,\"at\":\"2026-10-24T18:55:26.306Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"fetch\",\"agent\":\"collector\",\"payload\":{\"name\":\"trust_verified\",\"family\":\"x402_trust\",\"url\":\"https://x402-trust.com/verified.json?limit=25&offset=0\",\"method\":\"GET\",\"http\":200,\"bytes\":12177,\"sha256\":\"2460b082c01c4940269b13185228b73da2249e27bc32dc7ad7059623bda9a970\",\"latency_ms\":390,\"replayed\":false,\"stale\":false,\"status\":\"ok\",\"request_key\":\"GET https://x402-trust.com/verified.json?limit=25&offset=0\"}}"
+  },
+  {
+   "t": 16.1269,
+   "line": "{\"seq\":18,\"at\":\"2026-10-24T18:55:26.315Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"handoff\",\"agent\":\"runner\",\"payload\":{\"from\":\"collector\",\"to\":\"keeper\",\"artifact\":{\"type\":\"observations\",\"count\":9,\"sha256\":\"73752910d68ff83193b12430513a08f5161496484e1ddbe584f4afe9ba822f8b\"}}}"
+  },
+  {
+   "t": 16.1851,
+   "line": "{\"seq\":19,\"at\":\"2026-10-24T18:55:26.373Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"ingest\",\"agent\":\"keeper\",\"payload\":{\"pass\":1,\"report\":{\"runId\":\"run_bce5c176f222\",\"processed\":9,\"skippedUnchanged\":0,\"eventsAppended\":922,\"changed\":true,\"stepTimingsMs\":{\"1-reconcile-stale\":0,\"2-classify\":3,\"3-persist\":43,\"4-diff\":11},\"quarantined\":[]},\"quarantined\":[],\"counts\":{\"events\":922,\"audit\":923,\"entities\":86,\"contexts\":8,\"relationships\":290,\"facts\":268,\"observations\":9,\"aliases\":0},\"skipped_sources\":[],\"adapter_skips\":[]}}"
+  },
+  {
+   "t": 16.2017,
+   "line": "{\"seq\":20,\"at\":\"2026-10-24T18:55:26.390Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"handoff\",\"agent\":\"runner\",\"payload\":{\"from\":\"keeper\",\"to\":\"verifier\",\"artifact\":{\"type\":\"world\",\"count\":1,\"sha256\":\"9bf4e6a3eb72f00fcd66afc635931760f300bb28c81a2dbcf5b0ba649bd3cc55\"}}}"
+  },
+  {
+   "t": 16.4811,
+   "line": "{\"seq\":21,\"at\":\"2026-10-24T18:55:26.670Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"fetch\",\"agent\":\"collector\",\"payload\":{\"name\":\"rpc_chain_id\",\"family\":\"base_rpc\",\"url\":\"https://mainnet.base.org\",\"method\":\"POST\",\"http\":200,\"bytes\":42,\"sha256\":\"395c4282d446999297cdcba9e50c3df13687008bc4eecc206a5d616be7f6d227\",\"latency_ms\":277,\"replayed\":false,\"stale\":false,\"status\":\"ok\",\"request_key\":\"RPC eth_chainId 4f53cda18c2baa0c\"}}"
+  },
+  {
+   "t": 16.7475,
+   "line": "{\"seq\":22,\"at\":\"2026-10-24T18:55:26.937Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"fetch\",\"agent\":\"collector\",\"payload\":{\"name\":\"rpc_receipt_0xf93149b946d87295924977c2d46f76f163b4d93354bc3fa7aa1f5c04e392736d\",\"family\":\"base_rpc\",\"url\":\"https://mainnet.base.org\",\"method\":\"POST\",\"http\":200,\"bytes\":2442,\"sha256\":\"ecc3c6c0bde947f1d2566922b5af49656fc8fb81cdfd31f4cc1c04f83ea36cb1\",\"latency_ms\":264,\"replayed\":false,\"stale\":false,\"status\":\"ok\",\"request_key\":\"RPC eth_getTransactionReceipt 1ac5cde41097b26c\"}}"
+  },
+  {
+   "t": 16.992,
+   "line": "{\"seq\":23,\"at\":\"2026-10-24T18:55:27.180Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"fetch\",\"agent\":\"collector\",\"payload\":{\"name\":\"rpc_tx_0xf93149b946d87295924977c2d46f76f163b4d93354bc3fa7aa1f5c04e392736d\",\"family\":\"base_rpc\",\"url\":\"https://mainnet.base.org\",\"method\":\"POST\",\"http\":200,\"bytes\":1391,\"sha256\":\"497c64028977d940d015c7da7f6558d3652c0184777435c5caea35e9f29085f9\",\"latency_ms\":242,\"replayed\":false,\"stale\":false,\"status\":\"ok\",\"request_key\":\"RPC eth_getTransactionByHash 1ac5cde41097b26c\"}}"
+  },
+  {
+   "t": 16.9923,
+   "line": "{\"seq\":24,\"at\":\"2026-10-24T18:55:27.182Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"verify\",\"agent\":\"verifier\",\"payload\":{\"tx\":\"0xf93149b946d87295924977c2d46f76f163b4d93354bc3fa7aa1f5c04e392736d\",\"status\":\"verified\",\"payer\":\"0xec2abd3eda89bed90124736e317e847d5fb6d034\",\"seller\":\"0x6b5af9924f4cd35643c11a9fd1c983f77261a6e1\",\"amount_atomic\":5000,\"basescan_url\":\"https://basescan.org/tx/0xf93149b946d87295924977c2d46f76f163b4d93354bc3fa7aa1f5c04e392736d\",\"receipt_match\":true,\"reason\":null,\"block\":53030579,\"block_time\":\"2026-10-24T14:01:45.000Z\",\"facilitator_from\":\"0x625d8a65134079f8faaac39a7947c73d93c6ac39\",\"decoded_from\":\"Transfer log\",\"input_match\":true,\"receipt_payer\":\"0xec2abd3eda89bed90124736e317e847d5fb6d034\",\"receipt_amount_atomic\":5000,\"replayed\":false,\"stale\":false}}"
+  },
+  {
+   "t": 17.2416,
+   "line": "{\"seq\":25,\"at\":\"2026-10-24T18:55:27.430Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"fetch\",\"agent\":\"collector\",\"payload\":{\"name\":\"rpc_receipt_0x8d2ccd6a3e04a769ecc680f298999dd082a0a2eba936f00a96c0e4ec5902b934\",\"family\":\"base_rpc\",\"url\":\"https://mainnet.base.org\",\"method\":\"POST\",\"http\":200,\"bytes\":2439,\"sha256\":\"2b5ad69b32db5cada6ef8532e76cc0c8d725a6b0f1715a9af5e14b2afe9ec901\",\"latency_ms\":247,\"replayed\":false,\"stale\":false,\"status\":\"ok\",\"request_key\":\"RPC eth_getTransactionReceipt 5e4b61b489e2cf47\"}}"
+  },
+  {
+   "t": 17.4782,
+   "line": "{\"seq\":26,\"at\":\"2026-10-24T18:55:27.666Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"fetch\",\"agent\":\"collector\",\"payload\":{\"name\":\"rpc_tx_0x8d2ccd6a3e04a769ecc680f298999dd082a0a2eba936f00a96c0e4ec5902b934\",\"family\":\"base_rpc\",\"url\":\"https://mainnet.base.org\",\"method\":\"POST\",\"http\":200,\"bytes\":1391,\"sha256\":\"b8bb3221db2fa3615be0d3a9a8b499f5cd8ee5d88d6cc0cc8f61000095cd1c42\",\"latency_ms\":234,\"replayed\":false,\"stale\":false,\"status\":\"ok\",\"request_key\":\"RPC eth_getTransactionByHash 5e4b61b489e2cf47\"}}"
+  },
+  {
+   "t": 17.4786,
+   "line": "{\"seq\":27,\"at\":\"2026-10-24T18:55:27.668Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"verify\",\"agent\":\"verifier\",\"payload\":{\"tx\":\"0x8d2ccd6a3e04a769ecc680f298999dd082a0a2eba936f00a96c0e4ec5902b934\",\"status\":\"verified\",\"payer\":\"0x7722dfae6bbed2fd02dc07455c2f5bf14be25e4a\",\"seller\":\"0x6b5af9924f4cd35643c11a9fd1c983f77261a6e1\",\"amount_atomic\":1000,\"basescan_url\":\"https://basescan.org/tx/0x8d2ccd6a3e04a769ecc680f298999dd082a0a2eba936f00a96c0e4ec5902b934\",\"receipt_match\":true,\"reason\":null,\"block\":53002133,\"block_time\":\"2026-10-23T22:13:33.000Z\",\"facilitator_from\":\"0x14fda13953fc30428938e6bf950d036e77214e52\",\"decoded_from\":\"Transfer log\",\"input_match\":true,\"receipt_payer\":\"0x7722dfae6bbed2fd02dc07455c2f5bf14be25e4a\",\"receipt_amount_atomic\":1000,\"replayed\":false,\"stale\":false}}"
+  },
+  {
+   "t": 17.8159,
+   "line": "{\"seq\":28,\"at\":\"2026-10-24T18:55:28.005Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"fetch\",\"agent\":\"collector\",\"payload\":{\"name\":\"rpc_receipt_0x58ddb2e77e574ddda75fd74df6f3dbf94e2795e22c36f8a01a506c544ff4ada3\",\"family\":\"base_rpc\",\"url\":\"https://mainnet.base.org\",\"method\":\"POST\",\"http\":200,\"bytes\":2442,\"sha256\":\"9300efb809745035ec8c6fe5cd0ad9e11e309032fbe5018180c2dc0b48134757\",\"latency_ms\":335,\"replayed\":false,\"stale\":false,\"status\":\"ok\",\"request_key\":\"RPC eth_getTransactionReceipt 4abbe9fcb6a985ee\"}}"
+  },
+  {
+   "t": 18.0694,
+   "line": "{\"seq\":29,\"at\":\"2026-10-24T18:55:28.258Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"fetch\",\"agent\":\"collector\",\"payload\":{\"name\":\"rpc_tx_0x58ddb2e77e574ddda75fd74df6f3dbf94e2795e22c36f8a01a506c544ff4ada3\",\"family\":\"base_rpc\",\"url\":\"https://mainnet.base.org\",\"method\":\"POST\",\"http\":200,\"bytes\":1390,\"sha256\":\"d3302e29f2066dd89e4f8b4576b970cb81a0b9b462e102741dfd2e166dc6c6bf\",\"latency_ms\":251,\"replayed\":false,\"stale\":false,\"status\":\"ok\",\"request_key\":\"RPC eth_getTransactionByHash 4abbe9fcb6a985ee\"}}"
+  },
+  {
+   "t": 18.0698,
+   "line": "{\"seq\":30,\"at\":\"2026-10-24T18:55:28.258Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"verify\",\"agent\":\"verifier\",\"payload\":{\"tx\":\"0x58ddb2e77e574ddda75fd74df6f3dbf94e2795e22c36f8a01a506c544ff4ada3\",\"status\":\"verified\",\"payer\":\"0xa1d1c0cf717402ff3651aa4873ccf96410b01978\",\"seller\":\"0x6b5af9924f4cd35643c11a9fd1c983f77261a6e1\",\"amount_atomic\":1000,\"basescan_url\":\"https://basescan.org/tx/0x58ddb2e77e574ddda75fd74df6f3dbf94e2795e22c36f8a01a506c544ff4ada3\",\"receipt_match\":true,\"reason\":null,\"block\":52914075,\"block_time\":\"2026-10-21T21:18:17.000Z\",\"facilitator_from\":\"0x4c934c63c786157fefd990945b25ea60a0fb0205\",\"decoded_from\":\"Transfer log\",\"input_match\":true,\"receipt_payer\":\"0xa1d1c0cf717402ff3651aa4873ccf96410b01978\",\"receipt_amount_atomic\":1000,\"replayed\":false,\"stale\":false}}"
+  },
+  {
+   "t": 18.3449,
+   "line": "{\"seq\":31,\"at\":\"2026-10-24T18:55:28.533Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"fetch\",\"agent\":\"collector\",\"payload\":{\"name\":\"rpc_receipt_0x3ca4f2791f4f851a574f4abd7cb949e1b05fb00dadeb77b83fb3d0e36a608fb2\",\"family\":\"base_rpc\",\"url\":\"https://mainnet.base.org\",\"method\":\"POST\",\"http\":200,\"bytes\":2442,\"sha256\":\"5a368b92b5730d925ebf161e0d19631fa191cb8453b51746ee4060c4d655d9b2\",\"latency_ms\":272,\"replayed\":false,\"stale\":false,\"status\":\"ok\",\"request_key\":\"RPC eth_getTransactionReceipt 02dd57d3607fdcef\"}}"
+  },
+  {
+   "t": 18.5961,
+   "line": "{\"seq\":32,\"at\":\"2026-10-24T18:55:28.784Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"fetch\",\"agent\":\"collector\",\"payload\":{\"name\":\"rpc_tx_0x3ca4f2791f4f851a574f4abd7cb949e1b05fb00dadeb77b83fb3d0e36a608fb2\",\"family\":\"base_rpc\",\"url\":\"https://mainnet.base.org\",\"method\":\"POST\",\"http\":200,\"bytes\":1390,\"sha256\":\"8cc39ffbb9176645fa694ea6e22acc8bd2292b72aa6a895aa2b0378ba46d8cc7\",\"latency_ms\":249,\"replayed\":false,\"stale\":false,\"status\":\"ok\",\"request_key\":\"RPC eth_getTransactionByHash 02dd57d3607fdcef\"}}"
+  },
+  {
+   "t": 18.5965,
+   "line": "{\"seq\":33,\"at\":\"2026-10-24T18:55:28.785Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"verify\",\"agent\":\"verifier\",\"payload\":{\"tx\":\"0x3ca4f2791f4f851a574f4abd7cb949e1b05fb00dadeb77b83fb3d0e36a608fb2\",\"status\":\"verified\",\"payer\":\"0xc9c7b38c0942914fc8ea12063bc92dcd3b581670\",\"seller\":\"0x6b5af9924f4cd35643c11a9fd1c983f77261a6e1\",\"amount_atomic\":1000,\"basescan_url\":\"https://basescan.org/tx/0x3ca4f2791f4f851a574f4abd7cb949e1b05fb00dadeb77b83fb3d0e36a608fb2\",\"receipt_match\":true,\"reason\":null,\"block\":52860464,\"block_time\":\"2026-10-20T15:31:15.000Z\",\"facilitator_from\":\"0x93f6601151ccb08f333ab4b1cccfb1e188c0be44\",\"decoded_from\":\"Transfer log\",\"input_match\":true,\"receipt_payer\":\"0xc9c7b38c0942914fc8ea12063bc92dcd3b581670\",\"receipt_amount_atomic\":1000,\"replayed\":false,\"stale\":false}}"
+  },
+  {
+   "t": 18.8339,
+   "line": "{\"seq\":34,\"at\":\"2026-10-24T18:55:29.023Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"fetch\",\"agent\":\"collector\",\"payload\":{\"name\":\"rpc_receipt_0x62c01526c5beb13cad96634ec80e837e576df496905f1bac8019c6ffa3e358c3\",\"family\":\"base_rpc\",\"url\":\"https://mainnet.base.org\",\"method\":\"POST\",\"http\":200,\"bytes\":2441,\"sha256\":\"0d0835c75f4a6bdfe113bce6101adbfe146ad22c1f7ed9fb2c6503e568e33a4e\",\"latency_ms\":234,\"replayed\":false,\"stale\":false,\"status\":\"ok\",\"request_key\":\"RPC eth_getTransactionReceipt 54fa30d4aadcf1af\"}}"
+  },
+  {
+   "t": 19.0748,
+   "line": "{\"seq\":35,\"at\":\"2026-10-24T18:55:29.264Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"fetch\",\"agent\":\"collector\",\"payload\":{\"name\":\"rpc_tx_0x62c01526c5beb13cad96634ec80e837e576df496905f1bac8019c6ffa3e358c3\",\"family\":\"base_rpc\",\"url\":\"https://mainnet.base.org\",\"method\":\"POST\",\"http\":200,\"bytes\":1392,\"sha256\":\"7e3c4f07991dcd83ba63fa3f8b681fff607f27b8d241dce4fe8526f179ce84f7\",\"latency_ms\":238,\"replayed\":false,\"stale\":false,\"status\":\"ok\",\"request_key\":\"RPC eth_getTransactionByHash 54fa30d4aadcf1af\"}}"
+  },
+  {
+   "t": 19.0752,
+   "line": "{\"seq\":36,\"at\":\"2026-10-24T18:55:29.264Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"verify\",\"agent\":\"verifier\",\"payload\":{\"tx\":\"0x62c01526c5beb13cad96634ec80e837e576df496905f1bac8019c6ffa3e358c3\",\"status\":\"verified\",\"payer\":\"0x097e3f339d0b023605e12a6b81e2d6cb7571475a\",\"seller\":\"0x6b5af9924f4cd35643c11a9fd1c983f77261a6e1\",\"amount_atomic\":1000,\"basescan_url\":\"https://basescan.org/tx/0x62c01526c5beb13cad96634ec80e837e576df496905f1bac8019c6ffa3e358c3\",\"receipt_match\":true,\"reason\":null,\"block\":52841269,\"block_time\":\"2026-10-20T04:51:25.000Z\",\"facilitator_from\":\"0x8f5cb67b49555e614892b7233cfddebfb746e531\",\"decoded_from\":\"Transfer log\",\"input_match\":true,\"receipt_payer\":\"0x097e3f339d0b023605e12a6b81e2d6cb7571475a\",\"receipt_amount_atomic\":1000,\"replayed\":false,\"stale\":false}}"
+  },
+  {
+   "t": 19.2953,
+   "line": "{\"seq\":37,\"at\":\"2026-10-24T18:55:29.484Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"fetch\",\"agent\":\"collector\",\"payload\":{\"name\":\"rpc_balance_0xec2abd3eda89bed90124736e317e847d5fb6d034\",\"family\":\"base_rpc\",\"url\":\"https://mainnet.base.org\",\"method\":\"POST\",\"http\":200,\"bytes\":103,\"sha256\":\"14ae1221c55c30d91b2af124383ee61d19b9b6e1c85d1eff9fe42952022c6a33\",\"latency_ms\":218,\"replayed\":false,\"stale\":false,\"status\":\"ok\",\"request_key\":\"RPC eth_call 11093d1922b2dcf3\"}}"
+  },
+  {
+   "t": 19.6069,
+   "line": "{\"seq\":38,\"at\":\"2026-10-24T18:55:29.796Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"fetch\",\"agent\":\"collector\",\"payload\":{\"name\":\"rpc_nonce_0xec2abd3eda89bed90124736e317e847d5fb6d034\",\"family\":\"base_rpc\",\"url\":\"https://mainnet.base.org\",\"method\":\"POST\",\"http\":200,\"bytes\":40,\"sha256\":\"f8a766f4e78d61cf7650bb015bc56e5b6cb549b82ec3f959024fa29ec07c79fe\",\"latency_ms\":306,\"replayed\":false,\"stale\":false,\"status\":\"ok\",\"request_key\":\"RPC eth_getTransactionCount 7b456f77c86a1bd0\"}}"
+  },
+  {
+   "t": 19.6075,
+   "line": "{\"seq\":39,\"at\":\"2026-10-24T18:55:29.797Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"crosscheck\",\"agent\":\"verifier\",\"payload\":{\"name\":\"receipts_seller_vs_bazaar_payto\",\"a\":{\"source\":\"receipts\",\"value\":\"0x6b5af9924f4cd35643c11a9fd1c983f77261a6e1\",\"url\":\"https://tienda.textokit.store/receipts.json\"},\"b\":{\"source\":\"cdp_search\",\"value\":[\"0x6b5af9924f4cd35643c11a9fd1c983f77261a6e1\"],\"url\":\"https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?urlSubstring=tienda.textokit.store&limit=20\"},\"agree\":true,\"note\":\"the wallet the receipts name as seller should be a payTo of the host's Bazaar listings\"}}"
+  },
+  {
+   "t": 19.6076,
+   "line": "{\"seq\":40,\"at\":\"2026-10-24T18:55:29.797Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"crosscheck\",\"agent\":\"verifier\",\"payload\":{\"name\":\"endpoint_count_store_openapi_vs_cdp_search\",\"a\":{\"source\":\"cdp_search\",\"value\":17,\"url\":\"https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?urlSubstring=tienda.textokit.store&limit=20\"},\"b\":{\"source\":\"store_openapi\",\"value\":17,\"url\":\"https://tienda.textokit.store/openapi.json\"},\"agree\":true,\"note\":\"CDP Bazaar discovery search, one row per listed resource, capped at twenty results vs paid operations declared by the store's own openapi.json (x-payment-info)\"}}"
+  },
+  {
+   "t": 19.6076,
+   "line": "{\"seq\":41,\"at\":\"2026-10-24T18:55:29.797Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"crosscheck\",\"agent\":\"verifier\",\"payload\":{\"name\":\"endpoint_count_agent402_vs_cdp_search\",\"a\":{\"source\":\"cdp_search\",\"value\":17,\"url\":\"https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?urlSubstring=tienda.textokit.store&limit=20\"},\"b\":{\"source\":\"agent402\",\"value\":{\"paidToolCount\":17,\"toolCount\":34},\"url\":\"https://agent402.tools/api/index?seller=tienda.textokit.store\"},\"agree\":true,\"note\":\"CDP Bazaar discovery search, one row per listed resource, capped at twenty results vs tools crawled by Agent402 from the store manifest; paidToolCount is the comparable figure\"}}"
+  },
+  {
+   "t": 19.6076,
+   "line": "{\"seq\":42,\"at\":\"2026-10-24T18:55:29.797Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"crosscheck\",\"agent\":\"verifier\",\"payload\":{\"name\":\"endpoint_count_vet402_vs_cdp_search\",\"a\":{\"source\":\"cdp_search\",\"value\":17,\"url\":\"https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?urlSubstring=tienda.textokit.store&limit=20\"},\"b\":{\"source\":\"vet402\",\"value\":19,\"url\":\"https://vet402.com/api/v1/resolve?q=tienda.textokit.store\"},\"agree\":false,\"note\":\"CDP Bazaar discovery search, one row per listed resource, capped at twenty results vs endpoints vet402 has observed for the host with catalog_status listed\"}}"
+  },
+  {
+   "t": 19.6077,
+   "line": "{\"seq\":43,\"at\":\"2026-10-24T18:55:29.797Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"crosscheck\",\"agent\":\"verifier\",\"payload\":{\"name\":\"endpoint_count_x402_trust_vs_cdp_search\",\"a\":{\"source\":\"cdp_search\",\"value\":17,\"url\":\"https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?urlSubstring=tienda.textokit.store&limit=20\"},\"b\":{\"source\":\"x402_trust\",\"value\":36,\"url\":\"https://x402-trust.com/trust/search?q=tienda.textokit.store&limit=25&offset=0\"},\"agree\":false,\"note\":\"CDP Bazaar discovery search, one row per listed resource, capped at twenty results vs matches reported by the x402-trust keyword search across its own index (listed and delisted)\"}}"
+  },
+  {
+   "t": 19.6077,
+   "line": "{\"seq\":44,\"at\":\"2026-10-24T18:55:29.797Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"crosscheck\",\"agent\":\"verifier\",\"payload\":{\"name\":\"bazaar_calls_30d_vs_receipts_30d\",\"a\":{\"source\":\"cdp_search\",\"value\":64,\"url\":\"https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?urlSubstring=tienda.textokit.store&limit=20\"},\"b\":{\"source\":\"receipts\",\"value\":80,\"url\":\"https://tienda.textokit.store/receipts.json\"},\"agree\":false,\"note\":\"facilitator per-endpoint 30-day counters (search capped at twenty) vs receipts rows settled since 2026-09-24 (own-wallet rows included); different bases, expected to disagree\"}}"
+  },
+  {
+   "t": 19.6084,
+   "line": "{\"seq\":45,\"at\":\"2026-10-24T18:55:29.798Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"handoff\",\"agent\":\"runner\",\"payload\":{\"from\":\"verifier\",\"to\":\"keeper\",\"artifact\":{\"type\":\"chain_facts\",\"count\":7,\"sha256\":\"d9cb92a8f48e99c7125d18a667d411510eeaab0fb5b9676000e3fd1602e8d267\"}}}"
+  },
+  {
+   "t": 19.63,
+   "line": "{\"seq\":46,\"at\":\"2026-10-24T18:55:29.819Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"handoff\",\"agent\":\"runner\",\"payload\":{\"from\":\"keeper\",\"to\":\"analyst\",\"artifact\":{\"type\":\"query_ids\",\"count\":13,\"sha256\":\"109c2769a177e0ff993e9f6289d9cf612443ceb495f3e4e3912e84bbd2b38751\"}}}"
+  },
+  {
+   "t": 19.7273,
+   "line": "{\"seq\":47,\"at\":\"2026-10-24T18:55:29.916Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"sql\",\"agent\":\"analyst\",\"payload\":{\"query_id\":\"q01_sales_by_wallet_class\",\"executor\":\"sqlite\",\"sql_sha256\":\"78da86f00660fccf3e761e51e79568a5cea14c5ab2ef723edb35bb25ca219318\",\"params\":{},\"rowcount\":2,\"time_used_ms\":0,\"fallback_reason\":\"zetaris_unreachable: Zetaris unreachable: URLError: [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión\"}}"
+  },
+  {
+   "t": 19.7278,
+   "line": "{\"seq\":48,\"at\":\"2026-10-24T18:55:29.917Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"sql\",\"agent\":\"analyst\",\"payload\":{\"query_id\":\"q02_external_payers\",\"executor\":\"sqlite\",\"sql_sha256\":\"af1c53c93fda7309e3d0c51ad9a87693f52f274e689d1d02fbc3b85d93208ecc\",\"params\":{},\"rowcount\":5,\"time_used_ms\":1,\"fallback_reason\":\"zetaris_unreachable: Zetaris unreachable: URLError: [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión\"}}"
+  },
+  {
+   "t": 19.728,
+   "line": "{\"seq\":49,\"at\":\"2026-10-24T18:55:29.917Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"sql\",\"agent\":\"analyst\",\"payload\":{\"query_id\":\"q03_repeat_external_payers\",\"executor\":\"sqlite\",\"sql_sha256\":\"dc5467b281c7753a91578bc125b67b0fa438d9b774d8fcf1c02f5747d8e6229d\",\"params\":{},\"rowcount\":1,\"time_used_ms\":0,\"fallback_reason\":\"zetaris_unreachable: Zetaris unreachable: URLError: [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión\"}}"
+  },
+  {
+   "t": 19.7282,
+   "line": "{\"seq\":50,\"at\":\"2026-10-24T18:55:29.917Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"sql\",\"agent\":\"analyst\",\"payload\":{\"query_id\":\"q04_top_payer_share\",\"executor\":\"sqlite\",\"sql_sha256\":\"9b40ee7dbcad42ba71ddd5c24c625a9275912530db9a2f31fb524b9eb2abd910\",\"params\":{},\"rowcount\":1,\"time_used_ms\":0,\"fallback_reason\":\"zetaris_unreachable: Zetaris unreachable: URLError: [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión\"}}"
+  },
+  {
+   "t": 19.7284,
+   "line": "{\"seq\":51,\"at\":\"2026-10-24T18:55:29.917Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"sql\",\"agent\":\"analyst\",\"payload\":{\"query_id\":\"q05_external_sales_by_service\",\"executor\":\"sqlite\",\"sql_sha256\":\"566e3b5c519c9fc655dfafa4150432033722cd9d5866971f7e0eba6370524e60\",\"params\":{},\"rowcount\":17,\"time_used_ms\":0,\"fallback_reason\":\"zetaris_unreachable: Zetaris unreachable: URLError: [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión\"}}"
+  },
+  {
+   "t": 19.7285,
+   "line": "{\"seq\":52,\"at\":\"2026-10-24T18:55:29.917Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"sql\",\"agent\":\"analyst\",\"payload\":{\"query_id\":\"q06_bazaar_host_listings\",\"executor\":\"sqlite\",\"sql_sha256\":\"db6f09d947dbc3619936f1df6808125f6edb184ad20eac06fe5ad5d41556df40\",\"params\":{\"host\":\"tienda.textokit.store\"},\"rowcount\":1,\"time_used_ms\":0,\"fallback_reason\":\"zetaris_unreachable: Zetaris unreachable: URLError: [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión\"}}"
+  },
+  {
+   "t": 19.7288,
+   "line": "{\"seq\":53,\"at\":\"2026-10-24T18:55:29.918Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"sql\",\"agent\":\"analyst\",\"payload\":{\"query_id\":\"q07_bazaar_payto_vs_receipts_seller\",\"executor\":\"sqlite\",\"sql_sha256\":\"793f72e8150563a571216e4caa4c5ee66adb356fdca8f8581c24ac0e5494c510\",\"params\":{\"host\":\"tienda.textokit.store\"},\"rowcount\":17,\"time_used_ms\":1,\"fallback_reason\":\"zetaris_unreachable: Zetaris unreachable: URLError: [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión\"}}"
+  },
+  {
+   "t": 19.7289,
+   "line": "{\"seq\":54,\"at\":\"2026-10-24T18:55:29.918Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"sql\",\"agent\":\"analyst\",\"payload\":{\"query_id\":\"q12_registry_count_openapi\",\"executor\":\"sqlite\",\"sql_sha256\":\"c9c6c473767bb9537e08761e2f163008728d3bf2c3f10cf0f1ab0771c397331f\",\"params\":{},\"rowcount\":1,\"time_used_ms\":0,\"fallback_reason\":\"zetaris_unreachable: Zetaris unreachable: URLError: [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión\"}}"
+  },
+  {
+   "t": 19.729,
+   "line": "{\"seq\":55,\"at\":\"2026-10-24T18:55:29.918Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"sql\",\"agent\":\"analyst\",\"payload\":{\"query_id\":\"q13_registry_count_agent402\",\"executor\":\"sqlite\",\"sql_sha256\":\"c136b92d8bf6b6599d79e1b62d9544197d26de5946f68291e45e672bbf1c66c3\",\"params\":{},\"rowcount\":1,\"time_used_ms\":0,\"fallback_reason\":\"zetaris_unreachable: Zetaris unreachable: URLError: [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión\"}}"
+  },
+  {
+   "t": 19.7291,
+   "line": "{\"seq\":56,\"at\":\"2026-10-24T18:55:29.918Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"sql\",\"agent\":\"analyst\",\"payload\":{\"query_id\":\"q14_registry_count_vet402\",\"executor\":\"sqlite\",\"sql_sha256\":\"058cc4214ba20f4e259db5d93d0eaf7839f177cadca1a2a3066f726d70e77378\",\"params\":{},\"rowcount\":1,\"time_used_ms\":0,\"fallback_reason\":\"zetaris_unreachable: Zetaris unreachable: URLError: [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión\"}}"
+  },
+  {
+   "t": 19.7292,
+   "line": "{\"seq\":57,\"at\":\"2026-10-24T18:55:29.918Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"sql\",\"agent\":\"analyst\",\"payload\":{\"query_id\":\"q15_registry_count_trust_search\",\"executor\":\"sqlite\",\"sql_sha256\":\"37fc8c20c106e67a8fd197963593487b8422103679e1029d17e18e0e461c5686\",\"params\":{},\"rowcount\":1,\"time_used_ms\":0,\"fallback_reason\":\"zetaris_unreachable: Zetaris unreachable: URLError: [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión\"}}"
+  },
+  {
+   "t": 19.7295,
+   "line": "{\"seq\":58,\"at\":\"2026-10-24T18:55:29.918Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"sql\",\"agent\":\"analyst\",\"payload\":{\"query_id\":\"q16_settlements_vs_receipts\",\"executor\":\"sqlite\",\"sql_sha256\":\"82a4f8cbe2abce1bb339803cda230200231eeae43845ed91fc3c6e2261ef3815\",\"params\":{},\"rowcount\":5,\"time_used_ms\":0,\"fallback_reason\":\"zetaris_unreachable: Zetaris unreachable: URLError: [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión\"}}"
+  },
+  {
+   "t": 19.7297,
+   "line": "{\"seq\":59,\"at\":\"2026-10-24T18:55:29.918Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"sql\",\"agent\":\"analyst\",\"payload\":{\"query_id\":\"q18_external_sales_by_day\",\"executor\":\"sqlite\",\"sql_sha256\":\"6e443de0aa36011d152ea0051bcdf3465357ac3b0268251bc08e358142d619ea\",\"params\":{},\"rowcount\":4,\"time_used_ms\":0,\"fallback_reason\":\"zetaris_unreachable: Zetaris unreachable: URLError: [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión\"}}"
+  },
+  {
+   "t": 19.73,
+   "line": "{\"seq\":60,\"at\":\"2026-10-24T18:55:29.919Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"claim\",\"agent\":\"analyst\",\"payload\":{\"claim_id\":\"c01\",\"metric\":\"sales_total\",\"subject\":\"seller:host:tienda.textokit.store\",\"value\":80,\"unit\":\"count\",\"backend\":\"sqlite-fallback\",\"cross_checked\":true,\"caveats\":[\"self_reported_receipts\",\"basis_mismatch\"],\"coverage\":null,\"reducer\":\"reducers.sales_total\",\"query_id\":\"q01_sales_by_wallet_class\",\"sql_value\":80,\"reducer_value\":80}}"
+  },
+  {
+   "t": 19.7301,
+   "line": "{\"seq\":61,\"at\":\"2026-10-24T18:55:29.919Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"claim\",\"agent\":\"analyst\",\"payload\":{\"claim_id\":\"c02\",\"metric\":\"own_wallet_sales\",\"subject\":\"seller:host:tienda.textokit.store\",\"value\":56,\"unit\":\"count\",\"backend\":\"sqlite-fallback\",\"cross_checked\":true,\"caveats\":[\"self_reported_receipts\",\"basis_mismatch\"],\"coverage\":null,\"reducer\":\"reducers.own_wallet_sales\",\"query_id\":\"q01_sales_by_wallet_class\",\"sql_value\":56,\"reducer_value\":56}}"
+  },
+  {
+   "t": 19.7302,
+   "line": "{\"seq\":62,\"at\":\"2026-10-24T18:55:29.919Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"claim\",\"agent\":\"analyst\",\"payload\":{\"claim_id\":\"c03\",\"metric\":\"own_wallets_total\",\"subject\":\"seller:host:tienda.textokit.store\",\"value\":3,\"unit\":\"count\",\"backend\":\"sqlite-fallback\",\"cross_checked\":true,\"caveats\":[\"self_reported_receipts\",\"basis_mismatch\"],\"coverage\":null,\"reducer\":\"reducers.own_wallets_total\",\"query_id\":\"q01_sales_by_wallet_class\",\"sql_value\":3,\"reducer_value\":3}}"
+  },
+  {
+   "t": 19.7303,
+   "line": "{\"seq\":63,\"at\":\"2026-10-24T18:55:29.919Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"claim\",\"agent\":\"analyst\",\"payload\":{\"claim_id\":\"c04\",\"metric\":\"external_sales_total\",\"subject\":\"seller:host:tienda.textokit.store\",\"value\":24,\"unit\":\"count\",\"backend\":\"sqlite-fallback\",\"cross_checked\":true,\"caveats\":[\"self_reported_receipts\",\"basis_mismatch\"],\"coverage\":null,\"reducer\":\"reducers.external_sales_total\",\"query_id\":\"q01_sales_by_wallet_class\",\"sql_value\":24,\"reducer_value\":24}}"
+  },
+  {
+   "t": 19.7305,
+   "line": "{\"seq\":64,\"at\":\"2026-10-24T18:55:29.919Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"claim\",\"agent\":\"analyst\",\"payload\":{\"claim_id\":\"c05\",\"metric\":\"external_usdc_atomic\",\"subject\":\"seller:host:tienda.textokit.store\",\"value\":55000,\"unit\":\"atomic_usdc\",\"backend\":\"sqlite-fallback\",\"cross_checked\":true,\"caveats\":[\"self_reported_receipts\",\"basis_mismatch\"],\"coverage\":null,\"reducer\":\"reducers.external_usdc_atomic\",\"query_id\":\"q01_sales_by_wallet_class\",\"sql_value\":55000,\"reducer_value\":55000}}"
+  },
+  {
+   "t": 19.7306,
+   "line": "{\"seq\":65,\"at\":\"2026-10-24T18:55:29.919Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"claim\",\"agent\":\"analyst\",\"payload\":{\"claim_id\":\"c06\",\"metric\":\"external_payers_total\",\"subject\":\"seller:host:tienda.textokit.store\",\"value\":5,\"unit\":\"count\",\"backend\":\"sqlite-fallback\",\"cross_checked\":true,\"caveats\":[\"self_reported_receipts\",\"basis_mismatch\"],\"coverage\":null,\"reducer\":\"reducers.external_payers_total\",\"query_id\":\"q02_external_payers\",\"sql_value\":5,\"reducer_value\":5}}"
+  },
+  {
+   "t": 19.7307,
+   "line": "{\"seq\":66,\"at\":\"2026-10-24T18:55:29.919Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"claim\",\"agent\":\"analyst\",\"payload\":{\"claim_id\":\"c07\",\"metric\":\"self_settlement_share\",\"subject\":\"seller:host:tienda.textokit.store\",\"value\":{\"numerator\":56,\"denominator\":80,\"share\":0.7},\"unit\":\"share\",\"backend\":\"sqlite-fallback\",\"cross_checked\":true,\"caveats\":[\"self_reported_receipts\",\"basis_mismatch\"],\"coverage\":null,\"reducer\":\"reducers.self_settlement_share\",\"query_id\":\"q01_sales_by_wallet_class\",\"sql_value\":{\"numerator\":56,\"denominator\":80,\"share\":0.7},\"reducer_value\":{\"numerator\":56,\"denominator\":80,\"share\":0.7}}}"
+  },
+  {
+   "t": 19.7309,
+   "line": "{\"seq\":67,\"at\":\"2026-10-24T18:55:29.919Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"claim\",\"agent\":\"analyst\",\"payload\":{\"claim_id\":\"c08\",\"metric\":\"repeat_external_payers\",\"subject\":\"seller:host:tienda.textokit.store\",\"value\":1,\"unit\":\"count\",\"backend\":\"sqlite-fallback\",\"cross_checked\":true,\"caveats\":[\"self_reported_receipts\",\"basis_mismatch\"],\"coverage\":null,\"reducer\":\"reducers.repeat_external_payers\",\"query_id\":\"q03_repeat_external_payers\",\"sql_value\":1,\"reducer_value\":1}}"
+  },
+  {
+   "t": 19.731,
+   "line": "{\"seq\":68,\"at\":\"2026-10-24T18:55:29.919Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"claim\",\"agent\":\"analyst\",\"payload\":{\"claim_id\":\"c09\",\"metric\":\"top_payer_share\",\"subject\":\"seller:host:tienda.textokit.store\",\"value\":{\"numerator\":20,\"denominator\":24,\"share\":0.8333333333333334,\"payer\":\"0xec2abd3eda89bed90124736e317e847d5fb6d034\"},\"unit\":\"share\",\"backend\":\"sqlite-fallback\",\"cross_checked\":true,\"caveats\":[\"self_reported_receipts\",\"basis_mismatch\"],\"coverage\":null,\"reducer\":\"reducers.top_payer_share\",\"query_id\":\"q04_top_payer_share\",\"sql_value\":{\"numerator\":20,\"denominator\":24,\"share\":0.8333333333333334,\"payer\":\"0xec2abd3eda89bed90124736e317e847d5fb6d034\"},\"reducer_value\":{\"numerator\":20,\"denominator\":24,\"share\":0.8333333333333334,\"payer\":\"0xec2abd3eda89bed90124736e317e847d5fb6d034\"}}}"
+  },
+  {
+   "t": 19.7311,
+   "line": "{\"seq\":69,\"at\":\"2026-10-24T18:55:29.919Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"claim\",\"agent\":\"analyst\",\"payload\":{\"claim_id\":\"c10\",\"metric\":\"external_window\",\"subject\":\"seller:host:tienda.textokit.store\",\"value\":\"2026-10-20T04:51:24.352Z..2026-10-24T14:01:45.472Z\",\"unit\":\"iso8601\",\"backend\":\"sqlite-fallback\",\"cross_checked\":true,\"caveats\":[\"self_reported_receipts\",\"basis_mismatch\"],\"coverage\":null,\"reducer\":\"reducers.external_window\",\"query_id\":\"q02_external_payers\",\"sql_value\":\"2026-10-20T04:51:24.352Z..2026-10-24T14:01:45.472Z\",\"reducer_value\":\"2026-10-20T04:51:24.352Z..2026-10-24T14:01:45.472Z\"}}"
+  },
+  {
+   "t": 19.7312,
+   "line": "{\"seq\":70,\"at\":\"2026-10-24T18:55:29.919Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"claim\",\"agent\":\"analyst\",\"payload\":{\"claim_id\":\"c11\",\"metric\":\"external_sales_by_service\",\"subject\":\"seller:host:tienda.textokit.store\",\"value\":\"cuit-ar=4, normativa-ar=4, x402-ping=2, bcra-indicadores=1, cartas-ar=1, comparar-textos=1, crypto-prices=1, dev-utils=1, direcciones-ar=1, dolar-ar=1, fx-rates=1, polymarket-markets=1, source-bounded-summary=1, translate-es=1, url-text=1, web-read=1, x402-adoption=1\",\"unit\":\"text\",\"backend\":\"sqlite-fallback\",\"cross_checked\":true,\"caveats\":[\"self_reported_receipts\",\"basis_mismatch\"],\"coverage\":null,\"reducer\":\"reducers.external_sales_by_service\",\"query_id\":\"q05_external_sales_by_service\",\"sql_value\":\"cuit-ar=4, normativa-ar=4, x402-ping=2, bcra-indicadores=1, cartas-ar=1, comparar-textos=1, crypto-prices=1, dev-utils=1, direcciones-ar=1, dolar-ar=1, fx-rates=1, polymarket-markets=1, source-bounded-summary=1, translate-es=1, url-text=1, web-read=1, x402-adoption=1\",\"reducer_value\":\"cuit-ar=4, normativa-ar=4, x402-ping=2, bcra-indicadores=1, cartas-ar=1, comparar-textos=1, crypto-prices=1, dev-utils=1, direcciones-ar=1, dolar-ar=1, fx-rates=1, polymarket-markets=1, source-bounded-summary=1, translate-es=1, url-text=1, web-read=1, x402-adoption=1\"}}"
+  },
+  {
+   "t": 19.7313,
+   "line": "{\"seq\":71,\"at\":\"2026-10-24T18:55:29.919Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"claim\",\"agent\":\"analyst\",\"payload\":{\"claim_id\":\"c12\",\"metric\":\"external_sales_by_day\",\"subject\":\"seller:host:tienda.textokit.store\",\"value\":\"2026-10-20=20, 2026-10-21=1, 2026-10-23=1, 2026-10-24=2\",\"unit\":\"text\",\"backend\":\"sqlite-fallback\",\"cross_checked\":true,\"caveats\":[\"self_reported_receipts\",\"basis_mismatch\"],\"coverage\":null,\"reducer\":\"reducers.external_sales_by_day\",\"query_id\":\"q18_external_sales_by_day\",\"sql_value\":\"2026-10-20=20, 2026-10-21=1, 2026-10-23=1, 2026-10-24=2\",\"reducer_value\":\"2026-10-20=20, 2026-10-21=1, 2026-10-23=1, 2026-10-24=2\"}}"
+  },
+  {
+   "t": 19.7314,
+   "line": "{\"seq\":72,\"at\":\"2026-10-24T18:55:29.919Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"claim\",\"agent\":\"analyst\",\"payload\":{\"claim_id\":\"c13\",\"metric\":\"external_sales_30d\",\"subject\":\"seller:host:tienda.textokit.store\",\"value\":24,\"unit\":\"count\",\"backend\":\"sqlite-fallback\",\"cross_checked\":true,\"caveats\":[\"self_reported_receipts\",\"basis_mismatch\"],\"coverage\":null,\"reducer\":\"reducers.external_sales_30d\",\"query_id\":\"q18_external_sales_by_day\",\"sql_value\":24,\"reducer_value\":24}}"
+  },
+  {
+   "t": 19.7316,
+   "line": "{\"seq\":73,\"at\":\"2026-10-24T18:55:29.919Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"claim\",\"agent\":\"analyst\",\"payload\":{\"claim_id\":\"c14\",\"metric\":\"bazaar_listings_for_host\",\"subject\":\"seller:host:tienda.textokit.store\",\"value\":17,\"unit\":\"count\",\"backend\":\"sqlite-fallback\",\"cross_checked\":true,\"caveats\":[\"search_limit_20\"],\"coverage\":{\"items_seen\":17,\"total_reported\":null,\"share\":null,\"basis\":\"search capped at 20\"},\"reducer\":\"reducers.bazaar_listings_for_host\",\"query_id\":\"q06_bazaar_host_listings\",\"sql_value\":17,\"reducer_value\":17}}"
+  },
+  {
+   "t": 19.7318,
+   "line": "{\"seq\":74,\"at\":\"2026-10-24T18:55:29.921Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"claim\",\"agent\":\"analyst\",\"payload\":{\"claim_id\":\"c15\",\"metric\":\"bazaar_payto_for_host\",\"subject\":\"seller:host:tienda.textokit.store\",\"value\":1,\"unit\":\"count\",\"backend\":\"sqlite-fallback\",\"cross_checked\":true,\"caveats\":[\"search_limit_20\"],\"coverage\":{\"items_seen\":17,\"total_reported\":null,\"share\":null,\"basis\":\"search capped at 20\"},\"reducer\":\"reducers.bazaar_payto_for_host\",\"query_id\":\"q06_bazaar_host_listings\",\"sql_value\":1,\"reducer_value\":1}}"
+  },
+  {
+   "t": 19.7319,
+   "line": "{\"seq\":75,\"at\":\"2026-10-24T18:55:29.921Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"claim\",\"agent\":\"analyst\",\"payload\":{\"claim_id\":\"c16\",\"metric\":\"bazaar_calls_30d_for_host\",\"subject\":\"seller:host:tienda.textokit.store\",\"value\":64,\"unit\":\"count\",\"backend\":\"sqlite-fallback\",\"cross_checked\":true,\"caveats\":[\"search_limit_20\",\"basis_mismatch\"],\"coverage\":{\"items_seen\":17,\"total_reported\":null,\"share\":null,\"basis\":\"search capped at 20\"},\"reducer\":\"reducers.bazaar_calls_30d_for_host\",\"query_id\":\"q06_bazaar_host_listings\",\"sql_value\":64,\"reducer_value\":64}}"
+  },
+  {
+   "t": 19.732,
+   "line": "{\"seq\":76,\"at\":\"2026-10-24T18:55:29.921Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"claim\",\"agent\":\"analyst\",\"payload\":{\"claim_id\":\"c17\",\"metric\":\"bazaar_payto_matches_seller\",\"subject\":\"seller:host:tienda.textokit.store\",\"value\":17,\"unit\":\"count\",\"backend\":\"sqlite-fallback\",\"cross_checked\":true,\"caveats\":[\"search_limit_20\",\"self_reported_receipts\",\"basis_mismatch\"],\"coverage\":null,\"reducer\":\"reducers.bazaar_payto_matches_seller\",\"query_id\":\"q07_bazaar_payto_vs_receipts_seller\",\"sql_value\":17,\"reducer_value\":17}}"
+  },
+  {
+   "t": 19.7321,
+   "line": "{\"seq\":77,\"at\":\"2026-10-24T18:55:29.921Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"claim\",\"agent\":\"analyst\",\"payload\":{\"claim_id\":\"c18\",\"metric\":\"endpoint_count_for_host\",\"subject\":\"seller:host:tienda.textokit.store\",\"value\":{\"cdp_search\":17,\"store_openapi\":17,\"agent402_paid\":17,\"agent402_tools\":34,\"vet402\":19,\"x402_trust_search\":36},\"unit\":\"text\",\"backend\":\"sqlite-fallback\",\"cross_checked\":true,\"caveats\":[\"search_limit_20\",\"third_party_aggregate\"],\"coverage\":null,\"reducer\":\"reducers.endpoint_count_for_host\",\"query_id\":\"q12_registry_count_openapi\",\"sql_value\":{\"cdp_search\":17,\"store_openapi\":17,\"agent402_paid\":17,\"agent402_tools\":34,\"vet402\":19,\"x402_trust_search\":36},\"reducer_value\":{\"cdp_search\":17,\"store_openapi\":17,\"agent402_paid\":17,\"agent402_tools\":34,\"vet402\":19,\"x402_trust_search\":36}}}"
+  },
+  {
+   "t": 19.7323,
+   "line": "{\"seq\":78,\"at\":\"2026-10-24T18:55:29.922Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"claim\",\"agent\":\"analyst\",\"payload\":{\"claim_id\":\"c19\",\"metric\":\"settlements_verified\",\"subject\":\"seller:host:tienda.textokit.store\",\"value\":5,\"unit\":\"count\",\"backend\":\"sqlite-fallback\",\"cross_checked\":true,\"caveats\":[\"payer_from_transfer_log\",\"self_reported_receipts\",\"basis_mismatch\"],\"coverage\":null,\"reducer\":\"reducers.settlements_verified\",\"query_id\":\"q16_settlements_vs_receipts\",\"sql_value\":5,\"reducer_value\":5}}"
+  },
+  {
+   "t": 19.7325,
+   "line": "{\"seq\":79,\"at\":\"2026-10-24T18:55:29.922Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"conflict\",\"agent\":\"analyst\",\"payload\":{\"conflict_id\":\"k01\",\"predicate\":\"endpoint_count_for_host\",\"subject\":\"seller:host:tienda.textokit.store\",\"values\":[{\"source\":\"cdp_search\",\"value\":17,\"url\":\"https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?urlSubstring=tienda.textokit.store&limit=20\",\"basis\":\"CDP Bazaar discovery search, one row per listed resource, capped at twenty results\"},{\"source\":\"store_openapi\",\"value\":17,\"url\":\"https://tienda.textokit.store/openapi.json\",\"basis\":\"paid operations declared by the store's own openapi.json (x-payment-info)\"},{\"source\":\"agent402\",\"value\":{\"paidToolCount\":17,\"toolCount\":34},\"url\":\"https://agent402.tools/api/index?seller=tienda.textokit.store\",\"basis\":\"tools crawled by Agent402 from the store manifest; paidToolCount is the comparable figure\"},{\"source\":\"vet402\",\"value\":19,\"url\":\"https://vet402.com/api/v1/resolve?q=tienda.textokit.store\",\"basis\":\"endpoints vet402 has observed for the host with catalog_status listed\"},{\"source\":\"x402_trust\",\"value\":36,\"url\":\"https://x402-trust.com/trust/search?q=tienda.textokit.store&limit=25&offset=0\",\"basis\":\"matches reported by the x402-trust keyword search across its own index (listed and delisted)\"}],\"explanation\":\"Bazaar search is capped at twenty results and lists one row per resource; the store openapi declares paid operations; Agent402 counts tools including free ones (paidToolCount is the comparable figure); vet402 counts every endpoint it has observed for the host with catalog_status listed, which can include routes the store no longer declares; x402-trust search counts matches across its own index. In this capture vet402 lists /api/maintenance-helper and /api/preparar-solicitud, which the store openapi does not declare as paid operations; that accounts for the whole difference between the vet402 and openapi counts.\",\"status\":\"explained\",\"claim_ids\":[\"c14\",\"c18\"]}}"
+  },
+  {
+   "t": 19.7325,
+   "line": "{\"seq\":80,\"at\":\"2026-10-24T18:55:29.922Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"conflict\",\"agent\":\"analyst\",\"payload\":{\"conflict_id\":\"k02\",\"predicate\":\"calls_30d_for_host\",\"subject\":\"seller:host:tienda.textokit.store\",\"values\":[{\"source\":\"cdp_search\",\"value\":64,\"url\":\"https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?urlSubstring=tienda.textokit.store&limit=20\",\"basis\":\"l30DaysTotalCalls summed over the host's Bazaar listings (per-endpoint 30-day counters, search capped at twenty)\"},{\"source\":\"receipts\",\"value\":80,\"url\":\"https://tienda.textokit.store/receipts.json\",\"basis\":\"all receipts rows settled since 2026-09-24 (own-wallet rows included)\"},{\"source\":\"receipts\",\"value\":24,\"url\":\"https://tienda.textokit.store/receipts.json\",\"basis\":\"external receipts rows settled since 2026-09-24\"}],\"explanation\":\"Bazaar l30DaysTotalCalls is a per-endpoint 30-day counter maintained by the facilitator and includes the seller's own calls; receipts are the seller's own settlement log. Different windows and bases: compare only with the basis stated.\",\"status\":\"explained\",\"claim_ids\":[\"c16\",\"c13\"]}}"
+  },
+  {
+   "t": 19.7335,
+   "line": "{\"seq\":81,\"at\":\"2026-10-24T18:55:29.923Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"handoff\",\"agent\":\"runner\",\"payload\":{\"from\":\"analyst\",\"to\":\"writer\",\"artifact\":{\"type\":\"claims\",\"count\":19,\"sha256\":\"3e313c764d97927c69caa6924d0de668c254c5d28dbf1e129d784bbc3b223791\"}}}"
+  },
+  {
+   "t": 19.7359,
+   "line": "{\"seq\":82,\"at\":\"2026-10-24T18:55:29.925Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"writer\",\"payload\":{\"op\":\"retrieve\",\"actor\":\"writer\",\"memory_ids\":[],\"details\":{\"threshold\":0.35,\"top_n\":5,\"hits\":[],\"query_sha256\":\"08c88627b6875e772cd473812a4bc9714efd9aedd16b5fd6edb215cf7a37a7c4\"}}}"
+  },
+  {
+   "t": 25.7637,
+   "line": "{\"seq\":83,\"at\":\"2026-10-24T18:55:35.953Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"generate\",\"agent\":\"writer\",\"payload\":{\"prompt_id\":\"writer-r1\",\"attempt\":1,\"generator\":\"nightshift:nvidia/nemotron-3.5-lightning-30b-a3b\",\"provider\":\"meterless\",\"requested_model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"recorded\":false,\"prompt_sha256\":\"17598cd143bbf82d657e08bc5e598c83b3ea08aa287843ab6dd7d092523a24f6\",\"response_sha256\":\"7902dc67bd402505b4c038ba888daad8df8374bd3d791228b14c3556f802d567\",\"routing\":{\"source\":\"meterless_receipt\",\"schema\":\"meterless.compute_receipt.v1\",\"receipt_id\":\"rcpt_req_c0jovllr\",\"decision_id\":\"req_c0jovllr\",\"requested_model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"routed_model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"winning_route\":{\"model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"label\":\"Nemotron 3.5 Lightning 30B A3B\",\"provider\":\"nvidia\",\"kind\":\"cloud\",\"tier\":\"A\"},\"phases\":[{\"phase\":\"final_synthesis\",\"model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"ms\":5990}],\"latency_ms\":5990,\"usage\":{\"input_tokens\":3436,\"output_tokens\":466,\"total_tokens\":3902},\"cache\":\"miss\",\"from_cache\":false,\"privacy_path\":\"cloud-ok\",\"wall_ms\":6031}}}"
+  },
+  {
+   "t": 25.7641,
+   "line": "{\"seq\":84,\"at\":\"2026-10-24T18:55:35.953Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"handoff\",\"agent\":\"runner\",\"payload\":{\"from\":\"writer\",\"to\":\"critic\",\"artifact\":{\"type\":\"answer\",\"count\":8,\"sha256\":\"18a2f852f572ee87fe3dc908845a2f8d2eedfae5115e14df5c1b7b36797ff382\"}}}"
+  },
+  {
+   "t": 25.7833,
+   "line": "{\"seq\":85,\"at\":\"2026-10-24T18:55:35.972Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"retrieve\",\"actor\":\"critic\",\"memory_ids\":[\"mem-33\",\"mem-61\",\"mem-8\"],\"details\":{\"claim_id\":\"c01\",\"threshold\":0.35,\"top_n\":3}}}"
+  },
+  {
+   "t": 25.8015,
+   "line": "{\"seq\":86,\"at\":\"2026-10-24T18:55:35.991Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"retrieve\",\"actor\":\"critic\",\"memory_ids\":[\"mem-34\",\"mem-62\",\"mem-9\"],\"details\":{\"claim_id\":\"c02\",\"threshold\":0.35,\"top_n\":3}}}"
+  },
+  {
+   "t": 25.8195,
+   "line": "{\"seq\":87,\"at\":\"2026-10-24T18:55:36.008Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"retrieve\",\"actor\":\"critic\",\"memory_ids\":[\"mem-10\",\"mem-35\",\"mem-63\"],\"details\":{\"claim_id\":\"c03\",\"threshold\":0.35,\"top_n\":3}}}"
+  },
+  {
+   "t": 25.8371,
+   "line": "{\"seq\":88,\"at\":\"2026-10-24T18:55:36.026Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"retrieve\",\"actor\":\"critic\",\"memory_ids\":[\"mem-101\",\"mem-111\",\"mem-158\"],\"details\":{\"claim_id\":\"c04\",\"threshold\":0.35,\"top_n\":3}}}"
+  },
+  {
+   "t": 25.8544,
+   "line": "{\"seq\":89,\"at\":\"2026-10-24T18:55:36.043Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"retrieve\",\"actor\":\"critic\",\"memory_ids\":[\"mem-102\",\"mem-112\",\"mem-159\"],\"details\":{\"claim_id\":\"c05\",\"threshold\":0.35,\"top_n\":3}}}"
+  },
+  {
+   "t": 25.8743,
+   "line": "{\"seq\":90,\"at\":\"2026-10-24T18:55:36.063Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"retrieve\",\"actor\":\"critic\",\"memory_ids\":[\"mem-103\",\"mem-113\",\"mem-160\"],\"details\":{\"claim_id\":\"c06\",\"threshold\":0.35,\"top_n\":3}}}"
+  },
+  {
+   "t": 25.8918,
+   "line": "{\"seq\":91,\"at\":\"2026-10-24T18:55:36.081Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"retrieve\",\"actor\":\"critic\",\"memory_ids\":[\"mem-104\",\"mem-14\",\"mem-39\"],\"details\":{\"claim_id\":\"c07\",\"threshold\":0.35,\"top_n\":3}}}"
+  },
+  {
+   "t": 25.9088,
+   "line": "{\"seq\":92,\"at\":\"2026-10-24T18:55:36.098Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"retrieve\",\"actor\":\"critic\",\"memory_ids\":[\"mem-15\",\"mem-40\",\"mem-68\"],\"details\":{\"claim_id\":\"c08\",\"threshold\":0.35,\"top_n\":3}}}"
+  },
+  {
+   "t": 25.9248,
+   "line": "{\"seq\":93,\"at\":\"2026-10-24T18:55:36.114Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"retrieve\",\"actor\":\"critic\",\"memory_ids\":[\"mem-257\",\"mem-101\"],\"details\":{\"claim_id\":\"c09\",\"threshold\":0.35,\"top_n\":3}}}"
+  },
+  {
+   "t": 25.9249,
+   "line": "{\"seq\":94,\"at\":\"2026-10-24T18:55:36.114Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":1,\"rule\":\"C6\",\"target\":\"c09\",\"verdict\":\"accept\",\"reason\":\"memory mem-257 contradicted by c09; marked wrong\",\"memory_ids\":[\"mem-257\"]}}"
+  },
+  {
+   "t": 25.9408,
+   "line": "{\"seq\":95,\"at\":\"2026-10-24T18:55:36.129Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"retrieve\",\"actor\":\"critic\",\"memory_ids\":[\"mem-258\",\"mem-211\",\"mem-164\"],\"details\":{\"claim_id\":\"c10\",\"threshold\":0.35,\"top_n\":3}}}"
+  },
+  {
+   "t": 25.9577,
+   "line": "{\"seq\":96,\"at\":\"2026-10-24T18:55:36.147Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"retrieve\",\"actor\":\"critic\",\"memory_ids\":[\"mem-258\"],\"details\":{\"claim_id\":\"c12\",\"threshold\":0.35,\"top_n\":3}}}"
+  },
+  {
+   "t": 25.9757,
+   "line": "{\"seq\":97,\"at\":\"2026-10-24T18:55:36.165Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"retrieve\",\"actor\":\"critic\",\"memory_ids\":[\"mem-28\",\"mem-43\",\"mem-52\"],\"details\":{\"claim_id\":\"c14\",\"threshold\":0.35,\"top_n\":3}}}"
+  },
+  {
+   "t": 25.9934,
+   "line": "{\"seq\":98,\"at\":\"2026-10-24T18:55:36.182Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"retrieve\",\"actor\":\"critic\",\"memory_ids\":[\"mem-19\"],\"details\":{\"claim_id\":\"c15\",\"threshold\":0.35,\"top_n\":3}}}"
+  },
+  {
+   "t": 26.0106,
+   "line": "{\"seq\":99,\"at\":\"2026-10-24T18:55:36.200Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"retrieve\",\"actor\":\"critic\",\"memory_ids\":[\"mem-28\",\"mem-43\",\"mem-52\"],\"details\":{\"claim_id\":\"c16\",\"threshold\":0.35,\"top_n\":3}}}"
+  },
+  {
+   "t": 26.0264,
+   "line": "{\"seq\":100,\"at\":\"2026-10-24T18:55:36.216Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"retrieve\",\"actor\":\"critic\",\"memory_ids\":[\"mem-28\",\"mem-43\",\"mem-52\"],\"details\":{\"claim_id\":\"c17\",\"threshold\":0.35,\"top_n\":3}}}"
+  },
+  {
+   "t": 26.0423,
+   "line": "{\"seq\":101,\"at\":\"2026-10-24T18:55:36.231Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"retrieve\",\"actor\":\"critic\",\"memory_ids\":[\"mem-28\",\"mem-43\",\"mem-52\"],\"details\":{\"claim_id\":\"c18\",\"threshold\":0.35,\"top_n\":3}}}"
+  },
+  {
+   "t": 26.058,
+   "line": "{\"seq\":102,\"at\":\"2026-10-24T18:55:36.247Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"retrieve\",\"actor\":\"critic\",\"memory_ids\":[\"mem-129\",\"mem-138\",\"mem-147\"],\"details\":{\"claim_id\":\"c19\",\"threshold\":0.35,\"top_n\":3}}}"
+  },
+  {
+   "t": 26.058,
+   "line": "{\"seq\":103,\"at\":\"2026-10-24T18:55:36.247Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":1,\"rule\":\"C1\",\"verdict\":\"accept\",\"count\":19}}"
+  },
+  {
+   "t": 26.058,
+   "line": "{\"seq\":104,\"at\":\"2026-10-24T18:55:36.247Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":1,\"rule\":\"C2\",\"verdict\":\"accept\",\"count\":19}}"
+  },
+  {
+   "t": 26.0581,
+   "line": "{\"seq\":105,\"at\":\"2026-10-24T18:55:36.247Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":1,\"rule\":\"C3\",\"verdict\":\"accept\",\"count\":19}}"
+  },
+  {
+   "t": 26.0581,
+   "line": "{\"seq\":106,\"at\":\"2026-10-24T18:55:36.247Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":1,\"rule\":\"C4\",\"verdict\":\"accept\",\"count\":19}}"
+  },
+  {
+   "t": 26.0581,
+   "line": "{\"seq\":107,\"at\":\"2026-10-24T18:55:36.247Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":1,\"rule\":\"C5\",\"verdict\":\"accept\",\"count\":19}}"
+  },
+  {
+   "t": 26.0581,
+   "line": "{\"seq\":108,\"at\":\"2026-10-24T18:55:36.247Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":1,\"rule\":\"C6\",\"verdict\":\"accept\",\"count\":18}}"
+  },
+  {
+   "t": 26.0581,
+   "line": "{\"seq\":109,\"at\":\"2026-10-24T18:55:36.247Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":1,\"rule\":\"C7\",\"verdict\":\"accept\",\"count\":19}}"
+  },
+  {
+   "t": 26.0581,
+   "line": "{\"seq\":110,\"at\":\"2026-10-24T18:55:36.247Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":1,\"rule\":\"C3\",\"target\":\"c01\",\"verdict\":\"revise\",\"reason\":\"the answer does not carry caveat [self_reported_receipts] required by c01\",\"memory_ids\":[\"mem-seed-003\"]}}"
+  },
+  {
+   "t": 26.0582,
+   "line": "{\"seq\":111,\"at\":\"2026-10-24T18:55:36.247Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":1,\"rule\":\"C3\",\"target\":\"c02\",\"verdict\":\"revise\",\"reason\":\"the answer does not carry caveat [self_reported_receipts] required by c02\",\"memory_ids\":[\"mem-seed-003\"]}}"
+  },
+  {
+   "t": 26.0582,
+   "line": "{\"seq\":112,\"at\":\"2026-10-24T18:55:36.247Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":1,\"rule\":\"C3\",\"target\":\"c03\",\"verdict\":\"revise\",\"reason\":\"the answer does not carry caveat [self_reported_receipts] required by c03\",\"memory_ids\":[\"mem-seed-003\"]}}"
+  },
+  {
+   "t": 26.0582,
+   "line": "{\"seq\":113,\"at\":\"2026-10-24T18:55:36.247Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":1,\"rule\":\"C3\",\"target\":\"c04\",\"verdict\":\"revise\",\"reason\":\"the answer does not carry caveat [self_reported_receipts] required by c04\",\"memory_ids\":[\"mem-seed-003\"]}}"
+  },
+  {
+   "t": 26.0582,
+   "line": "{\"seq\":114,\"at\":\"2026-10-24T18:55:36.247Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":1,\"rule\":\"C3\",\"target\":\"c05\",\"verdict\":\"revise\",\"reason\":\"the answer does not carry caveat [self_reported_receipts] required by c05\",\"memory_ids\":[\"mem-seed-003\"]}}"
+  },
+  {
+   "t": 26.0582,
+   "line": "{\"seq\":115,\"at\":\"2026-10-24T18:55:36.247Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":1,\"rule\":\"C3\",\"target\":\"c06\",\"verdict\":\"revise\",\"reason\":\"the answer does not carry caveat [self_reported_receipts] required by c06\",\"memory_ids\":[\"mem-seed-003\"]}}"
+  },
+  {
+   "t": 26.0582,
+   "line": "{\"seq\":116,\"at\":\"2026-10-24T18:55:36.247Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":1,\"rule\":\"C3\",\"target\":\"c07\",\"verdict\":\"revise\",\"reason\":\"the answer does not carry caveat [self_reported_receipts] required by c07\",\"memory_ids\":[\"mem-seed-003\"]}}"
+  },
+  {
+   "t": 26.0582,
+   "line": "{\"seq\":117,\"at\":\"2026-10-24T18:55:36.247Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":1,\"rule\":\"C3\",\"target\":\"c08\",\"verdict\":\"revise\",\"reason\":\"the answer does not carry caveat [self_reported_receipts] required by c08\",\"memory_ids\":[\"mem-seed-003\"]}}"
+  },
+  {
+   "t": 26.0582,
+   "line": "{\"seq\":118,\"at\":\"2026-10-24T18:55:36.247Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":1,\"rule\":\"C3\",\"target\":\"c09\",\"verdict\":\"revise\",\"reason\":\"the answer does not carry caveat [self_reported_receipts] required by c09\",\"memory_ids\":[\"mem-seed-003\"]}}"
+  },
+  {
+   "t": 26.0583,
+   "line": "{\"seq\":119,\"at\":\"2026-10-24T18:55:36.247Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":1,\"rule\":\"C3\",\"target\":\"c10\",\"verdict\":\"revise\",\"reason\":\"the answer does not carry caveat [self_reported_receipts] required by c10\",\"memory_ids\":[\"mem-seed-003\"]}}"
+  },
+  {
+   "t": 26.0583,
+   "line": "{\"seq\":120,\"at\":\"2026-10-24T18:55:36.247Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":1,\"rule\":\"C3\",\"target\":\"c11\",\"verdict\":\"revise\",\"reason\":\"the answer does not carry caveat [self_reported_receipts] required by c11\",\"memory_ids\":[\"mem-seed-003\"]}}"
+  },
+  {
+   "t": 26.0583,
+   "line": "{\"seq\":121,\"at\":\"2026-10-24T18:55:36.247Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":1,\"rule\":\"C3\",\"target\":\"c12\",\"verdict\":\"revise\",\"reason\":\"the answer does not carry caveat [self_reported_receipts] required by c12\",\"memory_ids\":[\"mem-seed-003\"]}}"
+  },
+  {
+   "t": 26.0583,
+   "line": "{\"seq\":122,\"at\":\"2026-10-24T18:55:36.247Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":1,\"rule\":\"C3\",\"target\":\"c13\",\"verdict\":\"revise\",\"reason\":\"the answer does not carry caveat [self_reported_receipts] required by c13\",\"memory_ids\":[\"mem-seed-003\"]}}"
+  },
+  {
+   "t": 26.0583,
+   "line": "{\"seq\":123,\"at\":\"2026-10-24T18:55:36.247Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":1,\"rule\":\"C3\",\"target\":\"c14\",\"verdict\":\"revise\",\"reason\":\"the answer does not carry caveat [search_limit_20] required by c14\",\"memory_ids\":[\"mem-seed-002\"]}}"
+  },
+  {
+   "t": 26.0583,
+   "line": "{\"seq\":124,\"at\":\"2026-10-24T18:55:36.247Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":1,\"rule\":\"C3\",\"target\":\"c15\",\"verdict\":\"revise\",\"reason\":\"the answer does not carry caveat [search_limit_20] required by c15\",\"memory_ids\":[\"mem-seed-002\"]}}"
+  },
+  {
+   "t": 26.0583,
+   "line": "{\"seq\":125,\"at\":\"2026-10-24T18:55:36.247Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":1,\"rule\":\"C3\",\"target\":\"c16\",\"verdict\":\"revise\",\"reason\":\"the answer does not carry caveat [search_limit_20] required by c16\",\"memory_ids\":[\"mem-seed-002\"]}}"
+  },
+  {
+   "t": 26.0583,
+   "line": "{\"seq\":126,\"at\":\"2026-10-24T18:55:36.247Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":1,\"rule\":\"C3\",\"target\":\"c17\",\"verdict\":\"revise\",\"reason\":\"the answer does not carry caveat [search_limit_20] required by c17\",\"memory_ids\":[\"mem-seed-002\"]}}"
+  },
+  {
+   "t": 26.0584,
+   "line": "{\"seq\":127,\"at\":\"2026-10-24T18:55:36.247Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":1,\"rule\":\"C3\",\"target\":\"c18\",\"verdict\":\"revise\",\"reason\":\"the answer does not carry caveat [search_limit_20] required by c18\",\"memory_ids\":[\"mem-seed-002\"]}}"
+  },
+  {
+   "t": 26.0584,
+   "line": "{\"seq\":128,\"at\":\"2026-10-24T18:55:36.247Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":1,\"rule\":\"C3\",\"target\":\"c19\",\"verdict\":\"revise\",\"reason\":\"the answer does not carry caveat [payer_from_transfer_log] required by c19\",\"memory_ids\":[\"mem-seed-005\"]}}"
+  },
+  {
+   "t": 26.0588,
+   "line": "{\"seq\":129,\"at\":\"2026-10-24T18:55:36.248Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"narrative_map\",\"agent\":\"critic\",\"payload\":{\"round\":1,\"tokens\":[{\"token\":\"80\",\"claim_id\":\"c01\",\"kind\":\"value\",\"sentence_index\":0},{\"token\":\"56\",\"claim_id\":\"c02\",\"kind\":\"value\",\"sentence_index\":1},{\"token\":\"3\",\"claim_id\":\"c03\",\"kind\":\"value\",\"sentence_index\":1},{\"token\":\"24\",\"claim_id\":\"c04\",\"kind\":\"value\",\"sentence_index\":2},{\"token\":\"55000\",\"claim_id\":\"c05\",\"kind\":\"value\",\"sentence_index\":3},{\"token\":\"0.055 USDC\",\"claim_id\":\"c05\",\"kind\":\"formatted\",\"sentence_index\":3},{\"token\":\"5\",\"claim_id\":\"c06\",\"kind\":\"value\",\"sentence_index\":4},{\"token\":\"2026-10-20\",\"claim_id\":null,\"kind\":\"date\",\"sentence_index\":5},{\"token\":\"2026-10-24\",\"claim_id\":null,\"kind\":\"date\",\"sentence_index\":5},{\"token\":\"2026-10-24\",\"claim_id\":null,\"kind\":\"date\",\"sentence_index\":5},{\"token\":\"1\",\"claim_id\":\"c08\",\"kind\":\"value\",\"sentence_index\":5},{\"token\":\"20\",\"claim_id\":\"c09\",\"kind\":\"numerator\",\"sentence_index\":5},{\"token\":\"24\",\"claim_id\":\"c04\",\"kind\":\"value\",\"sentence_index\":5},{\"token\":\"83.3 %\",\"claim_id\":\"c09\",\"kind\":\"formatted\",\"sentence_index\":5},{\"token\":\"5\",\"claim_id\":\"c06\",\"kind\":\"value\",\"sentence_index\":5},{\"token\":\"15\",\"claim_id\":null,\"kind\":null,\"sentence_index\":5},{\"token\":\"4\",\"claim_id\":\"c11\",\"kind\":\"value\",\"sentence_index\":5},{\"token\":\"24\",\"claim_id\":\"c04\",\"kind\":\"value\",\"sentence_index\":5},{\"token\":\"17\",\"claim_id\":\"c14\",\"kind\":\"value\",\"sentence_index\":5},{\"token\":\"17\",\"claim_id\":\"c14\",\"kind\":\"value\",\"sentence_index\":6},{\"token\":\"17\",\"claim_id\":\"c14\",\"kind\":\"value\",\"sentence_index\":6},{\"token\":\"17\",\"claim_id\":\"c14\",\"kind\":\"value\",\"sentence_index\":6},{\"token\":\"34\",\"claim_id\":\"c18\",\"kind\":\"value\",\"sentence_index\":6},{\"token\":\"19\",\"claim_id\":\"c18\",\"kind\":\"value\",\"sentence_index\":6},{\"token\":\"36\",\"claim_id\":\"c18\",\"kind\":\"value\",\"sentence_index\":6},{\"token\":\"17\",\"claim_id\":\"c14\",\"kind\":\"value\",\"sentence_index\":6},{\"token\":\"64\",\"claim_id\":\"c16\",\"kind\":\"value\",\"sentence_index\":7},{\"token\":\"80\",\"claim_id\":\"c01\",\"kind\":\"value\",\"sentence_index\":7},{\"token\":\"24\",\"claim_id\":\"c04\",\"kind\":\"value\",\"sentence_index\":7}],\"unsourced\":[{\"sentence_index\":5,\"token\":\"15\",\"reason\":\"no claim value matches\"}]}}"
+  },
+  {
+   "t": 26.0588,
+   "line": "{\"seq\":130,\"at\":\"2026-10-24T18:55:36.248Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":1,\"rule\":\"B\",\"target\":5,\"verdict\":\"revise\",\"reason\":\"sentence 5 contains the number '15' that maps to no accepted claim\",\"memory_ids\":[]}}"
+  },
+  {
+   "t": 30.3288,
+   "line": "{\"seq\":131,\"at\":\"2026-10-24T18:55:40.517Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"generate\",\"agent\":\"critic\",\"payload\":{\"prompt_id\":\"critic-r1\",\"attempt\":1,\"generator\":\"nightshift:nvidia/nemotron-3.5-lightning-30b-a3b\",\"provider\":\"meterless\",\"requested_model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"recorded\":false,\"prompt_sha256\":\"c57ccc34be5f1982eb895ac9babffbc9738e404603cba8f6720dcc4f74f04cb0\",\"response_sha256\":\"aa35a2da02ac436b2b940fbdeaf12c4caa218bdc69ea4210058cb9d57d247ab4\",\"routing\":{\"source\":\"meterless_receipt\",\"schema\":\"meterless.compute_receipt.v1\",\"receipt_id\":\"rcpt_req_pl9z663t\",\"decision_id\":\"req_pl9z663t\",\"requested_model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"routed_model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"winning_route\":{\"model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"label\":\"Nemotron 3.5 Lightning 30B A3B\",\"provider\":\"nvidia\",\"kind\":\"cloud\",\"tier\":\"A\"},\"phases\":[{\"phase\":\"final_synthesis\",\"model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"ms\":4236}],\"latency_ms\":4236,\"usage\":{\"input_tokens\":3080,\"output_tokens\":500,\"total_tokens\":3580},\"cache\":\"miss\",\"from_cache\":false,\"privacy_path\":\"cloud-ok\",\"wall_ms\":4266}}}"
+  },
+  {
+   "t": 30.3289,
+   "line": "{\"seq\":132,\"at\":\"2026-10-24T18:55:40.517Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"recovery\",\"agent\":\"critic\",\"payload\":{\"reason\":\"generator_reply_repaired\",\"detail\":\"critic-r1: reply was a truncated JSON array; its 8 complete item(s) were kept\",\"prompt_id\":\"critic-r1\",\"kept\":8}}"
+  },
+  {
+   "t": 30.3291,
+   "line": "{\"seq\":133,\"at\":\"2026-10-24T18:55:40.518Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":1,\"rule\":\"LLM\",\"target\":1,\"verdict\":\"dismissed\",\"reason\":\"Derives 56 from c01 and c02, but c01 and c02 are self-reported receipts with basis_mismatch caveats; the arithmetic is not a standalone claim.\",\"memory_ids\":[],\"dismissed_by\":\"B\",\"claim_ids\":[\"c02\",\"c03\"]}}"
+  },
+  {
+   "t": 30.3292,
+   "line": "{\"seq\":134,\"at\":\"2026-10-24T18:55:40.518Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":1,\"rule\":\"LLM\",\"target\":2,\"verdict\":\"dismissed\",\"reason\":\"Derives 24 from c01 and c04; c04 is self-reported with basis_mismatch; the count is not an independent claim.\",\"memory_ids\":[],\"dismissed_by\":\"B\",\"claim_ids\":[\"c04\"]}}"
+  },
+  {
+   "t": 30.3292,
+   "line": "{\"seq\":135,\"at\":\"2026-10-24T18:55:40.518Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":1,\"rule\":\"LLM\",\"target\":3,\"verdict\":\"dismissed\",\"reason\":\"Derives 55000 from c05; c05 is self-reported with basis_mismatch; the absolute value is not an independent claim.\",\"memory_ids\":[],\"dismissed_by\":\"B\",\"claim_ids\":[\"c05\"]}}"
+  },
+  {
+   "t": 30.3292,
+   "line": "{\"seq\":136,\"at\":\"2026-10-24T18:55:40.518Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":1,\"rule\":\"LLM\",\"target\":4,\"verdict\":\"dismissed\",\"reason\":\"Derives 5 from c06; c06 is self-reported with basis_mismatch; the count is not an independent claim.\",\"memory_ids\":[],\"dismissed_by\":\"B\",\"claim_ids\":[\"c06\"]}}"
+  },
+  {
+   "t": 30.3293,
+   "line": "{\"seq\":137,\"at\":\"2026-10-24T18:55:40.518Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":1,\"rule\":\"LLM\",\"target\":5,\"verdict\":\"revise\",\"reason\":\"Derives 83.3% and 20/24 from c09; c09 is self-reported with basis_mismatch; the share and counts are not independent claims.\",\"memory_ids\":[]}}"
+  },
+  {
+   "t": 30.3293,
+   "line": "{\"seq\":138,\"at\":\"2026-10-24T18:55:40.518Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":1,\"rule\":\"LLM\",\"target\":5,\"verdict\":\"revise\",\"reason\":\"Derives 5-day range from c10; c10 is self-reported with basis_mismatch; the date range is not an independent claim.\",\"memory_ids\":[]}}"
+  },
+  {
+   "t": 30.3293,
+   "line": "{\"seq\":139,\"at\":\"2026-10-24T18:55:40.518Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":1,\"rule\":\"LLM\",\"target\":5,\"verdict\":\"revise\",\"reason\":\"Derives service distribution from c11; c11 is self-reported with basis_mismatch; the distribution is not an independent claim.\",\"memory_ids\":[]}}"
+  },
+  {
+   "t": 30.3293,
+   "line": "{\"seq\":140,\"at\":\"2026-10-24T18:55:40.518Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":1,\"rule\":\"LLM\",\"target\":5,\"verdict\":\"revise\",\"reason\":\"Derives 30-day settlement claim from c13; c13 references k02 conflict and is self-reported; the claim is not independent.\",\"memory_ids\":[]}}"
+  },
+  {
+   "t": 30.3296,
+   "line": "{\"seq\":141,\"at\":\"2026-10-24T18:55:40.518Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"handoff\",\"agent\":\"runner\",\"payload\":{\"from\":\"critic\",\"to\":\"writer\",\"artifact\":{\"type\":\"issues\",\"count\":24,\"sha256\":\"8cbbf0b0386d42d49396791adcb69c73dae3b902bcb3b642f6eb59dc752b2464\"}}}"
+  },
+  {
+   "t": 43.2228,
+   "line": "{\"seq\":142,\"at\":\"2026-10-24T18:55:53.412Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"generate\",\"agent\":\"writer\",\"payload\":{\"prompt_id\":\"writer-r2\",\"attempt\":2,\"generator\":\"nightshift:nvidia/nemotron-3.5-lightning-30b-a3b\",\"provider\":\"meterless\",\"requested_model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"recorded\":false,\"prompt_sha256\":\"117799aafb943b42927cfeca9e23791294983d2f924d0c8420cc35c2f0474f7e\",\"response_sha256\":\"cb81cbf32b3a110881e6c61270cbd6371cec7702e7306d29031184a4d0e45dba\",\"routing\":{\"source\":\"meterless_receipt\",\"schema\":\"meterless.compute_receipt.v1\",\"receipt_id\":\"rcpt_req_v4ma9ufl\",\"decision_id\":\"req_v4ma9ufl\",\"requested_model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"routed_model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"winning_route\":{\"model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"label\":\"Nemotron 3.5 Lightning 30B A3B\",\"provider\":\"nvidia\",\"kind\":\"cloud\",\"tier\":\"A\"},\"phases\":[{\"phase\":\"final_synthesis\",\"model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"ms\":12867}],\"latency_ms\":12867,\"usage\":{\"input_tokens\":5941,\"output_tokens\":700,\"total_tokens\":6641},\"cache\":\"miss\",\"from_cache\":false,\"privacy_path\":\"cloud-ok\",\"wall_ms\":12906}}}"
+  },
+  {
+   "t": 43.223,
+   "line": "{\"seq\":143,\"at\":\"2026-10-24T18:55:53.412Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"handoff\",\"agent\":\"runner\",\"payload\":{\"from\":\"writer\",\"to\":\"critic\",\"artifact\":{\"type\":\"answer\",\"count\":6,\"sha256\":\"8d9e119b5c2dbc41b1b28db368371ae71e4e1e643393782961fbff423253cc01\"}}}"
+  },
+  {
+   "t": 43.2253,
+   "line": "{\"seq\":144,\"at\":\"2026-10-24T18:55:53.414Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":2,\"rule\":\"C1\",\"verdict\":\"accept\",\"count\":19}}"
+  },
+  {
+   "t": 43.2254,
+   "line": "{\"seq\":145,\"at\":\"2026-10-24T18:55:53.414Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":2,\"rule\":\"C2\",\"verdict\":\"accept\",\"count\":19}}"
+  },
+  {
+   "t": 43.2254,
+   "line": "{\"seq\":146,\"at\":\"2026-10-24T18:55:53.414Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":2,\"rule\":\"C3\",\"verdict\":\"accept\",\"count\":19}}"
+  },
+  {
+   "t": 43.2254,
+   "line": "{\"seq\":147,\"at\":\"2026-10-24T18:55:53.414Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":2,\"rule\":\"C4\",\"verdict\":\"accept\",\"count\":19}}"
+  },
+  {
+   "t": 43.2254,
+   "line": "{\"seq\":148,\"at\":\"2026-10-24T18:55:53.414Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":2,\"rule\":\"C5\",\"verdict\":\"accept\",\"count\":19}}"
+  },
+  {
+   "t": 43.2254,
+   "line": "{\"seq\":149,\"at\":\"2026-10-24T18:55:53.414Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":2,\"rule\":\"C6\",\"verdict\":\"accept\",\"count\":19}}"
+  },
+  {
+   "t": 43.2255,
+   "line": "{\"seq\":150,\"at\":\"2026-10-24T18:55:53.414Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":2,\"rule\":\"C7\",\"verdict\":\"accept\",\"count\":19}}"
+  },
+  {
+   "t": 43.2255,
+   "line": "{\"seq\":151,\"at\":\"2026-10-24T18:55:53.414Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":2,\"rule\":\"C3\",\"target\":\"c01\",\"verdict\":\"revise\",\"reason\":\"the answer does not carry caveat [self_reported_receipts] required by c01\",\"memory_ids\":[\"mem-seed-003\"]}}"
+  },
+  {
+   "t": 43.2255,
+   "line": "{\"seq\":152,\"at\":\"2026-10-24T18:55:53.414Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":2,\"rule\":\"C3\",\"target\":\"c02\",\"verdict\":\"revise\",\"reason\":\"the answer does not carry caveat [self_reported_receipts] required by c02\",\"memory_ids\":[\"mem-seed-003\"]}}"
+  },
+  {
+   "t": 43.2255,
+   "line": "{\"seq\":153,\"at\":\"2026-10-24T18:55:53.414Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":2,\"rule\":\"C3\",\"target\":\"c03\",\"verdict\":\"revise\",\"reason\":\"the answer does not carry caveat [self_reported_receipts] required by c03\",\"memory_ids\":[\"mem-seed-003\"]}}"
+  },
+  {
+   "t": 43.2256,
+   "line": "{\"seq\":154,\"at\":\"2026-10-24T18:55:53.414Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":2,\"rule\":\"C3\",\"target\":\"c04\",\"verdict\":\"revise\",\"reason\":\"the answer does not carry caveat [self_reported_receipts] required by c04\",\"memory_ids\":[\"mem-seed-003\"]}}"
+  },
+  {
+   "t": 43.2256,
+   "line": "{\"seq\":155,\"at\":\"2026-10-24T18:55:53.414Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":2,\"rule\":\"C3\",\"target\":\"c05\",\"verdict\":\"revise\",\"reason\":\"the answer does not carry caveat [self_reported_receipts] required by c05\",\"memory_ids\":[\"mem-seed-003\"]}}"
+  },
+  {
+   "t": 43.2256,
+   "line": "{\"seq\":156,\"at\":\"2026-10-24T18:55:53.414Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":2,\"rule\":\"C3\",\"target\":\"c06\",\"verdict\":\"revise\",\"reason\":\"the answer does not carry caveat [self_reported_receipts] required by c06\",\"memory_ids\":[\"mem-seed-003\"]}}"
+  },
+  {
+   "t": 43.2256,
+   "line": "{\"seq\":157,\"at\":\"2026-10-24T18:55:53.414Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":2,\"rule\":\"C3\",\"target\":\"c07\",\"verdict\":\"revise\",\"reason\":\"the answer does not carry caveat [self_reported_receipts] required by c07\",\"memory_ids\":[\"mem-seed-003\"]}}"
+  },
+  {
+   "t": 43.2256,
+   "line": "{\"seq\":158,\"at\":\"2026-10-24T18:55:53.414Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":2,\"rule\":\"C3\",\"target\":\"c08\",\"verdict\":\"revise\",\"reason\":\"the answer does not carry caveat [self_reported_receipts] required by c08\",\"memory_ids\":[\"mem-seed-003\"]}}"
+  },
+  {
+   "t": 43.2257,
+   "line": "{\"seq\":159,\"at\":\"2026-10-24T18:55:53.414Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":2,\"rule\":\"C3\",\"target\":\"c09\",\"verdict\":\"revise\",\"reason\":\"the answer does not carry caveat [self_reported_receipts] required by c09\",\"memory_ids\":[\"mem-seed-003\"]}}"
+  },
+  {
+   "t": 43.2257,
+   "line": "{\"seq\":160,\"at\":\"2026-10-24T18:55:53.414Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":2,\"rule\":\"C3\",\"target\":\"c10\",\"verdict\":\"revise\",\"reason\":\"the answer does not carry caveat [self_reported_receipts] required by c10\",\"memory_ids\":[\"mem-seed-003\"]}}"
+  },
+  {
+   "t": 43.2257,
+   "line": "{\"seq\":161,\"at\":\"2026-10-24T18:55:53.414Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":2,\"rule\":\"C3\",\"target\":\"c11\",\"verdict\":\"revise\",\"reason\":\"the answer does not carry caveat [self_reported_receipts] required by c11\",\"memory_ids\":[\"mem-seed-003\"]}}"
+  },
+  {
+   "t": 43.2257,
+   "line": "{\"seq\":162,\"at\":\"2026-10-24T18:55:53.414Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":2,\"rule\":\"C3\",\"target\":\"c12\",\"verdict\":\"revise\",\"reason\":\"the answer does not carry caveat [self_reported_receipts] required by c12\",\"memory_ids\":[\"mem-seed-003\"]}}"
+  },
+  {
+   "t": 43.2257,
+   "line": "{\"seq\":163,\"at\":\"2026-10-24T18:55:53.414Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":2,\"rule\":\"C3\",\"target\":\"c13\",\"verdict\":\"revise\",\"reason\":\"the answer does not carry caveat [self_reported_receipts] required by c13\",\"memory_ids\":[\"mem-seed-003\"]}}"
+  },
+  {
+   "t": 43.2257,
+   "line": "{\"seq\":164,\"at\":\"2026-10-24T18:55:53.414Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":2,\"rule\":\"C3\",\"target\":\"c14\",\"verdict\":\"revise\",\"reason\":\"the answer does not carry caveat [search_limit_20] required by c14\",\"memory_ids\":[\"mem-seed-002\"]}}"
+  },
+  {
+   "t": 43.2257,
+   "line": "{\"seq\":165,\"at\":\"2026-10-24T18:55:53.414Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":2,\"rule\":\"C3\",\"target\":\"c15\",\"verdict\":\"revise\",\"reason\":\"the answer does not carry caveat [search_limit_20] required by c15\",\"memory_ids\":[\"mem-seed-002\"]}}"
+  },
+  {
+   "t": 43.2258,
+   "line": "{\"seq\":166,\"at\":\"2026-10-24T18:55:53.414Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":2,\"rule\":\"C3\",\"target\":\"c16\",\"verdict\":\"revise\",\"reason\":\"the answer does not carry caveat [search_limit_20] required by c16\",\"memory_ids\":[\"mem-seed-002\"]}}"
+  },
+  {
+   "t": 43.2258,
+   "line": "{\"seq\":167,\"at\":\"2026-10-24T18:55:53.414Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":2,\"rule\":\"C3\",\"target\":\"c17\",\"verdict\":\"revise\",\"reason\":\"the answer does not carry caveat [search_limit_20] required by c17\",\"memory_ids\":[\"mem-seed-002\"]}}"
+  },
+  {
+   "t": 43.2258,
+   "line": "{\"seq\":168,\"at\":\"2026-10-24T18:55:53.414Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":2,\"rule\":\"C3\",\"target\":\"c18\",\"verdict\":\"revise\",\"reason\":\"the answer does not carry caveat [search_limit_20] required by c18\",\"memory_ids\":[\"mem-seed-002\"]}}"
+  },
+  {
+   "t": 43.2258,
+   "line": "{\"seq\":169,\"at\":\"2026-10-24T18:55:53.414Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":2,\"rule\":\"C3\",\"target\":\"c19\",\"verdict\":\"revise\",\"reason\":\"the answer does not carry caveat [payer_from_transfer_log] required by c19\",\"memory_ids\":[\"mem-seed-005\"]}}"
+  },
+  {
+   "t": 43.2258,
+   "line": "{\"seq\":170,\"at\":\"2026-10-24T18:55:53.414Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":2,\"rule\":\"C7\",\"target\":\"k01\",\"verdict\":\"revise\",\"reason\":\"conflict k01 (endpoint_count_for_host) is not mentioned with its id\",\"memory_ids\":[]}}"
+  },
+  {
+   "t": 43.2259,
+   "line": "{\"seq\":171,\"at\":\"2026-10-24T18:55:53.414Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":2,\"rule\":\"C7\",\"target\":\"k02\",\"verdict\":\"revise\",\"reason\":\"conflict k02 (calls_30d_for_host) is not mentioned with its id\",\"memory_ids\":[]}}"
+  },
+  {
+   "t": 43.2264,
+   "line": "{\"seq\":172,\"at\":\"2026-10-24T18:55:53.415Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"narrative_map\",\"agent\":\"critic\",\"payload\":{\"round\":2,\"tokens\":[{\"token\":\"80\",\"claim_id\":\"c01\",\"kind\":\"value\",\"sentence_index\":0},{\"token\":\"56\",\"claim_id\":\"c02\",\"kind\":\"value\",\"sentence_index\":1},{\"token\":\"3\",\"claim_id\":\"c03\",\"kind\":\"value\",\"sentence_index\":2},{\"token\":\"24\",\"claim_id\":\"c04\",\"kind\":\"value\",\"sentence_index\":3},{\"token\":\"55000\",\"claim_id\":\"c05\",\"kind\":\"value\",\"sentence_index\":4},{\"token\":\"0.055 USDC\",\"claim_id\":\"c05\",\"kind\":\"formatted\",\"sentence_index\":4},{\"token\":\"2026-10-20T04:51:24.352Z\",\"claim_id\":null,\"kind\":\"date\",\"sentence_index\":5},{\"token\":\"2026-10-24T14:01:45.472Z\",\"claim_id\":null,\"kind\":\"date\",\"sentence_index\":5},{\"token\":\"2026-10-20\",\"claim_id\":null,\"kind\":\"date\",\"sentence_index\":5},{\"token\":\"2026-10-21\",\"claim_id\":null,\"kind\":\"date\",\"sentence_index\":5},{\"token\":\"2026-10-23\",\"claim_id\":null,\"kind\":\"date\",\"sentence_index\":5},{\"token\":\"2026-10-24\",\"claim_id\":null,\"kind\":\"date\",\"sentence_index\":5},{\"token\":\"2026-10-24\",\"claim_id\":null,\"kind\":\"date\",\"sentence_index\":5},{\"token\":\"5\",\"claim_id\":\"c06\",\"kind\":\"value\",\"sentence_index\":5},{\"token\":\"56\",\"claim_id\":\"c02\",\"kind\":\"value\",\"sentence_index\":5},{\"token\":\"80\",\"claim_id\":\"c01\",\"kind\":\"value\",\"sentence_index\":5},{\"token\":\"70.0 %\",\"claim_id\":\"c07\",\"kind\":\"formatted\",\"sentence_index\":5},{\"token\":\"1\",\"claim_id\":\"c08\",\"kind\":\"value\",\"sentence_index\":5},{\"token\":\"20\",\"claim_id\":\"c09\",\"kind\":\"numerator\",\"sentence_index\":5},{\"token\":\"24\",\"claim_id\":\"c04\",\"kind\":\"value\",\"sentence_index\":5},{\"token\":\"83.3 %\",\"claim_id\":\"c09\",\"kind\":\"formatted\",\"sentence_index\":5},{\"token\":\"4\",\"claim_id\":\"c11\",\"kind\":\"value\",\"sentence_index\":5},{\"token\":\"4\",\"claim_id\":\"c11\",\"kind\":\"value\",\"sentence_index\":5},{\"token\":\"2\",\"claim_id\":\"c11\",\"kind\":\"value\",\"sentence_index\":5},{\"token\":\"1\",\"claim_id\":\"c08\",\"kind\":\"value\",\"sentence_index\":5},{\"token\":\"1\",\"claim_id\":\"c08\",\"kind\":\"value\",\"sentence_index\":5},{\"token\":\"1\",\"claim_id\":\"c08\",\"kind\":\"value\",\"sentence_index\":5},{\"token\":\"1\",\"claim_id\":\"c08\",\"kind\":\"value\",\"sentence_index\":5},{\"token\":\"1\",\"claim_id\":\"c08\",\"kind\":\"value\",\"sentence_index\":5},{\"token\":\"1\",\"claim_id\":\"c08\",\"kind\":\"value\",\"sentence_index\":5},{\"token\":\"1\",\"claim_id\":\"c08\",\"kind\":\"value\",\"sentence_index\":5},{\"token\":\"1\",\"claim_id\":\"c08\",\"kind\":\"value\",\"sentence_index\":5},{\"token\":\"1\",\"claim_id\":\"c08\",\"kind\":\"value\",\"sentence_index\":5},{\"token\":\"1\",\"claim_id\":\"c08\",\"kind\":\"value\",\"sentence_index\":5},{\"token\":\"1\",\"claim_id\":\"c08\",\"kind\":\"value\",\"sentence_index\":5},{\"token\":\"1\",\"claim_id\":\"c08\",\"kind\":\"value\",\"sentence_index\":5},{\"token\":\"1\",\"claim_id\":\"c08\",\"kind\":\"value\",\"sentence_index\":5},{\"token\":\"1\",\"claim_id\":\"c08\",\"kind\":\"value\",\"sentence_index\":5},{\"token\":\"20\",\"claim_id\":\"c09\",\"kind\":\"numerator\",\"sentence_index\":5},{\"token\":\"1\",\"claim_id\":\"c08\",\"kind\":\"value\",\"sentence_index\":5},{\"token\":\"1\",\"claim_id\":\"c08\",\"kind\":\"value\",\"sentence_index\":5},{\"token\":\"2\",\"claim_id\":\"c11\",\"kind\":\"value\",\"sentence_index\":5},{\"token\":\"24\",\"claim_id\":\"c04\",\"kind\":\"value\",\"sentence_index\":5},{\"token\":\"17\",\"claim_id\":\"c14\",\"kind\":\"value\",\"sentence_index\":5}],\"unsourced\":[]}}"
+  },
+  {
+   "t": 43.2264,
+   "line": "{\"seq\":173,\"at\":\"2026-10-24T18:55:53.415Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":2,\"rule\":\"B\",\"verdict\":\"accept\",\"count\":44}}"
+  },
+  {
+   "t": 47.9611,
+   "line": "{\"seq\":174,\"at\":\"2026-10-24T18:55:58.150Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"generate\",\"agent\":\"critic\",\"payload\":{\"prompt_id\":\"critic-r2\",\"attempt\":2,\"generator\":\"nightshift:nvidia/nemotron-3.5-lightning-30b-a3b\",\"provider\":\"meterless\",\"requested_model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"recorded\":false,\"prompt_sha256\":\"a5d6c63446effb6707beb63879d9b12b6ef652faf66d631e1edfe3e27e477e1e\",\"response_sha256\":\"015a571b63250afab1976a8a1a5f25d1e6375ed2c5f6e7ec1df4884e03f87c69\",\"routing\":{\"source\":\"meterless_receipt\",\"schema\":\"meterless.compute_receipt.v1\",\"receipt_id\":\"rcpt_req_y94ho7dr\",\"decision_id\":\"req_y94ho7dr\",\"requested_model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"routed_model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"winning_route\":{\"model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"label\":\"Nemotron 3.5 Lightning 30B A3B\",\"provider\":\"nvidia\",\"kind\":\"cloud\",\"tier\":\"A\"},\"phases\":[{\"phase\":\"final_synthesis\",\"model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"ms\":4714}],\"latency_ms\":4714,\"usage\":{\"input_tokens\":3312,\"output_tokens\":500,\"total_tokens\":3812},\"cache\":\"miss\",\"from_cache\":false,\"privacy_path\":\"cloud-ok\",\"wall_ms\":4734}}}"
+  },
+  {
+   "t": 47.9613,
+   "line": "{\"seq\":175,\"at\":\"2026-10-24T18:55:58.150Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"recovery\",\"agent\":\"critic\",\"payload\":{\"reason\":\"generator_reply_repaired\",\"detail\":\"critic-r2: reply was a truncated JSON array; its 9 complete item(s) were kept\",\"prompt_id\":\"critic-r2\",\"kept\":9}}"
+  },
+  {
+   "t": 47.9614,
+   "line": "{\"seq\":176,\"at\":\"2026-10-24T18:55:58.150Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":2,\"rule\":\"LLM\",\"target\":0,\"verdict\":\"revise\",\"reason\":\"80 total settled sales is a claim value, not a standalone statement to evaluate\",\"memory_ids\":[]}}"
+  },
+  {
+   "t": 47.9614,
+   "line": "{\"seq\":177,\"at\":\"2026-10-24T18:55:58.150Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":2,\"rule\":\"LLM\",\"target\":1,\"verdict\":\"revise\",\"reason\":\"56 sales paid from seller's own wallets is a claim value, not a standalone statement to evaluate\",\"memory_ids\":[]}}"
+  },
+  {
+   "t": 47.9614,
+   "line": "{\"seq\":178,\"at\":\"2026-10-24T18:55:58.150Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":2,\"rule\":\"LLM\",\"target\":2,\"verdict\":\"revise\",\"reason\":\"3 distinct own wallets settled those self-payments is a claim value, not a standalone statement to evaluate\",\"memory_ids\":[]}}"
+  },
+  {
+   "t": 47.9614,
+   "line": "{\"seq\":179,\"at\":\"2026-10-24T18:55:58.150Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":2,\"rule\":\"LLM\",\"target\":3,\"verdict\":\"revise\",\"reason\":\"24 sales paid by external wallets is a claim value, not a standalone statement to evaluate\",\"memory_ids\":[]}}"
+  },
+  {
+   "t": 47.9614,
+   "line": "{\"seq\":180,\"at\":\"2026-10-24T18:55:58.150Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":2,\"rule\":\"LLM\",\"target\":4,\"verdict\":\"revise\",\"reason\":\"External sales total 55000 atomic USDC is a claim value, not a standalone statement to evaluate\",\"memory_ids\":[]}}"
+  },
+  {
+   "t": 47.9614,
+   "line": "{\"seq\":181,\"at\":\"2026-10-24T18:55:58.150Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"critique\",\"agent\":\"critic\",\"payload\":{\"round\":2,\"rule\":\"LLM\",\"target\":5,\"verdict\":\"revise\",\"reason\":\"5 distinct external payers appears is a claim value, not a standalone statement to evaluate\",\"memory_ids\":[]}}"
+  },
+  {
+   "t": 47.9615,
+   "line": "{\"seq\":182,\"at\":\"2026-10-24T18:55:58.150Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"recovery\",\"agent\":\"writer\",\"payload\":{\"reason\":\"narrative_trimmed\",\"detail\":\"6 sentence(s) cut after the last critic round\",\"sentences\":[\"80 total settled sales [c01, self_reported_receipts, basis_mismatch]\",\"56 sales paid from the seller's own wallets [c02, self_reported_receipts, basis_mismatch]\",\"3 distinct own wallets settled those self-payments [c03, self_reported_receipts, basis_mismatch]\",\"24 sales paid by external wallets [c04, self_reported_receipts, basis_mismatch]\",\"External sales total 55000 atomic USDC (0.055 USDC) [c05, self_reported_receipts, basis_mismatch]\",\"- 5 distinct external payers appear in the receipts [c06, self_reported_receipts, basis_mismatch] - Self-settlement share: 56 of 80 sales (70.0 %) [c07, self_re\"]}}"
+  },
+  {
+   "t": 47.9617,
+   "line": "{\"seq\":183,\"at\":\"2026-10-24T18:55:58.150Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"recovery\",\"agent\":\"writer\",\"payload\":{\"reason\":\"narrative_completed\",\"detail\":\"7 code-owned sentence(s) added after the last critic round (conflicts: k01, k02; caveats: basis_mismatch, payer_from_transfer_log, search_limit_20, self_reported_receipts, third_party_aggregate; unavailable: none; rejected list: no)\",\"sentences\":[\"Where sources disagree [k01] on endpoint_count_for_host: cdp_search: 17 (CDP Bazaar discovery search, one row per listed resource, capped at twenty results); st\",\"Where sources disagree [k02] on calls_30d_for_host: cdp_search: 64 (l30DaysTotalCalls summed over the host's Bazaar listings (per-endpoint 30-day counters, sear\",\"Caveat [basis_mismatch]: Bazaar counters and receipts use different windows and bases [mem-seed-007]; applies to [c01] [c02] [c03] [c04] [c05] [c06] [c07] [c08]\",\"Caveat [payer_from_transfer_log]: payer and seller were read from the Transfer log, not from tx.from [mem-seed-005]; applies to [c19].\",\"Caveat [search_limit_20]: the Bazaar search is capped at twenty results, so its count is a floor [mem-seed-002]; applies to [c14] [c15] [c16] [c17] [c18].\",\"Caveat [self_reported_receipts]: receipts are self-reported by the seller [mem-seed-003]; applies to [c01] [c02] [c03] [c04] [c05] [c06] [c07] [c08] [c09] [c10]\",\"Caveat [third_party_aggregate]: x402-trust figures are third-party aggregates with their own window and index [mem-seed-004]; applies to [c18].\"],\"added\":{\"conflicts\":[\"k01\",\"k02\"],\"caveats\":[\"basis_mismatch\",\"payer_from_transfer_log\",\"search_limit_20\",\"self_reported_receipts\",\"third_party_aggregate\"],\"unavailable\":[],\"rejected\":false,\"disclaimer\":false,\"sample_notice\":false}}}"
+  },
+  {
+   "t": 47.9618,
+   "line": "{\"seq\":184,\"at\":\"2026-10-24T18:55:58.150Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"recovery\",\"agent\":\"writer\",\"payload\":{\"reason\":\"narrative_completed\",\"detail\":\"verdict sentence added: the final answer did not state self_settled_mostly\",\"sentences\":[\"Most settlements are the seller paying itself (verdict self_settled_mostly) based on [c07].\"],\"added\":{\"verdict\":\"self_settled_mostly\"}}}"
+  },
+  {
+   "t": 47.9638,
+   "line": "{\"seq\":185,\"at\":\"2026-10-24T18:55:58.153Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"handoff\",\"agent\":\"runner\",\"payload\":{\"from\":\"critic\",\"to\":\"keeper\",\"artifact\":{\"type\":\"accepted_claims\",\"count\":19,\"sha256\":\"e2e30333df6e2f3c0fa36f7ff8498a309a3fb5a6ed18de693198a1699ed00d63\"}}}"
+  },
+  {
+   "t": 48.001,
+   "line": "{\"seq\":186,\"at\":\"2026-10-24T18:55:58.190Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"ingest\",\"agent\":\"keeper\",\"payload\":{\"pass\":2,\"report\":{\"runId\":\"run_bce5c176f222\",\"processed\":0,\"skippedUnchanged\":9,\"eventsAppended\":0,\"changed\":false,\"stepTimingsMs\":{\"1-reconcile-stale\":0,\"2-classify\":5,\"3-persist\":0,\"4-diff\":14},\"quarantined\":[]},\"quarantined\":[],\"counts\":{\"events\":953,\"audit\":955,\"entities\":86,\"contexts\":9,\"relationships\":290,\"facts\":294,\"observations\":9,\"aliases\":0},\"skipped_sources\":[],\"adapter_skips\":[],\"claims_asserted\":19,\"claims_refused\":[]}}"
+  },
+  {
+   "t": 48.0178,
+   "line": "{\"seq\":187,\"at\":\"2026-10-24T18:55:58.206Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"handoff\",\"agent\":\"runner\",\"payload\":{\"from\":\"keeper\",\"to\":\"hmem\",\"artifact\":{\"type\":\"claims\",\"count\":19,\"sha256\":\"e2e30333df6e2f3c0fa36f7ff8498a309a3fb5a6ed18de693198a1699ed00d63\"}}}"
+  },
+  {
+   "t": 48.0336,
+   "line": "{\"seq\":188,\"at\":\"2026-10-24T18:55:58.222Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"feedback\",\"actor\":\"critic\",\"memory_ids\":[\"mem-10\"],\"details\":{\"kind\":\"helpful\",\"reason\":\"remembered value 3.0 matches c03\",\"previous_confidence\":1.0,\"new_confidence\":1.0}}}"
+  },
+  {
+   "t": 48.0508,
+   "line": "{\"seq\":189,\"at\":\"2026-10-24T18:55:58.240Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"feedback\",\"actor\":\"critic\",\"memory_ids\":[\"mem-101\"],\"details\":{\"kind\":\"helpful\",\"reason\":\"remembered value 24.0 matches c04\",\"previous_confidence\":1.0,\"new_confidence\":1.0}}}"
+  },
+  {
+   "t": 48.0656,
+   "line": "{\"seq\":190,\"at\":\"2026-10-24T18:55:58.255Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"feedback\",\"actor\":\"critic\",\"memory_ids\":[\"mem-102\"],\"details\":{\"kind\":\"helpful\",\"reason\":\"remembered value 55000.0 matches c05\",\"previous_confidence\":1.0,\"new_confidence\":1.0}}}"
+  },
+  {
+   "t": 48.0804,
+   "line": "{\"seq\":191,\"at\":\"2026-10-24T18:55:58.269Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"feedback\",\"actor\":\"critic\",\"memory_ids\":[\"mem-103\"],\"details\":{\"kind\":\"helpful\",\"reason\":\"remembered value 5.0 matches c06\",\"previous_confidence\":1.0,\"new_confidence\":1.0}}}"
+  },
+  {
+   "t": 48.0945,
+   "line": "{\"seq\":192,\"at\":\"2026-10-24T18:55:58.283Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"feedback\",\"actor\":\"critic\",\"memory_ids\":[\"mem-104\"],\"details\":{\"kind\":\"helpful\",\"reason\":\"remembered value 56.0 matches c07\",\"previous_confidence\":1.0,\"new_confidence\":1.0}}}"
+  },
+  {
+   "t": 48.1085,
+   "line": "{\"seq\":193,\"at\":\"2026-10-24T18:55:58.297Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"feedback\",\"actor\":\"critic\",\"memory_ids\":[\"mem-111\"],\"details\":{\"kind\":\"helpful\",\"reason\":\"remembered value 24.0 matches c04\",\"previous_confidence\":0.9500000000000002,\"new_confidence\":1.0}}}"
+  },
+  {
+   "t": 48.124,
+   "line": "{\"seq\":194,\"at\":\"2026-10-24T18:55:58.313Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"feedback\",\"actor\":\"critic\",\"memory_ids\":[\"mem-112\"],\"details\":{\"kind\":\"helpful\",\"reason\":\"remembered value 55000.0 matches c05\",\"previous_confidence\":0.9500000000000002,\"new_confidence\":1.0}}}"
+  },
+  {
+   "t": 48.1371,
+   "line": "{\"seq\":195,\"at\":\"2026-10-24T18:55:58.326Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"feedback\",\"actor\":\"critic\",\"memory_ids\":[\"mem-113\"],\"details\":{\"kind\":\"helpful\",\"reason\":\"remembered value 5.0 matches c06\",\"previous_confidence\":0.9500000000000002,\"new_confidence\":1.0}}}"
+  },
+  {
+   "t": 48.1507,
+   "line": "{\"seq\":196,\"at\":\"2026-10-24T18:55:58.340Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"feedback\",\"actor\":\"critic\",\"memory_ids\":[\"mem-129\"],\"details\":{\"kind\":\"helpful\",\"reason\":\"remembered value 5.0 matches c19\",\"previous_confidence\":1.0,\"new_confidence\":1.0}}}"
+  },
+  {
+   "t": 48.1651,
+   "line": "{\"seq\":197,\"at\":\"2026-10-24T18:55:58.353Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"feedback\",\"actor\":\"critic\",\"memory_ids\":[\"mem-138\"],\"details\":{\"kind\":\"helpful\",\"reason\":\"remembered value 5.0 matches c19\",\"previous_confidence\":1.0,\"new_confidence\":1.0}}}"
+  },
+  {
+   "t": 48.1793,
+   "line": "{\"seq\":198,\"at\":\"2026-10-24T18:55:58.368Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"feedback\",\"actor\":\"critic\",\"memory_ids\":[\"mem-14\"],\"details\":{\"kind\":\"helpful\",\"reason\":\"remembered value 56.0 matches c07\",\"previous_confidence\":1.0,\"new_confidence\":1.0}}}"
+  },
+  {
+   "t": 48.1937,
+   "line": "{\"seq\":199,\"at\":\"2026-10-24T18:55:58.383Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"feedback\",\"actor\":\"critic\",\"memory_ids\":[\"mem-147\"],\"details\":{\"kind\":\"helpful\",\"reason\":\"remembered value 5.0 matches c19\",\"previous_confidence\":1.0,\"new_confidence\":1.0}}}"
+  },
+  {
+   "t": 48.2081,
+   "line": "{\"seq\":200,\"at\":\"2026-10-24T18:55:58.397Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"feedback\",\"actor\":\"critic\",\"memory_ids\":[\"mem-15\"],\"details\":{\"kind\":\"helpful\",\"reason\":\"remembered value 1.0 matches c08\",\"previous_confidence\":1.0,\"new_confidence\":1.0}}}"
+  },
+  {
+   "t": 48.2222,
+   "line": "{\"seq\":201,\"at\":\"2026-10-24T18:55:58.410Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"feedback\",\"actor\":\"critic\",\"memory_ids\":[\"mem-158\"],\"details\":{\"kind\":\"helpful\",\"reason\":\"remembered value 24.0 matches c04\",\"previous_confidence\":0.9000000000000001,\"new_confidence\":0.9500000000000002}}}"
+  },
+  {
+   "t": 48.2372,
+   "line": "{\"seq\":202,\"at\":\"2026-10-24T18:55:58.426Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"feedback\",\"actor\":\"critic\",\"memory_ids\":[\"mem-159\"],\"details\":{\"kind\":\"helpful\",\"reason\":\"remembered value 55000.0 matches c05\",\"previous_confidence\":0.9000000000000001,\"new_confidence\":0.9500000000000002}}}"
+  },
+  {
+   "t": 48.2512,
+   "line": "{\"seq\":203,\"at\":\"2026-10-24T18:55:58.440Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"feedback\",\"actor\":\"critic\",\"memory_ids\":[\"mem-160\"],\"details\":{\"kind\":\"helpful\",\"reason\":\"remembered value 5.0 matches c06\",\"previous_confidence\":0.9000000000000001,\"new_confidence\":0.9500000000000002}}}"
+  },
+  {
+   "t": 48.2656,
+   "line": "{\"seq\":204,\"at\":\"2026-10-24T18:55:58.454Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"feedback\",\"actor\":\"critic\",\"memory_ids\":[\"mem-164\"],\"details\":{\"kind\":\"not_helpful\",\"reason\":\"retrieved for c10 but not cited\",\"previous_confidence\":0.74,\"new_confidence\":0.71}}}"
+  },
+  {
+   "t": 48.2788,
+   "line": "{\"seq\":205,\"at\":\"2026-10-24T18:55:58.468Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"feedback\",\"actor\":\"critic\",\"memory_ids\":[\"mem-19\"],\"details\":{\"kind\":\"not_helpful\",\"reason\":\"retrieved for critic but not cited\",\"previous_confidence\":0.8600000000000001,\"new_confidence\":0.8300000000000001}}}"
+  },
+  {
+   "t": 48.2991,
+   "line": "{\"seq\":206,\"at\":\"2026-10-24T18:55:58.487Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"feedback\",\"actor\":\"critic\",\"memory_ids\":[\"mem-211\"],\"details\":{\"kind\":\"not_helpful\",\"reason\":\"retrieved for c10 but not cited\",\"previous_confidence\":0.77,\"new_confidence\":0.74}}}"
+  },
+  {
+   "t": 48.314,
+   "line": "{\"seq\":207,\"at\":\"2026-10-24T18:55:58.503Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"feedback\",\"actor\":\"critic\",\"memory_ids\":[\"mem-257\"],\"details\":{\"kind\":\"wrong\",\"reason\":\"remembered value 0.0 differs by more than 5 % from c09 (20.0)\",\"previous_confidence\":0.8,\"new_confidence\":0.6000000000000001}}}"
+  },
+  {
+   "t": 48.3285,
+   "line": "{\"seq\":208,\"at\":\"2026-10-24T18:55:58.518Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"feedback\",\"actor\":\"critic\",\"memory_ids\":[\"mem-258\"],\"details\":{\"kind\":\"not_helpful\",\"reason\":\"retrieved for c10 but not cited\",\"previous_confidence\":0.8,\"new_confidence\":0.77}}}"
+  },
+  {
+   "t": 48.3442,
+   "line": "{\"seq\":209,\"at\":\"2026-10-24T18:55:58.533Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"feedback\",\"actor\":\"critic\",\"memory_ids\":[\"mem-28\"],\"details\":{\"kind\":\"helpful\",\"reason\":\"remembered value 17.0 matches c14\",\"previous_confidence\":1.0,\"new_confidence\":1.0}}}"
+  },
+  {
+   "t": 48.3619,
+   "line": "{\"seq\":210,\"at\":\"2026-10-24T18:55:58.550Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"feedback\",\"actor\":\"critic\",\"memory_ids\":[\"mem-33\"],\"details\":{\"kind\":\"helpful\",\"reason\":\"remembered value 77.0 matches c01\",\"previous_confidence\":1.0,\"new_confidence\":1.0}}}"
+  },
+  {
+   "t": 48.3813,
+   "line": "{\"seq\":211,\"at\":\"2026-10-24T18:55:58.570Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"feedback\",\"actor\":\"critic\",\"memory_ids\":[\"mem-34\"],\"details\":{\"kind\":\"helpful\",\"reason\":\"remembered value 56.0 matches c02\",\"previous_confidence\":1.0,\"new_confidence\":1.0}}}"
+  },
+  {
+   "t": 48.3979,
+   "line": "{\"seq\":212,\"at\":\"2026-10-24T18:55:58.586Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"feedback\",\"actor\":\"critic\",\"memory_ids\":[\"mem-35\"],\"details\":{\"kind\":\"helpful\",\"reason\":\"remembered value 3.0 matches c03\",\"previous_confidence\":1.0,\"new_confidence\":1.0}}}"
+  },
+  {
+   "t": 48.4142,
+   "line": "{\"seq\":213,\"at\":\"2026-10-24T18:55:58.603Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"feedback\",\"actor\":\"critic\",\"memory_ids\":[\"mem-39\"],\"details\":{\"kind\":\"helpful\",\"reason\":\"remembered value 56.0 matches c07\",\"previous_confidence\":1.0,\"new_confidence\":1.0}}}"
+  },
+  {
+   "t": 48.4302,
+   "line": "{\"seq\":214,\"at\":\"2026-10-24T18:55:58.619Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"feedback\",\"actor\":\"critic\",\"memory_ids\":[\"mem-40\"],\"details\":{\"kind\":\"helpful\",\"reason\":\"remembered value 1.0 matches c08\",\"previous_confidence\":1.0,\"new_confidence\":1.0}}}"
+  },
+  {
+   "t": 48.4466,
+   "line": "{\"seq\":215,\"at\":\"2026-10-24T18:55:58.635Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"feedback\",\"actor\":\"critic\",\"memory_ids\":[\"mem-43\"],\"details\":{\"kind\":\"helpful\",\"reason\":\"remembered value 17.0 matches c14\",\"previous_confidence\":1.0,\"new_confidence\":1.0}}}"
+  },
+  {
+   "t": 48.4635,
+   "line": "{\"seq\":216,\"at\":\"2026-10-24T18:55:58.652Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"feedback\",\"actor\":\"critic\",\"memory_ids\":[\"mem-52\"],\"details\":{\"kind\":\"helpful\",\"reason\":\"remembered value 17.0 matches c14\",\"previous_confidence\":1.0,\"new_confidence\":1.0}}}"
+  },
+  {
+   "t": 48.4809,
+   "line": "{\"seq\":217,\"at\":\"2026-10-24T18:55:58.669Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"feedback\",\"actor\":\"critic\",\"memory_ids\":[\"mem-61\"],\"details\":{\"kind\":\"helpful\",\"reason\":\"remembered value 77.0 matches c01\",\"previous_confidence\":1.0,\"new_confidence\":1.0}}}"
+  },
+  {
+   "t": 48.4971,
+   "line": "{\"seq\":218,\"at\":\"2026-10-24T18:55:58.685Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"feedback\",\"actor\":\"critic\",\"memory_ids\":[\"mem-62\"],\"details\":{\"kind\":\"helpful\",\"reason\":\"remembered value 56.0 matches c02\",\"previous_confidence\":1.0,\"new_confidence\":1.0}}}"
+  },
+  {
+   "t": 48.5154,
+   "line": "{\"seq\":219,\"at\":\"2026-10-24T18:55:58.705Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"feedback\",\"actor\":\"critic\",\"memory_ids\":[\"mem-63\"],\"details\":{\"kind\":\"helpful\",\"reason\":\"remembered value 3.0 matches c03\",\"previous_confidence\":1.0,\"new_confidence\":1.0}}}"
+  },
+  {
+   "t": 48.5309,
+   "line": "{\"seq\":220,\"at\":\"2026-10-24T18:55:58.720Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"feedback\",\"actor\":\"critic\",\"memory_ids\":[\"mem-68\"],\"details\":{\"kind\":\"helpful\",\"reason\":\"remembered value 1.0 matches c08\",\"previous_confidence\":1.0,\"new_confidence\":1.0}}}"
+  },
+  {
+   "t": 48.5462,
+   "line": "{\"seq\":221,\"at\":\"2026-10-24T18:55:58.735Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"feedback\",\"actor\":\"critic\",\"memory_ids\":[\"mem-8\"],\"details\":{\"kind\":\"helpful\",\"reason\":\"remembered value 77.0 matches c01\",\"previous_confidence\":1.0,\"new_confidence\":1.0}}}"
+  },
+  {
+   "t": 48.563,
+   "line": "{\"seq\":222,\"at\":\"2026-10-24T18:55:58.752Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"feedback\",\"actor\":\"critic\",\"memory_ids\":[\"mem-9\"],\"details\":{\"kind\":\"helpful\",\"reason\":\"remembered value 56.0 matches c02\",\"previous_confidence\":1.0,\"new_confidence\":1.0}}}"
+  },
+  {
+   "t": 48.5788,
+   "line": "{\"seq\":223,\"at\":\"2026-10-24T18:55:58.768Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"feedback\",\"actor\":\"critic\",\"memory_ids\":[\"mem-seed-002\"],\"details\":{\"kind\":\"helpful\",\"reason\":\"caveat search_limit_20 required and attached to c14\",\"previous_confidence\":1.0,\"new_confidence\":1.0}}}"
+  },
+  {
+   "t": 48.5943,
+   "line": "{\"seq\":224,\"at\":\"2026-10-24T18:55:58.783Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"feedback\",\"actor\":\"critic\",\"memory_ids\":[\"mem-seed-003\"],\"details\":{\"kind\":\"helpful\",\"reason\":\"caveat self_reported_receipts required and attached to c01\",\"previous_confidence\":1.0,\"new_confidence\":1.0}}}"
+  },
+  {
+   "t": 48.6099,
+   "line": "{\"seq\":225,\"at\":\"2026-10-24T18:55:58.799Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"feedback\",\"actor\":\"critic\",\"memory_ids\":[\"mem-seed-004\"],\"details\":{\"kind\":\"helpful\",\"reason\":\"caveat third_party_aggregate required and attached to c18\",\"previous_confidence\":1.0,\"new_confidence\":1.0}}}"
+  },
+  {
+   "t": 48.6247,
+   "line": "{\"seq\":226,\"at\":\"2026-10-24T18:55:58.814Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"feedback\",\"actor\":\"critic\",\"memory_ids\":[\"mem-seed-005\"],\"details\":{\"kind\":\"helpful\",\"reason\":\"caveat payer_from_transfer_log required and attached to c19\",\"previous_confidence\":1.0,\"new_confidence\":1.0}}}"
+  },
+  {
+   "t": 48.6391,
+   "line": "{\"seq\":227,\"at\":\"2026-10-24T18:55:58.828Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"critic\",\"payload\":{\"op\":\"feedback\",\"actor\":\"critic\",\"memory_ids\":[\"mem-seed-007\"],\"details\":{\"kind\":\"helpful\",\"reason\":\"caveat basis_mismatch required and attached to c01\",\"previous_confidence\":1.0,\"new_confidence\":1.0}}}"
+  },
+  {
+   "t": 48.7929,
+   "line": "{\"seq\":228,\"at\":\"2026-10-24T18:55:58.982Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"runner\",\"payload\":{\"op\":\"mine\",\"actor\":\"runner\",\"memory_ids\":[\"mem-259\",\"mem-260\",\"mem-261\",\"mem-262\",\"mem-263\",\"mem-264\",\"mem-265\",\"mem-266\",\"mem-267\",\"mem-268\"],\"details\":{\"event_type\":\"plan_completion\",\"claims\":19}}}"
+  },
+  {
+   "t": 48.806,
+   "line": "{\"seq\":229,\"at\":\"2026-10-24T18:55:58.995Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"memory\",\"agent\":\"runner\",\"payload\":{\"op\":\"sleep_preview\",\"actor\":\"runner\",\"memory_ids\":[],\"details\":{\"to_consolidate\":0,\"to_archive\":0,\"to_synthesize\":32,\"protected\":0,\"now\":1792868158982}}}"
+  },
+  {
+   "t": 48.806,
+   "line": "{\"seq\":230,\"at\":\"2026-10-24T18:55:58.995Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"handoff\",\"agent\":\"runner\",\"payload\":{\"from\":\"hmem\",\"to\":\"finalize\",\"artifact\":{\"type\":\"output\",\"count\":1,\"sha256\":\"9d2ba6a9da6487ed5af6687e20ddeeb4f34c12d8dc317a2eae64844e937eb560\"}}}"
+  },
+  {
+   "t": 48.8104,
+   "line": "{\"seq\":231,\"at\":\"2026-10-24T18:55:59.000Z\",\"run_id\":\"live-video-ex01-20261024\",\"type\":\"result\",\"agent\":\"runner\",\"payload\":{\"status\":\"partial\",\"accepted\":19,\"rejected\":0,\"conflicts\":2,\"unavailable\":0,\"executor\":\"sqlite\",\"generator\":\"nightshift:nvidia/nemotron-3.5-lightning-30b-a3b\",\"critique_rounds\":2}}"
+  }
+ ],
+ "env": {
+  "METERLESS_MODEL": "nvidia/nemotron-3.5-lightning-30b-a3b"
+ },
+ "python": "python = the capturing interpreter, Python 3.11.9"
+}

@@ -1,0 +1,54 @@
+{
+  "prompt_id": "planner",
+  "prompt_sha256": "731796da80fd792a09842647bbf52655e5b37b893c62f21c3caac4b663ae9912",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "recorded_at": "2026-10-24T17:15:01.498Z",
+  "response": "{\"playbook\": \"payer_dossier\", \"hypotheses\": [\"The host tienda.textokit.store has no active x402 sellers, explaining registry disagreements.\", \"Payers to tienda.textokit.store are likely bots or automated scripts rather than human users.\", \"If sales exist, repeat external payers are rare, indicating low retention for the host.\", \"Disagreements between registries stem from differing inclusion criteria for atomic USDC settlements.\", \"The wallet associated with the host holds a disproportionate share of total sales volume.\"], \"extra_metrics\": [\"external_sales_total\", \"external_payers_total\", \"repeat_external_payers\", \"own_wallet_sales\", \"self_settlement_share\"]}",
+  "usage": {
+    "prompt_tokens": 474,
+    "completion_tokens": 155,
+    "total_tokens": 629
+  },
+  "provider": "meterless",
+  "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_v4ul6h0r",
+    "decision_id": "req_v4ul6h0r",
+    "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "winning_route": {
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "label": "Nemotron 3.5 Lightning 30B A3B",
+      "provider": "nvidia",
+      "kind": "cloud",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "final_synthesis",
+        "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+        "ms": 2322
+      }
+    ],
+    "latency_ms": 2322,
+    "usage": {
+      "input_tokens": 474,
+      "output_tokens": 155,
+      "total_tokens": 629
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "cloud-ok",
+    "wall_ms": 2390
+  },
+  "prompt_context": "sample mode on the committed fixtures",
+  "request": {
+    "max_tokens": 400,
+    "call_options": {
+      "reasoning_effort": "none",
+      "system_turn": "/no_think"
+    }
+  }
+}

@@ -162,12 +162,18 @@ Ledger rotation (append-only, never pruned), external embedding providers, chat/
 ## Nightshift (primary AI provider)
 
 Not an engine port: Meterless Nightshift is the runtime the generator-backed roles call first in live mode
-(`NightshiftGenerator` in `investigator/generator.py`, OpenAI-compatible provider `meterless`, routing mode
-`meterless/auto`, Auto Detect, fallback to the OpenAI-compatible env and then to rules). The H-MEM reinjection block
-reaches its prompts exactly as described above. README section "Meterless Nightshift (primary AI provider)" lists
-what is implemented, what ran (32 requests on 2026-10-24, `examples/live-trace-nightshift/`; 25 recorded answers
-replayed by the committed examples, `fixtures/transcripts/`) and what is not claimed; tests in
-`tests/test_nightshift.py`.
+(`NightshiftGenerator` in `investigator/generator.py`, OpenAI-compatible provider `meterless`, model
+`METERLESS_MODEL` with `meterless/auto` as the portable default, Auto Detect, fallback to the OpenAI-compatible env
+and then to rules). Behind it, NVIDIA Nemotron did the work on 2026-10-24: primary, Nemotron 3.5 Lightning 30B A3B on
+NVIDIA's hosted API (`METERLESS_MODEL=nvidia/nemotron-3.5-lightning-30b-a3b`; the NVIDIA API key is configured inside
+Nightshift, not in the app), and also Nemotron Nano 9B v2 as Nightshift's local lane on the RTX 5080 Laptop GPU
+(`local-runtime/nvidia-nvidia-nemotron-nano-9b-v2-q4-k-m`); thinking is off per request
+(`NIGHTSHIFT_REASONING_EFFORT`, default `none`). The first runs that day used a local Llama 3.2 3B lane. The H-MEM
+reinjection block reaches its prompts exactly as described above. README section "Meterless Nightshift (primary AI
+provider)" lists what is implemented, what ran (32 Nemotron requests on 2026-10-24, 27 hosted and 5 local,
+`examples/live-trace-nightshift/`; 25 recorded Nemotron answers replayed by the committed examples,
+`fixtures/transcripts/`; the earlier 32 Llama requests in `examples/live-trace-nightshift/llama-3.2-3b/`) and what
+is not claimed; tests in `tests/test_nightshift.py`.
 
 ## Licensing
 

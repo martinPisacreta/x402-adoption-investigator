@@ -1,0 +1,185 @@
+You are the second-opinion Critic of the x402 Adoption Investigator. You can only ADD issues; you can never
+approve a claim or remove an issue. List ONLY the statements in the answer that are not supported by the accepted
+claims below (a number that is not a claim value, a share not derivable from a claim, a causal explanation the
+claims do not contain, a conflict stated without its id, a caveat silently dropped). A statement that restates a
+claim's value and cites that claim's id is supported: leave it out. Never list a supported statement.
+
+Answer:
+0: 28462 unique resources are listed in the Bazaar catalog snapshot [c01].
+1: 2680 distinct hosts serve those resources [c02].
+2: 1785 distinct payTo wallets receive payments [c03].
+3: 824796 total 30-day calls were recorded across the snapshot [c04].
+4: 28347 of 28462 resources saw at least one call in the last 30 days (99.6 %) [c05].
+5: - The top host www.ax1.vc accounts for 243580 of 824796 30-day calls (29.5 %) [c06]. - The top ten hosts account for 604248 of 824796 30-day calls (73.3 %) [c07]. - The top payTo wallet 0x7284d41b5b852f2bd4c99bdf95043d84452d299c receives 243601 of 824796 30-day calls (29.5 %) [c09].
+6: Where sources disagree k01: The Bazaar snapshot reports 28462 unique resources, while the live discovery API reports 28472, and x402-trust indexes a different larger set of 300508 listed endpoints with its own 30-day probe window.
+7: Where sources disagree k01: x402-trust reports 300508 endpoints listed and 226063 active, which diverges from the Bazaar snapshot's 28462 resources and 2680 hosts. concentrated (confidence 0.90)
+
+Accepted claims (id, statement, value, unit, caveats, conflict_ids):
+[
+ {
+  "id": "c01",
+  "statement": "The Bazaar catalog snapshot holds 28462 unique resources.",
+  "value": 28462,
+  "unit": "count",
+  "caveats": [
+   "snapshot_dated"
+  ],
+  "conflict_ids": [
+   "k01"
+  ],
+  "formatted": {}
+ },
+ {
+  "id": "c02",
+  "statement": "Those resources are served by 2680 distinct hosts.",
+  "value": 2680,
+  "unit": "count",
+  "caveats": [
+   "snapshot_dated"
+  ],
+  "conflict_ids": [],
+  "formatted": {}
+ },
+ {
+  "id": "c03",
+  "statement": "1785 distinct payTo wallets receive the payments.",
+  "value": 1785,
+  "unit": "count",
+  "caveats": [
+   "snapshot_dated"
+  ],
+  "conflict_ids": [],
+  "formatted": {}
+ },
+ {
+  "id": "c04",
+  "statement": "The 30-day call counters sum to 824796 across the snapshot.",
+  "value": 824796,
+  "unit": "count",
+  "caveats": [
+   "snapshot_dated",
+   "basis_mismatch"
+  ],
+  "conflict_ids": [],
+  "formatted": {}
+ },
+ {
+  "id": "c05",
+  "statement": "28347 of 28462 resources saw at least one call in the 30-day window (99.6 %).",
+  "value": {
+   "numerator": 28347,
+   "denominator": 28462,
+   "share": 0.995959524980676
+  },
+  "unit": "share",
+  "caveats": [
+   "snapshot_dated",
+   "basis_mismatch"
+  ],
+  "conflict_ids": [],
+  "formatted": {
+   "percent": "99.6"
+  }
+ },
+ {
+  "id": "c06",
+  "statement": "The top host www.ax1.vc accounts for 243580 of 824796 30-day calls (29.5 %).",
+  "value": {
+   "numerator": 243580,
+   "denominator": 824796,
+   "share": 0.2953215098036363,
+   "host": "www.ax1.vc"
+  },
+  "unit": "share",
+  "caveats": [
+   "snapshot_dated",
+   "basis_mismatch"
+  ],
+  "conflict_ids": [],
+  "formatted": {
+   "percent": "29.5"
+  }
+ },
+ {
+  "id": "c07",
+  "statement": "The top ten hosts account for 604248 of 824796 30-day calls (73.3 %).",
+  "value": {
+   "numerator": 604248,
+   "denominator": 824796,
+   "share": 0.7326029709164448
+  },
+  "unit": "share",
+  "caveats": [
+   "snapshot_dated",
+   "basis_mismatch"
+  ],
+  "conflict_ids": [],
+  "formatted": {
+   "percent": "73.3"
+  }
+ },
+ {
+  "id": "c08",
+  "statement": "Hosts with the most listings in the snapshot: saylorinnovations.com=1568, agentshelf.syntexa.ch=1236, dns.intel.rallylive.ca=694, agent402.tools=613.",
+  "value": "saylorinnovations.com=1568, agentshelf.syntexa.ch=1236, dns.intel.rallylive.ca=694, agent402.tools=613",
+  "unit": "text",
+  "caveats": [
+   "snapshot_dated"
+  ],
+  "conflict_ids": [],
+  "formatted": {}
+ },
+ {
+  "id": "c09",
+  "statement": "The top payTo wallet 0x7284d41b5b852f2bd4c99bdf95043d84452d299c receives 243601 of 824796 30-day calls (29.5 %).",
+  "value": {
+   "numerator": 243601,
+   "denominator": 824796,
+   "share": 0.2953469706448625,
+   "pay_to": "0x7284d41b5b852f2bd4c99bdf95043d84452d299c"
+  },
+  "unit": "share",
+  "caveats": [
+   "snapshot_dated",
+   "basis_mismatch"
+  ],
+  "conflict_ids": [],
+  "formatted": {
+   "percent": "29.5"
+  }
+ },
+ {
+  "id": "c10",
+  "statement": "The largest per-endpoint 30-day unique-payer counter is 2708 (not deduplicable across endpoints).",
+  "value": 2708,
+  "unit": "count",
+  "caveats": [
+   "unique_payers_not_dedupable",
+   "snapshot_dated"
+  ],
+  "conflict_ids": [],
+  "formatted": {}
+ },
+ {
+  "id": "c11",
+  "statement": "x402-trust reports endpoints_listed=300508, endpoints_active=226063, settlements_30d=2546157, distinct_payers_30d=31597.",
+  "value": {
+   "endpoints_listed": 300508,
+   "endpoints_active": 226063,
+   "settlements_30d": 2546157,
+   "distinct_payers_30d": 31597
+  },
+  "unit": "text",
+  "caveats": [
+   "third_party_aggregate"
+  ],
+  "conflict_ids": [
+   "k01"
+  ],
+  "formatted": {}
+ }
+]
+
+Return ONLY a JSON array, no prose, no code fence. Each item, its reason in at most 15 words:
+{"sentence_index": <int>, "reason": "<why it is unsupported>", "claim_id": "<cNN or null>"}
+Return [] when every statement is supported.

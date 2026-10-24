@@ -1,0 +1,54 @@
+{
+  "prompt_id": "critic-r2",
+  "prompt_sha256": "36f2d6550a4ec9d3b97c97e181bb01dcecbb577ee56b14d5bcaac06852aa9fc2",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "recorded_at": "2026-10-24T17:23:30.062Z",
+  "response": "[\n  {\n    \"sentence_index\": 5,\n    \"reason\": \"Search limit caveat not stated in claim c01\",\n    \"claim_id\": \"c01\"\n  },\n  {\n    \"sentence_index\": 6,\n    \"reason\": \"No claim supports full settlement verification on Base\",\n    \"claim_id\": \"null\"\n  },\n  {\n    \"sentence_index\": 8,\n    \"reason\": \"No claim states settlement is unverifiable, only unchecked\",\n    \"claim_id\": \"null\"\n  }\n]",
+  "usage": {
+    "prompt_tokens": 1266,
+    "completion_tokens": 116,
+    "total_tokens": 1382
+  },
+  "provider": "meterless",
+  "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_k4unl6gy",
+    "decision_id": "req_k4unl6gy",
+    "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "winning_route": {
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "label": "Nemotron 3.5 Lightning 30B A3B",
+      "provider": "nvidia",
+      "kind": "cloud",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "final_synthesis",
+        "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+        "ms": 1755
+      }
+    ],
+    "latency_ms": 1755,
+    "usage": {
+      "input_tokens": 1266,
+      "output_tokens": 116,
+      "total_tokens": 1382
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "cloud-ok",
+    "wall_ms": 1766
+  },
+  "prompt_context": "sample mode on the committed fixtures",
+  "request": {
+    "max_tokens": 500,
+    "call_options": {
+      "reasoning_effort": "none",
+      "system_turn": "/no_think"
+    }
+  }
+}

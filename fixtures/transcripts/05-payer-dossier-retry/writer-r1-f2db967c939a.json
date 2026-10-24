@@ -1,0 +1,54 @@
+{
+  "prompt_id": "writer-r1",
+  "prompt_sha256": "f2db967c939a49bf9890f4120365199ea367e047e48bf6341faf05f6de4c9106",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "recorded_at": "2026-10-24T17:23:41.498Z",
+  "response": "- 1 purchase(s) by 0x097e3f339d0b023605e12a6b81e2d6cb7571475a at tienda.textokit.store [c03]\n- 1000 atomic USDC (0.001 USDC) total for that purchase [c04]\n- 1 distinct service(s) covered by the purchase [c06]\n- Purchase timestamp: 2026-10-20T04:51:24.352Z [c05]\n- 1 settlement(s) verified on Base against the receipts [c02]\n\nWhere sources disagree [c07] and [c08]: c07 reports 1 settlement verified on Base using the payer from the transfer log and self-reported receipts, while c08 reports the USDC balance at capture as 1043148 atomic (1.043148 USDC) also from the payer from the transfer log.\n\nadoption_thin (confidence 0.90)",
+  "usage": {
+    "prompt_tokens": 1370,
+    "completion_tokens": 248,
+    "total_tokens": 1618
+  },
+  "provider": "meterless",
+  "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_hvxfrdrb",
+    "decision_id": "req_hvxfrdrb",
+    "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "winning_route": {
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "label": "Nemotron 3.5 Lightning 30B A3B",
+      "provider": "nvidia",
+      "kind": "cloud",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "final_synthesis",
+        "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+        "ms": 3258
+      }
+    ],
+    "latency_ms": 3258,
+    "usage": {
+      "input_tokens": 1370,
+      "output_tokens": 248,
+      "total_tokens": 1618
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "cloud-ok",
+    "wall_ms": 3297
+  },
+  "prompt_context": "sample mode on the committed fixtures",
+  "request": {
+    "max_tokens": 700,
+    "call_options": {
+      "reasoning_effort": "none",
+      "system_turn": "/no_think"
+    }
+  }
+}

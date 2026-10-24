@@ -1,0 +1,53 @@
+{
+  "prompt_id": "planner",
+  "prompt_sha256": "413ff1135648ba6c421fd8cb4a103d03febe9a419325a74cc7d7fa093c219744",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "recorded_at": "2026-10-24T17:29:17.915Z",
+  "response": "{\"playbook\": \"payer_dossier\", \"hypotheses\": [\"The payer purchased a specific item from tienda.textokit.store and the receipt is on Base.\", \"The settlement transaction can be located via the Transfer log from the x402 facilitator.\", \"The payer's USDC balance was sufficient to cover the atomic purchase amount.\", \"The transaction nonce matches the expected window for the seller's storefront.\", \"The receipt data can be cross-referenced with CDP Bazaar search results.\"], \"extra_metrics\": [\"verified_tx\", \"payer_usdc_atomic\", \"payer_services\"]}",
+  "usage": {
+    "prompt_tokens": 825,
+    "completion_tokens": 132,
+    "total_tokens": 957
+  },
+  "provider": "meterless",
+  "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_cx7dp79o",
+    "decision_id": "req_cx7dp79o",
+    "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "winning_route": {
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "label": "Nemotron 3.5 Lightning 30B A3B",
+      "provider": "nvidia",
+      "kind": "cloud",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "final_synthesis",
+        "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+        "ms": 2377
+      }
+    ],
+    "latency_ms": 2377,
+    "usage": {
+      "input_tokens": 825,
+      "output_tokens": 132,
+      "total_tokens": 957
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "cloud-ok",
+    "wall_ms": 2406
+  },
+  "request": {
+    "max_tokens": 400,
+    "call_options": {
+      "reasoning_effort": "none",
+      "system_turn": "/no_think"
+    }
+  }
+}

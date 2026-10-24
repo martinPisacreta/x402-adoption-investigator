@@ -446,4 +446,43 @@ changed for other modules:
   every committed example was regenerated with `scripts/regen_examples.py` (mounts.generator `recorded`, two Critic
   rounds). `tests/test_agents_pipeline.py` and `scripts/memory_ablation.py` pin the null generator: they are about
   the rules path and the memory, not the model.
-- Evidence: `examples/live-trace-nightshift/` (six live runs, 32 requests, Zetaris stopped so SQLite).
+- Evidence: `examples/live-trace-nightshift/` (six live runs, 32 requests, Zetaris stopped so SQLite); since the
+  next section these are in `examples/live-trace-nightshift/llama-3.2-3b/`.
+
+## NVIDIA Nemotron through Nightshift (2026-10-24, later)
+
+Why: the NVIDIA API key was added to Nightshift (Setup > Providers), so Nightshift can route to NVIDIA's hosted
+Nemotron, and the active fleet got a local Nemotron Nano 9B v2 lane on the RTX 5080 Laptop GPU; the NVIDIA award asks
+for logs that show where a Nemotron model did the work. What changed for other modules:
+- `investigator/config.py`: `NIGHTSHIFT_REASONING_EFFORT` / `METERLESS_REASONING_EFFORT` -> `Env.nightshift_reasoning_effort`
+  (default `none`, lowercased; the `NIGHTSHIFT_*` name wins). `NIGHTSHIFT_MODEL` / `METERLESS_MODEL` unchanged in code: a
+  concrete model id such as `nvidia/nemotron-3.5-lightning-30b-a3b` pins the route (Nightshift's own rule), and the
+  mount is then `nightshift:nvidia/nemotron-3.5-lightning-30b-a3b`.
+- `investigator/generator.py`: `nightshift_call_options()` turns the effort into the request's call options; `none`
+  = `reasoning_effort: "none"` (Nightshift's NVIDIA adapter sets `enable_thinking=false` for Nemotron 3 / 3.5) plus a
+  `/no_think` system turn before the prompt (the switch the Nemotron Nano 9B v2 template reads; it ignores
+  `enable_thinking`). `OpenAIGenerator._body()` builds the chat body and `NightshiftGenerator._body()` adds the
+  options, so the prompt is still the one user turn and `prompt_sha256` and the transcript keys are unchanged; the
+  OpenAI fallback sends none of it (`call_options` is `{}`). `generate()` logs `call_options` on the
+  `generator.jsonl` line and `request: {max_tokens, call_options}` in live transcripts; `mount_info` carries
+  `call_options` (and `call_options_note` for an ignored value).
+- Test doubles: the fakes (`tests/test_generator_hmem.py` `FakeChatCompletions`, `user_prompt()`) read the last user
+  turn instead of `messages[0]`, since a Nightshift body now opens with a system turn.
+- Prompts: `investigator/agents/prompts/critic.txt` asks for unsupported statements only, with reasons of at most 15
+  words; `writer.txt` rule 6 caps the answer (5 bullets, two short paragraphs, 300 words). Budgets unchanged
+  (Planner 400, Writer 700, Critic 500). With the old wording Nemotron filled every Writer and Critic budget
+  (`examples/live-trace-nightshift/nemotron-cloud/prompt-v1-ex01/`).
+- `scripts/record_transcripts.py` stores `request` in each transcript and prints the call options;
+  `scripts/nightshift_smoke.py` (new) sends one prompt through `generate()` in a live run context and logs it like a
+  run.
+- `tests/test_retry.py`: example 05's answer equals example 03's only when the two folders' recorded replies are
+  equal (the hosted Nemotron answered the same prompt differently); claims, verdict, rejections, sources and
+  verifications must still be equal.
+- Transcripts: the 25 Llama 3B transcripts and the six Llama live runs moved to
+  `examples/live-trace-nightshift/llama-3.2-3b/`; `fixtures/transcripts/` holds 25 Nemotron 3.5 Lightning answers
+  recorded with `METERLESS_MODEL=nvidia/nemotron-3.5-lightning-30b-a3b scripts/record_transcripts.py <example>
+  --on-fixtures --prune`, and the examples were regenerated with `scripts/regen_examples.py` (claims, values and
+  verdicts unchanged; the narratives and Critic trails changed).
+- Evidence: `examples/live-trace-nightshift/` (README, `machine.txt`): five hosted-Nemotron live runs (27 requests,
+  `kind: cloud`), one local Nemotron Nano run (5 requests, `kind: local`, lane placed on CUDA0), the smoke requests
+  that decided the thinking switch, Zetaris stopped so SQLite. 308 tests.

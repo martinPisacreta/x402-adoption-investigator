@@ -1,0 +1,54 @@
+{
+  "prompt_id": "critic-r1",
+  "prompt_sha256": "43c1078a30eb170c5bc5e95f760fd6918221cb86a4e3db0ca1f0f3016f2c03c6",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "recorded_at": "2026-10-24T17:20:01.993Z",
+  "response": "[\n  {\n    \"sentence_index\": 1,\n    \"reason\": \"56 self-payments from 3 wallets not derivable from c01 alone\",\n    \"claim_id\": \"c02\"\n  },\n  {\n    \"sentence_index\": 1,\n    \"reason\": \"3 distinct wallets not derivable from c01 alone\",\n    \"claim_id\": \"c03\"\n  },\n  {\n    \"sentence_index\": 2,\n    \"reason\": \"21 external sales not derivable from c01 alone\",\n    \"claim_id\": \"c04\"\n  },\n  {\n    \"sentence_index\": 3,\n    \"reason\": \"44000 atomic USDC value not derivable from c01 alone\",\n    \"claim_id\": \"c05\"\n  },\n  {\n    \"sentence_index\": 4,\n    \"reason\": \"4 distinct external payers not derivable from c01 alone\",\n    \"claim_id\": \"c06\"\n  },\n  {\n    \"sentence_index\": 5,\n    \"reason\": \"72.7% share not derivable from c01 alone\",\n    \"claim_id\": \"c07\"\n  },\n  {\n    \"sentence_index\": 5,\n    \"reason\": \"1 external payer buying more than once not derivable from c01 alone\",\n    \"claim_id\": \"c08\"\n  },\n  {\n    \"sentence_index\": 5,\n    \"reason\": \"85.7% share for top payer not derivable from c01 alone\",\n    \"claim_id\": \"c09\"\n  },\n  {\n    \"sentence_index\": 5,\n    \"reason\": \"Date range 2026-10-20..2026-10-21 not derivable from c01 alone\",\n    \"claim_id\": \"c10\"\n  },\n  {\n    \"sentence_index\": 5,\n    \"reason\": \"Distribution across 18 services not derivable from c01 alone\",\n    \"claim_id\": \"c11\"\n  },\n  {\n    \"sentence_index\": 5,\n    \"reason\": \"Daily counts 20 and 1 not derivable from c01 alone\",\n    \"claim_id\": \"c12\"\n ",
+  "usage": {
+    "prompt_tokens": 3194,
+    "completion_tokens": 500,
+    "total_tokens": 3694
+  },
+  "provider": "meterless",
+  "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_br1j413t",
+    "decision_id": "req_br1j413t",
+    "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "winning_route": {
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "label": "Nemotron 3.5 Lightning 30B A3B",
+      "provider": "nvidia",
+      "kind": "cloud",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "final_synthesis",
+        "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+        "ms": 5393
+      }
+    ],
+    "latency_ms": 5393,
+    "usage": {
+      "input_tokens": 3194,
+      "output_tokens": 500,
+      "total_tokens": 3694
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "cloud-ok",
+    "wall_ms": 5422
+  },
+  "prompt_context": "sample mode on the committed fixtures",
+  "request": {
+    "max_tokens": 500,
+    "call_options": {
+      "reasoning_effort": "none",
+      "system_turn": "/no_think"
+    }
+  }
+}

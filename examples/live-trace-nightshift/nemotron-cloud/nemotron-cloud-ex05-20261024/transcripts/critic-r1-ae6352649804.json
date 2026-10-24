@@ -1,0 +1,53 @@
+{
+  "prompt_id": "critic-r1",
+  "prompt_sha256": "ae6352649804b444bb791b6ae761c3631fd63d40940d93ffa74e441b58401b9d",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "recorded_at": "2026-10-24T17:30:51.169Z",
+  "response": "[\n  {\n    \"sentence_index\": 0,\n    \"reason\": \"Value 17 not derivable from accepted claims\",\n    \"claim_id\": null\n  },\n  {\n    \"sentence_index\": 1,\n    \"reason\": \"Value 0x097e3F339D0b023605e12A6B81E2d6Cb7571475a not a claim value\",\n    \"claim_id\": null\n  },\n  {\n    \"sentence_index\": 2,\n    \"reason\": \"Value 1 not derivable from accepted claims\",\n    \"claim_id\": null\n  },\n  {\n    \"sentence_index\": 3,\n    \"reason\": \"Value 1 not derivable from accepted claims\",\n    \"claim_id\": null\n  },\n  {\n    \"sentence_index\": 4,\n    \"reason\": \"Value 1000 atomic USDC not derivable from accepted claims\",\n    \"claim_id\": null\n  },\n  {\n    \"sentence_index\": 5,\n    \"reason\": \"Timestamp and balance values not derivable from accepted claims\",\n    \"claim_id\": null\n  },\n  {\n    \"sentence_index\": 6,\n    \"reason\": \"Receipt count 1 not derivable from accepted claims\",\n    \"claim_id\": null\n  },\n  {\n    \"sentence_index\": 7,\n    \"reason\": \"Full statement not derivable from accepted claims\",\n    \"claim_id\": null\n  },\n  {\n    \"sentence_index\": 8,\n    \"reason\": \"Full statement not derivable from accepted claims\",\n    \"claim_id\": null\n  },\n  {\n    \"sentence_index\": 9,\n    \"reason\": \"Full statement not derivable from accepted claims\",\n    \"claim_id\": null\n  }\n]",
+  "usage": {
+    "prompt_tokens": 1732,
+    "completion_tokens": 397,
+    "total_tokens": 2129
+  },
+  "provider": "meterless",
+  "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_qkqvqvj6",
+    "decision_id": "req_qkqvqvj6",
+    "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "winning_route": {
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "label": "Nemotron 3.5 Lightning 30B A3B",
+      "provider": "nvidia",
+      "kind": "cloud",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "final_synthesis",
+        "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+        "ms": 4983
+      }
+    ],
+    "latency_ms": 4983,
+    "usage": {
+      "input_tokens": 1732,
+      "output_tokens": 397,
+      "total_tokens": 2129
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "cloud-ok",
+    "wall_ms": 5000
+  },
+  "request": {
+    "max_tokens": 500,
+    "call_options": {
+      "reasoning_effort": "none",
+      "system_turn": "/no_think"
+    }
+  }
+}

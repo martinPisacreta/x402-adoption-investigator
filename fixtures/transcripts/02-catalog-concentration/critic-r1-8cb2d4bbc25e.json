@@ -1,0 +1,54 @@
+{
+  "prompt_id": "critic-r1",
+  "prompt_sha256": "8cb2d4bbc25ed14ad36e5ea73df2efd8681aa5b2525f55f4427af6a58700b97e",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "recorded_at": "2026-10-24T17:21:52.975Z",
+  "response": "[\n  {\n    \"sentence_index\": 6,\n    \"reason\": \"Reports live API and x402-trust figures, not snapshot values\",\n    \"claim_id\": \"k01\"\n  },\n  {\n    \"sentence_index\": 7,\n    \"reason\": \"Uses top host and top ten host percentages without citing c06 and c07\",\n    \"claim_id\": \"null\"\n  },\n  {\n    \"sentence_index\": 8,\n    \"reason\": \"States payTo wallet receives 29.5% of calls without citing c09\",\n    \"claim_id\": \"null\"\n  }\n]",
+  "usage": {
+    "prompt_tokens": 2279,
+    "completion_tokens": 137,
+    "total_tokens": 2416
+  },
+  "provider": "meterless",
+  "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_65847ph7",
+    "decision_id": "req_65847ph7",
+    "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "winning_route": {
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "label": "Nemotron 3.5 Lightning 30B A3B",
+      "provider": "nvidia",
+      "kind": "cloud",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "final_synthesis",
+        "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+        "ms": 5908
+      }
+    ],
+    "latency_ms": 5908,
+    "usage": {
+      "input_tokens": 2279,
+      "output_tokens": 137,
+      "total_tokens": 2416
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "cloud-ok",
+    "wall_ms": 5938
+  },
+  "prompt_context": "sample mode on the committed fixtures",
+  "request": {
+    "max_tokens": 500,
+    "call_options": {
+      "reasoning_effort": "none",
+      "system_turn": "/no_think"
+    }
+  }
+}

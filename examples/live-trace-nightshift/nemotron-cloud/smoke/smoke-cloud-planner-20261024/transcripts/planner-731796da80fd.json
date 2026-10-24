@@ -1,0 +1,53 @@
+{
+  "prompt_id": "planner",
+  "prompt_sha256": "731796da80fd792a09842647bbf52655e5b37b893c62f21c3caac4b663ae9912",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "recorded_at": "2026-10-24T17:14:08.599Z",
+  "response": "{\"playbook\": \"payer_dossier\", \"hypotheses\": [\"The host tienda.textokit.store receives payments from a single dominant wallet rather than many small payers\", \"Repeat payers from external addresses show a 30-day retention rate below 20%\", \"The registry disagreement stems from one source counting atomic USDC settlements while another counts settled net amounts\", \"External payers preferentially use the x402 endpoint for tienda.textokit.store over alternative payment methods\", \"The host's sales are concentrated in a short window after listing, with minimal aftermarket activity\"]\", \"extra_metrics\": [\"external_sales_by_service\", \"external_sales_30d\", \"bazaar_payto_matches_seller\", \"own_wallet_sales\", \"external_payers_total\"]}",
+  "usage": {
+    "prompt_tokens": 474,
+    "completion_tokens": 170,
+    "total_tokens": 644
+  },
+  "provider": "meterless",
+  "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_3j2my2or",
+    "decision_id": "req_3j2my2or",
+    "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "winning_route": {
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "label": "Nemotron 3.5 Lightning 30B A3B",
+      "provider": "nvidia",
+      "kind": "cloud",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "final_synthesis",
+        "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+        "ms": 2352
+      }
+    ],
+    "latency_ms": 2352,
+    "usage": {
+      "input_tokens": 474,
+      "output_tokens": 170,
+      "total_tokens": 644
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "cloud-ok",
+    "wall_ms": 2391
+  },
+  "request": {
+    "max_tokens": 400,
+    "call_options": {
+      "reasoning_effort": "none",
+      "system_turn": "/no_think"
+    }
+  }
+}

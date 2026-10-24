@@ -418,7 +418,14 @@ class Example05(unittest.TestCase):
         self.assertEqual(self.envelope["status"], self.ex03["status"])
         self.assertEqual(numbers(self.output), numbers(self.ex03["output"]))
         self.assertEqual(self.output["verdict"], self.ex03["output"]["verdict"])
-        self.assertEqual(self.output["answer"], self.ex03["output"]["answer"])
+        # The answer is the model's text: the two examples send the same prompts, but their transcripts are two
+        # recordings, and the hosted Nemotron of 2026-10-24 did not answer a repeated prompt identically (the Llama
+        # 3B lane did). The answers must match exactly when the recorded replies do.
+        def replies(example: str) -> dict[str, str]:
+            folder = REPO_ROOT / "fixtures" / "transcripts" / example
+            return {p.name: json.loads(p.read_text(encoding="utf-8"))["response"] for p in folder.glob("*.json")}
+        if replies(FOLDER_03.name) == replies(EXAMPLE_05):
+            self.assertEqual(self.output["answer"], self.ex03["output"]["answer"])
         self.assertEqual(self.output["rejected_claims"], self.ex03["output"]["rejected_claims"])
         self.assertEqual([(s["name"], s["sha256"], s["status"]) for s in self.output["sources"]],
                          [(s["name"], s["sha256"], s["status"]) for s in self.ex03["output"]["sources"]])

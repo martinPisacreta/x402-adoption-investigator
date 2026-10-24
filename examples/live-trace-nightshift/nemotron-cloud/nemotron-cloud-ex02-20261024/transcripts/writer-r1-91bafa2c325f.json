@@ -1,0 +1,53 @@
+{
+  "prompt_id": "writer-r1",
+  "prompt_sha256": "91bafa2c325f00b7a388b132424f4cbbc42a5922218db3c5cb51f607bb27d66d",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "recorded_at": "2026-10-24T17:28:45.987Z",
+  "response": "- 28462 unique resources are listed in the Bazaar catalog snapshot [c01].\n- 2680 distinct hosts serve those resources [c02].\n- 1785 distinct payTo wallets receive payments [c03].\n- 824796 total 30-day calls were recorded across the snapshot [c04].\n- 28347 of 28462 resources saw at least one call in the last 30 days (99.6 %) [c05].\n- The top host www.ax1.vc accounts for 243580 of 824796 30-day calls (29.5 %) [c06].\n- The top ten hosts account for 604248 of 824796 30-day calls (73.3 %) [c07].\n- The top payTo wallet 0x7284d41b5b852f2bd4c99bdf95043d84452d299c receives 243601 of 824796 30-day calls (29.5 %) [c09].\n\nWhere sources disagree k01: The Bazaar snapshot reports 28462 unique resources, while the live discovery API reports 28472, and x402-trust indexes a different larger set of 300508 listed endpoints with its own 30-day probe window.\n\nWhere sources disagree k01: x402-trust reports 300508 endpoints listed and 226063 active, which diverges from the Bazaar snapshot's 28462 resources and 2680 hosts.\n\nconcentrated (confidence 0.90)",
+  "usage": {
+    "prompt_tokens": 2288,
+    "completion_tokens": 417,
+    "total_tokens": 2705
+  },
+  "provider": "meterless",
+  "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_ga0ytyas",
+    "decision_id": "req_ga0ytyas",
+    "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "winning_route": {
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "label": "Nemotron 3.5 Lightning 30B A3B",
+      "provider": "nvidia",
+      "kind": "cloud",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "final_synthesis",
+        "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+        "ms": 5505
+      }
+    ],
+    "latency_ms": 5505,
+    "usage": {
+      "input_tokens": 2288,
+      "output_tokens": 417,
+      "total_tokens": 2705
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "cloud-ok",
+    "wall_ms": 5532
+  },
+  "request": {
+    "max_tokens": 700,
+    "call_options": {
+      "reasoning_effort": "none",
+      "system_turn": "/no_think"
+    }
+  }
+}

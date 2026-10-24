@@ -1,4 +1,4 @@
-# Machine facts captured on 2026-10-24T16:32:31Z right after the live runs (commands and their output; the user-profile prefix of paths is shown as <LOCALAPPDATA>, other edits noted)
+# Machine facts captured on 2026-10-24T17:34:10Z, right after the Nemotron runs (commands and their output; the user-profile prefix of paths is shown as <LOCALAPPDATA>, other edits noted)
 
 $ nvidia-smi --query-gpu=name,driver_version,memory.total --format=csv
 name, driver_version, memory.total [MiB]
@@ -8,24 +8,45 @@ $ nvidia-smi --query-compute-apps=process_name --format=csv   (only the Nightshi
 process_name
 <LOCALAPPDATA>\Nightshift\llama\llama-server.exe
 
-$ ls <LOCALAPPDATA>/Nightshift/llama   (CUDA backend files of the llama-server Nightshift runs; filtered to ggml-cuda/cudart/cublas)
-cublas64_12.dll
-cublasLt64_12.dll
-cudart64_12.dll
-ggml-cuda.dll
-
-$ ns status   (official Nightshift CLI; fields kept: version, version_source, engine_reachable)
+$ ns status   (official Nightshift CLI; fields kept: engine_reachable, version, version_source)
 {"engine_reachable": true, "version": "1.2.3", "version_source": "GET /admin/status (control socket)"}
 
-$ (Get-Process -Name llama-server).Modules | ? ModuleName -match 'cuda|cublas|vulkan|ggml'   (GPU backends the running llama-server has loaded: CUDA and also Vulkan)
-ggml.dll
-ggml-base.dll
-ggml-cuda.dll
-cudart64_12.dll
-nvcuda.dll
-cublas64_12.dll
-cublasLt64_12.dll
-nvcuda64.dll
-ggml-vulkan.dll
-vulkan-1.dll
-ggml-cpu-alderlake.dll
+$ grep -E "starting|gpu: cuda lanes|lane nemotron placed" <LOCALAPPDATA>/ai.meterless.runtime/logs/meterlessd.log | tail -n 3   (the daemon instance that served the runs: its start line, its GPU and where it placed the Nemotron lane)
+meterlessd: gpu: cuda lanes on discrete VRAM: CUDA0 NVIDIA GeForce RTX 5080 Laptop GPU (16275 MB)
+meterlessd 1.2.3 starting (llama.cpp ref: 08659901c43b51de735740f1cf61bb82fbe0c4e4; windows Windows 11 25H2 · NVIDIA GeForce RTX 5080 Laptop GPU · 32175 MB RAM · backend cuda · capacity 14973 MB · floor windows-curve-v1)
+meterlessd: lane nemotron placed full on CUDA0 - 9523 MB device, 308 MB host (100% of layer weights on GPU)
+
+$ grep -E "^\[\[lane\]\]|^id|^model|^flags|^family" <LOCALAPPDATA>/ai.meterless.runtime/lanes.toml   (the lanes of the active fleet "investigator": one, Nemotron Nano 9B v2, all layers on the GPU: -ngl 99)
+flags = ["--load-mode", "none", "-fa", "on", "--cache-type-k", "q8_0", "--cache-type-v", "q8_0", "--jinja", "-ngl", "99"]
+[[lane]]
+id = "nemotron"
+model = "nvidia_NVIDIA-Nemotron-Nano-9B-v2-Q4_K_M.gguf"
+family = "nemotron"
+
+$ sha256sum <LOCALAPPDATA>/ai.meterless.runtime/models/nvidia_NVIDIA-Nemotron-Nano-9B-v2-Q4_K_M.gguf   (bartowski GGUF of NVIDIA-Nemotron-Nano-9B-v2, Q4_K_M)
+be84528231457f766a35612386e2638d9af10beb10a9d8d23f0cc73c20818da7 *<LOCALAPPDATA>/ai.meterless.runtime/models/nvidia_NVIDIA-Nemotron-Nano-9B-v2-Q4_K_M.gguf
+
+$ grep -a -o -m 1 <pattern> <the GGUF above>   (its chat template: thinking is on unless a system or user turn holds /no_think; enable_thinking passed as a template argument is overwritten by the namespace)
+namespace(enable_thinking=true)
+elif '/no_think' in content -%}{%- set ns.enable_thinking = false
+{{- '<think></think>' -}}
+
+$ grep -E "load_model: loading model|print_timing.*(prompt eval time|       eval time)" <LOCALAPPDATA>/ai.meterless.runtime/logs/lane-nemotron.log | tail -n 11   (llama-server of the Nemotron lane: the model it loaded and the timing of the last five requests it served, those of nemotron-local-ex01-20261024; its clock is time since the lane started)
+0.00.455.746 I srv    load_model: loading model '<LOCALAPPDATA>\ai.meterless.runtime\models\nvidia_NVIDIA-Nemotron-Nano-9B-v2-Q4_K_M.gguf'
+33.20.850.602 I slot print_timing: id  0 | task 3311 | prompt eval time =     691.90 ms /   773 tokens (    0.90 ms per token,  1117.21 tokens per second)
+33.20.850.611 I slot print_timing: id  0 | task 3311 |        eval time =    2764.75 ms /   182 tokens (   15.19 ms per token,    65.83 tokens per second)
+33.36.837.605 I slot print_timing: id  0 | task 3497 | prompt eval time =    1621.21 ms /  3428 tokens (    0.47 ms per token,  2114.47 tokens per second)
+33.36.837.615 I slot print_timing: id  0 | task 3497 |        eval time =    6794.93 ms /   436 tokens (   15.58 ms per token,    64.17 tokens per second)
+33.38.569.449 I slot print_timing: id  0 | task 3937 | prompt eval time =    1287.97 ms /  3032 tokens (    0.42 ms per token,  2354.10 tokens per second)
+33.38.569.464 I slot print_timing: id  0 | task 3937 |        eval time =      19.69 ms /     2 tokens (    9.84 ms per token,   101.60 tokens per second)
+33.45.887.916 I slot print_timing: id  0 | task 3943 | prompt eval time =    1952.69 ms /  4851 tokens (    0.40 ms per token,  2484.26 tokens per second)
+33.45.887.927 I slot print_timing: id  0 | task 3943 |        eval time =    5300.43 ms /   336 tokens (   15.78 ms per token,    63.39 tokens per second)
+33.47.187.707 I slot print_timing: id  0 | task 4284 | prompt eval time =    1243.07 ms /  2930 tokens (    0.42 ms per token,  2357.07 tokens per second)
+33.47.187.718 I slot print_timing: id  0 | task 4284 |        eval time =      18.87 ms /     2 tokens (    9.43 ms per token,   106.01 tokens per second)
+
+$ grep -n -E "const NVIDIA_BASE_URL|toLowerCase\(\) === .none.\) want = false" <LOCALAPPDATA>/Nightshift/engine/js/engine/providers.js   (Nightshift 1.2.3 NVIDIA adapter: the hosted API catalog it calls, and reasoning_effort "none" turning thinking off)
+1247:  const NVIDIA_BASE_URL = 'https://integrate.api.nvidia.com/v1';
+1288:      if (String((req && req.reasoningEffort) || '').toLowerCase() === 'none') want = false;
+
+$ grep -n "passthrough.reasoningEffort = " <LOCALAPPDATA>/Nightshift/engine/js/engine/proxy.js   (the OpenAI-compatible proxy forwards a request's reasoning_effort to the adapter)
+733:          if (req.body?.reasoning_effort || req.body?.effort) passthrough.reasoningEffort = req.body.reasoning_effort || req.body.effort;

@@ -99,7 +99,7 @@ class FakeChatCompletions:
         body = json.loads(request.data.decode("utf-8"))
         self.requests.append({"url": request.full_url, "method": request.get_method(),
                               "headers": dict(request.header_items()), "body": body, "timeout": timeout})
-        prompt = body["messages"][0]["content"]
+        prompt = user_prompt(body)
         text = self.reply_for(prompt)
         usage = {"prompt_tokens": len(prompt.split()), "completion_tokens": len(text.split())}
         usage["total_tokens"] = usage["prompt_tokens"] + usage["completion_tokens"]
@@ -109,8 +109,12 @@ class FakeChatCompletions:
         return io.BytesIO(json.dumps(payload).encode("utf-8"))
 
     def prompts(self, prefix: str) -> list[str]:
-        return [r["body"]["messages"][0]["content"] for r in self.requests
-                if r["body"]["messages"][0]["content"].startswith(prefix)]
+        return [user_prompt(r["body"]) for r in self.requests if user_prompt(r["body"]).startswith(prefix)]
+
+
+def user_prompt(body: dict[str, Any]) -> str:
+    """The prompt of a chat body: its last user turn (a Nightshift request may open with a system turn)."""
+    return [m for m in body["messages"] if m.get("role") == "user"][-1]["content"]
 
 
 def run_with_generator(mount: Callable[..., Any], out_dir: Path) -> dict:

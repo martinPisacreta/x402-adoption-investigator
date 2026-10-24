@@ -1,0 +1,53 @@
+{
+  "prompt_id": "writer-r2",
+  "prompt_sha256": "e8e53f4bf50371a49d58d8ce34ce4d5f232d5cc854cbdbbda2a4a50bb125fe82",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "recorded_at": "2026-10-24T17:30:13.291Z",
+  "response": "- 1 purchase recorded in receipts [c03], [c04], [c05], [c06]\n- Purchase totals 1000 atomic USDC (0.001 USDC) [c04]\n- Purchase occurred on 2026-10-21T21:18:17.136Z [c05]\n- 1 distinct service covered by the purchase [c06]\n- 5 sampled settlement(s) verified on Base against receipts [c02]\n\n- Payer 0xa1d1c0cf717402ff3651aa4873ccf96410b01978 made a single purchase of 0.001 USDC from tienda.textokit.store around 21:18 UTC on 2026-10-21. The receipts list this transaction, but each claim carries self-reported and basis_mismatch caveats, meaning the on-chain settlement cannot be fully corroborated without additional verification. One settlement for this payer has been marked verified on Base, yet the caveats indicate the payer identity is derived from a transfer log rather than a direct match, and the receipt basis does not align perfectly with the transfer data.",
+  "usage": {
+    "prompt_tokens": 3546,
+    "completion_tokens": 281,
+    "total_tokens": 3827
+  },
+  "provider": "meterless",
+  "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_a2qt0mtx",
+    "decision_id": "req_a2qt0mtx",
+    "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "winning_route": {
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "label": "Nemotron 3.5 Lightning 30B A3B",
+      "provider": "nvidia",
+      "kind": "cloud",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "final_synthesis",
+        "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+        "ms": 3707
+      }
+    ],
+    "latency_ms": 3707,
+    "usage": {
+      "input_tokens": 3546,
+      "output_tokens": 281,
+      "total_tokens": 3827
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "cloud-ok",
+    "wall_ms": 3734
+  },
+  "request": {
+    "max_tokens": 700,
+    "call_options": {
+      "reasoning_effort": "none",
+      "system_turn": "/no_think"
+    }
+  }
+}

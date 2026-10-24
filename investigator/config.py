@@ -9,6 +9,9 @@
   and no .env.local; the only variable it honours is LOG_DIR (where the run folders go; --out wins over it).
 - Nightshift aliases: the hackathon guides name METERLESS_BASE_URL, METERLESS_RUNTIME_TOKEN and METERLESS_MODEL, the
   official `ns` CLI METERLESS_TOKEN and METERLESS_STATE_DIR; each NIGHTSHIFT_* name wins over its aliases.
+  NIGHTSHIFT_REASONING_EFFORT / METERLESS_REASONING_EFFORT (default `none`) is the thinking switch of every Nightshift
+  chat request (generator.nightshift_call_options): `none` turns a reasoning model's thinking off, `default` sends
+  nothing, minimal | low | medium | high | xhigh are passed on as `reasoning_effort`.
   meterless_state_dir() copies the CLI's stateDir rule (METERLESS_STATE_DIR, else %LOCALAPPDATA%/ai.meterless.runtime
   on Windows, ~/Library/Application Support/ai.meterless.runtime on macOS, /var/lib/meterless elsewhere), read
   from the environment mapping it is given so tests stay hermetic.
@@ -41,6 +44,12 @@ NIGHTSHIFT_DEFAULT_MODEL = "meterless/auto"     # Meterless routing mode (not a 
 NIGHTSHIFT_BASE_URL_VARS: tuple[str, ...] = ("NIGHTSHIFT_BASE_URL", "METERLESS_BASE_URL")
 NIGHTSHIFT_TOKEN_VARS: tuple[str, ...] = ("NIGHTSHIFT_TOKEN", "METERLESS_RUNTIME_TOKEN", "METERLESS_TOKEN")
 NIGHTSHIFT_MODEL_VARS: tuple[str, ...] = ("NIGHTSHIFT_MODEL", "METERLESS_MODEL")
+NIGHTSHIFT_REASONING_VARS: tuple[str, ...] = ("NIGHTSHIFT_REASONING_EFFORT", "METERLESS_REASONING_EFFORT")
+# Thinking off by default: the three generator-backed roles answer in JSON or short prose within 400-700 tokens, and
+# with thinking on both Nemotron routes spent the Critic's 500-token budget thinking and answered nothing (HTTP 502
+# empty_response, 2026-10-24, examples/live-trace-nightshift/nemotron-*/smoke/). "default" sends no thinking control.
+NIGHTSHIFT_DEFAULT_REASONING_EFFORT = "none"
+NIGHTSHIFT_REASONING_EFFORTS: tuple[str, ...] = ("none", "minimal", "low", "medium", "high", "xhigh", "default")
 METERLESS_LINUX_STATE_DIR = "/var/lib/meterless"   # the ns CLI's DEFAULT_STATE_DIR (Linux / packaged DGX daemon)
 
 
@@ -57,6 +66,7 @@ class Env:
     nightshift_state_dir: Optional[str] = None      # the runtime's stateDir (METERLESS_STATE_DIR or the OS default)
     nightshift_state_dir_var: str = ""              # "METERLESS_STATE_DIR" | "default" | "" (none known)
     nightshift_model: str = NIGHTSHIFT_DEFAULT_MODEL
+    nightshift_reasoning_effort: str = NIGHTSHIFT_DEFAULT_REASONING_EFFORT   # NIGHTSHIFT_REASONING_EFFORT | METERLESS_REASONING_EFFORT
     nightshift_autodetect: bool = True              # NIGHTSHIFT_AUTODETECT=0: no localhost probe without a base URL
     # OpenAI-compatible fallback generator
     openai_api_key: Optional[str] = field(default=None, repr=False)
@@ -158,6 +168,7 @@ def read_env(environ: Optional[dict[str, str]] = None) -> Env:
     base_url, base_url_var = first_set(env, NIGHTSHIFT_BASE_URL_VARS)
     token, token_var = first_set(env, NIGHTSHIFT_TOKEN_VARS)
     routing_mode, _ = first_set(env, NIGHTSHIFT_MODEL_VARS)
+    reasoning_effort, _ = first_set(env, NIGHTSHIFT_REASONING_VARS)
     state_dir, state_dir_var = meterless_state_dir(env)
     return Env(
         nightshift_base_url=base_url,
@@ -168,6 +179,7 @@ def read_env(environ: Optional[dict[str, str]] = None) -> Env:
         nightshift_state_dir=state_dir,
         nightshift_state_dir_var=state_dir_var,
         nightshift_model=(routing_mode or NIGHTSHIFT_DEFAULT_MODEL).strip(),
+        nightshift_reasoning_effort=(reasoning_effort or NIGHTSHIFT_DEFAULT_REASONING_EFFORT).strip().lower(),
         nightshift_autodetect=_flag(get("NIGHTSHIFT_AUTODETECT", "1")),
         openai_api_key=get("OPENAI_API_KEY"),
         openai_base_url=get("OPENAI_BASE_URL", "https://api.openai.com/v1"),

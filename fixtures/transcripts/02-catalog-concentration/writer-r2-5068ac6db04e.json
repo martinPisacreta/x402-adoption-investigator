@@ -1,0 +1,54 @@
+{
+  "prompt_id": "writer-r2",
+  "prompt_sha256": "5068ac6db04ea48c285d69832fe6208d378fdfaf4649a7d89cc1fa3148de2b51",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "recorded_at": "2026-10-24T17:22:11.733Z",
+  "response": "- 28462 unique resources are in the CDP Bazaar catalog snapshot [c01][snapshot_dated].\n- 2680 distinct hosts serve those resources [c02][snapshot_dated].\n- 1785 distinct payTo wallets receive payments [c03][snapshot_dated].\n- 99.6% of listed endpoints saw at least one call in the last 30 days [c05][snapshot_dated].\n- The top host www.ax1.vc accounts for 29.5% of all 30-day calls [c06][snapshot_dated].\n\nWhere sources disagree [k01], the CDP catalog snapshot reports 28462 unique resources while the live discovery API reports 28472, and x402-trust indexes a larger set of 286358 endpoints listed with 210375 active in the 30-day window, counting delisted endpoints in its listed total.\n\nThe CDP Bazaar catalog snapshot shows extreme concentration: the top host www.ax1.vc generates 29.5% of all 30-day calls, and the top ten hosts together generate 73.3%. A single payTo wallet 0x7284d41b5b852f2bd4c99bdf95043d84452d299c also receives 29.5% of calls.",
+  "usage": {
+    "prompt_tokens": 3364,
+    "completion_tokens": 324,
+    "total_tokens": 3688
+  },
+  "provider": "meterless",
+  "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_oqka0hy5",
+    "decision_id": "req_oqka0hy5",
+    "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "winning_route": {
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "label": "Nemotron 3.5 Lightning 30B A3B",
+      "provider": "nvidia",
+      "kind": "cloud",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "final_synthesis",
+        "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+        "ms": 5618
+      }
+    ],
+    "latency_ms": 5618,
+    "usage": {
+      "input_tokens": 3364,
+      "output_tokens": 324,
+      "total_tokens": 3688
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "cloud-ok",
+    "wall_ms": 5657
+  },
+  "prompt_context": "sample mode on the committed fixtures",
+  "request": {
+    "max_tokens": 700,
+    "call_options": {
+      "reasoning_effort": "none",
+      "system_turn": "/no_think"
+    }
+  }
+}

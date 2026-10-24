@@ -1,0 +1,54 @@
+{
+  "prompt_id": "critic-r2",
+  "prompt_sha256": "8218bf66795283812d27e3ea22c2ba275202e0cff86bfb706b50944cf4fbf581",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "recorded_at": "2026-10-24T17:23:51.071Z",
+  "response": "[\n  {\n    \"sentence_index\": 5,\n    \"reason\": \"Conflict between c07 and c08 not resolved to single value\",\n    \"claim_id\": \"c07\"\n  },\n  {\n    \"sentence_index\": 5,\n    \"reason\": \"Conflict between c07 and c08 not resolved to single value\",\n    \"claim_id\": \"c08\"\n  }\n]",
+  "usage": {
+    "prompt_tokens": 1409,
+    "completion_tokens": 89,
+    "total_tokens": 1498
+  },
+  "provider": "meterless",
+  "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_piowwy1l",
+    "decision_id": "req_piowwy1l",
+    "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "winning_route": {
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "label": "Nemotron 3.5 Lightning 30B A3B",
+      "provider": "nvidia",
+      "kind": "cloud",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "final_synthesis",
+        "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+        "ms": 1287
+      }
+    ],
+    "latency_ms": 1287,
+    "usage": {
+      "input_tokens": 1409,
+      "output_tokens": 89,
+      "total_tokens": 1498
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "cloud-ok",
+    "wall_ms": 1312
+  },
+  "prompt_context": "sample mode on the committed fixtures",
+  "request": {
+    "max_tokens": 500,
+    "call_options": {
+      "reasoning_effort": "none",
+      "system_turn": "/no_think"
+    }
+  }
+}

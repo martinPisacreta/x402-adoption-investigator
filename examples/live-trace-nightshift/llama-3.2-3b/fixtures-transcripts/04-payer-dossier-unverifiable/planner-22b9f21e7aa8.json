@@ -1,0 +1,52 @@
+{
+  "prompt_id": "planner",
+  "prompt_sha256": "22b9f21e7aa80dfae73b322dcd1370ca39035dda2500b74e1fa6343eb7f7e2c9",
+  "model": "local-runtime/llama-3.2-3b-instruct-q8",
+  "recorded_at": "2026-10-24T16:13:50.087Z",
+  "response": "{\"playbook\": \"payer_dossier\", \"hypotheses\": [\"The payer has a verified wallet on Base.\", \"The payer has a verified settlement on Base.\", \"The payer has a balanceOf of 0 on Base.\", \"The payer has a nonce of 0 on Base.\", \"The payer has no unverified transactions on Base.\"], \"extra_metrics\": [\"verified_tx\", \"usdc_balance_atomic\", \"tx_count\", \"payer_window\", \"payer_services\"]}",
+  "usage": {
+    "prompt_tokens": 1165,
+    "completion_tokens": 196,
+    "total_tokens": 1361
+  },
+  "provider": "meterless",
+  "requested_model": "meterless/auto",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_2dk6n6n9",
+    "decision_id": "req_2dk6n6n9",
+    "requested_model": "meterless/auto",
+    "routed_model": "local-runtime/llama-3.2-3b-instruct-q8",
+    "winning_route": {
+      "model": "local-runtime/llama-3.2-3b-instruct-q8",
+      "label": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
+      "provider": "local-runtime",
+      "kind": "local",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "planning",
+        "model": "local-runtime/llama-3.2-3b-instruct-q8",
+        "ms": 909
+      },
+      {
+        "phase": "code_patch",
+        "model": "local-runtime/llama-3.2-3b-instruct-q8",
+        "ms": 965
+      }
+    ],
+    "latency_ms": 1874,
+    "usage": {
+      "input_tokens": 1165,
+      "output_tokens": 196,
+      "total_tokens": 1361
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "local-only",
+    "wall_ms": 2000
+  },
+  "prompt_context": "sample mode on the committed fixtures"
+}

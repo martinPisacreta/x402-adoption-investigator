@@ -1,0 +1,343 @@
+You are the Writer of the x402 Adoption Investigator. You phrase an answer from ACCEPTED claims only.
+Rules that the Critic enforces mechanically:
+1. Every sentence that contains a number must cite the claim id in brackets, e.g. "... 21 sales [c03]".
+2. Never write a number that is not a claim value, a share of one, or its numerator/denominator.
+3. Mention every conflict listed below in a sentence that starts with "Where sources disagree" and cites its id.
+4. Keep the caveat codes attached to the claims you use (write them in plain words and keep the code in brackets).
+5. The verdict label is fixed: concentrated (confidence 0.90). Phrase it; do not change it.
+6. At most 5 summary bullets: pick the claims that answer the question, never list every claim. Then at most two
+   short narrative paragraphs. The whole answer stays under 300 words. English. No speculation beyond the claims.
+
+Question:
+Who sells on the CDP Bazaar and how concentrated are the paid calls? What share of listed endpoints saw any call in the last 30 days?
+
+Claims (JSON table: id, statement, value, unit, caveats, conflict_ids):
+[
+ {
+  "id": "c01",
+  "statement": "The Bazaar catalog snapshot holds 28462 unique resources.",
+  "value": 28462,
+  "unit": "count",
+  "caveats": [
+   "snapshot_dated"
+  ],
+  "conflict_ids": [
+   "k01"
+  ],
+  "formatted": {}
+ },
+ {
+  "id": "c02",
+  "statement": "Those resources are served by 2680 distinct hosts.",
+  "value": 2680,
+  "unit": "count",
+  "caveats": [
+   "snapshot_dated"
+  ],
+  "conflict_ids": [],
+  "formatted": {}
+ },
+ {
+  "id": "c03",
+  "statement": "1785 distinct payTo wallets receive the payments.",
+  "value": 1785,
+  "unit": "count",
+  "caveats": [
+   "snapshot_dated"
+  ],
+  "conflict_ids": [],
+  "formatted": {}
+ },
+ {
+  "id": "c04",
+  "statement": "The 30-day call counters sum to 824796 across the snapshot.",
+  "value": 824796,
+  "unit": "count",
+  "caveats": [
+   "snapshot_dated"
+  ],
+  "conflict_ids": [],
+  "formatted": {}
+ },
+ {
+  "id": "c05",
+  "statement": "28347 of 28462 resources saw at least one call in the 30-day window (99.6 %).",
+  "value": {
+   "numerator": 28347,
+   "denominator": 28462,
+   "share": 0.995959524980676
+  },
+  "unit": "share",
+  "caveats": [
+   "snapshot_dated"
+  ],
+  "conflict_ids": [],
+  "formatted": {
+   "percent": "99.6"
+  }
+ },
+ {
+  "id": "c06",
+  "statement": "The top host www.ax1.vc accounts for 243580 of 824796 30-day calls (29.5 %).",
+  "value": {
+   "numerator": 243580,
+   "denominator": 824796,
+   "share": 0.2953215098036363,
+   "host": "www.ax1.vc"
+  },
+  "unit": "share",
+  "caveats": [
+   "snapshot_dated"
+  ],
+  "conflict_ids": [],
+  "formatted": {
+   "percent": "29.5"
+  }
+ },
+ {
+  "id": "c07",
+  "statement": "The top ten hosts account for 604248 of 824796 30-day calls (73.3 %).",
+  "value": {
+   "numerator": 604248,
+   "denominator": 824796,
+   "share": 0.7326029709164448
+  },
+  "unit": "share",
+  "caveats": [
+   "snapshot_dated"
+  ],
+  "conflict_ids": [],
+  "formatted": {
+   "percent": "73.3"
+  }
+ },
+ {
+  "id": "c08",
+  "statement": "Hosts with the most listings in the snapshot: saylorinnovations.com=1568, agentshelf.syntexa.ch=1236, dns.intel.rallylive.ca=694, agent402.tools=613.",
+  "value": "saylorinnovations.com=1568, agentshelf.syntexa.ch=1236, dns.intel.rallylive.ca=694, agent402.tools=613",
+  "unit": "text",
+  "caveats": [
+   "snapshot_dated"
+  ],
+  "conflict_ids": [],
+  "formatted": {}
+ },
+ {
+  "id": "c09",
+  "statement": "The top payTo wallet 0x7284d41b5b852f2bd4c99bdf95043d84452d299c receives 243601 of 824796 30-day calls (29.5 %).",
+  "value": {
+   "numerator": 243601,
+   "denominator": 824796,
+   "share": 0.2953469706448625,
+   "pay_to": "0x7284d41b5b852f2bd4c99bdf95043d84452d299c"
+  },
+  "unit": "share",
+  "caveats": [
+   "snapshot_dated"
+  ],
+  "conflict_ids": [],
+  "formatted": {
+   "percent": "29.5"
+  }
+ },
+ {
+  "id": "c10",
+  "statement": "The largest per-endpoint 30-day unique-payer counter is 2708 (not deduplicable across endpoints).",
+  "value": 2708,
+  "unit": "count",
+  "caveats": [
+   "unique_payers_not_dedupable",
+   "snapshot_dated"
+  ],
+  "conflict_ids": [],
+  "formatted": {}
+ },
+ {
+  "id": "c11",
+  "statement": "x402-trust reports endpoints_listed=286358, endpoints_active=210375, settlements_30d=2661042, distinct_payers_30d=32625.",
+  "value": {
+   "endpoints_listed": 286358,
+   "endpoints_active": 210375,
+   "settlements_30d": 2661042,
+   "distinct_payers_30d": 32625
+  },
+  "unit": "text",
+  "caveats": [
+   "third_party_aggregate"
+  ],
+  "conflict_ids": [
+   "k01"
+  ],
+  "formatted": {}
+ }
+]
+
+Conflicts (id, predicate, values with basis, explanation):
+[
+ {
+  "id": "k01",
+  "predicate": "ecosystem_size",
+  "values": [
+   {
+    "source": "cdp_catalog_snapshot",
+    "value": 28462,
+    "basis": "unique resources in the compact snapshot (deduplicated by resource)"
+   },
+   {
+    "source": "cdp_bazaar",
+    "value": 28472,
+    "basis": "pagination.total reported live by the discovery API at capture (moves by the minute)"
+   },
+   {
+    "source": "x402_trust",
+    "value": {
+     "endpointsListed": 286358,
+     "endpointsActive": 210375
+    },
+    "basis": "x402-trust index across its own sources, 30-day probe window, delisted endpoints counted in listed"
+   }
+  ],
+  "explanation": "The Bazaar snapshot is a dated capture of one index deduplicated by resource; the API total moves by the minute; x402-trust indexes a different and larger set with its own 30-day probe window and counts delisted endpoints."
+ }
+]
+
+Unavailable metrics (say so, do not guess them):
+(none)
+
+Memory (H-MEM reinjection; cite memory ids you rely on as [mem-...]):
+[MEMORY CONTEXT]
+## tech
+- [LT] On an x402 settlement tx.from is the facilitator; the payer and seller come from the Transfer log. (entities: source:base_rpc) <mem-seed-005>
+[/MEMORY CONTEXT]
+
+Critic issues from the previous round (fix every one):
+[
+ {
+  "target": "c01",
+  "rule": "C3",
+  "verdict": "revise",
+  "memory_ids": [
+   "mem-seed-006"
+  ],
+  "reason": "the answer does not carry caveat [snapshot_dated] required by c01"
+ },
+ {
+  "target": "c02",
+  "rule": "C3",
+  "verdict": "revise",
+  "memory_ids": [
+   "mem-seed-006"
+  ],
+  "reason": "the answer does not carry caveat [snapshot_dated] required by c02"
+ },
+ {
+  "target": "c03",
+  "rule": "C3",
+  "verdict": "revise",
+  "memory_ids": [
+   "mem-seed-006"
+  ],
+  "reason": "the answer does not carry caveat [snapshot_dated] required by c03"
+ },
+ {
+  "target": "c04",
+  "rule": "C3",
+  "verdict": "revise",
+  "memory_ids": [
+   "mem-seed-006"
+  ],
+  "reason": "the answer does not carry caveat [snapshot_dated] required by c04"
+ },
+ {
+  "target": "c05",
+  "rule": "C3",
+  "verdict": "revise",
+  "memory_ids": [
+   "mem-seed-006"
+  ],
+  "reason": "the answer does not carry caveat [snapshot_dated] required by c05"
+ },
+ {
+  "target": "c06",
+  "rule": "C3",
+  "verdict": "revise",
+  "memory_ids": [
+   "mem-seed-006"
+  ],
+  "reason": "the answer does not carry caveat [snapshot_dated] required by c06"
+ },
+ {
+  "target": "c07",
+  "rule": "C3",
+  "verdict": "revise",
+  "memory_ids": [
+   "mem-seed-006"
+  ],
+  "reason": "the answer does not carry caveat [snapshot_dated] required by c07"
+ },
+ {
+  "target": "c08",
+  "rule": "C3",
+  "verdict": "revise",
+  "memory_ids": [
+   "mem-seed-006"
+  ],
+  "reason": "the answer does not carry caveat [snapshot_dated] required by c08"
+ },
+ {
+  "target": "c09",
+  "rule": "C3",
+  "verdict": "revise",
+  "memory_ids": [
+   "mem-seed-006"
+  ],
+  "reason": "the answer does not carry caveat [snapshot_dated] required by c09"
+ },
+ {
+  "target": "c10",
+  "rule": "C3",
+  "verdict": "revise",
+  "memory_ids": [
+   "mem-seed-001"
+  ],
+  "reason": "the answer does not carry caveat [unique_payers_not_dedupable] required by c10"
+ },
+ {
+  "target": "c11",
+  "rule": "C3",
+  "verdict": "revise",
+  "memory_ids": [
+   "mem-seed-004"
+  ],
+  "reason": "the answer does not carry caveat [third_party_aggregate] required by c11"
+ },
+ {
+  "target": 6,
+  "rule": "LLM",
+  "verdict": "revise",
+  "memory_ids": [],
+  "reason": "Reports live API and x402-trust figures, not snapshot values",
+  "claim_id": "k01",
+  "sentence_text": "Where sources disagree [k01], the CDP catalog snapshot reports 28462 unique resources while the live discovery API reports 28472, and x402-trust indexes a larger set of 286358 endpoints listed with 210375 active in the 30-day window, counting delisted endpoints in its listed total."
+ },
+ {
+  "target": 7,
+  "rule": "LLM",
+  "verdict": "revise",
+  "memory_ids": [],
+  "reason": "Uses top host and top ten host percentages without citing c06 and c07",
+  "claim_id": "null",
+  "sentence_text": "The Bazaar catalog snapshot shows extreme concentration: the top host www.ax1.vc generates 29.5 % of all 30-day calls, and the top ten hosts together generate 73.3 %."
+ },
+ {
+  "target": 8,
+  "rule": "LLM",
+  "verdict": "revise",
+  "memory_ids": [],
+  "reason": "States payTo wallet receives 29.5% of calls without citing c09",
+  "claim_id": "null",
+  "sentence_text": "A single payTo wallet 0x7284d41b5b852f2bd4c99bdf95043d84452d299c also receives 29.5 % of calls."
+ }
+]
+
+Write the answer now: first the bullets (one per line, starting with "- "), then the narrative paragraphs.

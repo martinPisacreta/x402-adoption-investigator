@@ -1,0 +1,54 @@
+{
+  "prompt_id": "critic-r2",
+  "prompt_sha256": "4fa842f55c2e4cf41561d575e69348275455a275120b025a78e76ec1e2cd54ca",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "recorded_at": "2026-10-24T17:15:33.452Z",
+  "response": "[\n  {\n    \"sentence_index\": 0,\n    \"reason\": \"The statement '77 settled sales in total' is a self-reported count from receipts, but the accepted claim c01 only states the receipts list 77 settled sales. The statement does not derive from a claim value; it is the claim itself, but as a sentence in the answer it is unsupported as an independent assertion.\",\n    \"claim_id\": \"c01\"\n  },\n  {\n    \"sentence_index\": 1,\n    \"reason\": \"The statement '56 self-payments from 3 distinct wallets' combines c02 and c03, but no single claim provides the combined narrative. The share 72.7% (c07) is derived from c01 and c02, not stated as '56 self-payments from 3 distinct wallets' in a single claim.\",\n    \"claim_id\": \"c02\"\n  },\n  {\n    \"sentence_index\": 2,\n    \"reason\": \"The statement '21 sales paid by external wallets' is the exact value of c04, but as a standalone sentence in the answer it is unsupported because it is a claim value, not a derived or supported statement outside the claim set.\",\n    \"claim_id\": \"c04\"\n  },\n  {\n    \"sentence_index\": 3,\n    \"reason\": \"The statement 'External sales total 44000 atomic USDC (0.044 USDC)' is the exact value of c05. It is unsupported as an independent sentence because it directly repeats a claim value without derivation.\",\n    \"claim_id\": \"c05\"\n  },\n  {\n    \"sentence_index\": 4,\n    \"reason\": \"The statement '4 distinct external payers appear in the receipts' is the exact value of c06. It is unsupported as an independent sentence because it is a claim value.\",\n    \"claim_id\": \"c06\"\n  },\n  {\n    \"sentence_index\": 5,\n    \"reason\": \"The bullet points under sentence 5 contain multiple assertions that are claim values or derived combinations not present as single accepted claims. Specifically: 'Self-settlement share: 56 of 77 sales (72.7 %)' is c07;",
+  "usage": {
+    "prompt_tokens": 3160,
+    "completion_tokens": 500,
+    "total_tokens": 3660
+  },
+  "provider": "meterless",
+  "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_qj2nyflb",
+    "decision_id": "req_qj2nyflb",
+    "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "winning_route": {
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "label": "Nemotron 3.5 Lightning 30B A3B",
+      "provider": "nvidia",
+      "kind": "cloud",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "final_synthesis",
+        "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+        "ms": 7210
+      }
+    ],
+    "latency_ms": 7210,
+    "usage": {
+      "input_tokens": 3160,
+      "output_tokens": 500,
+      "total_tokens": 3660
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "cloud-ok",
+    "wall_ms": 7234
+  },
+  "prompt_context": "sample mode on the committed fixtures",
+  "request": {
+    "max_tokens": 500,
+    "call_options": {
+      "reasoning_effort": "none",
+      "system_turn": "/no_think"
+    }
+  }
+}

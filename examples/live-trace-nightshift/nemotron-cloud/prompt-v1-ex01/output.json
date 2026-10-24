@@ -1,0 +1,2532 @@
+{
+  "run_id": "ex01-seller-audit",
+  "status": "ok",
+  "output": {
+    "mounts": {
+      "mode": "sample",
+      "fetcher": "fixture",
+      "executor": "sqlite",
+      "generator": "recorded",
+      "fixtures_captured_at": "2026-10-22T00:05:00Z",
+      "zetaris_version": null,
+      "zetaris_source": null
+    },
+    "sample_mode_notice": "This run replayed committed fixtures captured 2026-10-22T00:05:00Z; no network, no model calls. The generator-backed roles replayed 5 recorded answer(s) from fixtures/transcripts/01-seller-audit-textokit/ (provider meterless, model nvidia/nemotron-3.5-lightning-30b-a3b); each `generate` event says recorded: true.",
+    "question": "How real is the adoption of tienda.textokit.store? Who pays, how much, do they come back, and why do registries disagree about it?",
+    "plan": {
+      "playbook": "seller_profile",
+      "query_ids": [
+        "q01_sales_by_wallet_class",
+        "q02_external_payers",
+        "q03_repeat_external_payers",
+        "q04_top_payer_share",
+        "q05_external_sales_by_service",
+        "q06_bazaar_host_listings",
+        "q07_bazaar_payto_vs_receipts_seller",
+        "q12_registry_count_openapi",
+        "q13_registry_count_agent402",
+        "q14_registry_count_vet402",
+        "q15_registry_count_trust_search",
+        "q16_settlements_vs_receipts",
+        "q18_external_sales_by_day"
+      ],
+      "sources": [
+        "receipts",
+        "store_openapi",
+        "cdp_search",
+        "agent402",
+        "vet402",
+        "x402_trust",
+        "base_rpc"
+      ],
+      "planner_source": "recorded-generator",
+      "metrics": [
+        "sales_total",
+        "own_wallet_sales",
+        "own_wallets_total",
+        "external_sales_total",
+        "external_usdc_atomic",
+        "external_payers_total",
+        "self_settlement_share",
+        "repeat_external_payers",
+        "top_payer_share",
+        "external_window",
+        "external_sales_by_service",
+        "external_sales_by_day",
+        "external_sales_30d",
+        "bazaar_listings_for_host",
+        "bazaar_payto_for_host",
+        "bazaar_calls_30d_for_host",
+        "bazaar_payto_matches_seller",
+        "endpoint_count_for_host",
+        "settlements_verified"
+      ],
+      "hypotheses": [
+        "The host tienda.textokit.store has no active x402 sellers, explaining registry disagreements.",
+        "Payers to tienda.textokit.store are likely bots or automated scripts rather than human users.",
+        "If sales exist, repeat external payers are rare, indicating low retention for the host.",
+        "Disagreements between registries stem from differing inclusion criteria for atomic USDC settlements.",
+        "The wallet associated with the host holds a disproportionate share of total sales volume."
+      ],
+      "hmem_memory_ids": []
+    },
+    "verdict": {
+      "label": "self_settled_mostly",
+      "confidence": 0.9,
+      "why": [
+        "c07"
+      ]
+    },
+    "answer": "Most settlements are the seller paying itself (verdict self_settled_mostly) based on [c07]. - Self-settlement share: 56 of 77 sales (72.7 %) [c07] (self_reported_receipts) - 1 external payer bought more than once [c08] (self_reported_receipts) - Top external payer 0xec2abd3eda89bed90124736e317e847d5fb6d034 made 18 of 21 external sales (85.7 %) [c09] (self_reported_receipts) - External sales span 2026-10-20T04:51:24.352Z..2026-10-21T21:18:17.136Z [c10] (self_reported_receipts) - External sales by service: cuit-ar=3, normativa-ar=2, x402-ping=2, bcra-indicadores=1, cartas-ar=1, comparar-textos=1, crypto-prices=1, dev-utils=1, direcciones-ar=1, dolar-ar=1, fx-rates=1, polymarket-markets=1, source-bounded-summary=1, translate-es=1, url-text=1, web-read=1, x402-adoption=1 [c11] (self_reported_receipts) - External sales per day: 20 on 2026-10-20, 1 on 2026-10-21 [c12] (self_reported_receipts) - 21 external sales settled inside the 30-day window ending 2026-10-22 [c13] (self_reported_receipts, basis_mismatch) - CDP Bazaar search returns 17 listings for tienda.textokit.store [c14] (search_limit_20) - Those 17 listings pay to 1 distinct wallet [c15] (search_limit_20) - Bazaar 30-day call counters summed over the listings: 60 [c16] (search_limit_20, basis_mismatch) - 17 Bazaar listings pay to the wallet the receipts name as seller [c17] (search_limit_20, self_reported_receipts) - Registries disagree on the endpoint count for tienda.textokit.store: cdp_search=17, store_openapi=1 The receipts of tienda.textokit.store list 77 settled sales in total [c01]. 56 of those sales were paid from the seller's own wallets [c02]. 3 distinct own wallets settled those self-payments [c03]. 21 sales were paid by external wallets [c04]. External sales total 44000 atomic USDC (0.044 USDC) [c05]. 4 distinct external payers appear in the receipts [c06]. Registries disagree on the endpoint count for tienda.textokit.store: cdp_search=17, store_openapi=17, agent402_paid=17, agent402_tools=34, vet402=19, x402_trust_search=36 [c18]. 1 sampled settlement(s) verified on Base against the receipts [c19]. Where sources disagree [k01] on endpoint_count_for_host: cdp_search: 17 (CDP Bazaar discovery search, one row per listed resource, capped at twenty results); store_openapi: 17 (paid operations declared by the store's own openapi.json (x-payment-info)); agent402: paidToolCount=17, toolCount=34 (tools crawled by Agent402 from the store manifest; paidToolCount is the comparable figure); vet402: 19 (endpoints vet402 has observed for the host with catalog_status listed); x402_trust: 36 (matches reported by the x402-trust keyword search across its own index (listed and delisted)). Bazaar search is capped at twenty results and lists one row per resource; the store openapi declares paid operations; Agent402 counts tools including free ones (paidToolCount is the comparable figure); vet402 counts every endpoint it has observed for the host with catalog_status listed, which can include routes the store no longer declares; x402-trust search counts matches across its own index. In this capture vet402 lists /api/maintenance-helper and /api/preparar-solicitud, which the store openapi does not declare as paid operations; that accounts for the whole difference between the vet402 and openapi counts [c14] [c18]. Where sources disagree [k02] on calls_30d_for_host: cdp_search: 60 (l30DaysTotalCalls summed over the host's Bazaar listings (per-endpoint 30-day counters, search capped at twenty)); receipts: 77 (all receipts rows settled since 2026-09-22 (own-wallet rows included)); receipts: 21 (external receipts rows settled since 2026-09-22). Bazaar l30DaysTotalCalls is a per-endpoint 30-day counter maintained by the facilitator and includes the seller's own calls; receipts are the seller's own settlement log. Different windows and bases: compare only with the basis stated [c16] [c13]. Caveat [basis_mismatch]: Bazaar counters and receipts use different windows and bases [mem-seed-007]; applies to [c13] [c16]. Caveat [payer_from_transfer_log]: payer and seller were read from the Transfer log, not from tx.from [mem-seed-005]; applies to [c19]. Caveat [search_limit_20]: the Bazaar search is capped at twenty results, so its count is a floor [mem-seed-002]; applies to [c14] [c15] [c16] [c17] [c18]. Caveat [self_reported_receipts]: receipts are self-reported by the seller [mem-seed-003]; applies to [c01] [c02] [c03] [c04] [c05] [c06] [c07] [c08] [c09] [c10] [c11] [c12] [c13] [c17] [c19]. Caveat [third_party_aggregate]: x402-trust figures are third-party aggregates with their own window and index [mem-seed-004]; applies to [c18]. Sample mode: this answer replays committed fixtures captured 2026-10-22T00:05:00Z; no network, no model calls.",
+    "claims": [
+      {
+        "id": "c01",
+        "metric": "sales_total",
+        "subject": "seller:host:tienda.textokit.store",
+        "statement": "The receipts of tienda.textokit.store list 77 settled sales in total.",
+        "value": 77,
+        "unit": "count",
+        "period": "all_time",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://tienda.textokit.store/receipts.json",
+            "sha256": "e179af8c286417ecfeb637e8dced806792030422513ff74b97ee84e88b138985",
+            "captured_at": "2026-10-22T00:05:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/store-receipts.json"
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex01-seller-audit#45",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex01-seller-audit#58",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": "q01_sales_by_wallet_class",
+          "sql_sha256": "78da86f00660fccf3e761e51e79568a5cea14c5ab2ef723edb35bb25ca219318",
+          "backend": "sqlite",
+          "reducer": "reducers.sales_total",
+          "rows": 2,
+          "fields": [
+            "ownWallet",
+            "amountAtomic"
+          ],
+          "sources": [
+            "receipts"
+          ],
+          "log_seq": 45
+        },
+        "coverage": null,
+        "caveats": [
+          "self_reported_receipts"
+        ],
+        "caveat_memory_ids": {
+          "self_reported_receipts": "mem-seed-003"
+        },
+        "conflict_ids": [],
+        "confidence": 0.9,
+        "status": "accepted",
+        "cross_checked": true,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      },
+      {
+        "id": "c02",
+        "metric": "own_wallet_sales",
+        "subject": "seller:host:tienda.textokit.store",
+        "statement": "56 of those sales were paid from the seller's own wallets.",
+        "value": 56,
+        "unit": "count",
+        "period": "all_time",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://tienda.textokit.store/receipts.json",
+            "sha256": "e179af8c286417ecfeb637e8dced806792030422513ff74b97ee84e88b138985",
+            "captured_at": "2026-10-22T00:05:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/store-receipts.json"
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex01-seller-audit#45",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex01-seller-audit#59",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": "q01_sales_by_wallet_class",
+          "sql_sha256": "78da86f00660fccf3e761e51e79568a5cea14c5ab2ef723edb35bb25ca219318",
+          "backend": "sqlite",
+          "reducer": "reducers.own_wallet_sales",
+          "rows": 2,
+          "fields": [
+            "ownWallet"
+          ],
+          "sources": [
+            "receipts"
+          ],
+          "log_seq": 45
+        },
+        "coverage": null,
+        "caveats": [
+          "self_reported_receipts"
+        ],
+        "caveat_memory_ids": {
+          "self_reported_receipts": "mem-seed-003"
+        },
+        "conflict_ids": [],
+        "confidence": 0.9,
+        "status": "accepted",
+        "cross_checked": true,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      },
+      {
+        "id": "c03",
+        "metric": "own_wallets_total",
+        "subject": "seller:host:tienda.textokit.store",
+        "statement": "3 distinct own wallets settled those self-payments.",
+        "value": 3,
+        "unit": "count",
+        "period": "all_time",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://tienda.textokit.store/receipts.json",
+            "sha256": "e179af8c286417ecfeb637e8dced806792030422513ff74b97ee84e88b138985",
+            "captured_at": "2026-10-22T00:05:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/store-receipts.json"
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex01-seller-audit#45",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex01-seller-audit#60",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": "q01_sales_by_wallet_class",
+          "sql_sha256": "78da86f00660fccf3e761e51e79568a5cea14c5ab2ef723edb35bb25ca219318",
+          "backend": "sqlite",
+          "reducer": "reducers.own_wallets_total",
+          "rows": 2,
+          "fields": [
+            "ownWallet",
+            "payer"
+          ],
+          "sources": [
+            "receipts"
+          ],
+          "log_seq": 45
+        },
+        "coverage": null,
+        "caveats": [
+          "self_reported_receipts"
+        ],
+        "caveat_memory_ids": {
+          "self_reported_receipts": "mem-seed-003"
+        },
+        "conflict_ids": [],
+        "confidence": 0.9,
+        "status": "accepted",
+        "cross_checked": true,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      },
+      {
+        "id": "c04",
+        "metric": "external_sales_total",
+        "subject": "seller:host:tienda.textokit.store",
+        "statement": "21 sales were paid by external wallets.",
+        "value": 21,
+        "unit": "count",
+        "period": "all_time",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://tienda.textokit.store/receipts.json",
+            "sha256": "e179af8c286417ecfeb637e8dced806792030422513ff74b97ee84e88b138985",
+            "captured_at": "2026-10-22T00:05:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/store-receipts.json"
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex01-seller-audit#45",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex01-seller-audit#61",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": "q01_sales_by_wallet_class",
+          "sql_sha256": "78da86f00660fccf3e761e51e79568a5cea14c5ab2ef723edb35bb25ca219318",
+          "backend": "sqlite",
+          "reducer": "reducers.external_sales_total",
+          "rows": 2,
+          "fields": [
+            "ownWallet"
+          ],
+          "sources": [
+            "receipts"
+          ],
+          "log_seq": 45
+        },
+        "coverage": null,
+        "caveats": [
+          "self_reported_receipts"
+        ],
+        "caveat_memory_ids": {
+          "self_reported_receipts": "mem-seed-003"
+        },
+        "conflict_ids": [],
+        "confidence": 0.9,
+        "status": "accepted",
+        "cross_checked": true,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      },
+      {
+        "id": "c05",
+        "metric": "external_usdc_atomic",
+        "subject": "seller:host:tienda.textokit.store",
+        "statement": "External sales total 44000 atomic USDC (0.044 USDC).",
+        "value": 44000,
+        "unit": "atomic_usdc",
+        "period": "all_time",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://tienda.textokit.store/receipts.json",
+            "sha256": "e179af8c286417ecfeb637e8dced806792030422513ff74b97ee84e88b138985",
+            "captured_at": "2026-10-22T00:05:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/store-receipts.json"
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex01-seller-audit#45",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex01-seller-audit#62",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": "q01_sales_by_wallet_class",
+          "sql_sha256": "78da86f00660fccf3e761e51e79568a5cea14c5ab2ef723edb35bb25ca219318",
+          "backend": "sqlite",
+          "reducer": "reducers.external_usdc_atomic",
+          "rows": 2,
+          "fields": [
+            "ownWallet",
+            "amountAtomic"
+          ],
+          "sources": [
+            "receipts"
+          ],
+          "log_seq": 45
+        },
+        "coverage": null,
+        "caveats": [
+          "self_reported_receipts"
+        ],
+        "caveat_memory_ids": {
+          "self_reported_receipts": "mem-seed-003"
+        },
+        "conflict_ids": [],
+        "confidence": 0.9,
+        "status": "accepted",
+        "cross_checked": true,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      },
+      {
+        "id": "c06",
+        "metric": "external_payers_total",
+        "subject": "seller:host:tienda.textokit.store",
+        "statement": "4 distinct external payers appear in the receipts.",
+        "value": 4,
+        "unit": "count",
+        "period": "all_time",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://tienda.textokit.store/receipts.json",
+            "sha256": "e179af8c286417ecfeb637e8dced806792030422513ff74b97ee84e88b138985",
+            "captured_at": "2026-10-22T00:05:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/store-receipts.json"
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex01-seller-audit#46",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex01-seller-audit#63",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": "q02_external_payers",
+          "sql_sha256": "af1c53c93fda7309e3d0c51ad9a87693f52f274e689d1d02fbc3b85d93208ecc",
+          "backend": "sqlite",
+          "reducer": "reducers.external_payers_total",
+          "rows": 4,
+          "fields": [
+            "payer",
+            "ownWallet"
+          ],
+          "sources": [
+            "receipts"
+          ],
+          "log_seq": 46
+        },
+        "coverage": null,
+        "caveats": [
+          "self_reported_receipts"
+        ],
+        "caveat_memory_ids": {
+          "self_reported_receipts": "mem-seed-003"
+        },
+        "conflict_ids": [],
+        "confidence": 0.9,
+        "status": "accepted",
+        "cross_checked": true,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      },
+      {
+        "id": "c07",
+        "metric": "self_settlement_share",
+        "subject": "seller:host:tienda.textokit.store",
+        "statement": "Self-settlement share: 56 of 77 sales (72.7 %).",
+        "value": {
+          "numerator": 56,
+          "denominator": 77,
+          "share": 0.7272727272727273
+        },
+        "unit": "share",
+        "period": "all_time",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://tienda.textokit.store/receipts.json",
+            "sha256": "e179af8c286417ecfeb637e8dced806792030422513ff74b97ee84e88b138985",
+            "captured_at": "2026-10-22T00:05:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/store-receipts.json"
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex01-seller-audit#45",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex01-seller-audit#64",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": "q01_sales_by_wallet_class",
+          "sql_sha256": "78da86f00660fccf3e761e51e79568a5cea14c5ab2ef723edb35bb25ca219318",
+          "backend": "sqlite",
+          "reducer": "reducers.self_settlement_share",
+          "rows": 2,
+          "fields": [
+            "ownWallet"
+          ],
+          "sources": [
+            "receipts"
+          ],
+          "log_seq": 45
+        },
+        "coverage": null,
+        "caveats": [
+          "self_reported_receipts"
+        ],
+        "caveat_memory_ids": {
+          "self_reported_receipts": "mem-seed-003"
+        },
+        "conflict_ids": [],
+        "confidence": 0.9,
+        "status": "accepted",
+        "cross_checked": true,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      },
+      {
+        "id": "c08",
+        "metric": "repeat_external_payers",
+        "subject": "seller:host:tienda.textokit.store",
+        "statement": "1 external payer(s) bought more than once.",
+        "value": 1,
+        "unit": "count",
+        "period": "all_time",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://tienda.textokit.store/receipts.json",
+            "sha256": "e179af8c286417ecfeb637e8dced806792030422513ff74b97ee84e88b138985",
+            "captured_at": "2026-10-22T00:05:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/store-receipts.json"
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex01-seller-audit#47",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex01-seller-audit#65",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": "q03_repeat_external_payers",
+          "sql_sha256": "dc5467b281c7753a91578bc125b67b0fa438d9b774d8fcf1c02f5747d8e6229d",
+          "backend": "sqlite",
+          "reducer": "reducers.repeat_external_payers",
+          "rows": 1,
+          "fields": [
+            "payer",
+            "ownWallet"
+          ],
+          "sources": [
+            "receipts"
+          ],
+          "log_seq": 47
+        },
+        "coverage": null,
+        "caveats": [
+          "self_reported_receipts"
+        ],
+        "caveat_memory_ids": {
+          "self_reported_receipts": "mem-seed-003"
+        },
+        "conflict_ids": [],
+        "confidence": 0.9,
+        "status": "accepted",
+        "cross_checked": true,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      },
+      {
+        "id": "c09",
+        "metric": "top_payer_share",
+        "subject": "seller:host:tienda.textokit.store",
+        "statement": "The top external payer 0xec2abd3eda89bed90124736e317e847d5fb6d034 made 18 of 21 external sales (85.7 %).",
+        "value": {
+          "numerator": 18,
+          "denominator": 21,
+          "share": 0.8571428571428571,
+          "payer": "0xec2abd3eda89bed90124736e317e847d5fb6d034"
+        },
+        "unit": "share",
+        "period": "all_time",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://tienda.textokit.store/receipts.json",
+            "sha256": "e179af8c286417ecfeb637e8dced806792030422513ff74b97ee84e88b138985",
+            "captured_at": "2026-10-22T00:05:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/store-receipts.json"
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex01-seller-audit#48",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex01-seller-audit#66",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": "q04_top_payer_share",
+          "sql_sha256": "9b40ee7dbcad42ba71ddd5c24c625a9275912530db9a2f31fb524b9eb2abd910",
+          "backend": "sqlite",
+          "reducer": "reducers.top_payer_share",
+          "rows": 1,
+          "fields": [
+            "payer",
+            "ownWallet"
+          ],
+          "sources": [
+            "receipts"
+          ],
+          "log_seq": 48
+        },
+        "coverage": null,
+        "caveats": [
+          "self_reported_receipts"
+        ],
+        "caveat_memory_ids": {
+          "self_reported_receipts": "mem-seed-003"
+        },
+        "conflict_ids": [],
+        "confidence": 0.9,
+        "status": "accepted",
+        "cross_checked": true,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      },
+      {
+        "id": "c10",
+        "metric": "external_window",
+        "subject": "seller:host:tienda.textokit.store",
+        "statement": "External sales span 2026-10-20T04:51:24.352Z..2026-10-21T21:18:17.136Z.",
+        "value": "2026-10-20T04:51:24.352Z..2026-10-21T21:18:17.136Z",
+        "unit": "iso8601",
+        "period": "all_time",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://tienda.textokit.store/receipts.json",
+            "sha256": "e179af8c286417ecfeb637e8dced806792030422513ff74b97ee84e88b138985",
+            "captured_at": "2026-10-22T00:05:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/store-receipts.json"
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex01-seller-audit#46",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex01-seller-audit#67",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": "q02_external_payers",
+          "sql_sha256": "af1c53c93fda7309e3d0c51ad9a87693f52f274e689d1d02fbc3b85d93208ecc",
+          "backend": "sqlite",
+          "reducer": "reducers.external_window",
+          "rows": 4,
+          "fields": [
+            "at",
+            "ownWallet"
+          ],
+          "sources": [
+            "receipts"
+          ],
+          "log_seq": 46
+        },
+        "coverage": null,
+        "caveats": [
+          "self_reported_receipts"
+        ],
+        "caveat_memory_ids": {
+          "self_reported_receipts": "mem-seed-003"
+        },
+        "conflict_ids": [],
+        "confidence": 0.9,
+        "status": "accepted",
+        "cross_checked": true,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      },
+      {
+        "id": "c11",
+        "metric": "external_sales_by_service",
+        "subject": "seller:host:tienda.textokit.store",
+        "statement": "External sales by service: cuit-ar=3, normativa-ar=2, x402-ping=2, bcra-indicadores=1, cartas-ar=1, comparar-textos=1, crypto-prices=1, dev-utils=1, direcciones-ar=1, dolar-ar=1, fx-rates=1, polymarket-markets=1, source-bounded-summary=1, translate-es=1, url-text=1, web-read=1, x402-adoption=1.",
+        "value": "cuit-ar=3, normativa-ar=2, x402-ping=2, bcra-indicadores=1, cartas-ar=1, comparar-textos=1, crypto-prices=1, dev-utils=1, direcciones-ar=1, dolar-ar=1, fx-rates=1, polymarket-markets=1, source-bounded-summary=1, translate-es=1, url-text=1, web-read=1, x402-adoption=1",
+        "unit": "text",
+        "period": "all_time",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://tienda.textokit.store/receipts.json",
+            "sha256": "e179af8c286417ecfeb637e8dced806792030422513ff74b97ee84e88b138985",
+            "captured_at": "2026-10-22T00:05:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/store-receipts.json"
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex01-seller-audit#49",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex01-seller-audit#68",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": "q05_external_sales_by_service",
+          "sql_sha256": "566e3b5c519c9fc655dfafa4150432033722cd9d5866971f7e0eba6370524e60",
+          "backend": "sqlite",
+          "reducer": "reducers.external_sales_by_service",
+          "rows": 17,
+          "fields": [
+            "service",
+            "ownWallet"
+          ],
+          "sources": [
+            "receipts"
+          ],
+          "log_seq": 49
+        },
+        "coverage": null,
+        "caveats": [
+          "self_reported_receipts"
+        ],
+        "caveat_memory_ids": {
+          "self_reported_receipts": "mem-seed-003"
+        },
+        "conflict_ids": [],
+        "confidence": 0.9,
+        "status": "accepted",
+        "cross_checked": true,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      },
+      {
+        "id": "c12",
+        "metric": "external_sales_by_day",
+        "subject": "seller:host:tienda.textokit.store",
+        "statement": "External sales per day: 2026-10-20=20, 2026-10-21=1.",
+        "value": "2026-10-20=20, 2026-10-21=1",
+        "unit": "text",
+        "period": "all_time",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://tienda.textokit.store/receipts.json",
+            "sha256": "e179af8c286417ecfeb637e8dced806792030422513ff74b97ee84e88b138985",
+            "captured_at": "2026-10-22T00:05:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/store-receipts.json"
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex01-seller-audit#57",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex01-seller-audit#69",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": "q18_external_sales_by_day",
+          "sql_sha256": "6e443de0aa36011d152ea0051bcdf3465357ac3b0268251bc08e358142d619ea",
+          "backend": "sqlite",
+          "reducer": "reducers.external_sales_by_day",
+          "rows": 2,
+          "fields": [
+            "at",
+            "ownWallet"
+          ],
+          "sources": [
+            "receipts"
+          ],
+          "log_seq": 57
+        },
+        "coverage": null,
+        "caveats": [
+          "self_reported_receipts"
+        ],
+        "caveat_memory_ids": {
+          "self_reported_receipts": "mem-seed-003"
+        },
+        "conflict_ids": [],
+        "confidence": 0.9,
+        "status": "accepted",
+        "cross_checked": true,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      },
+      {
+        "id": "c13",
+        "metric": "external_sales_30d",
+        "subject": "seller:host:tienda.textokit.store",
+        "statement": "External sales settled inside the 30-day window ending 2026-10-22: 21.",
+        "value": 21,
+        "unit": "count",
+        "period": "2026-09-22..2026-10-22",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://tienda.textokit.store/receipts.json",
+            "sha256": "e179af8c286417ecfeb637e8dced806792030422513ff74b97ee84e88b138985",
+            "captured_at": "2026-10-22T00:05:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/store-receipts.json"
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex01-seller-audit#57",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex01-seller-audit#70",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": "q18_external_sales_by_day",
+          "sql_sha256": "6e443de0aa36011d152ea0051bcdf3465357ac3b0268251bc08e358142d619ea",
+          "backend": "sqlite",
+          "reducer": "reducers.external_sales_30d",
+          "rows": 2,
+          "fields": [
+            "at",
+            "ownWallet"
+          ],
+          "sources": [
+            "receipts"
+          ],
+          "log_seq": 57
+        },
+        "coverage": null,
+        "caveats": [
+          "self_reported_receipts",
+          "basis_mismatch"
+        ],
+        "caveat_memory_ids": {
+          "self_reported_receipts": "mem-seed-003",
+          "basis_mismatch": "mem-seed-007"
+        },
+        "conflict_ids": [
+          "k02"
+        ],
+        "confidence": 0.9,
+        "status": "accepted",
+        "cross_checked": true,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      },
+      {
+        "id": "c14",
+        "metric": "bazaar_listings_for_host",
+        "subject": "seller:host:tienda.textokit.store",
+        "statement": "The CDP Bazaar search returns 17 listings for tienda.textokit.store.",
+        "value": 17,
+        "unit": "count",
+        "period": "all_time",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?urlSubstring=tienda.textokit.store&limit=20",
+            "sha256": "da993b56bae87f758e2bbcbc4780609d1385f6b71a1afaaeee23122a7213002b",
+            "captured_at": "2026-10-22T00:05:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/cdp-discovery-search-urlSubstring-tienda.json"
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex01-seller-audit#50",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex01-seller-audit#71",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": "q06_bazaar_host_listings",
+          "sql_sha256": "db6f09d947dbc3619936f1df6808125f6edb184ad20eac06fe5ad5d41556df40",
+          "backend": "sqlite",
+          "reducer": "reducers.bazaar_listings_for_host",
+          "rows": 1,
+          "fields": [
+            "resource",
+            "payTo"
+          ],
+          "sources": [
+            "cdp_search"
+          ],
+          "log_seq": 50
+        },
+        "coverage": {
+          "items_seen": 17,
+          "total_reported": null,
+          "share": null,
+          "basis": "search capped at 20"
+        },
+        "caveats": [
+          "search_limit_20"
+        ],
+        "caveat_memory_ids": {
+          "search_limit_20": "mem-seed-002"
+        },
+        "conflict_ids": [
+          "k01"
+        ],
+        "confidence": 0.9,
+        "status": "accepted",
+        "cross_checked": true,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      },
+      {
+        "id": "c15",
+        "metric": "bazaar_payto_for_host",
+        "subject": "seller:host:tienda.textokit.store",
+        "statement": "Those listings pay to 1 distinct wallet(s).",
+        "value": 1,
+        "unit": "count",
+        "period": "all_time",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?urlSubstring=tienda.textokit.store&limit=20",
+            "sha256": "da993b56bae87f758e2bbcbc4780609d1385f6b71a1afaaeee23122a7213002b",
+            "captured_at": "2026-10-22T00:05:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/cdp-discovery-search-urlSubstring-tienda.json"
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex01-seller-audit#50",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex01-seller-audit#72",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": "q06_bazaar_host_listings",
+          "sql_sha256": "db6f09d947dbc3619936f1df6808125f6edb184ad20eac06fe5ad5d41556df40",
+          "backend": "sqlite",
+          "reducer": "reducers.bazaar_payto_for_host",
+          "rows": 1,
+          "fields": [
+            "payTo"
+          ],
+          "sources": [
+            "cdp_search"
+          ],
+          "log_seq": 50
+        },
+        "coverage": {
+          "items_seen": 17,
+          "total_reported": null,
+          "share": null,
+          "basis": "search capped at 20"
+        },
+        "caveats": [
+          "search_limit_20"
+        ],
+        "caveat_memory_ids": {
+          "search_limit_20": "mem-seed-002"
+        },
+        "conflict_ids": [],
+        "confidence": 0.9,
+        "status": "accepted",
+        "cross_checked": true,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      },
+      {
+        "id": "c16",
+        "metric": "bazaar_calls_30d_for_host",
+        "subject": "seller:host:tienda.textokit.store",
+        "statement": "Bazaar 30-day call counters summed over the listings of tienda.textokit.store: 60.",
+        "value": 60,
+        "unit": "count",
+        "period": "2026-09-22..2026-10-22",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?urlSubstring=tienda.textokit.store&limit=20",
+            "sha256": "da993b56bae87f758e2bbcbc4780609d1385f6b71a1afaaeee23122a7213002b",
+            "captured_at": "2026-10-22T00:05:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/cdp-discovery-search-urlSubstring-tienda.json"
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex01-seller-audit#50",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex01-seller-audit#73",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": "q06_bazaar_host_listings",
+          "sql_sha256": "db6f09d947dbc3619936f1df6808125f6edb184ad20eac06fe5ad5d41556df40",
+          "backend": "sqlite",
+          "reducer": "reducers.bazaar_calls_30d_for_host",
+          "rows": 1,
+          "fields": [
+            "l30DaysTotalCalls"
+          ],
+          "sources": [
+            "cdp_search"
+          ],
+          "log_seq": 50
+        },
+        "coverage": {
+          "items_seen": 17,
+          "total_reported": null,
+          "share": null,
+          "basis": "search capped at 20"
+        },
+        "caveats": [
+          "search_limit_20",
+          "basis_mismatch"
+        ],
+        "caveat_memory_ids": {
+          "search_limit_20": "mem-seed-002",
+          "basis_mismatch": "mem-seed-007"
+        },
+        "conflict_ids": [
+          "k02"
+        ],
+        "confidence": 0.9,
+        "status": "accepted",
+        "cross_checked": true,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      },
+      {
+        "id": "c17",
+        "metric": "bazaar_payto_matches_seller",
+        "subject": "seller:host:tienda.textokit.store",
+        "statement": "17 Bazaar listings pay to the wallet the receipts name as seller.",
+        "value": 17,
+        "unit": "count",
+        "period": "all_time",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://tienda.textokit.store/receipts.json",
+            "sha256": "e179af8c286417ecfeb637e8dced806792030422513ff74b97ee84e88b138985",
+            "captured_at": "2026-10-22T00:05:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/store-receipts.json"
+          },
+          {
+            "kind": "url",
+            "ref": "https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?urlSubstring=tienda.textokit.store&limit=20",
+            "sha256": "da993b56bae87f758e2bbcbc4780609d1385f6b71a1afaaeee23122a7213002b",
+            "captured_at": "2026-10-22T00:05:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/cdp-discovery-search-urlSubstring-tienda.json"
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex01-seller-audit#51",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex01-seller-audit#74",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": "q07_bazaar_payto_vs_receipts_seller",
+          "sql_sha256": "793f72e8150563a571216e4caa4c5ee66adb356fdca8f8581c24ac0e5494c510",
+          "backend": "sqlite",
+          "reducer": "reducers.bazaar_payto_matches_seller",
+          "rows": 17,
+          "fields": [
+            "payTo",
+            "seller"
+          ],
+          "sources": [
+            "cdp_search",
+            "receipts"
+          ],
+          "log_seq": 51
+        },
+        "coverage": null,
+        "caveats": [
+          "search_limit_20",
+          "self_reported_receipts"
+        ],
+        "caveat_memory_ids": {
+          "search_limit_20": "mem-seed-002",
+          "self_reported_receipts": "mem-seed-003"
+        },
+        "conflict_ids": [],
+        "confidence": 0.9,
+        "status": "accepted",
+        "cross_checked": true,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      },
+      {
+        "id": "c18",
+        "metric": "endpoint_count_for_host",
+        "subject": "seller:host:tienda.textokit.store",
+        "statement": "Registries disagree on the endpoint count for tienda.textokit.store: cdp_search=17, store_openapi=17, agent402_paid=17, agent402_tools=34, vet402=19, x402_trust_search=36.",
+        "value": {
+          "cdp_search": 17,
+          "store_openapi": 17,
+          "agent402_paid": 17,
+          "agent402_tools": 34,
+          "vet402": 19,
+          "x402_trust_search": 36
+        },
+        "unit": "text",
+        "period": "all_time",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://tienda.textokit.store/openapi.json",
+            "sha256": "3cc61746315ead507b72edc81f4ba3cf807eab447f28cf201bf74b6e7935617f",
+            "captured_at": "2026-10-22T00:05:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/store-openapi.json"
+          },
+          {
+            "kind": "url",
+            "ref": "https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?urlSubstring=tienda.textokit.store&limit=20",
+            "sha256": "da993b56bae87f758e2bbcbc4780609d1385f6b71a1afaaeee23122a7213002b",
+            "captured_at": "2026-10-22T00:05:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/cdp-discovery-search-urlSubstring-tienda.json"
+          },
+          {
+            "kind": "url",
+            "ref": "https://agent402.tools/api/index?seller=tienda.textokit.store",
+            "sha256": "e8a04c9322f43feb1ec7f9a566675f7d226e6812e09b5c64182ab7f671cb87d7",
+            "captured_at": "2026-10-22T00:05:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/agent402-index-seller-tienda.json"
+          },
+          {
+            "kind": "url",
+            "ref": "https://agent402.tools/api/route?q=x402%20adoption&include=external",
+            "sha256": "7bdec79ccccc0d8e17be2822edda007989e211936359dcf56db55769e7a48a72",
+            "captured_at": "2026-10-22T00:05:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/agent402-route-x402-adoption.json"
+          },
+          {
+            "kind": "url",
+            "ref": "https://vet402.com/api/v1/resolve?q=tienda.textokit.store",
+            "sha256": "53d8e517e95e97c54e04629798b2997b10b4859ad2929ea8bebad340e9da54db",
+            "captured_at": "2026-10-22T00:05:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/vet402-resolve-tienda.json"
+          },
+          {
+            "kind": "url",
+            "ref": "https://x402-trust.com/trust/search?q=tienda.textokit.store&limit=25&offset=0",
+            "sha256": "d0afd0ef43c9b2c9786ecc1df6ebef8665681ef179a998a6bd289db03d78bdf2",
+            "captured_at": "2026-10-22T00:05:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/x402-trust-search-tienda.json"
+          },
+          {
+            "kind": "url",
+            "ref": "https://x402-trust.com/trust/stats",
+            "sha256": "26ee64acb78ab5e07b53ab9bf4fd4dd95128844c90268f317f8621b5f775fa37",
+            "captured_at": "2026-10-22T00:05:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/x402-trust-stats.json"
+          },
+          {
+            "kind": "url",
+            "ref": "https://x402-trust.com/verified.json?limit=25&offset=0",
+            "sha256": "c52eacf293747de364aa00bc59812a5ce23b51eedfd159974a232792c02a3719",
+            "captured_at": "2026-10-22T00:05:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/x402-trust-verified-p0.json"
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex01-seller-audit#52",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex01-seller-audit#75",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": "q12_registry_count_openapi",
+          "sql_sha256": "c9c6c473767bb9537e08761e2f163008728d3bf2c3f10cf0f1ab0771c397331f",
+          "backend": "sqlite",
+          "reducer": "reducers.endpoint_count_for_host",
+          "rows": 1,
+          "fields": [
+            "paths",
+            "paidToolCount",
+            "endpoints",
+            "total"
+          ],
+          "sources": [
+            "store_openapi",
+            "cdp_search",
+            "agent402",
+            "vet402",
+            "x402_trust"
+          ],
+          "log_seq": 52
+        },
+        "coverage": null,
+        "caveats": [
+          "search_limit_20",
+          "third_party_aggregate"
+        ],
+        "caveat_memory_ids": {
+          "search_limit_20": "mem-seed-002",
+          "third_party_aggregate": "mem-seed-004"
+        },
+        "conflict_ids": [
+          "k01"
+        ],
+        "confidence": 0.9,
+        "status": "accepted",
+        "cross_checked": true,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      },
+      {
+        "id": "c19",
+        "metric": "settlements_verified",
+        "subject": "seller:host:tienda.textokit.store",
+        "statement": "1 sampled settlement(s) verified on Base against the receipts.",
+        "value": 1,
+        "unit": "count",
+        "period": "all_time",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://tienda.textokit.store/receipts.json",
+            "sha256": "e179af8c286417ecfeb637e8dced806792030422513ff74b97ee84e88b138985",
+            "captured_at": "2026-10-22T00:05:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/store-receipts.json"
+          },
+          {
+            "kind": "url",
+            "ref": "https://mainnet.base.org",
+            "sha256": "c756d78d11b3cdb43099164f6dee151001ab7be4a472e180df47c0b2c51b41f3",
+            "captured_at": "2026-10-22T00:05:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/base-rpc-batch-blockNumber-chainId.json"
+          },
+          {
+            "kind": "tx",
+            "ref": "https://basescan.org/tx/0x62c01526c5beb13cad96634ec80e837e576df496905f1bac8019c6ffa3e358c3",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": true,
+            "stale": false,
+            "http": null,
+            "verified": true,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex01-seller-audit#56",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://ex01-seller-audit#76",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": "q16_settlements_vs_receipts",
+          "sql_sha256": "82a4f8cbe2abce1bb339803cda230200231eeae43845ed91fc3c6e2261ef3815",
+          "backend": "sqlite",
+          "reducer": "reducers.settlements_verified",
+          "rows": 1,
+          "fields": [
+            "transaction",
+            "payer",
+            "amountAtomic"
+          ],
+          "sources": [
+            "receipts",
+            "base_rpc"
+          ],
+          "log_seq": 56
+        },
+        "coverage": null,
+        "caveats": [
+          "payer_from_transfer_log",
+          "self_reported_receipts"
+        ],
+        "caveat_memory_ids": {
+          "payer_from_transfer_log": "mem-seed-005",
+          "self_reported_receipts": "mem-seed-003"
+        },
+        "conflict_ids": [],
+        "confidence": 0.9,
+        "status": "accepted",
+        "cross_checked": true,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      }
+    ],
+    "rejected_claims": [],
+    "conflicts": [
+      {
+        "id": "k01",
+        "predicate": "endpoint_count_for_host",
+        "subject": "seller:host:tienda.textokit.store",
+        "values": [
+          {
+            "source": "cdp_search",
+            "value": 17,
+            "url": "https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?urlSubstring=tienda.textokit.store&limit=20",
+            "basis": "CDP Bazaar discovery search, one row per listed resource, capped at twenty results",
+            "captured_at": "2026-10-22T00:05:00Z"
+          },
+          {
+            "source": "store_openapi",
+            "value": 17,
+            "url": "https://tienda.textokit.store/openapi.json",
+            "basis": "paid operations declared by the store's own openapi.json (x-payment-info)",
+            "captured_at": "2026-10-22T00:05:00Z"
+          },
+          {
+            "source": "agent402",
+            "value": {
+              "paidToolCount": 17,
+              "toolCount": 34
+            },
+            "url": "https://agent402.tools/api/index?seller=tienda.textokit.store",
+            "basis": "tools crawled by Agent402 from the store manifest; paidToolCount is the comparable figure",
+            "captured_at": "2026-10-22T00:05:00Z"
+          },
+          {
+            "source": "vet402",
+            "value": 19,
+            "url": "https://vet402.com/api/v1/resolve?q=tienda.textokit.store",
+            "basis": "endpoints vet402 has observed for the host with catalog_status listed",
+            "captured_at": "2026-10-22T00:05:00Z"
+          },
+          {
+            "source": "x402_trust",
+            "value": 36,
+            "url": "https://x402-trust.com/trust/search?q=tienda.textokit.store&limit=25&offset=0",
+            "basis": "matches reported by the x402-trust keyword search across its own index (listed and delisted)",
+            "captured_at": "2026-10-22T00:05:00Z"
+          }
+        ],
+        "explanation": "Bazaar search is capped at twenty results and lists one row per resource; the store openapi declares paid operations; Agent402 counts tools including free ones (paidToolCount is the comparable figure); vet402 counts every endpoint it has observed for the host with catalog_status listed, which can include routes the store no longer declares; x402-trust search counts matches across its own index. In this capture vet402 lists /api/maintenance-helper and /api/preparar-solicitud, which the store openapi does not declare as paid operations; that accounts for the whole difference between the vet402 and openapi counts.",
+        "status": "explained",
+        "claim_ids": [
+          "c14",
+          "c18"
+        ]
+      },
+      {
+        "id": "k02",
+        "predicate": "calls_30d_for_host",
+        "subject": "seller:host:tienda.textokit.store",
+        "values": [
+          {
+            "source": "cdp_search",
+            "value": 60,
+            "url": "https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?urlSubstring=tienda.textokit.store&limit=20",
+            "basis": "l30DaysTotalCalls summed over the host's Bazaar listings (per-endpoint 30-day counters, search capped at twenty)",
+            "captured_at": "2026-10-22T00:05:00Z"
+          },
+          {
+            "source": "receipts",
+            "value": 77,
+            "url": "https://tienda.textokit.store/receipts.json",
+            "basis": "all receipts rows settled since 2026-09-22 (own-wallet rows included)",
+            "captured_at": "2026-10-22T00:05:00Z"
+          },
+          {
+            "source": "receipts",
+            "value": 21,
+            "url": "https://tienda.textokit.store/receipts.json",
+            "basis": "external receipts rows settled since 2026-09-22",
+            "captured_at": "2026-10-22T00:05:00Z"
+          }
+        ],
+        "explanation": "Bazaar l30DaysTotalCalls is a per-endpoint 30-day counter maintained by the facilitator and includes the seller's own calls; receipts are the seller's own settlement log. Different windows and bases: compare only with the basis stated.",
+        "status": "explained",
+        "claim_ids": [
+          "c16",
+          "c13"
+        ]
+      }
+    ],
+    "unavailable": [],
+    "sources": [
+      {
+        "name": "store_receipts",
+        "family": "receipts",
+        "url": "https://tienda.textokit.store/receipts.json",
+        "status": "ok",
+        "http": 200,
+        "sha256": "e179af8c286417ecfeb637e8dced806792030422513ff74b97ee84e88b138985",
+        "captured_at": "2026-10-22T00:05:00Z",
+        "replayed": true,
+        "stale": false,
+        "error": null,
+        "fixture_file": "fixtures/raw/store-receipts.json",
+        "request_key": "GET https://tienda.textokit.store/receipts.json"
+      },
+      {
+        "name": "store_openapi",
+        "family": "store_openapi",
+        "url": "https://tienda.textokit.store/openapi.json",
+        "status": "ok",
+        "http": 200,
+        "sha256": "3cc61746315ead507b72edc81f4ba3cf807eab447f28cf201bf74b6e7935617f",
+        "captured_at": "2026-10-22T00:05:00Z",
+        "replayed": true,
+        "stale": false,
+        "error": null,
+        "fixture_file": "fixtures/raw/store-openapi.json",
+        "request_key": "GET https://tienda.textokit.store/openapi.json"
+      },
+      {
+        "name": "cdp_search_host",
+        "family": "cdp_search",
+        "url": "https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?urlSubstring=tienda.textokit.store&limit=20",
+        "status": "ok",
+        "http": 200,
+        "sha256": "da993b56bae87f758e2bbcbc4780609d1385f6b71a1afaaeee23122a7213002b",
+        "captured_at": "2026-10-22T00:05:00Z",
+        "replayed": true,
+        "stale": false,
+        "error": null,
+        "fixture_file": "fixtures/raw/cdp-discovery-search-urlSubstring-tienda.json",
+        "request_key": "GET https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?limit=20&urlSubstring=tienda.textokit.store"
+      },
+      {
+        "name": "agent402_index",
+        "family": "agent402",
+        "url": "https://agent402.tools/api/index?seller=tienda.textokit.store",
+        "status": "ok",
+        "http": 200,
+        "sha256": "e8a04c9322f43feb1ec7f9a566675f7d226e6812e09b5c64182ab7f671cb87d7",
+        "captured_at": "2026-10-22T00:05:00Z",
+        "replayed": true,
+        "stale": false,
+        "error": null,
+        "fixture_file": "fixtures/raw/agent402-index-seller-tienda.json",
+        "request_key": "GET https://agent402.tools/api/index?seller=tienda.textokit.store"
+      },
+      {
+        "name": "agent402_route",
+        "family": "agent402",
+        "url": "https://agent402.tools/api/route?q=x402%20adoption&include=external",
+        "status": "ok",
+        "http": 200,
+        "sha256": "7bdec79ccccc0d8e17be2822edda007989e211936359dcf56db55769e7a48a72",
+        "captured_at": "2026-10-22T00:05:00Z",
+        "replayed": true,
+        "stale": false,
+        "error": null,
+        "fixture_file": "fixtures/raw/agent402-route-x402-adoption.json",
+        "request_key": "GET https://agent402.tools/api/route?include=external&q=x402+adoption"
+      },
+      {
+        "name": "vet402_resolve",
+        "family": "vet402",
+        "url": "https://vet402.com/api/v1/resolve?q=tienda.textokit.store",
+        "status": "ok",
+        "http": 200,
+        "sha256": "53d8e517e95e97c54e04629798b2997b10b4859ad2929ea8bebad340e9da54db",
+        "captured_at": "2026-10-22T00:05:00Z",
+        "replayed": true,
+        "stale": false,
+        "error": null,
+        "fixture_file": "fixtures/raw/vet402-resolve-tienda.json",
+        "request_key": "GET https://vet402.com/api/v1/resolve?q=tienda.textokit.store"
+      },
+      {
+        "name": "trust_search",
+        "family": "x402_trust",
+        "url": "https://x402-trust.com/trust/search?q=tienda.textokit.store&limit=25&offset=0",
+        "status": "ok",
+        "http": 200,
+        "sha256": "d0afd0ef43c9b2c9786ecc1df6ebef8665681ef179a998a6bd289db03d78bdf2",
+        "captured_at": "2026-10-22T00:05:00Z",
+        "replayed": true,
+        "stale": false,
+        "error": null,
+        "fixture_file": "fixtures/raw/x402-trust-search-tienda.json",
+        "request_key": "GET https://x402-trust.com/trust/search?limit=25&offset=0&q=tienda.textokit.store"
+      },
+      {
+        "name": "trust_stats",
+        "family": "x402_trust",
+        "url": "https://x402-trust.com/trust/stats",
+        "status": "ok",
+        "http": 200,
+        "sha256": "26ee64acb78ab5e07b53ab9bf4fd4dd95128844c90268f317f8621b5f775fa37",
+        "captured_at": "2026-10-22T00:05:00Z",
+        "replayed": true,
+        "stale": false,
+        "error": null,
+        "fixture_file": "fixtures/raw/x402-trust-stats.json",
+        "request_key": "GET https://x402-trust.com/trust/stats"
+      },
+      {
+        "name": "trust_verified",
+        "family": "x402_trust",
+        "url": "https://x402-trust.com/verified.json?limit=25&offset=0",
+        "status": "ok",
+        "http": 200,
+        "sha256": "c52eacf293747de364aa00bc59812a5ce23b51eedfd159974a232792c02a3719",
+        "captured_at": "2026-10-22T00:05:00Z",
+        "replayed": true,
+        "stale": false,
+        "error": null,
+        "fixture_file": "fixtures/raw/x402-trust-verified-p0.json",
+        "request_key": "GET https://x402-trust.com/verified.json?limit=25&offset=0"
+      },
+      {
+        "name": "rpc_chain_id",
+        "family": "base_rpc",
+        "url": "https://mainnet.base.org",
+        "status": "ok",
+        "http": 200,
+        "sha256": "c756d78d11b3cdb43099164f6dee151001ab7be4a472e180df47c0b2c51b41f3",
+        "captured_at": "2026-10-22T00:05:00Z",
+        "replayed": true,
+        "stale": false,
+        "error": null,
+        "fixture_file": "fixtures/raw/base-rpc-batch-blockNumber-chainId.json",
+        "request_key": "RPC eth_chainId 4f53cda18c2baa0c"
+      },
+      {
+        "name": "rpc_receipt_0x58ddb2e77e574ddda75fd74df6f3dbf94e2795e22c36f8a01a506c544ff4ada3",
+        "family": "base_rpc",
+        "url": "https://mainnet.base.org",
+        "status": "fixture_miss",
+        "http": null,
+        "sha256": null,
+        "captured_at": "2026-10-22T00:05:00.045Z",
+        "replayed": true,
+        "stale": false,
+        "error": "no fixture for this request key",
+        "fixture_file": null,
+        "request_key": "RPC eth_getTransactionReceipt 4abbe9fcb6a985ee"
+      },
+      {
+        "name": "rpc_receipt_0x3ca4f2791f4f851a574f4abd7cb949e1b05fb00dadeb77b83fb3d0e36a608fb2",
+        "family": "base_rpc",
+        "url": "https://mainnet.base.org",
+        "status": "fixture_miss",
+        "http": null,
+        "sha256": null,
+        "captured_at": "2026-10-22T00:05:00.050Z",
+        "replayed": true,
+        "stale": false,
+        "error": "no fixture for this request key",
+        "fixture_file": null,
+        "request_key": "RPC eth_getTransactionReceipt 02dd57d3607fdcef"
+      },
+      {
+        "name": "rpc_receipt_0x068b1930266c6235ee31cbfa87690b8ef14c519bba4f1dafd0b36872b836fe95",
+        "family": "base_rpc",
+        "url": "https://mainnet.base.org",
+        "status": "fixture_miss",
+        "http": null,
+        "sha256": null,
+        "captured_at": "2026-10-22T00:05:00.055Z",
+        "replayed": true,
+        "stale": false,
+        "error": "no fixture for this request key",
+        "fixture_file": null,
+        "request_key": "RPC eth_getTransactionReceipt c92835315f095781"
+      },
+      {
+        "name": "rpc_receipt_0x62c01526c5beb13cad96634ec80e837e576df496905f1bac8019c6ffa3e358c3",
+        "family": "base_rpc",
+        "url": "https://mainnet.base.org",
+        "status": "ok",
+        "http": 200,
+        "sha256": "f7d915c990742d978d599a83c54530e59c88b2747bdfae9a9072482a363b080e",
+        "captured_at": "2026-10-22T00:05:00Z",
+        "replayed": true,
+        "stale": false,
+        "error": null,
+        "fixture_file": "fixtures/raw/base-rpc-eth_getTransactionReceipt.json",
+        "request_key": "RPC eth_getTransactionReceipt 54fa30d4aadcf1af"
+      },
+      {
+        "name": "rpc_tx_0x62c01526c5beb13cad96634ec80e837e576df496905f1bac8019c6ffa3e358c3",
+        "family": "base_rpc",
+        "url": "https://mainnet.base.org",
+        "status": "ok",
+        "http": 200,
+        "sha256": "505491d34af383d44ba1e0b2c6b3a152893c31a8df1fb6b11989fadff7cd6ca5",
+        "captured_at": "2026-10-22T00:05:00Z",
+        "replayed": true,
+        "stale": false,
+        "error": null,
+        "fixture_file": "fixtures/raw/base-rpc-eth_getTransactionByHash.json",
+        "request_key": "RPC eth_getTransactionByHash 54fa30d4aadcf1af"
+      },
+      {
+        "name": "rpc_balance_0xec2abd3eda89bed90124736e317e847d5fb6d034",
+        "family": "base_rpc",
+        "url": "https://mainnet.base.org",
+        "status": "fixture_miss",
+        "http": null,
+        "sha256": null,
+        "captured_at": "2026-10-22T00:05:00.064Z",
+        "replayed": true,
+        "stale": false,
+        "error": "no fixture for this request key",
+        "fixture_file": null,
+        "request_key": "RPC eth_call 11093d1922b2dcf3"
+      },
+      {
+        "name": "rpc_nonce_0xec2abd3eda89bed90124736e317e847d5fb6d034",
+        "family": "base_rpc",
+        "url": "https://mainnet.base.org",
+        "status": "fixture_miss",
+        "http": null,
+        "sha256": null,
+        "captured_at": "2026-10-22T00:05:00.067Z",
+        "replayed": true,
+        "stale": false,
+        "error": "no fixture for this request key",
+        "fixture_file": null,
+        "request_key": "RPC eth_getTransactionCount 7b456f77c86a1bd0"
+      }
+    ],
+    "verifications": [
+      {
+        "tx": "0x58ddb2e77e574ddda75fd74df6f3dbf94e2795e22c36f8a01a506c544ff4ada3",
+        "status": "unverifiable",
+        "payer": null,
+        "seller": null,
+        "amount_atomic": null,
+        "block": null,
+        "block_time": null,
+        "facilitator_from": null,
+        "basescan_url": "https://basescan.org/tx/0x58ddb2e77e574ddda75fd74df6f3dbf94e2795e22c36f8a01a506c544ff4ada3",
+        "decoded_from": "none",
+        "receipt_match": null,
+        "reason": "fixture_miss"
+      },
+      {
+        "tx": "0x3ca4f2791f4f851a574f4abd7cb949e1b05fb00dadeb77b83fb3d0e36a608fb2",
+        "status": "unverifiable",
+        "payer": null,
+        "seller": null,
+        "amount_atomic": null,
+        "block": null,
+        "block_time": null,
+        "facilitator_from": null,
+        "basescan_url": "https://basescan.org/tx/0x3ca4f2791f4f851a574f4abd7cb949e1b05fb00dadeb77b83fb3d0e36a608fb2",
+        "decoded_from": "none",
+        "receipt_match": null,
+        "reason": "fixture_miss"
+      },
+      {
+        "tx": "0x068b1930266c6235ee31cbfa87690b8ef14c519bba4f1dafd0b36872b836fe95",
+        "status": "unverifiable",
+        "payer": null,
+        "seller": null,
+        "amount_atomic": null,
+        "block": null,
+        "block_time": null,
+        "facilitator_from": null,
+        "basescan_url": "https://basescan.org/tx/0x068b1930266c6235ee31cbfa87690b8ef14c519bba4f1dafd0b36872b836fe95",
+        "decoded_from": "none",
+        "receipt_match": null,
+        "reason": "fixture_miss"
+      },
+      {
+        "tx": "0x62c01526c5beb13cad96634ec80e837e576df496905f1bac8019c6ffa3e358c3",
+        "status": "verified",
+        "payer": "0x097e3f339d0b023605e12a6b81e2d6cb7571475a",
+        "seller": "0x6b5af9924f4cd35643c11a9fd1c983f77261a6e1",
+        "amount_atomic": 1000,
+        "block": 52841269,
+        "block_time": "2026-10-20T04:51:25.000Z",
+        "facilitator_from": "0x8f5cb67b49555e614892b7233cfddebfb746e531",
+        "basescan_url": "https://basescan.org/tx/0x62c01526c5beb13cad96634ec80e837e576df496905f1bac8019c6ffa3e358c3",
+        "decoded_from": "Transfer log",
+        "receipt_match": true,
+        "reason": null
+      }
+    ],
+    "world": {
+      "first_pass": {
+        "runId": "run_bce5c176f222",
+        "processed": 9,
+        "skippedUnchanged": 0,
+        "eventsAppended": 917,
+        "changed": true
+      },
+      "second_pass": {
+        "runId": "run_bce5c176f222",
+        "processed": 0,
+        "skippedUnchanged": 9,
+        "eventsAppended": 0,
+        "changed": false
+      },
+      "quarantined": 0,
+      "claims_asserted": 19,
+      "counts": {
+        "entities": 88,
+        "contexts": 8,
+        "relationships": 288,
+        "facts": 288
+      }
+    },
+    "memory": {
+      "retrieved": [
+        {
+          "memory_id": "mem-seed-003",
+          "actor": "critic",
+          "score": 0.4607
+        },
+        {
+          "memory_id": "mem-seed-003",
+          "actor": "critic",
+          "score": 0.3502
+        },
+        {
+          "memory_id": "mem-seed-003",
+          "actor": "critic",
+          "score": 0.3616
+        },
+        {
+          "memory_id": "mem-seed-003",
+          "actor": "critic",
+          "score": 0.4902
+        },
+        {
+          "memory_id": "mem-seed-004",
+          "actor": "critic",
+          "score": 0.3577
+        },
+        {
+          "memory_id": "mem-seed-003",
+          "actor": "critic",
+          "score": 0.3868
+        },
+        {
+          "memory_id": "mem-seed-005",
+          "actor": "critic",
+          "score": 0.3533
+        }
+      ],
+      "cited": [
+        "mem-seed-002",
+        "mem-seed-003",
+        "mem-seed-004",
+        "mem-seed-005",
+        "mem-seed-007"
+      ],
+      "feedback": [
+        {
+          "memory_id": "mem-seed-002",
+          "kind": "helpful",
+          "reason": "caveat search_limit_20 required and attached to c14"
+        },
+        {
+          "memory_id": "mem-seed-003",
+          "kind": "helpful",
+          "reason": "caveat self_reported_receipts required and attached to c01"
+        },
+        {
+          "memory_id": "mem-seed-004",
+          "kind": "helpful",
+          "reason": "caveat third_party_aggregate required and attached to c18"
+        },
+        {
+          "memory_id": "mem-seed-005",
+          "kind": "helpful",
+          "reason": "caveat payer_from_transfer_log required and attached to c19"
+        },
+        {
+          "memory_id": "mem-seed-007",
+          "kind": "helpful",
+          "reason": "caveat basis_mismatch required and attached to c13"
+        }
+      ],
+      "mined": 10
+    },
+    "agents": [
+      {
+        "role": "planner",
+        "generator_backed": true,
+        "generator_used": "recorded",
+        "attempts": 1,
+        "status": "ok",
+        "notes": [
+          "generator proposed payer_dossier; router keeps seller_profile"
+        ],
+        "generator_calls": [
+          {
+            "prompt_id": "planner",
+            "provider": "meterless",
+            "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "route": "Nemotron 3.5 Lightning 30B A3B",
+            "route_kind": "cloud",
+            "receipt_id": "rcpt_req_v4ul6h0r",
+            "recorded": true,
+            "log_seq": 5
+          }
+        ]
+      },
+      {
+        "role": "collector",
+        "generator_backed": false,
+        "generator_used": null,
+        "attempts": 1,
+        "status": "ok",
+        "notes": [
+          "9 ok, 0 stale fixture fallback(s), 0 fixture miss(es), 0 unavailable, 1 deferred to the verifier",
+          "deferred: base_rpc_batch"
+        ]
+      },
+      {
+        "role": "keeper",
+        "generator_backed": false,
+        "generator_used": null,
+        "attempts": 3,
+        "status": "ok",
+        "notes": [
+          "chain facts asserted: 1",
+          "claims asserted as agent facts: 19",
+          "ingested 9 observations, 917 events appended",
+          "second pass: {'runId': 'run_bce5c176f222', 'processed': 0, 'skippedUnchanged': 9, 'eventsAppended': 0, 'changed': False}"
+        ]
+      },
+      {
+        "role": "verifier",
+        "generator_backed": false,
+        "generator_used": null,
+        "attempts": 1,
+        "status": "ok",
+        "notes": [
+          "4 tx sampled (most recent external sale per distinct payer, newest first, capped at max_tx_verifications): 1 verified, 0 failed, 3 unverifiable (fixture_miss x3); chain facts: 1; cross-checks: 6; settlements export: yes",
+          "tx_count for 0xec2abd3eda89bed90124736e317e847d5fb6d034 not available: fixture_miss",
+          "usdc_balance_atomic for 0xec2abd3eda89bed90124736e317e847d5fb6d034 not available: fixture_miss"
+        ]
+      },
+      {
+        "role": "analyst",
+        "generator_backed": false,
+        "generator_used": null,
+        "attempts": 1,
+        "status": "ok",
+        "notes": [
+          "views without export: bazaar_resources, catalog_resources, chain_facts"
+        ]
+      },
+      {
+        "role": "writer",
+        "generator_backed": true,
+        "generator_used": "recorded",
+        "attempts": 2,
+        "status": "ok",
+        "notes": [],
+        "generator_calls": [
+          {
+            "prompt_id": "writer-r1",
+            "provider": "meterless",
+            "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "route": "Nemotron 3.5 Lightning 30B A3B",
+            "route_kind": "cloud",
+            "receipt_id": "rcpt_req_pnlk311c",
+            "recorded": true,
+            "log_seq": 81
+          },
+          {
+            "prompt_id": "writer-r2",
+            "provider": "meterless",
+            "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "route": "Nemotron 3.5 Lightning 30B A3B",
+            "route_kind": "cloud",
+            "receipt_id": "rcpt_req_ozwpcw2g",
+            "recorded": true,
+            "log_seq": 125
+          }
+        ]
+      },
+      {
+        "role": "critic",
+        "generator_backed": true,
+        "generator_used": "recorded",
+        "attempts": 2,
+        "status": "ok",
+        "notes": [],
+        "generator_calls": [
+          {
+            "prompt_id": "critic-r1",
+            "provider": "meterless",
+            "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "route": "Nemotron 3.5 Lightning 30B A3B",
+            "route_kind": "cloud",
+            "receipt_id": "rcpt_req_3p2c0xdo",
+            "recorded": true,
+            "log_seq": 118
+          },
+          {
+            "prompt_id": "critic-r2",
+            "provider": "meterless",
+            "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "route": "Nemotron 3.5 Lightning 30B A3B",
+            "route_kind": "cloud",
+            "receipt_id": "rcpt_req_qj2nyflb",
+            "recorded": true,
+            "log_seq": 157
+          }
+        ]
+      }
+    ],
+    "critique_rounds": 2,
+    "report_path": "logs/ex01-seller-audit/report.md",
+    "log_files": [
+      "fetch.jsonl",
+      "generator.jsonl",
+      "hmem.trace.jsonl",
+      "run.jsonl",
+      "sql.jsonl",
+      "world.audit.jsonl",
+      "world.events.jsonl",
+      "world.observations.jsonl"
+    ]
+  }
+}

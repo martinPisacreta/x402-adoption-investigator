@@ -1,0 +1,31 @@
+# Machine facts captured on 2026-10-24T16:32:31Z right after the live runs (commands and their output; the user-profile prefix of paths is shown as <LOCALAPPDATA>, other edits noted)
+
+$ nvidia-smi --query-gpu=name,driver_version,memory.total --format=csv
+name, driver_version, memory.total [MiB]
+NVIDIA GeForce RTX 5080 Laptop GPU, 617.42, 16303 MiB
+
+$ nvidia-smi --query-compute-apps=process_name --format=csv   (only the Nightshift line kept; the other GPU client listed was a code editor)
+process_name
+<LOCALAPPDATA>\Nightshift\llama\llama-server.exe
+
+$ ls <LOCALAPPDATA>/Nightshift/llama   (CUDA backend files of the llama-server Nightshift runs; filtered to ggml-cuda/cudart/cublas)
+cublas64_12.dll
+cublasLt64_12.dll
+cudart64_12.dll
+ggml-cuda.dll
+
+$ ns status   (official Nightshift CLI; fields kept: version, version_source, engine_reachable)
+{"engine_reachable": true, "version": "1.2.3", "version_source": "GET /admin/status (control socket)"}
+
+$ (Get-Process -Name llama-server).Modules | ? ModuleName -match 'cuda|cublas|vulkan|ggml'   (GPU backends the running llama-server has loaded: CUDA and also Vulkan)
+ggml.dll
+ggml-base.dll
+ggml-cuda.dll
+cudart64_12.dll
+nvcuda.dll
+cublas64_12.dll
+cublasLt64_12.dll
+nvcuda64.dll
+ggml-vulkan.dll
+vulkan-1.dll
+ggml-cpu-alderlake.dll

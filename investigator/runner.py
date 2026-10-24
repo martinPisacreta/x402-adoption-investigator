@@ -7,7 +7,9 @@
 The runner never retries the whole run and never swallows an exception into `partial`: an uncaught exception is
 E_INTERNAL naming the stage and the last log seq, after flushing the logs. In sample mode the first run.jsonl
 line is the `guard` event (network disabled). Exactly three mount points differ between modes (fetcher,
-executor, generator) and they are the first key of output.json (`mounts`). The Meterless engines (H-MEM, World
+executor, generator) and they are the first key of output.json (`mounts`). In live mode the generator is Meterless
+Nightshift when its runtime is online, else the OpenAI-compatible fallback, else rules and templates; a live run
+that does not mount Nightshift says why in recovery{nightshift_unavailable}. The Meterless engines (H-MEM, World
 Model) are mounted on the context when their modules are implemented; until then the run says so honestly in
 the agents' notes and `output.memory` / `output.world` report what was skipped.
 """
@@ -253,14 +255,17 @@ def build_context(run_id: str, inp: RunInput, config: RunConfig, echo_stdout: bo
         executor = build_executor(config, run_dir, log, run_id, zetaris_source=inp.options.get("zetaris_source"))
     except TypeError:
         executor = build_executor(config, run_dir, log, run_id)
-    generator = build_generator(config, example_name)
-
     if config.mode == "live" and config.require_zetaris and not config.env.has_zetaris():
         raise InvestigatorError("E_ZETARIS_REQUIRED", "mounts", "Zetaris credentials are not configured and --require-zetaris is set",
                                 retryable=True, details={"reason": "zetaris_required"})
+    generator = build_generator(config, example_name)   # live: Nightshift (probed) -> OpenAI-compatible -> null
+    nightshift_unavailable = getattr(generator, "nightshift_unavailable", None)
     if config.mode == "live" and config.require_generator and generator.name == "null":
-        raise InvestigatorError("E_GENERATOR", "mounts", "OPENAI_API_KEY is not set and --require-generator is set",
-                                retryable=True, details={"reason": "generator_required"})
+        why = nightshift_unavailable["detail"] if nightshift_unavailable else "Nightshift not online"
+        raise InvestigatorError("E_GENERATOR", "mounts", f"no generator is available and --require-generator is set: {why}; "
+                                "OPENAI_API_KEY (fallback) is not set", retryable=True,
+                                details={"reason": "generator_required",
+                                         "nightshift": nightshift_unavailable["status"] if nightshift_unavailable else None})
 
     zetaris_source = inp.options.get("zetaris_source") if config.mode == "live" else None
     if config.zetaris_source and config.mode == "live":
@@ -280,6 +285,11 @@ def build_context(run_id: str, inp: RunInput, config: RunConfig, echo_stdout: bo
         ctx.fallback_used = True
         reason = getattr(executor, "fallback_reason", None) or "Zetaris not configured"
         ctx.recover("runner", "zetaris_unreachable", f"{reason}; whole run on SQLite", to="sqlite")
+    if config.mode == "live" and nightshift_unavailable:
+        # Nightshift is the primary provider: say why it is not mounted and what answers instead. With the
+        # OpenAI-compatible fallback a model still runs, so this alone does not make the run partial.
+        ctx.recover("runner", "nightshift_unavailable", nightshift_unavailable["detail"], **{"from": "nightshift"},
+                    to=generator.name, status=nightshift_unavailable["status"], base_url=nightshift_unavailable["base_url"])
     if config.mode == "live" and generator.name == "null":
         ctx.fallback_used = True
         ctx.recover("runner", "generator_fallback", "no generator configured; rules and templates only", to="null")
@@ -617,10 +627,14 @@ def run(payload: Any, config: RunConfig, run_id_override: Optional[str] = None, 
         ctx.start_iso = ctx.clock.now_iso() if not isinstance(ctx.clock, SampleClock) else ctx.clock.start_iso
         ctx.deadline_ms = ctx.start_ms + inp.budget.max_seconds * 1000
         input_sha = sha256_json(to_json(inp))
-        ctx.log.emit("run_start", "runner", {
+        start_payload: dict[str, Any] = {
             "mounts": to_json(ctx.mounts), "input_sha256": input_sha, "budget": to_json(inp.budget),
             "deadline_at": ctx.clock.now_iso(), "version": __version__, "engines": {
-                "hmem": ctx.hmem is not None, "world_model": ctx.world is not None}})
+                "hmem": ctx.hmem is not None, "world_model": ctx.world is not None}}
+        mount_info = getattr(ctx.generator, "mount_info", None)
+        if mount_info:   # Nightshift: where it answered, how it was found, the routing mode (never the token)
+            start_payload["generator_mount"] = mount_info
+        ctx.log.emit("run_start", "runner", start_payload)
         output = run_pipeline(ctx)
         status = compute_status(ctx, output["claims"], output["rejected_claims"], output["unavailable"])
         if status == "error":

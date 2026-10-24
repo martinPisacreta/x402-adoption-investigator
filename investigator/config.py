@@ -1,8 +1,10 @@
 """Env + CLI -> RunConfig (SPEC.md sections 4.1 and 4.2).
 
 - load_env_local() reads KEY=VALUE lines from .env.local without printing values (names only are reported).
-- resolve_mode() implements the mode rule: `sample` if SAMPLE_MODE=1 or neither OPENAI_API_KEY nor
-  ZETARIS_PASSWORD is set; else `live`. `--mode sample` reads no credential and no .env.local; the only
+- resolve_mode() implements the mode rule: `sample` if SAMPLE_MODE=1 or none of OPENAI_API_KEY,
+  ZETARIS_PASSWORD and the Nightshift variables (NIGHTSHIFT_BASE_URL, NIGHTSHIFT_TOKEN, NIGHTSHIFT_TOKEN_FILE) is
+  set; else `live`. Mode resolution never probes the network (Nightshift Auto Detect runs only once the mode is
+  live, in generator.build_generator). `--mode sample` reads no credential and no .env.local; the only
   variable it honours is LOG_DIR (where the run folders go; --out wins over it).
 - parse_request() validates the run.py input against schemas/input.schema.json and builds RunInput; a bad
   input is E_INPUT with details.
@@ -27,12 +29,20 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 RUN_ID_RE = re.compile(r"^[A-Za-z0-9._-]{1,64}$")
 WALLET_RE = re.compile(r"^0x[0-9a-fA-F]{40}$")
 RequestedMode = Literal["sample", "live", "auto"]
+NIGHTSHIFT_DEFAULT_MODEL = "meterless/auto"     # Meterless routing mode (not a model file); NIGHTSHIFT_MODEL overrides
 
 
 @dataclass
 class Env:
     """Environment values. Secret fields are repr=False and must never be logged or printed."""
 
+    # Meterless Nightshift: the primary generator (OpenAI-compatible Meterless Runtime, provider id `meterless`)
+    nightshift_base_url: Optional[str] = None       # NIGHTSHIFT_BASE_URL as pasted; normalised to <host>/v1 when used
+    nightshift_token: Optional[str] = field(default=None, repr=False)   # NIGHTSHIFT_TOKEN
+    nightshift_token_file: Optional[str] = None     # NIGHTSHIFT_TOKEN_FILE: path of <stateDir>/proxy-token
+    nightshift_model: str = NIGHTSHIFT_DEFAULT_MODEL
+    nightshift_autodetect: bool = True              # NIGHTSHIFT_AUTODETECT=0: no localhost probe without a base URL
+    # OpenAI-compatible fallback generator
     openai_api_key: Optional[str] = field(default=None, repr=False)
     openai_base_url: str = "https://api.openai.com/v1"
     model: str = "gpt-4.1-mini"
@@ -50,7 +60,12 @@ class Env:
     loaded_from_env_local: list[str] = field(default_factory=list)   # variable NAMES only
 
     def has_generator(self) -> bool:
+        """An OpenAI-compatible key is configured (the fallback generator)."""
         return bool(self.openai_api_key)
+
+    def has_nightshift_config(self) -> bool:
+        """A Nightshift variable is set (Auto Detect may still find a runtime without any)."""
+        return bool(self.nightshift_base_url or self.nightshift_token or self.nightshift_token_file)
 
     def has_zetaris(self) -> bool:
         return bool(self.zetaris_password or self.zetaris_api_key)
@@ -92,6 +107,11 @@ def read_env(environ: Optional[dict[str, str]] = None) -> Env:
     except ValueError:
         port = 0
     return Env(
+        nightshift_base_url=get("NIGHTSHIFT_BASE_URL"),
+        nightshift_token=get("NIGHTSHIFT_TOKEN"),
+        nightshift_token_file=get("NIGHTSHIFT_TOKEN_FILE"),
+        nightshift_model=get("NIGHTSHIFT_MODEL", NIGHTSHIFT_DEFAULT_MODEL),
+        nightshift_autodetect=_flag(get("NIGHTSHIFT_AUTODETECT", "1")),
         openai_api_key=get("OPENAI_API_KEY"),
         openai_base_url=get("OPENAI_BASE_URL", "https://api.openai.com/v1"),
         model=get("MODEL", "gpt-4.1-mini"),
@@ -116,7 +136,7 @@ def resolve_mode(requested: RequestedMode, env: Env) -> Mode:
         return "live"
     if env.sample_mode_flag:
         return "sample"
-    if not env.has_generator() and not env.zetaris_password:
+    if not env.has_generator() and not env.zetaris_password and not env.has_nightshift_config():
         return "sample"
     return "live"
 

@@ -43,8 +43,10 @@ def sample_config(out_dir: Path):
 
 
 def live_config_without_env(out_dir: Path, **flags):
+    """Live mode with nothing configured. NIGHTSHIFT_AUTODETECT=0 keeps it hermetic: no localhost probe (the
+    Nightshift Auto Detect path is tested with a fake transport in tests/test_nightshift.py)."""
     args = type("Args", (), {"mode": "live", "sample": False, "out": str(out_dir), **flags})()
-    return build_config(args, environ={}, load_dotenv=False)
+    return build_config(args, environ={"NIGHTSHIFT_AUTODETECT": "0"}, load_dotenv=False)
 
 
 def example_payload(folder: str) -> dict:

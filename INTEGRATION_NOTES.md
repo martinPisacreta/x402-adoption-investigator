@@ -398,3 +398,25 @@ The notes above are kept as the builders wrote them. Three decisions recorded th
   build its views is replaced by SQLite for the Analyst's queries.
 - Example 04 (`examples/04-payer-dossier-unverifiable`) is `partial` by design: C1 rejects `verified_tx` = 0 for a
   wallet whose one settlement is not in the RPC fixtures.
+
+## Meterless Nightshift as the primary AI provider (2026-10-24)
+
+Why: the hackathon's disqualification checklist and the 24/10 rules reminder ask for Meterless Nightshift as the
+primary AI provider. What changed for other modules (details in README "Meterless Nightshift (primary AI provider)"):
+- `investigator/generator.py`: `NightshiftGenerator` (subclass of `OpenAIGenerator`: Bearer token, `meterless-app`,
+  `meterless-scope: user`, routing mode `meterless/auto`, 180 s timeout), `normalize_nightshift_url`,
+  `resolve_nightshift_token`, `probe_nightshift` / `detect_nightshift` (status from `GET /v1/models`, Auto Detect on
+  8088, 8090, 8787, 11434 of 127.0.0.1, localhost, [::1]). `build_generator` keeps sample mode as it was (no
+  detection, no socket) and in live mode mounts Nightshift > OpenAI-compatible env > null; a non-Nightshift live
+  mount carries `nightshift_unavailable`, which the runner logs as `recovery{nightshift_unavailable}` (new reason in
+  `events.schema.json`). `--require-generator` fails only when nothing at all is available.
+- `investigator/config.py`: `NIGHTSHIFT_BASE_URL`, `NIGHTSHIFT_TOKEN`, `NIGHTSHIFT_TOKEN_FILE`, `NIGHTSHIFT_MODEL`,
+  `NIGHTSHIFT_AUTODETECT` (default on); `--mode auto` goes live when one of the first three is set (no probe).
+- Traces: `generate()` emits one `generate` event per answered call (new event type: provider, requested model,
+  answering model, hashes) and `generator.jsonl` repeats its seq; `GeneratorResult` gained `provider` and
+  `requested_model` (defaulted, so existing constructors still work); transcripts store both. `generate()` now
+  passes the generator's own timeout capped by the time left, and generator recoveries name the generator and
+  provider. Nightshift mounts add `generator_mount` to `run_start` (never the token).
+- Committed examples are unchanged (sample mode has no transcripts, so no generator call happens).
+  `tests/test_run_contract.py`'s live helper sets `NIGHTSHIFT_AUTODETECT=0` to stay hermetic; the detection path
+  is covered by `tests/test_nightshift.py` with a fake runtime. No live Nightshift run has been made yet.

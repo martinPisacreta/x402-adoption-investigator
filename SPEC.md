@@ -468,6 +468,8 @@ _Amended 2026-10-23:_ `--fetch-retries N` (0-5, default 2) sets the retries per 
 
 Mode resolution (`--mode auto`, the default): `sample` if `SAMPLE_MODE=1`, or if neither `OPENAI_API_KEY` nor `ZETARIS_PASSWORD` is set; else `live`. `--mode live` with missing pieces degrades per mount (fetcher live, executor sqlite, generator null) unless `--require-*` is set. `--mode sample` ignores all env and installs the network guard.
 
+_Amended 2026-10-24 (Meterless Nightshift is the primary AI provider):_ `NIGHTSHIFT_BASE_URL`, `NIGHTSHIFT_TOKEN` and `NIGHTSHIFT_TOKEN_FILE` also make `--mode auto` live (no network call decides the mode). In live mode the generator mount is `NightshiftGenerator` (`nightshift:<routing mode>`, default `meterless/auto`) when `GET /v1/models` at `NIGHTSHIFT_BASE_URL`, or at the first Auto Detect hit (ports 8088, 8090, 8787, 11434 on 127.0.0.1, localhost, [::1]; `NIGHTSHIFT_AUTODETECT=0` disables it), answers 200 with `meterless/*` ids; else `OpenAIGenerator` when `OPENAI_API_KEY` is set; else null. A live mount other than Nightshift logs `recovery{nightshift_unavailable}`. Sample mode never runs detection.
+
 Exit code: 0 for `ok` and `partial`, 1 for `error`. Stdout carries the JSONL event stream (one line per event, identical to `logs/<run_id>/run.jsonl`); with `--print-output` the final `output.json` is printed after a line `---output---`; with `--quiet` only the output JSON is printed. In `--serve` mode the HTTP response body is the output JSON and the event stream goes to the server's stdout.
 
 ### 4.2 Input (`investigator/schemas/input.schema.json`)
@@ -542,7 +544,7 @@ All files live in `logs/<run_id>/`. `run.jsonl` is mirrored to stdout line by li
 | `handoff` | runner | `{from, to, artifact: {type, count, sha256}}` | every transition |
 | `fetch` | collector | `{name, family, url, method, http, bytes, sha256, latency_ms, replayed, stale, fixture_file?}` | per request (full line in fetch.jsonl) |
 | `retry` | collector / verifier / planner | `{stage, target, attempt, max_attempts, reason, backoff_ms}` plus, for a source request, `url, method, next_attempt, kind, http, replayed, fault_file?` (_amended 2026-10-23_: `attempt` is the attempt that failed; the outcome is the next `fetch` line of the same request key, which carries `attempts` when more than one was needed) | each retry, before its backoff |
-| `recovery` | any | `{reason, from?, to?, detail}` | every fallback or skip; reasons: `planner_fallback`, `fixture_fallback`, `source_unavailable`, `fixture_miss`, `zetaris_unreachable`, `zetaris_query_fallback`, `artifact_server_unreachable`, `rpc_unavailable`, `generator_fallback`, `narrative_trimmed`, `deadline_skip`, `budget_exhausted` |
+| `recovery` | any | `{reason, from?, to?, detail}` | every fallback or skip; reasons: `planner_fallback`, `fixture_fallback`, `source_unavailable`, `fixture_miss`, `zetaris_unreachable`, `zetaris_query_fallback`, `artifact_server_unreachable`, `rpc_unavailable`, `generator_fallback`, `nightshift_unavailable` (_added 2026-10-24_), `narrative_trimmed`, `deadline_skip`, `budget_exhausted` |
 | `ingest` | keeper | `{pass: 1|2, report: IngestReport, quarantined: [{externalId, error}]}` | after each ingest |
 | `verify` | verifier | `{tx, status, payer, seller, amount_atomic, basescan_url, receipt_match, reason?}` | per tx |
 | `crosscheck` | verifier | `{name, a: {source, value, url}, b: {source, value, url}, agree, note}` | per cross-check |
@@ -552,6 +554,7 @@ All files live in `logs/<run_id>/`. `run.jsonl` is mirrored to stdout line by li
 | `critique` | critic / keeper | `{round, rule, target: claim_id|sentence_index, verdict, reason, memory_ids, kind?}`; `kind: "provenance_rejected"` when the World Model refused an agent fact | per check that fires, plus one `{rule, verdict: "accept", count}` summary per rule |
 | `narrative_map` | critic | `{round, tokens: [{token, claim_id|null, kind: "value"|"share"|"numerator"|"denominator"|"formatted"}], unsourced: [...]}` | pass B |
 | `memory` | planner / writer / critic / runner | `{op: "retrieve"|"inject"|"feedback"|"mine"|"sleep_preview", actor, memory_ids, details}` (trace in hmem.trace.jsonl; `inject` added 2026-10-22: a generator prompt that carries the reinjection block, with prompt and block sha256) | per H-MEM op |
+| `generate` | planner / writer / critic | `{prompt_id, attempt, generator, provider, requested_model, model, recorded, prompt_sha256, response_sha256}` (_added 2026-10-24_: which provider, routing mode and answering model handled the call; full line in generator.jsonl) | per answered generator call |
 | `timeout` | runner | `{stage, elapsed_s, budget_s}` | deadline hit |
 | `result` | runner | `{status, accepted, rejected, conflicts, unavailable, executor, generator}` | last line |
 | `error` | runner | `{code, stage, message, retryable, details}` | before returning an error |
@@ -563,6 +566,7 @@ Side files:
 - `zetaris.jsonl` (live only): `{seq, op: "login"|"ddl"|"run-query"|"start"|"page"|"close"|"metadata"|"cleanup", path, http, time_used_ms, sql?, msg?}`; never headers, never tokens, never credentials.
 - `hmem.trace.jsonl`: `{seq, actor, query, threshold, topN, hits: [{memoryId, score, signals: {semantic, keyword, tag, domain, entity, layer, recency, superseded}, confidence}], reinjection_sha256, retrievalReason, strategy}` plus feedback lines `{seq, actor, memoryId, kind, previous_confidence, new_confidence}`.
 - `world.events.jsonl`, `world.audit.jsonl`, `world.observations.jsonl`: engine formats (section 9).
+- `generator.jsonl` (_amended 2026-10-24_): `{seq, agent, prompt_id, attempt, generator, provider, requested_model, model, recorded, prompt_sha256, response_sha256, max_tokens, temperature, timeout_s, usage, transcript}`; the seq is its `generate` event's; never the key, the token or headers.
 
 Human-readable progress goes to stderr only with `--verbose`.
 

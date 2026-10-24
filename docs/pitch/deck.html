@@ -282,9 +282,9 @@ python run.py --sample --input examples/ex4.json</pre>
   <div class="grid2">
     <div>
       <p class="muted" style="margin-bottom:14px;">What was unique</p>
-      <div class="card sm"><h3>Rules decide, the model drafts</h3><p>Nemotron writes the plan's hypotheses (untested), the answer and a second-opinion critique. Claims, rejections and the verdict come from rules C1 to C7, never from the model.</p></div>
+      <div class="card sm"><h3>Rules decide, the model drafts</h3><p>Nemotron writes the plan's hypotheses (untested), the answer and a second-opinion critique, whose issues can only get sentences revised or cut. Claim values, rejections and the verdict come from SQL, reducers and rules (C1 to C7, the verdict rules), never from the model.</p></div>
       <div class="card sm" style="margin-top:18px;"><h3>The model's critique is checked</h3><p>An issue on a sentence whose numbers rule B maps to the claims it cites is dismissed and logged: 20 of the 58 model issues in the five examples.</p></div>
-      <div class="card sm" style="margin-top:18px;"><h3>Every number twice, every request signed</h3><p>SQL and a Python reducer over the hashed evidence must agree (C2). Sample mode replays real Nemotron answers by prompt sha256, and all 127 receipts the repository cites verify against Nightshift's signed ledger.</p></div>
+      <div class="card sm" style="margin-top:18px;"><h3>Every number twice, a receipt for every answer</h3><p>SQL and a Python reducer over the hashed evidence must agree (C2). Sample mode replays real Nemotron answers by prompt sha256. All 127 cited receipts are in the committed excerpt of Nightshift's ledger, signatures valid: unchanged since signing, not which machine signed.</p></div>
     </div>
     <div>
       <p class="muted" style="margin-bottom:14px;">Future enhancements</p>

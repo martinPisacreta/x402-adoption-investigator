@@ -18,8 +18,8 @@ USDC, here on Base; the CDP Bazaar is Coinbase's x402 discovery catalog.)
 | **What the agents do** | Seven roles in a bounded loop. Planner: playbook, sources, queries. Collector: fetch and hash. Keeper: Meterless World Model. Verifier: settlements decoded on Base. Analyst: every metric twice, in committed SQL and in a Python reducer. Writer: an answer where every number cites a claim. Critic: rules C1-C7 and a narrative pass; it rejects claims or sends the answer back. |
 | **Try it** | `python run.py --sample --input examples/ex1.json` from a clean clone: offline, no keys, Python 3.11 standard library only. Docker: `docker run --rm --network none x402-investigator`. [Quick start](#quick-start-clean-clone-one-command). |
 | **Critique, recovery and retries** | Example 04 (`examples/ex4.json`): the Critic rejects a "0 verified" count that no decoded settlement supports, the Writer's second round drops and names it, status `partial`, verdict `insufficient_evidence`. Example 05 (`examples/ex5.json`): a 503 from the store and a 429 from the Base RPC, replayed from a hand-written fault script, are each retried after a logged backoff by the same retry code live runs use, and the answer comes out with example 03's numbers. [Examples](#examples). |
-| **Sponsor tech** | Zetaris Lightning SQL is the data layer of live runs when it is reachable (the 22 Oct live seller audit, which had no model, computed all 19 claims on it; the 24 Oct model runs fell back to SQLite because Zetaris was stopped, and no committed run has Zetaris and a model together). Meterless World Model (provenance, evidence-only claims, idempotent ingest) and H-MEM (the caveats the Critic enforces, memory injected into the prompts) work in every run and pass the upstream conformance checks (8/8, 13/13). Meterless Nightshift is the primary AI provider: on 24 Oct, with the model pinned by `METERLESS_MODEL`, every Planner, Writer and Critic request of seven live runs went through it to NVIDIA Nemotron, 32 to Nemotron 3.5 Lightning 30B A3B on NVIDIA's hosted API (the NVIDIA key is configured inside Nightshift, not in the app) and 5 to Nemotron Nano 9B v2 on the local RTX 5080 Laptop GPU, each with a compute receipt naming the model ([examples/live-trace-nightshift/](examples/live-trace-nightshift/)), and every receipt the repository cites is in Nightshift's own Ed25519-signed ledger ([excerpt](examples/live-trace-nightshift/nightshift-ledger/), checked by `scripts/nightshift_ledger.py`); six earlier runs on the default `meterless/auto` went to a local Llama 3.2 3B lane instead, and their receipts say so. The committed examples replay 25 recorded Nemotron answers. Cursor (optional since 22 Oct): two Cursor Agent sessions, the report viewer and a first draft of the README Pitch section. [Summary](#sponsor-technology), machine-readable in [metadata.json](metadata.json). |
-| **Honesty** | Nemotron writes the plan's hypotheses (the report marks them untested), the drafts and the second-opinion critique; claims, rejections and verdicts come from rules, never from the model. Its drafts still drop caveat codes and conflict ids, so the final answers are partly completed from the claims, and many of its Critic issues are wrong (those on sentences whose numbers rule B maps to the cited claims are dismissed and logged). The 22 Oct live traces (two of them on Zetaris) ran with no model; the 24 Oct Nightshift runs ran on SQLite because Zetaris was stopped ([Limitations](#limitations-and-honesty-notes)). Pre-existing: the author's own Automata store, used only as a data source ([declared](#pre-existing-components-declared)). |
+| **Sponsor tech** | Zetaris Lightning SQL is the data layer of live runs when it is reachable (the 22 Oct live seller audit, which had no model, computed all 19 claims on it; the 24 Oct model runs fell back to SQLite because Zetaris was stopped, and no committed run has Zetaris and a model together). Meterless World Model (provenance, evidence-only claims, idempotent ingest) and H-MEM (the caveats the Critic enforces, memory injected into the prompts) work in every run and pass the upstream conformance checks (8/8, 13/13). Meterless Nightshift is the primary AI provider: on 24 Oct, with the model pinned by `METERLESS_MODEL`, every Planner, Writer and Critic request of seven live runs went through it to NVIDIA Nemotron, 32 to Nemotron 3.5 Lightning 30B A3B on NVIDIA's hosted API (the NVIDIA key is configured inside Nightshift, not in the app) and 5 to Nemotron Nano 9B v2 on the local RTX 5080 Laptop GPU, each with a compute receipt naming the model ([examples/live-trace-nightshift/](examples/live-trace-nightshift/)), and every receipt the repository cites is in the committed [excerpt](examples/live-trace-nightshift/nightshift-ledger/) of Nightshift's Ed25519-signed ledger, each signature valid (checked by `scripts/nightshift_ledger.py`); six earlier runs on the default `meterless/auto` went to a local Llama 3.2 3B lane instead, and their receipts say so. The committed examples replay 25 recorded Nemotron answers. Cursor (optional since 22 Oct): two Cursor Agent sessions, the report viewer and a first draft of the README Pitch section. [Summary](#sponsor-technology), machine-readable in [metadata.json](metadata.json). |
+| **Honesty** | Nemotron writes the plan's hypotheses (the report marks them untested), the drafts and the second-opinion critique; claim values, rejections and verdicts come from code and rules, never from the model. Its drafts still drop caveat codes and conflict ids, so the final answers are partly completed from the claims, and many of its Critic issues are wrong (those on sentences whose numbers rule B maps to the cited claims are dismissed and logged). The 22 Oct live traces (two of them on Zetaris) ran with no model; the 24 Oct Nightshift runs ran on SQLite because Zetaris was stopped ([Limitations](#limitations-and-honesty-notes)). Pre-existing: the author's own Automata store, used only as a data source ([declared](#pre-existing-components-declared)). |
 
 Full specification: [SPEC.md](SPEC.md). Build log: [docs/BUILD_LOG.md](docs/BUILD_LOG.md). Demo script:
 [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md). Sponsor integrations: [docs/METERLESS.md](docs/METERLESS.md),
@@ -220,8 +220,10 @@ elsewhere; every receipt names the model).
   with the exact prompt beside it. The live runs link the same way, with each run's own `transcripts/`.
 - **Nightshift's own records back the app's logs.** The receipt id in each `generate` event is checked against the
   ledger Nightshift writes and signs (Ed25519, verified with the standard library against the RFC 8032 vectors): all
-  127 receipts the repository cites are there, signed, issued to app `x402-adoption-investigator` and routed to the
-  model the log names (`examples/live-trace-nightshift/nightshift-ledger/`).
+  127 receipts the repository cites are in the committed excerpt of Nightshift's signed ledger
+  (`examples/live-trace-nightshift/nightshift-ledger/`), each Ed25519 signature valid under the one public key the
+  lines carry, issued to app `x402-adoption-investigator` and routed to the model the log names: that proves the
+  lines are unchanged since signing, not which machine signed them.
 - **Real model answers in an offline run.** Sample mode opens no socket, yet its Planner, Writer and Critic replay
   the answers Nemotron gave through Nightshift on exactly those prompts (keyed by the prompt's sha256, receipts
   kept), so a clean clone with no keys shows what the model wrote and what the rules did with it.
@@ -297,8 +299,9 @@ What is implemented (`investigator/generator.py`, added 2026-10-24, tests in `te
   (the body as compact JSON, the public key the envelope carries) and prints, per request, what Nightshift recorded:
   issue time, app, router winner, route kind, egress, tokens, latency, signer, next to the run's seq and prompt id.
   The receipt's prompt preview is never printed. Committed: the 127 ledger lines the repository cites
-  (`examples/live-trace-nightshift/nightshift-ledger/`), all signatures valid; the private signing key stays in
-  Nightshift's state directory, so the excerpt proves the lines are unchanged since signing, not which machine signed.
+  (`examples/live-trace-nightshift/nightshift-ledger/`), all signatures valid under the one public key the lines
+  carry; the private signing key stays in Nightshift's state directory, so the excerpt proves the lines are unchanged
+  since signing, not which machine signed.
 - **Imperfect replies.** A Planner JSON over the schema's list limits is brought inside them (duplicates and
   unknown metric ids dropped, lists cut to 5) and a Critic array cut off at the token limit keeps its complete items,
   both logged as `recovery{generator_reply_repaired}`; a Planner reply that is not JSON is asked again once (a
@@ -336,10 +339,12 @@ output.json`) have the same 19 claims, values and caveats, and the same verdict.
 (untested, and one of them, "has no active x402 sellers", contradicts claim c01's 77 sales), a drafted answer that
 takes a second Writer round where the rules finish in one, and 15 second-opinion issues, 5 of them dismissed. The
 dismissal itself, measured on the five examples against the build before it (commit 427d453): model issues acted on
-went from 49 to 38, with 20 dismissed; sentences cut after the last round went from 12 to 17, down in examples 01
-(3 to 1) and 03 (3 to 2), unchanged in 02 (2) and 04 (3), and up in 05 (1 to 9), whose re-recorded round-2 draft
-wrote citations as `[c01, search_limit_20]`, which pass B does not read as citations, so its sentences were not
-backed and were cut and refilled from the claims.
+went from 49 (of 49 raised) to 38 (of 58 raised, 20 dismissed): the round-1 replies are the same 32 issues, 15 of
+them now dismissed, and the round-2 answers of examples 01, 03, 04 and 05 were re-recorded because the dismissal
+changed their prompts (17 issues before, 26 after, 5 dismissed); sentences cut after the last round went from 12
+to 17, down in examples 01 (3 to 1) and 03 (3 to 2), unchanged in 02 (2) and 04 (3), and up in 05 (1 to 9), whose
+re-recorded round-2 draft wrote citations as `[c01, search_limit_20]`, which pass B does not read as citations, so its
+sentences were not backed and were cut and refilled from the claims.
 Earlier that day six runs went through a local Llama 3.2 3B lane with `meterless/auto`
 (`examples/live-trace-nightshift/llama-3.2-3b/`); their comparison with Nemotron is in the traces' README.
 

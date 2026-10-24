@@ -175,7 +175,7 @@ got different writer-r1 replies.
 
 Zetaris was stopped on purpose (the machine was short of memory: about 4 GB free, a reading of the session that is
 not committed). Every run starts with
-`recovery{zetaris_unreachable}` at seq 1 ("connection refused"; `zetaris.jsonl` of the two complete folders shows
+`recovery{zetaris_unreachable}` at seq 1 ("connection refused"; `zetaris.jsonl` of the three complete folders shows
 the failed login) and runs the whole SQL on SQLite (`mounts.executor: "sqlite"`, `derivation.backend:
 "sqlite-fallback"` on every claim), which is why every status is `partial`. The live trace computed on Zetaris Lightning SQL is `../live-trace/live-ex01-20261022/` (2026-10-22,
 before Nightshift was installed, generator `null`).

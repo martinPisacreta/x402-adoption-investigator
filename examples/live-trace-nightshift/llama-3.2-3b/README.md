@@ -65,8 +65,10 @@ every status is `partial`. The live trace computed on Zetaris Lightning SQL is
 
 ## What the 3B model's answers did
 
-- **Planner.** Ex01 (both attempts): the reply listed hypotheses until the token limit, so its JSON never closed;
-  after the one re-ask the Planner kept the rules plan (`recovery{planner_fallback}`, `plan.planner_source:
+- **Planner.** Ex01: in the final run both replies listed hypotheses until the token limit, so their JSON never
+  closed; in the first attempt only the first did, and the re-ask reply (315 tokens) closed but held 6 hypotheses
+  (3 distinct, each twice) and 6 extra metrics, over the schema's 5 (the log says only "generator JSON invalid
+  twice"). Both times the Planner kept the rules plan (`recovery{planner_fallback}`, `plan.planner_source:
   "rules"`). Ex02-05: the reply was used (`planner_source: "generator"`); in ex03-05 only after it was brought inside
   the schema's limits, logged as `recovery{generator_reply_repaired}` (ex03 and ex04: the same hypothesis five
   times, kept once; ex05: four extra metric ids that are not in the registry dropped).

@@ -546,3 +546,22 @@ Entries are added here only for work actually done after 2026-10-22.
 - **Not done:** no run with Zetaris and Nightshift together (Zetaris stays stopped for memory); no screenshot of the
   Nightshift Console window (the ledger check stands in for it); the Docker image and a fresh clone were not re-checked
   on this tree in this round; nothing was pushed, so GitHub `main` is behind this branch until it is.
+
+### 2026-10-24 (21:00 UTC) — Claude Code: wording fixes from the honesty review
+
+- **Tool:** Claude Code (Claude Opus 5.5). Wording only: no code, number of a committed output or fixture changed.
+- **Fixes:** `examples/live-trace-nightshift/README.md`: three complete folders (not two) show the failed Zetaris
+  login. `llama-3.2-3b/README.md`: in the first attempt (`live-ns-ex01-20261024`) only the first Planner reply hit the
+  token limit; the re-ask closed its JSON but held 6 hypotheses and 6 extra metrics, over the schema's 5. README,
+  "What the model changes": 49 to 38 model issues acted on is 49 raised before and 58 after (round 1 the same 32
+  issues, 15 now dismissed; round 2 re-recorded, 17 before, 26 after, 5 dismissed), 20 dismissed in all. README and
+  deck slide 14: the ledger claim now says what `scripts/nightshift_ledger.py` checks offline (the 127 cited receipts
+  are in the committed excerpt, signatures valid under the one public key the lines carry: unchanged since signing,
+  not which machine signed); slide 14's title says "a receipt for every answer" (the three smokes that failed with
+  HTTP 502 have none); slide 14 says the model's issues only get sentences revised or cut, and slide 14 and
+  README's Honesty row say claim values, rejections and the verdict come from code and rules (C1-C7, `verdict.py`),
+  not "rules C1 to C7" alone. Slide 5 already said only that the model never accepts a claim, which holds.
+- **Deck:** `deck.pdf` re-printed with the Chrome command of the 22 Oct entry (14 pages, only page 14's text
+  changed) and `slides/s14.png` re-rendered; the other PNGs were left as committed (they re-render visually the
+  same). `demo.mp4` needs no rebuild: its narration covers slides 1-13, not 14.
+- **Tests:** `python -m unittest discover -s tests`: 324 tests, OK.

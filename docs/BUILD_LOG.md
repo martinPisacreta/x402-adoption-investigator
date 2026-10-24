@@ -406,3 +406,41 @@ Entries are added here only for work actually done after 2026-10-22.
   byte-identical to the committed ones, the two `retry` lines at seq 7 and 14), and the default command,
   `--sample --input examples/ex4.json` and `scripts/one_command.sh` exited 0. The one-command scripts were not
   re-run on Windows in this round. The image was removed afterwards.
+
+### 2026-10-24 (from 17:45 UTC) — Claude Code: deck and video updated for the Nightshift runs
+
+- **Tool:** Claude Code (Claude Opus 5.5), one agent of a workflow run from the same session.
+- **Why:** the deck still said that no model ran and "NVIDIA: not used", and its condensed traces of examples 01 and
+  04 described the logs from before the examples replayed recorded model answers. The video had no request through
+  Nightshift, which the hackathon asks to see.
+- **Deck** (`docs/pitch/deck.html`, now 13 slides; rendered to `slides/s01-s13.png` and `deck.pdf` with the Chrome
+  commands of the 22 Oct entry): slide 1 names Nightshift and NVIDIA Nemotron; slide 5's note says that Planner,
+  Writer and the Critic's second opinion send their prompts to Nightshift and that the model never accepts a claim;
+  slides 6 and 7 are re-condensed from the current `examples/01-seller-audit-textokit/run.jsonl` (168 lines, 5
+  `generate`, 56 critiques, 9 recoveries) and `examples/04-payer-dossier-unverifiable/run.jsonl` (115 lines, 44
+  critiques of which 12 are the model's, 9 recoveries); new slide 9 lists the five requests of
+  `nemotron-cloud-ex01-20261024` with `routed_model`, kind, receipt id and latency from its `run.jsonl`, plus the
+  hosted, local-GPU and offline routes and the limits (drafts drop caveat codes, some model issues are wrong, Zetaris
+  stopped so SQL on SQLite); slide 10 says the Nightshift runs ran on SQLite; slide 13's stack names Nightshift 1.2.3,
+  both Nemotron models and 308 tests. `viewer-shot-04.png` (slide 12) was re-shot on the current example 04 output
+  (generator `recorded`). Slides 2, 3, 4 and 8 rendered byte-identical to the committed PNGs.
+- **Video** (`docs/pitch/demo.mp4`, rebuilt with `tts.ps1 -Rate 1` and `build_video.py`): a new 19.4 s part after
+  slide 8 shows the stdout of `grep '"type":"generate"'` over the committed logs of `nemotron-cloud-ex01-20261024`
+  (5 lines) and `nemotron-local-ex01-20261024` (`-m 1`, 1 line), captured with `capture_run.py --cmdline` into
+  `docs/pitch/video/live-capture-cloud.json` and `live-capture-local.json`; `build_video.py` refuses to build unless
+  every captured line is a `generate` line of that committed `run.jsonl`. The lines are drawn verbatim with the
+  `agent`, `receipt_id`, `routed_model` and `kind` fields marked, appear as the narration names planner, writer and
+  critic, and the caption under the window is built from the highlighted line's own fields. It takes the narration
+  of slide 9 (whose image is not shown). The recorded run of example 04 now says in its title that it was recorded
+  on 2026-10-22 with generator `null`; it is no longer byte-identical to the committed example 04 (which now replays
+  recorded Nemotron answers), so the viewer band drops its byte-identity note, as the script decides on every
+  build. Narration: s05 and s06 name Nemotron and the two critic rounds, s08 says the memories go into the prompts
+  sent to Nemotron, s10 says the Nightshift runs ran on SQLite with Zetaris stopped, s13 says 308 tests and no
+  longer says "No NVIDIA". Output: 236.2 s (3 min 56 s), 1920x1080, 30 fps, H.264 High yuv420p, AAC 44.1 kHz
+  stereo, `+faststart`, 16.9 MB, 7087 frames. Checks: `ffmpeg -v error` decode with no output; volumedetect mean
+  -21.8 dB, max -4.1 dB; silencedetect (-45 dB, 0.9 s) finds only the gaps between segments, the longest 3.2 s
+  after the recorded run.
+- **Secrets:** one frame every 5 s (0-235 s, 48 frames) was extracted with ffmpeg and looked at: no Nightshift
+  token, no `nvapi-` key, no `Bearer` header and no other credential is visible; the frames show only hashes, public
+  wallet and transaction ids, receipt ids and the model ids. The deck, narration and captures were also searched
+  for those strings and for the token itself (read from its file inside a script, never printed): none.

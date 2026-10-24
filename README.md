@@ -31,15 +31,23 @@ committed example output (`examples/*/output.json`) or a committed live trace (`
 
 ## Pitch
 
-Demo video: [docs/pitch/demo.mp4](docs/pitch/demo.mp4) (3 min 38 s), narrated with a Windows text-to-speech voice
+Demo video: [docs/pitch/demo.mp4](docs/pitch/demo.mp4) (3 min 56 s), narrated with a Windows text-to-speech voice
 from [docs/pitch/narration.txt](docs/pitch/narration.txt). Besides the slides it shows a recorded run of example 04:
 the stdout of `docker run --rm --network none x402-demo --sample --input examples/ex4.json --print-output` on an
-image built from a fresh clone, replayed line by line, unedited and slowed down to the narration, each line with its
-real arrival time (the run took 0.77 s; raw capture in
-[docs/pitch/video/run-capture.json](docs/pitch/video/run-capture.json)), then the report viewer opened on that run's
-output. [docs/pitch/video/](docs/pitch/video/) has the scripts that rebuild it. Slide deck:
-[docs/pitch/deck.pdf](docs/pitch/deck.pdf) (12 slides). Source: [docs/pitch/deck.html](docs/pitch/deck.html); slide
-images in [docs/pitch/slides/](docs/pitch/slides/).
+image built from a fresh clone of 7314f62 on 22 Oct, before the Nightshift provider existed (its `run_start` says
+generator `null`), replayed line by line, unedited and slowed down to the narration, each line with its real arrival
+time (the run took 0.77 s; raw capture in [docs/pitch/video/run-capture.json](docs/pitch/video/run-capture.json)),
+then the report viewer opened on that run's output. Then come the live runs of 24 Oct through Meterless Nightshift:
+the stdout of `grep '"type":"generate"'` over the committed logs of `nemotron-cloud-ex01-20261024` and
+`nemotron-local-ex01-20261024` ([examples/live-trace-nightshift/](examples/live-trace-nightshift/)), each line
+verbatim with the model that answered the request (`routed_model` `nvidia/nemotron-3.5-lightning-30b-a3b`, kind
+`cloud`; then `local-runtime/nvidia-nvidia-nemotron-nano-9b-v2-q4-k-m`, kind `local`) and its compute receipt id
+(raw captures in [docs/pitch/video/live-capture-cloud.json](docs/pitch/video/live-capture-cloud.json) and
+[live-capture-local.json](docs/pitch/video/live-capture-local.json)). [docs/pitch/video/](docs/pitch/video/) has the
+scripts that rebuild it. Slide deck: [docs/pitch/deck.pdf](docs/pitch/deck.pdf) (13 slides; slide 9 shows the five
+requests of the hosted run with their receipts). Source: [docs/pitch/deck.html](docs/pitch/deck.html); slide images
+in [docs/pitch/slides/](docs/pitch/slides/). Deck, narration and video were submitted on 22 Oct and updated on 24 Oct
+for the Nightshift runs.
 
 ## Overview
 
@@ -714,8 +722,8 @@ headers, token lookup order and the `METERLESS_*` aliases, compute-receipt parsi
 token or prompt preview in any file, no detection in sample mode, the thinking switch on every request and in the
 logs, the 3B model's reply shapes repaired and completed without the model deciding a claim or the verdict), sample-mode
 offline proof, byte-for-byte reproducibility of the committed examples, and `metadata.json` (every path it names
-exists, its test count is the discovered one and README quotes it; the deck, submitted on 2026-10-22, quotes the
-count of that day, which `metadata.json` records as `tests.count_in_submitted_deck`).
+exists, its test count is the discovered one and README quotes it; the deck quotes the count of the day it was last
+rendered, which `metadata.json` records as `tests.count_in_submitted_deck`).
 
 On 2026-10-24, after the Nemotron recordings, the suite ran green in the author tree (Python 3.11.9); the
 fresh-clone and Docker checks that follow predate it. On 2026-10-23, on the tree of 53dc069, the suite ran green (all 253 at that commit, 0 failures, 0 skips) in the author tree, in

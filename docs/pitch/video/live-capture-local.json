@@ -1,0 +1,16 @@
+{
+ "cmdline": "grep -m 1 '\"type\":\"generate\"' examples/live-trace-nightshift/nemotron-local/nemotron-local-ex01-20261024/run.jsonl",
+ "meta": {
+  "source": "committed log of the live run nemotron-local-ex01-20261024 (2026-10-24 17:31 UTC)"
+ },
+ "started_utc": "2026-10-24T18:01:40+00:00",
+ "rc": 0,
+ "total_s": 0.014,
+ "stderr": "",
+ "lines": [
+  {
+   "t": 0.0128,
+   "line": "{\"seq\":6,\"at\":\"2026-10-24T17:31:30.195Z\",\"run_id\":\"nemotron-local-ex01-20261024\",\"type\":\"generate\",\"agent\":\"planner\",\"payload\":{\"prompt_id\":\"planner\",\"attempt\":1,\"generator\":\"nightshift:local-runtime/nvidia-nvidia-nemotron-nano-9b-v2-q4-k-m\",\"provider\":\"meterless\",\"requested_model\":\"local-runtime/nvidia-nvidia-nemotron-nano-9b-v2-q4-k-m\",\"model\":\"local-runtime/nvidia-nvidia-nemotron-nano-9b-v2-q4-k-m\",\"recorded\":false,\"prompt_sha256\":\"be14e8121cf449aa59326256b368c8d60a51c595eb7fc7cbd914a8049bcc04b2\",\"response_sha256\":\"39f4518586bdc5f85dfa08718e9c5d7f73c89a0a94a60e95ee7172b3764fd75f\",\"routing\":{\"source\":\"meterless_receipt\",\"schema\":\"meterless.compute_receipt.v1\",\"receipt_id\":\"rcpt_req_2j2p2eb0\",\"decision_id\":\"req_2j2p2eb0\",\"requested_model\":\"local-runtime/nvidia-nvidia-nemotron-nano-9b-v2-q4-k-m\",\"routed_model\":\"local-runtime/nvidia-nvidia-nemotron-nano-9b-v2-q4-k-m\",\"winning_route\":{\"model\":\"local-runtime/nvidia-nvidia-nemotron-nano-9b-v2-q4-k-m\",\"label\":\"nvidia_NVIDIA-Nemotron-Nano-9B-v2-Q4_K_M · Runtime\",\"provider\":\"local-runtime\",\"kind\":\"local\",\"tier\":\"A\"},\"phases\":[{\"phase\":\"final_synthesis\",\"model\":\"local-runtime/nvidia-nvidia-nemotron-nano-9b-v2-q4-k-m\",\"ms\":3475}],\"latency_ms\":3475,\"usage\":{\"input_tokens\":773,\"output_tokens\":182,\"total_tokens\":955},\"cache\":\"miss\",\"from_cache\":false,\"privacy_path\":\"local-only\",\"wall_ms\":3500}}}"
+  }
+ ]
+}

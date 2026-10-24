@@ -31,8 +31,8 @@ no transcript to Nightshift once the sample run is over (the same call `generate
 `max_tokens`, the Nightshift timeout, the call options), saves the answer and starts over until a sample run finds every
 prompt recorded; then `--prune` deletes the folder's transcripts that run did not use. Hence `prompt_context:
 "sample mode on the committed fixtures"`. Example 01's planner transcript is from the first recording (17:15 UTC);
-its other four were recorded again at 17:19-17:20 after the Writer and Critic prompts were tightened (the Planner
-prompt did not change). A live run's own transcripts (`--record-transcripts`, labelled `recorded_in_run`) cannot be
+its writer-r1 and critic-r1 were recorded again at 17:19-17:20 after the Writer and Critic prompts were tightened
+(the Planner prompt did not change), and its writer-r2 and critic-r2 at 18:43 after the dismissal. A live run's own transcripts (`--record-transcripts`, labelled `recorded_in_run`) cannot be
 replayed here: its prompts carry live data. The live runs of the same day are in `examples/live-trace-nightshift/`.
 
 Examples 03 and 05 send byte-identical planner and writer-r1 prompts (same claims; only the replayed fault script

@@ -130,7 +130,7 @@
     <div class="card"><h3>Computed twice</h3><p>Every metric has a committed SQL query and a pure Python reducer over the same exports. A number survives only if both exist and agree (rule C2); a mismatch stays as an open Conflict.</p></div>
     <div class="card"><h3>Bounded and logged</h3><p>Deadline, fetch, SQL, model-call and critic-round budgets. Every handoff, fetch, sql, generate, claim, conflict, critique, retry and recovery line goes to logs/&lt;run_id&gt;/run.jsonl.</p></div>
   </div>
-  <p class="muted small note" style="margin-top:26px;">Planner, Writer and the Critic's second opinion send their prompts to Meterless Nightshift. With the model pinned (METERLESS_MODEL), NVIDIA Nemotron answered them in the live runs of 24 Oct, and sample mode replays those answers; with the default meterless/auto the route may differ, and every receipt names the model. The model writes the plan's untested hypotheses, the drafts and extra critique issues; it never accepts a claim.</p>
+  <p class="muted small note" style="margin-top:26px;">Planner, Writer and the Critic's second opinion send their prompts to Meterless Nightshift. With the model pinned (METERLESS_MODEL), NVIDIA Nemotron answered them in the live runs of 24 Oct, and sample mode replays 25 Nemotron answers recorded through Nightshift on the fixture prompts; with the default meterless/auto the route may differ, and every receipt names the model. The model writes the plan's untested hypotheses, the drafts and extra critique issues; it never accepts a claim.</p>
   <div class="foot"><span>The verdict label and claim acceptance are always rules, never a model</span><span>5</span></div>
 </section>
 
@@ -216,13 +216,13 @@
     <div class="card sm"><h3>Local GPU</h3><p>Nemotron Nano 9B v2 (Q4_K_M), every layer on the RTX 5080 Laptop GPU. 1 live run, 5 requests, kind local, privacy local-only (first receipt rcpt_req_2j2p2eb0).</p></div>
     <div class="card sm"><h3>Offline</h3><p>Sample mode replays 25 recorded Nemotron 3.5 answers, keyed by the sha256 of each prompt: no keys, no network. Thinking is off per request (reasoning_effort none, /no_think).</p></div>
   </div>
-  <p class="muted small" style="margin-top:22px;">Pinned: METERLESS_MODEL=nvidia/nemotron-3.5-lightning-30b-a3b. With the portable default meterless/auto the route may differ: the first 32 requests of 24 Oct went to a local Llama 3.2 3B lane, and their receipts say so (archived). Nemotron writes untested hypotheses, drafts and extra critique issues; claims and verdicts stay rules. Zetaris was stopped for these runs, so their SQL ran on SQLite.</p>
+  <p class="muted small" style="margin-top:22px;">Pinned: METERLESS_MODEL=nvidia/nemotron-3.5-lightning-30b-a3b. Nightshift's own signed ledger holds these five receipts, each Ed25519 signature valid. With the portable default meterless/auto the route may differ: the six earlier live runs (32 requests) and the first replay set (25) went to a local Llama 3.2 3B lane, and their receipts say so (archived). Zetaris was stopped for these runs, so their SQL ran on SQLite.</p>
   <div class="foot"><span>examples/live-trace-nightshift/ (run.jsonl, machine.txt) · fixtures/transcripts/</span><span>9</span></div>
 </section>
 
 <section class="slide" id="s10">
   <div class="kicker">Zetaris, the live federation layer</div>
-  <h2>Live on Lightning SQL, offline on SQLite, same rows</h2>
+  <h2>Zetaris when it is up, SQLite otherwise, same rows</h2>
   <div class="grid2">
     <div><ul>
       <li>A live run with Zetaris reachable registers its exports as Lightning REST tables (receipts, Bazaar, openapi, Agent402, vet402, x402-trust, settlements) and flattens them with SchemaStore views (the 22 Oct live traces, run with no model); without it the same SQL runs on SQLite</li>
@@ -264,16 +264,36 @@
 
 <section class="slide" id="s13">
   <div class="kicker">Stack and how to try it</div>
-  <h2>One command, offline, from a clean clone</h2>
+  <h2>One command, offline, no keys</h2>
 <pre>git clone https://github.com/martinPisacreta/x402-adoption-investigator
 cd x402-adoption-investigator
 python run.py --sample --input examples/ex4.json</pre>
   <div style="margin-top:30px;">
-    <span class="tag">Python 3.11, standard library</span><span class="tag">Zetaris Lightning 2.4.3.1</span><span class="tag">Meterless World Model + H-MEM</span><span class="tag">Meterless Nightshift 1.2.3: primary AI provider</span><span class="tag">NVIDIA Nemotron 3.5 Lightning, hosted</span><span class="tag">NVIDIA Nemotron Nano 9B v2, RTX 5080</span><span class="tag">Base JSON-RPC</span><span class="tag">Docker</span><span class="tag">318 tests</span><span class="tag">Claude Code: main coding agent</span><span class="tag">Cursor Agent: viewer, README pitch draft</span>
+    <span class="tag">Python 3.11, standard library</span><span class="tag">Zetaris Lightning 2.4.3.1</span><span class="tag">Meterless World Model + H-MEM</span><span class="tag">Meterless Nightshift 1.2.3: primary AI provider</span><span class="tag">NVIDIA Nemotron 3.5 Lightning, hosted</span><span class="tag">NVIDIA Nemotron Nano 9B v2, RTX 5080</span><span class="tag">Base JSON-RPC</span><span class="tag">Docker</span><span class="tag">324 tests</span><span class="tag">Claude Code: main coding agent</span><span class="tag">Cursor Agent: viewer, README pitch draft</span>
   </div>
   <p class="muted small" style="margin-top:20px;">The Nemotron live runs of 24 Oct, model pinned, sent 32 requests to Nemotron 3.5 Lightning and 5 to Nemotron Nano 9B v2 through Nightshift, one compute receipt each. The command above replays recorded Nemotron answers, offline and without keys.</p>
   <p class="muted small">Pre-existing, declared: our own Automata agent and its x402 store tienda.textokit.store (data source only, none of its code here), the Meterless conformance vectors (copied with attribution), the Zetaris platform, Meterless Nightshift 1.2.3 with its llama.cpp server and the models it served (Nemotron 3.5 Lightning hosted by NVIDIA, Nemotron Nano 9B v2 as bartowski's Q4_K_M GGUF, Llama 3.2 3B Q8; no code or weights of theirs here) and the Python standard library.</p>
   <div class="foot"><span>Team Automata · Martin Pisacreta · metadata.json</span><span>13</span></div>
+</section>
+
+<section class="slide" id="s14">
+  <div class="kicker">What was unique, and what comes next</div>
+  <h2>The model writes, the rules decide, the logs prove it</h2>
+  <div class="grid2">
+    <div>
+      <p class="muted" style="margin-bottom:14px;">What was unique</p>
+      <div class="card sm"><h3>Rules decide, the model drafts</h3><p>Nemotron writes the plan's hypotheses (untested), the answer and a second-opinion critique. Claims, rejections and the verdict come from rules C1 to C7, never from the model.</p></div>
+      <div class="card sm" style="margin-top:18px;"><h3>The model's critique is checked</h3><p>An issue on a sentence whose numbers rule B maps to the claims it cites is dismissed and logged: 20 of the 58 model issues in the five examples.</p></div>
+      <div class="card sm" style="margin-top:18px;"><h3>Every number twice, every request signed</h3><p>SQL and a Python reducer over the hashed evidence must agree (C2). Sample mode replays real Nemotron answers by prompt sha256, and all 127 receipts the repository cites verify against Nightshift's signed ledger.</p></div>
+    </div>
+    <div>
+      <p class="muted" style="margin-bottom:14px;">Future enhancements</p>
+      <div class="card sm warn"><h3>Zetaris and Nightshift in one run</h3><p>Not done yet: the model runs of 24 Oct had Zetaris stopped (memory), so their SQL ran on SQLite. Next: one live run with both, and q20 to q22 and the chain_facts view on Zetaris.</p></div>
+      <div class="card sm" style="margin-top:18px;"><h3>A full live run from the container</h3><p>Today one Nightshift request from Docker is committed; next, the investigator-live compose service end to end.</p></div>
+      <div class="card sm" style="margin-top:18px;"><h3>Wider data, better drafts</h3><p>More stores' receipts and settlements sampled across the Bazaar; prompts that make Nemotron keep caveat codes and conflict ids, which the code adds today.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>README.md: What was unique · Limitations and honesty notes</span><span>14</span></div>
 </section>
 
 <script>

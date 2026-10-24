@@ -58,7 +58,10 @@ Nemotron; the default `meterless/auto` may pick another lane. Point at: `run_sta
 line: `routing.routed_model`, `routing.winning_route.kind`, `routing.receipt_id`, `latency_ms`; `generator.jsonl`
 repeats each seq with the call parameters, and `transcripts/` holds each prompt and reply. The committed run of
 this command (the one in the demo video) is `examples/live-trace-nightshift/nemotron-cloud/live-video-ex01-20261024/`.
-With Zetaris stopped it starts with `recovery{zetaris_unreachable}` and runs the SQL on SQLite.
+With Zetaris stopped it starts with `recovery{zetaris_unreachable}` and runs the SQL on SQLite. Then Nightshift's
+side: `python scripts/nightshift_ledger.py <that run folder>` finds each receipt in the runtime's own signed ledger
+and verifies the Ed25519 signature (add `--ledger examples/live-trace-nightshift/nightshift-ledger/receipts.jsonl`
+on a machine without that Nightshift).
 
 ## 3:30 Zetaris, the data layer of live runs
 ```

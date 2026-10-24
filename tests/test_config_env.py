@@ -38,6 +38,23 @@ class EnvFiles(unittest.TestCase):
             self.assertEqual(config.load_env_files(root), ["X402T_ONLY"])
             os.environ.pop("X402T_ONLY", None)
 
+    def test_an_inline_comment_after_an_unquoted_value_is_not_part_of_it(self) -> None:
+        """.env.example's commented lines, once uncommented, must not carry their comment into the value."""
+        names = ("X402T_STYLE", "X402T_KEY", "X402T_QUOTED", "X402T_HASH", "X402T_PORT")
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.dict(os.environ, {}, clear=False):
+            root = Path(tmp)
+            (root / ".env.local").write_text(
+                "X402T_STYLE=proxy     # proxy | direct\n"
+                "X402T_KEY=            # GUI-created API key\n"
+                "X402T_QUOTED=\"a # b\"\n"
+                "X402T_HASH=pa#ss\n"
+                "X402T_PORT=0\t# 0 = random free port\n", encoding="utf-8")
+            config.load_env_files(root)
+            got = tuple(os.environ.get(n) for n in names)
+            for name in names:
+                os.environ.pop(name, None)
+        self.assertEqual(got, ("proxy", "", "a # b", "pa#ss", "0"))
+
     def test_empty_env_files_keep_auto_mode_sample(self) -> None:
         env = config.read_env({})
         self.assertEqual(config.resolve_mode("auto", env), "sample")

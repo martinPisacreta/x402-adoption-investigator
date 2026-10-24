@@ -21,6 +21,11 @@ live-capture-local.json and zetaris-capture.json, from the repository root in Gi
     python docs/pitch/video/capture_run.py --out docs/pitch/video/zetaris-capture.json --cmdline "grep -E '\"type\":\"(run_start|sql)\"' examples/live-trace/live-ex01-20261022/run.jsonl"
 (live-capture-cloud.json, a grep over the committed log of nemotron-cloud-ex01-20261024 used by the first 24 Oct
 rebuild of the video, was replaced by live-capture-run.json.)
+What produced ledger-capture.json (the check of that live run against Nightshift's own signed receipt ledger; the
+sha256 of the script goes in the header so the build can refuse a capture made with another version of it):
+    python docs/pitch/video/capture_run.py --out docs/pitch/video/ledger-capture.json \
+        --meta script_sha256=<sha256 of scripts/nightshift_ledger.py> --meta "ledger=..." -- \
+        python scripts/nightshift_ledger.py examples/live-trace-nightshift/nemotron-cloud/live-video-ex01-20261024
 """
 import argparse
 import datetime

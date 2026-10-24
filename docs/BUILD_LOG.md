@@ -489,3 +489,60 @@ Entries are added here only for work actually done after 2026-10-22.
   22 Oct until they are replaced; the date of that upload goes here when it happens.
 - **Not done:** the Nightshift Console is not shown in the video; no run has used Zetaris and Nightshift together
   (Zetaris stays stopped for memory); the Docker image and a fresh clone were not re-checked on this tree.
+
+### 2026-10-24 (from 19:50 UTC) — Claude Code: second review round, Nightshift's signed ledger, deck slide 14
+
+- **Tool:** Claude Code (Claude Opus 5.5), one agent of the same review-and-fix workflow.
+- **Why:** a second review found, among others: nothing in the video came from Nightshift's own side; the deck had
+  no "what was unique" and no "future enhancements"; README said C3 never fires in the committed examples (its check
+  of the answer revises every replayed draft); slide 5 said sample mode replays the live runs' answers; slide 9
+  called the Llama requests "the first 32 of 24 Oct" (57 went there, the 25 recordings of the first replay set
+  included); METERLESS.md tied a 0.49 retrieval score to the wrong memory; `fixtures/transcripts/README.md` missed
+  the 18:43 re-recording of example 01's round-2 answers; the Docker smoke README overstated the Planner reply;
+  `.env.example`'s commented lines kept inline comments the loader made part of the value; a sample run with a
+  `run_id` that is no example's mounted the null generator without a word; the failed smokes' `max_tokens` was in no
+  log; narration and slide 13 implied a clean-clone check of this tree.
+- **Code:** `scripts/nightshift_ledger.py` (new): for each receipt a run's `generate` events (or a transcripts
+  folder) cite, it finds the envelope in Nightshift's own ledger (`<stateDir>/receipts.jsonl`, or `--ledger`),
+  verifies its Ed25519 signature with a standard-library RFC 8032 verifier and prints what Nightshift recorded next
+  to the run's seq; `--copy-to` writes the matching ledger lines unedited. `investigator/config.py`: an unquoted env
+  value drops a ` # ...` comment. `investigator/runner.py`: a sample run without recorded transcripts logs one
+  `recovery{generator_fallback}` naming why (no example for that `run_id`: pass `--example`). `scripts/nightshift_smoke.py`:
+  `run_start.smoke_request` (agent, prompt id, `max_tokens`, prompt sha256 and repository path). Comments of
+  `.env.example` moved to their own lines; the Dockerfile's live example now points at the compose service and shows
+  the host URL and the token mount.
+- **Nightshift ledger:** run on the demo machine on 24 Oct over every committed run folder under
+  `examples/live-trace-nightshift/`, `fixtures/transcripts/`, the archived Llama transcripts and the five examples:
+  153 references, 127 distinct receipts, all found, all signatures valid, every winner the model the log names (65
+  hosted Nemotron 3.5 Lightning, 5 local Nemotron Nano 9B v2, 57 local Llama 3.2 3B; one public key). The signed
+  message (the body as compact JSON, keys in file order, UTF-8) was found by trying candidate encodings on one
+  receipt; it then held for all 127. Excerpt committed as `examples/live-trace-nightshift/nightshift-ledger/receipts.jsonl`
+  (the 127 lines, unedited; they carry Nightshift's 180-character prompt preview, which the signature covers). The
+  Nightshift token was read only inside a script to confirm it is not in the excerpt.
+- **Tests:** 324 (6 new: `tests/test_nightshift_ledger.py` 4, `tests/test_config_env.py` 1,
+  `tests/test_run_contract.py` 1). `python -m unittest discover -s tests`: 324 tests, OK, 0 skips, 116 s, in the author tree
+  (Python 3.11.9).
+- **Deck:** slides 5 (sample mode replays 25 answers recorded on the fixture prompts), 9 (the ledger sentence; the
+  Llama lane took the six earlier live runs, 32 requests, and the first replay set, 25), 10 (title: Zetaris when it
+  is up), 13 (title "One command, offline, no keys"; 324 tests) and a new slide 14 (what was unique, future
+  enhancements). Rendered with the Chrome commands of the 22 Oct entry; slides 1-4, 6-8, 11 and 12 rendered
+  byte-identical to the committed PNGs; `deck.pdf` has 14 pages and none of "first 32", "from a clean clone" or
+  "318 tests". `metadata.json` `tests.count_in_submitted_deck` became `count_in_repo_deck` (324) plus
+  `count_in_hackos_deck` (225, the deck on the form).
+- **Video** (`tts.ps1 -Rate 2`, `build_video.py`): narration s09 adds "Then Nightshift's own signed ledger: the same
+  five receipts, routed to Nemotron, every signature valid" (and drops the date and "with a receipt naming the
+  model" to stay under 4 minutes), s10 says "when it is up" and drops "Lightning SQL", s13 says "offline, with no
+  keys, and three hundred twenty four tests pass" and "Built with Claude Code and Cursor". Between the live run and
+  the local `grep`, the Nightshift part replays `docs/pitch/video/ledger-capture.json`: `capture_run.py` over
+  `python scripts/nightshift_ledger.py examples/live-trace-nightshift/nemotron-cloud/live-video-ex01-20261024` at
+  20:09 UTC against the live ledger (6 lines, 0.11 s); the build refuses unless the script's sha256 is the captured
+  one and every line equals what the script computes from the committed excerpt. Output: 236.8 s (3 min 57 s), 1920x1080, 30 fps,
+  7104 frames, H.264 and AAC, 19.4 MB; `ffmpeg -v error` decodes it with no output. Secrets: two tiled sheets of one
+  frame every 5 s and single frames of the ledger part (t = 184 s and 188 s) were looked at: slides, the captured
+  stdout, the viewer; receipt, model and public wallet and transaction ids only, no Providers tab, no token, no key.
+- **HackOS:** this round did not touch the HackOS form either: the description, deck and video there are still those
+  of 22 Oct. A new description text (1974 characters, 1986 counting CRLF line breaks) is ready outside the
+  repository; the date of the upload goes here when it happens.
+- **Not done:** no run with Zetaris and Nightshift together (Zetaris stays stopped for memory); no screenshot of the
+  Nightshift Console window (the ledger check stands in for it); the Docker image and a fresh clone were not re-checked
+  on this tree in this round; nothing was pushed, so GitHub `main` is behind this branch until it is.

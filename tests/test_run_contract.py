@@ -120,6 +120,24 @@ class SampleRunContract(unittest.TestCase):
             self.assertEqual(envelope["output"]["plan"]["playbook"], playbook)
             self.assertEqual(validate(envelope, load_schema("output")), [])
 
+    def test_a_run_id_that_is_no_examples_says_why_no_answer_is_replayed(self) -> None:
+        """Recorded transcripts are found by the example's run_id or --example; any other run_id mounts the null
+        generator and logs recovery{generator_fallback} saying so, instead of replaying nothing silently."""
+        payload = dict(example_payload("03-payer-dossier-onchain"), run_id="own-run-id")
+        envelope = run_investigation(payload, sample_config(self.out_dir), echo_stdout=False)
+        self.assertEqual(envelope["output"]["mounts"]["generator"], "null")
+        events = [json.loads(l) for l in (self.out_dir / "own-run-id" / "run.jsonl").read_text(encoding="utf-8").splitlines()]
+        fallbacks = [e["payload"] for e in events if e["type"] == "recovery" and e["payload"]["reason"] == "generator_fallback"]
+        self.assertEqual(len(fallbacks), 1)
+        self.assertIn("pass --example <folder>", fallbacks[0]["detail"])
+        self.assertNotIn("generate", {e["type"] for e in events})
+        args = type("Args", (), {"mode": "sample", "sample": True, "out": str(self.out_dir), "example": "03-payer-dossier-onchain"})()
+        replayed = run_investigation(payload, build_config(args, load_dotenv=False), echo_stdout=False)
+        self.assertEqual(replayed["output"]["mounts"]["generator"], "recorded")
+        events = [json.loads(l) for l in (self.out_dir / "own-run-id" / "run.jsonl").read_text(encoding="utf-8").splitlines()]
+        self.assertNotIn("generator_fallback", {e["payload"].get("reason") for e in events if e["type"] == "recovery"})
+        self.assertEqual(sum(e["type"] == "generate" for e in events), 5)
+
     def test_example_02_is_ok_with_no_rejected_claim(self) -> None:
         envelope = run_example("02-catalog-concentration", self.out_dir)
         self.assertEqual(envelope["status"], "ok", envelope.get("error"))

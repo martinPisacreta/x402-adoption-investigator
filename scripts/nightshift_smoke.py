@@ -7,7 +7,8 @@
 It builds the live run context of examples/ex1.json (runner.build_context: the mounts only; no source is fetched and
 no SQL runs), logs a run_start with the generator mount, sends the prompt file's text through
 investigator.generator.generate() (the call the Planner, Writer and Critic make: temperature 0, the given max_tokens,
-Nightshift's 90 s timeout) and closes the log. logs/<run_id>/run.jsonl then holds the real `generate` event, or the
+Nightshift's 90 s timeout) and closes the log. Its run_start also records the request (`smoke_request`: agent,
+prompt id, max_tokens, the prompt's sha256 and repository path, the --reasoning-effort given). logs/<run_id>/run.jsonl then holds the real `generate` event, or the
 `recovery{generator_fallback}` with the error when the call failed; generator.jsonl the call parameters; transcripts/
 the reply and the prompt. The model is METERLESS_MODEL / NIGHTSHIFT_MODEL, as in a run; --reasoning-effort sets
 NIGHTSHIFT_REASONING_EFFORT for this one call (unset: the environment's value, default none). Prints one JSON line:
@@ -17,6 +18,7 @@ the routed model, the route kind, the receipt, latency, tokens and whether the r
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import sys
@@ -42,6 +44,15 @@ def reply_shape(agent: str, text: str) -> str:
     if agent == "planner":
         return "JSON object" if parse_json_object(text) is not None else "no JSON object"
     return f"text, {len(text.strip())} characters" if text.strip() else "empty"
+
+
+def repo_relative(path: str) -> str:
+    """The prompt file as a repository path, or its bare name outside the repository (never a machine path)."""
+    resolved = Path(path).resolve()
+    try:
+        return resolved.relative_to(REPO_ROOT.resolve()).as_posix()
+    except ValueError:
+        return resolved.name
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -71,7 +82,12 @@ def main(argv: list[str] | None = None) -> int:
         ctx.deadline_ms = ctx.start_ms + inp.budget.max_seconds * 1000
         ctx.log.emit("run_start", "runner", {
             "mounts": to_json(ctx.mounts), "input_sha256": runner.sha256_json(to_json(inp)), "smoke_test": True,
-            "budget": to_json(inp.budget), "deadline_at": iso_from_ms(ctx.deadline_ms), "generator_mount": ctx.generator.mount_info})
+            "budget": to_json(inp.budget), "deadline_at": iso_from_ms(ctx.deadline_ms), "generator_mount": ctx.generator.mount_info,
+            # What was asked, so a failed request (no generate event, no transcript) still records it.
+            "smoke_request": {"agent": args.agent, "prompt_id": args.prompt_id, "max_tokens": args.max_tokens,
+                              "prompt_sha256": hashlib.sha256(prompt.encode("utf-8")).hexdigest(),
+                              "prompt_file": repo_relative(args.prompt_file),
+                              "reasoning_effort": args.reasoning_effort}})
         result = generate(ctx, args.agent, args.prompt_id, prompt, max_tokens=args.max_tokens)
         summary: dict = {"run_id": run_id, "requested_model": ctx.generator.model,
                          "call_options": ctx.generator.call_options, "max_tokens": args.max_tokens}

@@ -105,7 +105,9 @@ class Env:
 
 
 def load_env_local(path: Optional[Path] = None, override: bool = False) -> list[str]:
-    """Load KEY=VALUE lines into os.environ (existing variables win unless override). Returns the names."""
+    """Load KEY=VALUE lines into os.environ (existing variables win unless override). Returns the names.
+    A value in matching quotes is taken literally; in an unquoted value a `#` at its start or after whitespace starts a
+    comment (`ZETARIS_API_STYLE=proxy   # proxy | direct` gives `proxy`, `KEY=   # note` gives an empty value)."""
     env_path = Path(path) if path else REPO_ROOT / ".env.local"
     names: list[str] = []
     if not env_path.is_file():
@@ -121,6 +123,8 @@ def load_env_local(path: Optional[Path] = None, override: bool = False) -> list[
         value = value.strip()
         if len(value) >= 2 and value[0] == value[-1] and value[0] in ("'", '"'):
             value = value[1:-1]
+        else:
+            value = "" if value.startswith("#") else re.split(r"\s#", value, maxsplit=1)[0].rstrip()
         if not key or (key in os.environ and not override):
             continue
         os.environ[key] = value

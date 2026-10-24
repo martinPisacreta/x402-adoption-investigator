@@ -159,6 +159,14 @@ feedback reasons, mining, sleep/restore, conflicts, dreaming).
 Ledger rotation (append-only, never pruned), external embedding providers, chat/mission scoping (`chatId`,
 `missionId`), the reference's story/velocity analytics (World Model side).
 
+## Nightshift (primary AI provider)
+
+Not an engine port: Meterless Nightshift is the runtime the generator-backed roles call first in live mode
+(`NightshiftGenerator` in `investigator/generator.py`, OpenAI-compatible provider `meterless`, routing mode
+`meterless/auto`, Auto Detect, fallback to the OpenAI-compatible env and then to rules). The H-MEM reinjection block
+reaches its prompts exactly as described above. README section "Meterless Nightshift (primary AI provider)" lists
+what is implemented and what is not claimed (no committed run used it); tests in `tests/test_nightshift.py`.
+
 ## Licensing
 
 Meterless engines are Apache License 2.0 upstream; this repository is MIT. The vectors copy carries attribution in

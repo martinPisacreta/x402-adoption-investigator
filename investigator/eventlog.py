@@ -2,8 +2,9 @@
 
 Every event is one JSON line {seq, at, run_id, type, agent, payload} appended to logs/<run_id>/run.jsonl and
 mirrored to stdout. One seq counter is shared by the side files (fetch.jsonl, sql.jsonl, zetaris.jsonl,
-hmem.trace.jsonl): a side line repeats the seq of its companion run.jsonl line, so log://<run_id>#<seq> is
-unambiguous. Human-readable progress never goes to stdout; stderr only with --verbose (see runner.py).
+hmem.trace.jsonl, generator.jsonl): a side line repeats the seq of its companion run.jsonl line, so
+log://<run_id>#<seq> is unambiguous. Human-readable progress never goes to stdout; stderr only with --verbose
+(see runner.py).
 """
 from __future__ import annotations
 
@@ -16,7 +17,7 @@ from .clock import Clock
 
 EVENT_TYPES: tuple[str, ...] = (
     "guard", "run_start", "plan", "handoff", "fetch", "retry", "recovery", "ingest", "verify", "crosscheck",
-    "sql", "claim", "conflict", "critique", "narrative_map", "memory", "timeout", "result", "error",
+    "sql", "claim", "conflict", "critique", "narrative_map", "memory", "generate", "timeout", "result", "error",
 )
 SIDE_FILES: tuple[str, ...] = ("fetch", "sql", "zetaris", "hmem.trace", "world.events", "world.audit", "world.observations")
 

@@ -25,8 +25,8 @@
     "python": "3.11",
     "dependencies": "Python standard library only; no pip install. pytest is optional for tests.",
     "sample_mode": "Default without credentials (or --sample / SAMPLE_MODE=1): replays fixtures/raw/ captured 2026-10-22, installs a socket guard before the first event (investigator/guard.py), runs the SQL on SQLite, no network and no keys. An example may also replay transient failures scripted in fixtures/transient/<example>/faults.json through the same retry code live runs use; only example 05 has such a script, and its failures are simulated (written by hand, not captured).",
-    "live_mode": "With .env.local (copied from .env.example): live fetches with retries and fixture fallback, Zetaris as SQL executor, an OpenAI-compatible generator when OPENAI_API_KEY is set. Every missing piece degrades to a logged recovery.",
-    "logs": "logs/<run_id>/run.jsonl (mirrored to stdout) plus side files sharing one seq counter: fetch.jsonl, sql.jsonl, zetaris.jsonl (live), hmem.trace.jsonl, world.events.jsonl, world.audit.jsonl, world.observations.jsonl, generator.jsonl (when a generator is mounted); output.json and report.md"
+    "live_mode": "With .env.local (copied from .env.example): live fetches with retries and fixture fallback, Zetaris as SQL executor, Meterless Nightshift as the generator when its runtime is online (auto-detected or NIGHTSHIFT_BASE_URL), else an OpenAI-compatible generator when OPENAI_API_KEY is set. Every missing piece degrades to a logged recovery.",
+    "logs": "logs/<run_id>/run.jsonl (mirrored to stdout) plus side files sharing one seq counter: fetch.jsonl, sql.jsonl, zetaris.jsonl (live), hmem.trace.jsonl, world.events.jsonl, world.audit.jsonl, world.observations.jsonl, generator.jsonl (when a generator answers: one line per generate event of run.jsonl, naming provider and model); output.json and report.md"
   },
   "agents": [
     {"role": "Planner", "file": "investigator/agents/planner.py", "does": "Routes the question to a playbook by rules and picks sources, query ids and metrics; with a generator mounted, one call may refine the plan (choose among the router's candidate playbooks, add hypotheses and registry metrics), validated by plan.schema.json.", "generator_backed": true},
@@ -79,6 +79,14 @@
       "used": true,
       "engines_mounted": ["World Model", "H-MEM"],
       "engines_not_mounted": ["Markovian", "Scout Intent"],
+      "nightshift": {
+        "used": true,
+        "role": "Primary AI provider of the generator-backed roles (Planner, Writer, Critic second opinion) in live mode; the OpenAI-compatible endpoint is only the fallback.",
+        "files": ["investigator/generator.py", "investigator/config.py", "investigator/runner.py", ".env.example"],
+        "what": "NightshiftGenerator implements the Meterless Runtime 0.90.0 provider contract (OpenAI-compatible, provider id meterless, default http://127.0.0.1:8088/v1): Bearer token from NIGHTSHIFT_TOKEN or NIGHTSHIFT_TOKEN_FILE (<stateDir>/proxy-token; rt-local never sent), meterless-app: x402-adoption-investigator on every request, meterless-scope: user on chat requests, routing mode meterless/auto (NIGHTSHIFT_MODEL), 180 s timeout bounded by the run deadline, pasted URLs normalised to <host>/v1. Status from GET /v1/models (401/403 unauthorized, 200 with meterless/* ids online, else offline) at NIGHTSHIFT_BASE_URL or by Auto Detect on ports 8088, 8090, 8787, 11434 of 127.0.0.1, localhost and [::1]. Live fallback chain: Nightshift -> OPENAI_API_KEY -> rules and templates, with recovery nightshift_unavailable naming the reason; sample mode never runs detection. Every answered call is a generate event in run.jsonl (provider, requested routing mode, model that answered) whose seq generator.jsonl repeats; the token is never logged.",
+        "not_claimed": "No committed run used Nightshift: the adapter was added on 2026-10-24 and has been exercised only against an in-process fake of the runtime contract. Committed sample runs replay recorded transcripts when they exist (none today) and otherwise use rules and templates.",
+        "tests": ["tests/test_nightshift.py"]
+      },
       "implementation": "Python 3.11 standard-library ports written in the build window from the published Meterless specifications and reference implementations (Apache-2.0 upstream; no upstream source file copied).",
       "world_model": {
         "files": ["investigator/worldmodel/", "investigator/worldmodel/adapters/", "investigator/agents/keeper.py", "scripts/assert_idempotent.py"],
@@ -92,7 +100,8 @@
         "tests": ["tests/test_hmem_conformance.py", "tests/test_meterless_hmem.py", "tests/test_generator_hmem.py", "tests/test_critic.py"]
       },
       "checklist": {
-        "single_configurable_generator": "investigator/generator.py (OPENAI_API_KEY, OPENAI_BASE_URL, MODEL)",
+        "single_configurable_generator": "investigator/generator.py (primary: Meterless Nightshift, NIGHTSHIFT_BASE_URL or Auto Detect, NIGHTSHIFT_TOKEN_FILE, NIGHTSHIFT_MODEL; fallback: OPENAI_API_KEY, OPENAI_BASE_URL, MODEL)",
+        "nightshift_primary_ai_provider": "yes in live mode (investigator/generator.py build_generator); no committed run used it, tested against an in-process fake of the runtime (tests/test_nightshift.py)",
         "hmem_injected_into_prompts_with_trace": "yes when a generator is mounted; proved offline by tests/test_generator_hmem.py with an in-process OpenAI-compatible double (no committed run had a model key)",
         "markovian_for_long_tasks": "not used: runs are bounded (seconds to minutes, max_seconds budget)",
         "world_model_idempotent_ingest": "yes, proved in every output and by scripts/assert_idempotent.py",
@@ -131,9 +140,10 @@
     }
   ],
   "llm_usage": {
-    "committed_runs": "No language model ran in any committed run. The five examples, the memory ablation and the three live traces all have mounts.generator null: the Planner routes by rules, the Writer renders templates, the Critic applies its deterministic rules only. No OPENAI_API_KEY was available during the build, and no real model output is recorded (fixtures/transcripts/ holds only its README).",
+    "committed_runs": "No language model ran in any committed run. The five examples, the memory ablation and the three live traces all have mounts.generator null: the Planner routes by rules, the Writer renders templates, the Critic applies its deterministic rules only. No OPENAI_API_KEY was available during the build, no Nightshift runtime has answered a run yet, and no real model output is recorded (fixtures/transcripts/ holds only its README).",
     "generator_backed_roles": ["Planner (plan refinement among the router's candidates, validated by plan.schema.json)", "Writer (narrative sentences tagged with claim ids)", "Critic second opinion (can only add issues)"],
-    "when_a_key_is_configured": "With OPENAI_API_KEY set (OPENAI_BASE_URL and MODEL configurable, default model gpt-4.1-mini) live mode mounts OpenAIGenerator: chat completions over urllib, temperature 0, 60 s timeout, bounded by max_generator_calls, every prompt and transcript hashed in logs. Without a key live runs fall back to rules and templates with recovery generator_fallback and status partial.",
+    "when_nightshift_is_online": "Live mode mounts NightshiftGenerator (mounts.generator nightshift:meterless/auto) when GET /v1/models at NIGHTSHIFT_BASE_URL, or at the first Auto Detect hit, answers 200 with meterless/* ids: chat completions over urllib with the Bearer token and the meterless-app / meterless-scope headers, temperature 0, 180 s timeout, bounded by max_generator_calls; each call is a generate event naming provider, routing mode and answering model. Otherwise the run logs recovery nightshift_unavailable and falls back as below.",
+    "when_a_key_is_configured": "With OPENAI_API_KEY set and Nightshift not online (OPENAI_BASE_URL and MODEL configurable, default model gpt-4.1-mini) live mode mounts OpenAIGenerator: chat completions over urllib, temperature 0, 60 s timeout, bounded by max_generator_calls, every prompt and transcript hashed in logs. Without a key live runs fall back to rules and templates with recovery generator_fallback and status partial.",
     "never_by_a_model": "The verdict label (investigator/agents/verdict.py), claim acceptance and every number. A model can only phrase accepted claims or add Critic issues.",
     "tested_offline": "tests/test_generator_hmem.py mounts the real OpenAIGenerator with an in-process OpenAI-compatible double: scripted replies, no network, no key. It proves the plumbing (memory injection, hashes, a second Writer round on the Critic's issue, transcript replay), not the quality of any model."
   },
@@ -172,11 +182,11 @@
   "examples_note": "Every committed example output is regenerated only by scripts/regen_examples.py and checked byte for byte by tests/test_examples_reproducible.py. All 54 accepted claims of the five examples are computed twice and agree (example 05's 9 are example 03's 9, reproduced after the retries).",
   "tests": {
     "command": "python -m unittest discover -s tests",
-    "count": 254,
+    "count": 283,
     "count_in_submitted_deck": 225,
-    "count_note": "docs/pitch/deck.html, deck.pdf, narration.txt and demo.mp4 were submitted on 2026-10-22 with the 225 tests of that day and are not edited afterwards; the 28 tests added on 2026-10-23 cover the retry policy and example 05 (tests/test_retry.py) and the payload schema of every committed log line (tests/test_run_contract.py).",
+    "count_note": "docs/pitch/deck.html, deck.pdf, narration.txt and demo.mp4 were submitted on 2026-10-22 with the 225 tests of that day and are not edited afterwards; the 28 tests added on 2026-10-23 cover the retry policy and example 05 (tests/test_retry.py) and the payload schema of every committed log line (tests/test_run_contract.py); the 1 added later on 2026-10-23 covers the 501/505 rule (tests/test_retry.py), and the 29 added on 2026-10-24 cover the Meterless Nightshift provider (tests/test_nightshift.py).",
     "third_party_dependencies": "none",
-    "verified": "Green (254 tests, 0 failures, 0 skips) on 2026-10-23 after adding the 501/505 test, in the author tree and in a fresh Windows clone with the default core.autocrlf=true; earlier, all 253 at that point were green on the tree of 53dc069 in the author tree, in a fresh Windows clone with the default core.autocrlf=true (Python 3.11.9) and in the Docker image built from a fresh core.autocrlf=false clone (--network none, Python 3.11.17), where example 05 also ran and wrote its committed files byte for byte; the round of 2026-10-22 (tree da37be7) also checked a core.autocrlf=false Windows clone and the one-command scripts on Windows."
+    "verified": "Green (283 tests, 0 failures, 0 skips) on 2026-10-24 in the author tree (Python 3.11.9) after adding the Meterless Nightshift provider, not yet re-checked in a fresh clone or the Docker image; before that, green (254 tests, 0 failures, 0 skips) on 2026-10-23 after adding the 501/505 test, in the author tree and in a fresh Windows clone with the default core.autocrlf=true; earlier, all 253 at that point were green on the tree of 53dc069 in the author tree, in a fresh Windows clone with the default core.autocrlf=true (Python 3.11.9) and in the Docker image built from a fresh core.autocrlf=false clone (--network none, Python 3.11.17), where example 05 also ran and wrote its committed files byte for byte; the round of 2026-10-22 (tree da37be7) also checked a core.autocrlf=false Windows clone and the one-command scripts on Windows."
   },
   "docs": ["README.md", "SPEC.md", "docs/BUILD_LOG.md", "fixtures/transient/README.md", "docs/METERLESS.md", "docs/ZETARIS.md", "docs/DEMO_SCRIPT.md", "examples/README.md", "examples/live-trace/README.md", "docs/pitch/deck.pdf", "docs/pitch/deck.html", "docs/pitch/narration.txt", "docs/pitch/demo.mp4", "docs/pitch/video/build_video.py", "docs/pitch/video/run-capture.json"],
   "limitations": [

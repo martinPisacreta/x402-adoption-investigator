@@ -66,7 +66,7 @@ class Mounts:
     mode: Mode
     fetcher: Literal["live", "fixture", "live+fixture-fallback"]
     executor: Literal["zetaris", "sqlite"]
-    generator: str                  # "openai:<model>" | "recorded" | "null"
+    generator: str                  # "nightshift:<routing mode>" | "openai:<model>" | "recorded" | "null"
     fixtures_captured_at: Optional[str]   # MANIFEST.fetchedAt when any fixture was used
     zetaris_version: Optional[str]  # "2.4.3.1" when live
     zetaris_source: Optional[Literal["captured", "direct"]]
@@ -231,10 +231,12 @@ class Fetcher(Protocol):
 @dataclass
 class GeneratorResult:
     text: str
-    model: str
+    model: str                      # the model that answered (response "model" field, else the requested one)
     recorded: bool
     prompt_sha256: str
     usage: dict[str, int]
+    provider: str = ""              # "meterless" (Nightshift) | "openai" | the recorded call's provider
+    requested_model: Optional[str] = None   # what was asked for, e.g. the routing mode "meterless/auto"
 
 
 class Generator(Protocol):

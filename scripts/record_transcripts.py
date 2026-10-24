@@ -2,7 +2,10 @@
 """Run an example live with --record-transcripts and store the generator transcripts under
 fixtures/transcripts/<example>/ (SPEC.md 7.4 rule 5 and section 11). Owner: B4.
 
-Needs OPENAI_API_KEY (and optionally OPENAI_BASE_URL / MODEL) in .env.local; values are never printed. Every
+Needs a generator: Meterless Nightshift online (auto-detected, or NIGHTSHIFT_BASE_URL, with NIGHTSHIFT_TOKEN_FILE or
+NIGHTSHIFT_TOKEN), or as fallback OPENAI_API_KEY (and optionally OPENAI_BASE_URL / MODEL), in .env.local or the
+shell; values are never printed. The run uses --require-generator, so with neither it stops with E_GENERATOR and
+the reason. Every
 generator call of the run (Planner, Writer rounds, Critic second opinions) is saved as
 <prompt_id>-<prompt_sha12>.json with the prompt text beside it, so a later sample-mode run of the same example
 replays them through RecordedGenerator (planner_source / answer source "recorded-generator").
@@ -45,9 +48,6 @@ def main(argv: list[str] | None = None) -> int:
     config = build_config(type("Args", (), {"mode": "live", "sample": False, "out": args.out, "record_transcripts": True,
                                             "require_generator": True, "require_zetaris": args.require_zetaris,
                                             "example": args.example})())
-    if not config.env.has_generator():
-        print("OPENAI_API_KEY is not configured (.env.local); nothing recorded", file=sys.stderr)
-        return 2
     if args.first_draft_plain:
         from investigator.agents import writer as writer_mod
         original = writer_mod.claims_table

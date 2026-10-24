@@ -39,7 +39,7 @@ from typing import TYPE_CHECKING, Any, Optional
 
 from ..clock import parse_iso_ms
 from ..contracts import Claim, Conflict, Critique, Observation, Verification, AgentResult
-from ..generator import generate, load_prompt, parse_json_list, render_prompt
+from ..generator import generate, load_prompt, render_prompt, salvage_json_list
 from .analyst import format_share_pct, format_usdc, values_agree
 from .metrics import METRICS, STALE_EVIDENCE_DAYS
 from .pitfalls import SeedMemory as _SeedMemory  # noqa: F401 - kept importable for callers of the old name
@@ -509,10 +509,15 @@ def second_opinion(ctx: "RunContext", answer: Answer, claims: list[Claim], round
     result = generate(ctx, "critic", f"critic-r{round_no}", prompt, max_tokens=CRITIC_MAX_TOKENS, attempt=round_no)
     if result is None:
         return []
-    items = parse_json_list(result.text)
+    items, salvaged = salvage_json_list(result.text)
     if items is None:
         ctx.recover("critic", "generator_fallback", f"critic-r{round_no}: reply is not a JSON array; no issues added")
         return []
+    if salvaged:
+        # The reply was cut off mid-array: its complete items are kept (the second opinion can only add issues).
+        ctx.recover("critic", "generator_reply_repaired",
+                    f"critic-r{round_no}: reply was a truncated JSON array; its {salvaged} complete item(s) were kept",
+                    prompt_id=f"critic-r{round_no}", kept=salvaged)
     issues: list[dict[str, Any]] = []
     for item in items[:20]:
         if not isinstance(item, dict):

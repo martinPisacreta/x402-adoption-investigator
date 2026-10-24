@@ -1,0 +1,51 @@
+{
+  "prompt_id": "writer-r1",
+  "prompt_sha256": "ebbcd2f2637218926ad26835020741451b85a7ad898ab9e71773cde8d72571c0",
+  "model": "local-runtime/llama-3.2-3b-instruct-q8",
+  "recorded_at": "2026-10-24T16:01:19.639Z",
+  "response": "- Self-settled_mostly (confidence 0.90)\n- External_sales_total_55000_atomic_USDC\n- Top_external_payer_made_20_of_24_external_sales\n- External_sales_settled_inside_30-day_window\n- Registries_disagree_on_endpoint_count_for_tienda_textokit_store\n- External_sales_by_service\n- External_sales_per_day\n- External_sales_by_external_payer\n- External_sales_by_service_by_external_payer\n\nThe adoption of tienda.textokit.store appears to be mostly self-settled, with 56 of 80 sales settled by the seller's own wallets, representing a self-settlement share of 70.0%. However, external sales also occur, totaling 55000 atomic USDC. The top external payer, 0xec2abd3eda89bed90124736e317e847d5fb6d034, made 20 of 24 external sales, representing 83.3% of external sales. External sales are settled inside the 30-day window ending 2026-10-24, with 24 sales settled. Despite the high share of self-settlement, external sales are also significant, indicating a diverse user base. Registries disagree on the endpoint count for tienda.textokit.store, with the CDP Bazaar search returning 17 listings, while the store openapi declares paid operations and Agent402 counts tools, including free ones. This discrepancy highlights the complexity of tracking endpoint counts and the need for a unified approach.",
+  "usage": {
+    "prompt_tokens": 6990,
+    "completion_tokens": 1013,
+    "total_tokens": 8003
+  },
+  "provider": "meterless",
+  "requested_model": "meterless/auto",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_cw3zytok",
+    "decision_id": "req_cw3zytok",
+    "requested_model": "meterless/auto",
+    "routed_model": "local-runtime/llama-3.2-3b-instruct-q8",
+    "winning_route": {
+      "model": "local-runtime/llama-3.2-3b-instruct-q8",
+      "label": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
+      "provider": "local-runtime",
+      "kind": "local",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "planning",
+        "model": "local-runtime/llama-3.2-3b-instruct-q8",
+        "ms": 7067
+      },
+      {
+        "phase": "code_patch",
+        "model": "local-runtime/llama-3.2-3b-instruct-q8",
+        "ms": 3540
+      }
+    ],
+    "latency_ms": 10607,
+    "usage": {
+      "input_tokens": 6990,
+      "output_tokens": 1013,
+      "total_tokens": 8003
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "local-only",
+    "wall_ms": 10719
+  }
+}

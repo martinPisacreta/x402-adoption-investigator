@@ -2,6 +2,11 @@
 (double until B1 delivers it) -> Analyst -> Writer -> Critic loop -> finalize, in sample mode over the committed
 fixtures with the real SQLite view layer (B3). Every expected number is read from the fixture files, never typed
 as a constant (SPEC.md invariant I1).
+
+The generator is pinned to NullGenerator: these tests cover the rules-and-templates path (what a live run without
+any generator, or a sample run of an input with no recorded transcripts, executes). The committed examples replay
+recorded Meterless Nightshift transcripts (fixtures/transcripts/<example>/); that path is covered by
+tests/test_examples_reproducible.py, tests/test_example_04_critic.py, tests/test_retry.py and tests/test_nightshift.py.
 """
 from __future__ import annotations
 
@@ -21,6 +26,7 @@ from investigator.agents import verifier as verifier_mod  # noqa: E402
 from investigator.agents.metrics import METRICS  # noqa: E402
 from investigator.agents.pitfalls import load_memory_file, wanted_entities  # noqa: E402
 from investigator.config import build_config  # noqa: E402
+from investigator.generator import NullGenerator  # noqa: E402
 from investigator.schemas import load_schema, validate  # noqa: E402
 from tests import test_agents_doubles as doubles  # noqa: E402
 
@@ -43,7 +49,7 @@ def sample_config(out_dir: Path):
 
 def run_example(folder: str, out_dir: Path, collector=None, verifier=None, executor=None) -> dict:
     payload = json.loads((REPO_ROOT / "examples" / folder / "input.json").read_text(encoding="utf-8"))
-    patches = []
+    patches = [mock.patch.object(runner, "build_generator", lambda *args, **kwargs: NullGenerator())]
     if collector is not None:
         patches.append(mock.patch.object(runner.collector, "run_collector", collector))
     if verifier is not None or verifier_is_scaffold():

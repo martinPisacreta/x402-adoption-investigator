@@ -14,7 +14,16 @@ The tests pin the contract the adapter implements:
 - provider precedence in live mode: Nightshift > OpenAI-compatible env > rules/templates, with
   recovery{nightshift_unavailable} naming the reason; sample mode never runs detection;
 - every answered call is a `generate` event in run.jsonl (provider, requested routing mode, model that answered)
-  whose seq generator.jsonl repeats, and the token appears in no log, transcript or output.
+  whose seq generator.jsonl repeats, and the token appears in no log, transcript or output;
+- the token is found in this order: NIGHTSHIFT_TOKEN, METERLESS_RUNTIME_TOKEN, METERLESS_TOKEN, NIGHTSHIFT_TOKEN_FILE,
+  <stateDir>/proxy-token (stateDir = METERLESS_STATE_DIR or the ns CLI's OS default); METERLESS_BASE_URL and
+  METERLESS_MODEL are aliases of NIGHTSHIFT_BASE_URL and NIGHTSHIFT_MODEL (the NIGHTSHIFT_* name wins);
+- the `meterless` compute receipt of an answer (shape of Nightshift 1.2.3, fake_receipt below) becomes `routing` on
+  the generate event, generator.jsonl, the transcript and output.agents[].generator_calls, without its prompt preview;
+- the reply shapes the 3B lane produced on 2026-10-24 (SmallModelReplies: a Planner JSON over the schema's list
+  limits, a Critic array cut off at the token limit, a Writer draft without caveat codes or conflict ids) are
+  repaired or completed visibly (recovery generator_reply_repaired / narrative_completed), never approved: the
+  verdict and the accepted claims stay those of the rules.
 """
 from __future__ import annotations
 
@@ -34,9 +43,11 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 sys.path.insert(0, str(REPO_ROOT / "tests"))
 
+from investigator import config as config_mod  # noqa: E402
 from investigator import generator as gen  # noqa: E402
 from investigator import runner  # noqa: E402
-from investigator.config import Env, RunConfig, build_config, parse_request  # noqa: E402
+from investigator.agents import planner as planner_mod  # noqa: E402
+from investigator.config import Env, RunConfig, build_config, meterless_state_dir, parse_request, read_env  # noqa: E402
 from investigator.errors import InvestigatorError  # noqa: E402
 from investigator.schemas import load_schema, validate  # noqa: E402
 from test_generator_hmem import FakeChatCompletions  # noqa: E402
@@ -52,6 +63,26 @@ def http_error(url: str, code: int) -> urllib.error.HTTPError:
     return urllib.error.HTTPError(url, code, f"HTTP {code}", {}, io.BytesIO(b'{"error":"nope"}'))
 
 
+ROUTE_LABEL = "Fake 3B Q8 (Runtime GGUF)"
+
+
+def fake_receipt(n: int, prompt: str, model: str = BACKEND_MODEL) -> dict[str, Any]:
+    """A `meterless` object in the shape Nightshift 1.2.3 returned on 2026-10-24 (meterless.compute_receipt.v1),
+    including the fields that must stay out of the logs (receipt.prompt_preview, cost, host telemetry)."""
+    return {
+        "schema": "meterless.compute_receipt.v1", "receipt_id": f"rcpt_req_fake{n:04d}", "decision_id": f"req_fake{n:04d}",
+        "requested_model": "meterless/auto", "provider_model": "meterless/auto", "routed_model": model,
+        "winning_route": {"model": model, "label": ROUTE_LABEL, "provider": "local-runtime", "kind": "local", "tier": "A"},
+        "requires_review": False,
+        "phases": [{"phase": "tool_call_format", "model": model, "ms": 234, "tokensIn": 72, "tokensOut": 6}],
+        "usage": {"input_tokens": 72, "output_tokens": 6, "total_tokens": 78, "output_tps": 25.6, "latency_ms": 234},
+        "cost": {"actual_usd": 0, "naive_usd": 0.000306}, "cache": {"status": "miss", "losers_reclaimed": 0},
+        "privacy": {"path": "local-only"}, "from_cache": False,
+        "receipt": {"prompt_preview": prompt[:200], "host_pressure": {"memory": {"score": 0.51}}},
+        "receipt_envelope": {"signer": "meterlessd", "sig_b64": "c2lnbmF0dXJl"},
+    }
+
+
 class FakeRuntime(FakeChatCompletions):
     """In-process Meterless Runtime: `routes` maps a base URL (<host>/v1) to what GET /models does there
     ("online" -> 200 with MODELS, an int -> that HTTP status, "not_meterless" -> 200 with non-meterless ids,
@@ -59,10 +90,12 @@ class FakeRuntime(FakeChatCompletions):
     online base answers like FakeChatCompletions (Planner, Writer and Critic replies) with model BACKEND_MODEL.
     Every request is recorded with its headers (lowercased names) and timeout."""
 
-    def __init__(self, routes: Optional[dict[str, Any]] = None, token: Optional[str] = TOKEN) -> None:
+    def __init__(self, routes: Optional[dict[str, Any]] = None, token: Optional[str] = TOKEN,
+                 receipts: bool = False) -> None:
         super().__init__()
         self.routes = dict(routes or {})
         self.token = token
+        self.receipts = receipts            # answer with a `meterless` compute receipt, like Nightshift 1.2.3
         self.calls: list[dict[str, Any]] = []
 
     def __call__(self, request: Any, timeout: Optional[float] = None) -> io.BytesIO:
@@ -84,6 +117,9 @@ class FakeRuntime(FakeChatCompletions):
             return io.BytesIO(json.dumps({"object": "list", "data": [{"id": i, "object": "model"} for i in ids]}).encode())
         payload = json.loads(super().__call__(request, timeout).read().decode("utf-8"))
         payload["model"] = BACKEND_MODEL
+        if self.receipts:
+            prompt = json.loads(request.data.decode("utf-8"))["messages"][0]["content"]
+            payload["meterless"] = fake_receipt(len(self.chats()), prompt)
         return io.BytesIO(json.dumps(payload).encode("utf-8"))
 
     def model_probes(self) -> list[str]:
@@ -228,6 +264,71 @@ class TokenResolution(unittest.TestCase):
         self.assertIsNone(token)
         self.assertIn("placeholder rt-local", why)
 
+    def test_token_variables_are_read_in_order_and_named_not_shown(self) -> None:
+        order = [("NIGHTSHIFT_TOKEN", "t-nightshift"), ("METERLESS_RUNTIME_TOKEN", "t-runtime"), ("METERLESS_TOKEN", "t-cli")]
+        for skip in range(len(order)):
+            environ = dict(order[skip:])
+            with self.subTest(first=order[skip][0]):
+                env = read_env(environ)
+                self.assertEqual(gen.resolve_nightshift_token(env), (order[skip][1], order[skip][0]))
+                self.assertNotIn(order[skip][1], repr(env), "token fields are repr=False")
+        blank = read_env({"NIGHTSHIFT_TOKEN": "  ", "METERLESS_RUNTIME_TOKEN": "t-runtime"})
+        self.assertEqual(gen.resolve_nightshift_token(blank), ("t-runtime", "METERLESS_RUNTIME_TOKEN"), "blank is unset")
+
+    def test_full_order_variables_then_token_file_then_state_dir(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            state = Path(tmp) / "state"
+            state.mkdir()
+            (state / "proxy-token").write_text("from-state-dir\n", encoding="utf-8")
+            token_file = Path(tmp) / "token.txt"
+            token_file.write_text("from-token-file", encoding="utf-8")
+            everything = {"METERLESS_TOKEN": "from-env", "NIGHTSHIFT_TOKEN_FILE": str(token_file),
+                          "METERLESS_STATE_DIR": str(state)}
+            self.assertEqual(gen.resolve_nightshift_token(read_env(everything)), ("from-env", "METERLESS_TOKEN"))
+            everything.pop("METERLESS_TOKEN")
+            self.assertEqual(gen.resolve_nightshift_token(read_env(everything)), ("from-token-file", "NIGHTSHIFT_TOKEN_FILE"))
+            everything.pop("NIGHTSHIFT_TOKEN_FILE")
+            token, source = gen.resolve_nightshift_token(read_env(everything))
+            self.assertEqual((token, source), ("from-state-dir", "<stateDir>/proxy-token (METERLESS_STATE_DIR)"))
+            (state / "proxy-token").unlink()
+            token, why = gen.resolve_nightshift_token(read_env(everything))
+            self.assertIsNone(token)
+            self.assertIn("no token configured", why)
+            self.assertIn("no proxy-token in METERLESS_STATE_DIR", why)
+            self.assertNotIn(tmp, why, "the reason names variables, never paths")
+
+    def test_the_os_default_state_dir_is_the_ns_cli_rule(self) -> None:
+        win = {"LOCALAPPDATA": r"C:\Users\u\AppData\Local", "USERPROFILE": r"C:\Users\u", "HOME": "/home/u"}
+        self.assertEqual(meterless_state_dir(win, "win32"),
+                         (str(Path(win["LOCALAPPDATA"]) / "ai.meterless.runtime"), "default"))
+        self.assertEqual(meterless_state_dir({"USERPROFILE": r"C:\Users\u"}, "win32"),
+                         (str(Path(r"C:\Users\u") / "AppData" / "Local" / "ai.meterless.runtime"), "default"))
+        self.assertEqual(meterless_state_dir({}, "win32"), (None, ""), "no base variable: no default, no guess")
+        self.assertEqual(meterless_state_dir({"HOME": "/Users/u"}, "darwin"),
+                         (str(Path("/Users/u") / "Library" / "Application Support" / "ai.meterless.runtime"), "default"))
+        self.assertEqual(meterless_state_dir({}, "darwin"), (None, ""))
+        self.assertEqual(meterless_state_dir({"HOME": "/home/u"}, "linux"), ("/var/lib/meterless", "default"))
+        for platform in ("win32", "darwin", "linux"):
+            self.assertEqual(meterless_state_dir({**win, "METERLESS_STATE_DIR": "/srv/meterless"}, platform),
+                             ("/srv/meterless", "METERLESS_STATE_DIR"))
+
+    def test_the_default_state_dir_token_is_read_on_windows(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            state = Path(tmp) / "ai.meterless.runtime"
+            state.mkdir()
+            (state / "proxy-token").write_text(f"{TOKEN}\n", encoding="utf-8")
+            with mock.patch.object(config_mod.sys, "platform", "win32"):
+                env = read_env({"LOCALAPPDATA": tmp})
+            self.assertEqual((env.nightshift_state_dir, env.nightshift_state_dir_var), (str(state), "default"))
+            self.assertEqual(gen.resolve_nightshift_token(env), (TOKEN, "<stateDir>/proxy-token (default stateDir)"))
+
+    def test_a_state_dir_token_alone_never_makes_auto_mode_live(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            (Path(tmp) / "proxy-token").write_text(TOKEN, encoding="utf-8")
+            auto = type("Args", (), {"mode": "auto", "sample": False, "out": tmp})()
+            config = build_config(auto, environ={"METERLESS_STATE_DIR": tmp, "LOCALAPPDATA": tmp}, load_dotenv=False)
+        self.assertEqual(config.mode, "sample")
+
 
 class ChatRequests(unittest.TestCase):
     BASE = "http://127.0.0.1:8088/v1"
@@ -258,6 +359,29 @@ class ChatRequests(unittest.TestCase):
             mounted = gen.build_generator(config, opener=FakeRuntime({self.BASE: "online"}))
         self.assertEqual(mounted.name, "nightshift:meterless/deep")
 
+    def test_the_guides_meterless_names_are_aliases(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            fake = FakeRuntime({"http://127.0.0.1:9000/v1": "online"})
+            config = live_config({"METERLESS_BASE_URL": "127.0.0.1:9000", "METERLESS_RUNTIME_TOKEN": TOKEN,
+                                  "METERLESS_MODEL": "meterless/local"}, Path(tmp))
+            mounted = gen.build_generator(config, opener=fake)
+            self.assertIsInstance(mounted, gen.NightshiftGenerator)
+            self.assertEqual(mounted.name, "nightshift:meterless/local")
+            self.assertEqual(mounted.base_url, "http://127.0.0.1:9000/v1")
+            self.assertEqual(mounted.mount_info["found_by"], "METERLESS_BASE_URL")
+            self.assertEqual(mounted.mount_info["token_source"], "METERLESS_RUNTIME_TOKEN")
+            self.assertEqual(fake.model_probes(), ["http://127.0.0.1:9000/v1/models"])
+            both = live_config({"NIGHTSHIFT_BASE_URL": self.BASE, "METERLESS_BASE_URL": "127.0.0.1:9000",
+                                "NIGHTSHIFT_TOKEN": TOKEN, "NIGHTSHIFT_MODEL": "meterless/deep",
+                                "METERLESS_MODEL": "meterless/local"}, Path(tmp))
+            mounted = gen.build_generator(both, opener=FakeRuntime({self.BASE: "online"}))
+            self.assertEqual((mounted.base_url, mounted.name), (self.BASE, "nightshift:meterless/deep"), "NIGHTSHIFT_* wins")
+            self.assertEqual(mounted.mount_info["found_by"], "NIGHTSHIFT_BASE_URL")
+            offline = live_config({"METERLESS_BASE_URL": "127.0.0.1:9000", "OPENAI_API_KEY": OPENAI_KEY}, Path(tmp))
+            fallback = gen.build_generator(offline, opener=FakeRuntime({"http://127.0.0.1:9000/v1": 503}))
+        self.assertIn("(METERLESS_BASE_URL) is offline: HTTP 503", fallback.nightshift_unavailable["detail"])
+        self.assertNotIn(TOKEN, json.dumps(fallback.nightshift_unavailable))
+
     def test_an_error_body_never_carries_the_token_into_the_exception(self) -> None:
         def echo_token(request: Any, timeout: Optional[float] = None) -> io.BytesIO:
             raise urllib.error.HTTPError(request.full_url, 500, "boom", {}, io.BytesIO(f"bad token {TOKEN}".encode()))
@@ -265,6 +389,60 @@ class ChatRequests(unittest.TestCase):
         with self.assertRaises(gen.GeneratorError) as caught:
             nightshift.complete("planner", "x", max_tokens=8, temperature=0.0, timeout=1.0)
         self.assertNotIn(TOKEN, str(caught.exception))
+
+
+class ReceiptParsing(unittest.TestCase):
+    """The `meterless` compute receipt -> routing facts (generator.meterless_receipt), no prompt text kept."""
+
+    BASE = "http://127.0.0.1:8088/v1"
+    PROMPT = "You are the second-opinion Critic. Secret-looking prompt text that must not reach the receipt summary."
+
+    def test_a_receipt_becomes_the_routing_facts_only(self) -> None:
+        routing = gen.meterless_receipt({"meterless": fake_receipt(7, self.PROMPT)}, wall_ms=310)
+        self.assertEqual(routing, {
+            "source": "meterless_receipt", "schema": "meterless.compute_receipt.v1", "receipt_id": "rcpt_req_fake0007",
+            "decision_id": "req_fake0007", "requested_model": "meterless/auto", "routed_model": BACKEND_MODEL,
+            "winning_route": {"model": BACKEND_MODEL, "label": ROUTE_LABEL, "provider": "local-runtime", "kind": "local",
+                              "tier": "A"},
+            "phases": [{"phase": "tool_call_format", "model": BACKEND_MODEL, "ms": 234}], "latency_ms": 234,
+            "usage": {"input_tokens": 72, "output_tokens": 6, "total_tokens": 78}, "cache": "miss", "from_cache": False,
+            "privacy_path": "local-only", "wall_ms": 310})
+        self.assertNotIn("Secret-looking", json.dumps(routing))
+
+    def test_missing_or_malformed_receipts_degrade_to_what_is_there(self) -> None:
+        for payload in ({}, {"meterless": None}, {"meterless": "rcpt"}, {"meterless": []}, [], "x"):
+            with self.subTest(payload=payload):
+                self.assertEqual(gen.meterless_receipt(payload, wall_ms=5), {})
+        partial = gen.meterless_receipt({"meterless": {"receipt_id": "rcpt_1", "routed_model": "", "winning_route": "x",
+                                                       "phases": [None, {"ms": True}, {"phase": "p", "ms": 1.6}],
+                                                       "usage": {"latency_ms": "12", "input_tokens": 3.0,
+                                                                 "output_tokens": False},
+                                                       "cache": {"status": 3}, "from_cache": "no"}})
+        self.assertEqual(partial, {"source": "meterless_receipt", "receipt_id": "rcpt_1",
+                                   "phases": [{"phase": "p", "ms": 2}], "usage": {"input_tokens": 3}})
+        long_label = gen.meterless_receipt({"meterless": {"winning_route": {"label": "L" * 500}}})
+        self.assertEqual(len(long_label["winning_route"]["label"]), gen.RECEIPT_TEXT_MAX)
+
+    def test_nightshift_answers_carry_routing_and_plain_openai_answers_do_not(self) -> None:
+        nightshift = gen.NightshiftGenerator(TOKEN, self.BASE, opener=FakeRuntime({self.BASE: "online"}, receipts=True))
+        result = nightshift.complete("critic-r1", self.PROMPT, max_tokens=64, temperature=0.0, timeout=5.0)
+        self.assertEqual(result.routing["receipt_id"], "rcpt_req_fake0001")
+        self.assertEqual(result.routing["routed_model"], BACKEND_MODEL)
+        self.assertEqual(result.routing["winning_route"]["kind"], "local")
+        self.assertIsInstance(result.routing["wall_ms"], int)
+        no_receipt = gen.NightshiftGenerator(TOKEN, self.BASE, opener=FakeRuntime({self.BASE: "online"}))
+        self.assertEqual(no_receipt.complete("critic-r1", self.PROMPT, max_tokens=8, temperature=0.0, timeout=5.0).routing, {})
+        openai = gen.OpenAIGenerator(OPENAI_KEY, self.BASE, "gpt-x", opener=FakeRuntime({self.BASE: "online"}, token=None,
+                                                                                         receipts=True))
+        self.assertEqual(openai.complete("critic-r1", self.PROMPT, max_tokens=8, temperature=0.0, timeout=5.0).routing, {},
+                         "only the Nightshift adapter reads a meterless receipt")
+
+    def test_a_reply_that_is_not_an_object_or_has_no_text_is_a_generator_error(self) -> None:
+        for body in (b"[]", b'{"choices": ["x"]}', b'{"choices": [{"message": "x"}]}', b'{"choices": []}'):
+            with self.subTest(body=body):
+                nightshift = gen.NightshiftGenerator(TOKEN, self.BASE, opener=lambda request, timeout=None, b=body: io.BytesIO(b))
+                with self.assertRaises(gen.GeneratorError):
+                    nightshift.complete("planner", "x", max_tokens=8, temperature=0.0, timeout=1.0)
 
 
 class ProviderSelection(unittest.TestCase):
@@ -331,10 +509,14 @@ class ProviderSelection(unittest.TestCase):
         auto = type("Args", (), {"mode": "auto", "sample": False, "out": str(self.dir)})()
         with mock.patch.object(gen, "probe_nightshift", side_effect=AssertionError("no probe while resolving the mode")):
             self.assertEqual(build_config(auto, environ={}, load_dotenv=False).mode, "sample")
-            for name in ("NIGHTSHIFT_BASE_URL", "NIGHTSHIFT_TOKEN", "NIGHTSHIFT_TOKEN_FILE"):
+            for name in ("NIGHTSHIFT_BASE_URL", "NIGHTSHIFT_TOKEN", "NIGHTSHIFT_TOKEN_FILE", "METERLESS_BASE_URL",
+                         "METERLESS_RUNTIME_TOKEN", "METERLESS_TOKEN"):
                 self.assertEqual(build_config(auto, environ={name: "x"}, load_dotenv=False).mode, "live", name)
-            self.assertEqual(build_config(auto, environ={"NIGHTSHIFT_MODEL": "meterless/deep"}, load_dotenv=False).mode,
-                             "sample", "the routing mode alone configures no provider")
+            for name in ("NIGHTSHIFT_MODEL", "METERLESS_MODEL"):
+                self.assertEqual(build_config(auto, environ={name: "meterless/deep"}, load_dotenv=False).mode,
+                                 "sample", f"the routing mode alone ({name}) configures no provider")
+            self.assertEqual(build_config(auto, environ={"METERLESS_STATE_DIR": str(self.dir)}, load_dotenv=False).mode,
+                             "sample", "a stateDir alone configures no provider")
             self.assertEqual(build_config(auto, environ={"SAMPLE_MODE": "1", "NIGHTSHIFT_BASE_URL": "x"},
                                           load_dotenv=False).mode, "sample")
 
@@ -346,13 +528,16 @@ class ProviderSelection(unittest.TestCase):
         forced = type("Args", (), {"mode": "sample", "sample": True, "out": str(self.dir)})()
         with mock.patch.object(gen, "detect_nightshift", side_effect=boom), \
                 mock.patch.object(gen, "probe_nightshift", side_effect=boom):
+            # the sample mount: recorded when fixtures/transcripts/<example>/ holds transcripts, else null
+            has_transcripts = any((REPO_ROOT / "fixtures" / "transcripts" / "01-seller-audit-textokit").glob("*.json"))
+            expected = "recorded" if has_transcripts else "null"
             for args in (auto, forced):
                 config = build_config(args, environ=environ, load_dotenv=False)
                 self.assertEqual(config.mode, "sample")
-                self.assertEqual(gen.build_generator(config, "01-seller-audit-textokit").name, "null")
+                self.assertEqual(gen.build_generator(config, "01-seller-audit-textokit").name, expected)
             envelope = runner.run(payload, build_config(auto, environ=environ, load_dotenv=False), echo_stdout=False)
         self.assertEqual(envelope["status"], "ok", envelope.get("error"))
-        self.assertEqual(envelope["output"]["mounts"]["generator"], "null")
+        self.assertEqual(envelope["output"]["mounts"]["generator"], expected)
         events = read_jsonl(self.dir / envelope["run_id"] / "run.jsonl")
         self.assertEqual(events[0]["type"], "guard")
         self.assertFalse([e for e in events if e["type"] == "recovery" and e["payload"]["reason"] == "nightshift_unavailable"])
@@ -497,6 +682,213 @@ class TracedCalls(unittest.TestCase):
             self.assertTrue(event["payload"]["recorded"])
             self.assertEqual((event["payload"]["generator"], event["payload"]["provider"], event["payload"]["model"]),
                              ("recorded", "meterless", BACKEND_MODEL))
+
+
+class ReceiptTrace(unittest.TestCase):
+    """Example 03's pipeline with Nightshift answering with compute receipts: every generate event, generator.jsonl
+    line, transcript and output.agents[].generator_calls item names the routed model and the receipt id, the
+    receipt's prompt preview is in no log, and a replay repeats the routing with recorded: true."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.tmp = tempfile.TemporaryDirectory()
+        out = Path(cls.tmp.name)
+        cls.fake = FakeRuntime({"http://127.0.0.1:8088/v1": "online"}, receipts=True)
+        cls.payload = json.loads((REPO_ROOT / "examples" / "03-payer-dossier-onchain" / "input.json").read_text(encoding="utf-8"))
+        config = build_config(type("Args", (), {"mode": "sample", "sample": True, "out": str(out / "live")})(), load_dotenv=False)
+        mount = lambda *args, **kwargs: gen.NightshiftGenerator(TOKEN, "127.0.0.1:8088", opener=cls.fake,  # noqa: E731
+                                                                 models=MODELS, found_by="auto_detect",
+                                                                 token_source="<stateDir>/proxy-token (default stateDir)")
+        with mock.patch.object(runner, "build_generator", mount):
+            cls.envelope = runner.run(cls.payload, config, echo_stdout=False)
+        cls.run_dir = out / "live" / cls.envelope["run_id"]
+        cls.events = read_jsonl(cls.run_dir / "run.jsonl")
+        cls.calls = read_jsonl(cls.run_dir / "generator.jsonl")
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        cls.tmp.cleanup()
+
+    def test_generate_events_carry_the_receipt_routing(self) -> None:
+        schema = load_schema("events")
+        generated = [e for e in self.events if e["type"] == "generate"]
+        self.assertTrue(generated)
+        self.assertEqual(len(generated), len(self.fake.chats()))
+        receipt_ids = []
+        for event, line in zip(generated, self.calls):
+            self.assertEqual(validate(event, schema), [], event)
+            routing = event["payload"]["routing"]
+            self.assertEqual((routing["routed_model"], routing["winning_route"]["label"], routing["winning_route"]["kind"],
+                              routing["winning_route"]["provider"]), (BACKEND_MODEL, ROUTE_LABEL, "local", "local-runtime"))
+            self.assertEqual((routing["latency_ms"], routing["usage"]["total_tokens"]), (234, 78))
+            self.assertEqual(line["routing"], routing, "generator.jsonl repeats the routing")
+            transcript = json.loads((self.run_dir / line["transcript"]).read_text(encoding="utf-8"))
+            self.assertEqual(transcript["routing"], routing)
+            receipt_ids.append(routing["receipt_id"])
+        self.assertEqual(len(set(receipt_ids)), len(receipt_ids), "one receipt per request")
+        start = next(e for e in self.events if e["type"] == "run_start")
+        self.assertEqual(start["payload"]["generator_mount"]["token_source"], "<stateDir>/proxy-token (default stateDir)")
+
+    def test_no_prompt_preview_or_token_reaches_any_log(self) -> None:
+        marker = "You are the"            # every prompt starts with it; only .prompt.txt files may hold prompt text
+        for path in self.run_dir.rglob("*"):
+            if not path.is_file() or path.name.endswith(".prompt.txt"):
+                continue
+            text = path.read_text(encoding="utf-8", errors="replace")
+            self.assertNotIn("prompt_preview", text, path.name)
+            self.assertNotIn(marker, text, path.name)
+            self.assertNotIn("c2lnbmF0dXJl", text, path.name)
+        assert_no_secret(self, self.run_dir, TOKEN)
+
+    def test_output_and_report_say_which_model_handled_each_request(self) -> None:
+        output = self.envelope["output"]
+        self.assertEqual(validate(self.envelope, load_schema("output")), [])
+        listed = [c for a in output["agents"] for c in a.get("generator_calls", [])]
+        self.assertEqual(len(listed), len(self.calls))
+        for item in listed:
+            self.assertEqual((item["provider"], item["requested_model"], item["model"], item["route"], item["route_kind"],
+                              item["recorded"]), ("meterless", "meterless/auto", BACKEND_MODEL, ROUTE_LABEL, "local", False))
+            self.assertTrue(item["receipt_id"].startswith("rcpt_req_fake"))
+        self.assertFalse([a for a in output["agents"] if not a["generator_backed"] and "generator_calls" in a])
+        report_text = (self.run_dir / "report.md").read_text(encoding="utf-8")
+        self.assertIn("## Model calls", report_text)
+        self.assertIn(f"| {BACKEND_MODEL} | {ROUTE_LABEL} (local) | rcpt_req_fake0001 | False |", report_text)
+
+    def test_a_replay_repeats_the_routing_as_recorded(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            config = build_config(type("Args", (), {"mode": "sample", "sample": True, "out": tmp})(), load_dotenv=False)
+            replay = lambda *args, **kwargs: gen.RecordedGenerator(self.run_dir / "transcripts")  # noqa: E731
+            with mock.patch.object(runner, "build_generator", replay):
+                envelope = runner.run(self.payload, config, echo_stdout=False)
+            events = [e for e in read_jsonl(Path(tmp) / envelope["run_id"] / "run.jsonl") if e["type"] == "generate"]
+        live = [e["payload"]["routing"] for e in self.events if e["type"] == "generate"]
+        self.assertEqual([e["payload"]["routing"] for e in events], live)
+        self.assertTrue(all(e["payload"]["recorded"] for e in events))
+        listed = [c for a in envelope["output"]["agents"] for c in a.get("generator_calls", [])]
+        self.assertTrue(listed and all(c["recorded"] for c in listed))
+
+
+# What the 3B lane answered on 2026-10-24 (logs/live-ns-ex01-20261024, before the fixes), shortened: the Planner
+# listed 6 hypotheses (some repeated) and 6 extra metrics, and the Critic's array stopped at its token limit.
+PLANNER_OVER_LIMITS = json.dumps({
+    "playbook": "seller_profile",
+    "hypotheses": ["The seller is legitimate.", "The seller may be fake.", "Registries disagree on data collection.",
+                   "The seller is legitimate.", "The seller may be fake.", "Most sales are self-settled.",
+                   "External payers come back.", "The top payer dominates."],
+    "extra_metrics": ["bazaar_listings_for_host", "not_a_metric", "endpoint_count_for_host", "endpoint_count_for_host",
+                      "settlements_verified", "bazaar_calls_30d_for_host", "bazaar_payto_for_host", "sales_total"]})
+CRITIC_TRUNCATED = ('[\n  {"sentence_index": 0, "reason": "not supported by claims", "claim_id": null},\n'
+                    '  {"sentence_index": 1, "reason": "conflict with claim c03", "claim_id": "c03"},\n'
+                    '  {"sentence_index": 2, "reason": "not supp')
+
+
+class SmallModelReplies(unittest.TestCase):
+    def test_a_truncated_array_keeps_only_its_complete_items(self) -> None:
+        self.assertEqual(gen.salvage_json_list('[{"a": 1}, {"b": 2}]'), ([{"a": 1}, {"b": 2}], 0))
+        self.assertEqual(gen.salvage_json_list("```json\n[]\n```"), ([], 0))
+        items, salvaged = gen.salvage_json_list(CRITIC_TRUNCATED)
+        self.assertEqual(salvaged, 2)
+        self.assertEqual([i["sentence_index"] for i in items], [0, 1])
+        self.assertEqual(gen.salvage_json_list('[{"sentence_index": 0, "rea'), (None, 0))
+        self.assertEqual(gen.salvage_json_list("Every statement is supported."), (None, 0))
+
+    def test_planner_reply_is_brought_inside_the_schema_limits_without_inventing(self) -> None:
+        schema = load_schema("plan")
+        response_schema = {**schema["$defs"]["generator_response"], "$defs": schema["$defs"]}
+        raw = json.loads(PLANNER_OVER_LIMITS)
+        self.assertTrue(validate(raw, response_schema), "the raw reply is over the limits")
+        data, changes = planner_mod.normalise_reply(raw)
+        self.assertEqual(validate(data, response_schema), [])
+        self.assertEqual(data["playbook"], "seller_profile")
+        self.assertEqual(data["hypotheses"], ["The seller is legitimate.", "The seller may be fake.",
+                                              "Registries disagree on data collection.", "Most sales are self-settled.",
+                                              "External payers come back."])
+        self.assertEqual(data["extra_metrics"], ["bazaar_listings_for_host", "endpoint_count_for_host",
+                                                 "settlements_verified", "bazaar_calls_30d_for_host",
+                                                 "bazaar_payto_for_host"])
+        self.assertTrue(set(data["hypotheses"]) <= set(raw["hypotheses"]), "only the model's own sentences")
+        self.assertEqual(len(changes), 2)
+        wrong = planner_mod.normalise_reply({**raw, "playbook": "approve_everything"})[0]
+        self.assertTrue(validate(wrong, response_schema), "a wrong playbook still fails")
+        extra_key = planner_mod.normalise_reply({**raw, "verdict": "adoption_real"})[0]
+        self.assertTrue(validate(extra_key, response_schema), "a key the schema does not allow still fails")
+        self.assertEqual(planner_mod.normalise_reply(None), (None, []))
+        clean = {"playbook": "payer_dossier", "hypotheses": ["One purchase."], "extra_metrics": []}
+        self.assertEqual(planner_mod.normalise_reply(clean), (clean, []))
+
+
+class ForgetfulRuntime(FakeRuntime):
+    """The 3B reply shapes: Planner over the limits, a Writer draft that cites claims but drops every caveat code
+    and conflict id, a Critic array cut off mid-item."""
+
+    def reply_for(self, prompt: str) -> str:
+        if prompt.startswith("You are the Planner"):
+            return PLANNER_OVER_LIMITS
+        if prompt.startswith("You are the Writer"):
+            claims = json.loads(prompt.split("conflict_ids):\n", 1)[1].split("\n\nConflicts", 1)[0])
+            return "- A short summary.\n\n" + " ".join(f"{row['statement'].rstrip('.')} [{row['id']}]." for row in claims)
+        if prompt.startswith("You are the second-opinion Critic"):
+            return CRITIC_TRUNCATED
+        raise AssertionError("unexpected prompt: " + prompt[:80])
+
+
+class SmallModelPipeline(unittest.TestCase):
+    """Example 01 (2 conflicts, 3 caveat codes) with ForgetfulRuntime behind Nightshift: the run repairs and
+    completes visibly and the verdict and claims are those of the rules-only replay."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.tmp = tempfile.TemporaryDirectory()
+        out = Path(cls.tmp.name)
+        cls.payload = json.loads((REPO_ROOT / "examples" / "01-seller-audit-textokit" / "input.json").read_text(encoding="utf-8"))
+        config = build_config(type("Args", (), {"mode": "sample", "sample": True, "out": str(out / "model")})(), load_dotenv=False)
+        fake = ForgetfulRuntime({"http://127.0.0.1:8088/v1": "online"}, receipts=True)
+        mount = lambda *args, **kwargs: gen.NightshiftGenerator(TOKEN, "127.0.0.1:8088", opener=fake)  # noqa: E731
+        with mock.patch.object(runner, "build_generator", mount):
+            cls.envelope = runner.run(cls.payload, config, echo_stdout=False)
+        rules = build_config(type("Args", (), {"mode": "sample", "sample": True, "out": str(out / "rules")})(), load_dotenv=False)
+        with mock.patch.object(runner, "build_generator", lambda *args, **kwargs: gen.NullGenerator()):
+            cls.rules = runner.run(cls.payload, rules, echo_stdout=False)
+        cls.events = read_jsonl(out / "model" / cls.envelope["run_id"] / "run.jsonl")
+        cls.recoveries = [e["payload"] for e in cls.events if e["type"] == "recovery"]
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        cls.tmp.cleanup()
+
+    def test_every_line_is_valid_and_the_repairs_are_logged(self) -> None:
+        schema = load_schema("events")
+        for line in self.events:
+            self.assertEqual(validate(line, schema), [], line)
+        repaired = [r for r in self.recoveries if r["reason"] == "generator_reply_repaired"]
+        self.assertEqual([r["prompt_id"] for r in repaired], ["planner", "critic-r1", "critic-r2"])
+        self.assertEqual([r["kept"] for r in repaired[1:]], [2, 2])
+        self.assertNotIn("planner_fallback", [r["reason"] for r in self.recoveries])
+        plan = self.envelope["output"]["plan"]
+        self.assertEqual(plan["planner_source"], "generator")
+        self.assertEqual(len(plan["hypotheses"]), 5)
+
+    def test_the_final_answer_carries_every_caveat_and_conflict(self) -> None:
+        output = self.envelope["output"]
+        completed = [r for r in self.recoveries if r["reason"] == "narrative_completed"]
+        self.assertEqual([sorted(r["added"]) for r in completed],
+                         [["caveats", "conflicts", "disclaimer", "rejected", "sample_notice", "unavailable"], ["verdict"]])
+        self.assertTrue(completed[0]["added"]["caveats"] and completed[0]["added"]["conflicts"])
+        self.assertIn(f"(verdict {output['verdict']['label']})", output["answer"].split("[c", 1)[0], "verdict first")
+        for code in sorted({code for c in output["claims"] for code in c["caveats"]}):
+            self.assertIn(f"Caveat [{code}]:", output["answer"])
+        for conflict in output["conflicts"]:
+            self.assertIn(f"Where sources disagree [{conflict['id']}]", output["answer"])
+        self.assertTrue(output["answer"].endswith("no network, no model calls."), "the sample notice stays last")
+
+    def test_the_model_never_picks_the_verdict_or_the_claims(self) -> None:
+        self.assertEqual(self.envelope["status"], self.rules["status"])
+        self.assertEqual(self.envelope["output"]["verdict"], self.rules["output"]["verdict"])
+        strip = lambda claims: [{k: v for k, v in c.items() if k not in ("critique",)} for c in claims]  # noqa: E731
+        self.assertEqual([c["id"] for c in self.envelope["output"]["claims"]], [c["id"] for c in self.rules["output"]["claims"]])
+        self.assertEqual([c["value"] for c in strip(self.envelope["output"]["claims"])],
+                         [c["value"] for c in strip(self.rules["output"]["claims"])])
+        self.assertEqual(self.envelope["output"]["rejected_claims"], self.rules["output"]["rejected_claims"])
 
 
 if __name__ == "__main__":

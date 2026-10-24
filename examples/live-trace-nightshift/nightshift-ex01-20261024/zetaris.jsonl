@@ -1,0 +1,1 @@
+{"op":"error","path":"/api/auth/login","http":0,"time_used_ms":4015,"msg":"URLError: [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión","seq":0}

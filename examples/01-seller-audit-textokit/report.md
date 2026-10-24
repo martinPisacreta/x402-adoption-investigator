@@ -1,9 +1,9 @@
 # x402 Adoption Investigator report: `ex01-seller-audit`
 
 **Status:** ok  
-**Mode:** sample (fetcher fixture, executor sqlite, generator null, fixtures captured 2026-10-22T00:05:00Z)
+**Mode:** sample (fetcher fixture, executor sqlite, generator recorded, fixtures captured 2026-10-22T00:05:00Z)
 
-> This run replayed committed fixtures captured 2026-10-22T00:05:00Z; no network, no model calls.
+> This run replayed committed fixtures captured 2026-10-22T00:05:00Z; no network, no model calls. The generator-backed roles replayed 5 recorded answer(s) from fixtures/transcripts/01-seller-audit-textokit/ (provider meterless, model local-runtime/llama-3.2-3b-instruct-q8); each `generate` event says recorded: true.
 
 ## Question
 
@@ -11,10 +11,17 @@ How real is the adoption of tienda.textokit.store? Who pays, how much, do they c
 
 ## Plan
 
-Playbook `seller_profile` (planner source: rules).  
+Playbook `seller_profile` (planner source: recorded-generator).  
 Sources: receipts, store_openapi, cdp_search, agent402, vet402, x402_trust, base_rpc.  
 Queries: q01_sales_by_wallet_class, q02_external_payers, q03_repeat_external_payers, q04_top_payer_share, q05_external_sales_by_service, q06_bazaar_host_listings, q07_bazaar_payto_vs_receipts_seller, q12_registry_count_openapi, q13_registry_count_agent402, q14_registry_count_vet402, q15_registry_count_trust_search, q16_settlements_vs_receipts, q18_external_sales_by_day.  
 Memories retrieved by the Planner: none.
+
+Hypotheses:
+- Tienda.textokit.store is a legitimate seller with a verified profile.
+- The majority of sales on Tienda.textokit.store are made through external wallets.
+- Tienda.textokit.store has a high repeat business rate among its customers.
+- The registry's disagreement on Tienda.textokit.store's legitimacy stems from inconsistent receipt data.
+- Tienda.textokit.store's sales are primarily driven by external services.
 
 ## Verdict
 
@@ -28,66 +35,66 @@ Most settlements are the seller paying itself (verdict self_settled_mostly) base
 
 | id | metric | subject | value | unit | conf. | cross-checked | caveats | conflicts | evidence |
 |---|---|---|---|---|---|---|---|---|---|
-| c01 | sales_total | seller:host:tienda.textokit.store | 77 | count | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex01-seller-audit#44`<br>`log://ex01-seller-audit#57` |
-| c02 | own_wallet_sales | seller:host:tienda.textokit.store | 56 | count | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex01-seller-audit#44`<br>`log://ex01-seller-audit#58` |
-| c03 | own_wallets_total | seller:host:tienda.textokit.store | 3 | count | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex01-seller-audit#44`<br>`log://ex01-seller-audit#59` |
-| c04 | external_sales_total | seller:host:tienda.textokit.store | 21 | count | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex01-seller-audit#44`<br>`log://ex01-seller-audit#60` |
-| c05 | external_usdc_atomic | seller:host:tienda.textokit.store | 44000 | atomic_usdc | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex01-seller-audit#44`<br>`log://ex01-seller-audit#61` |
-| c06 | external_payers_total | seller:host:tienda.textokit.store | 4 | count | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex01-seller-audit#45`<br>`log://ex01-seller-audit#62` |
-| c07 | self_settlement_share | seller:host:tienda.textokit.store | 56 / 77 = 0.7272727272727273 | share | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex01-seller-audit#44`<br>`log://ex01-seller-audit#63` |
-| c08 | repeat_external_payers | seller:host:tienda.textokit.store | 1 | count | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex01-seller-audit#46`<br>`log://ex01-seller-audit#64` |
-| c09 | top_payer_share | seller:host:tienda.textokit.store | 18 / 21 = 0.8571428571428571 (payer=0xec2abd3eda89bed90124736e317e847d5fb6d034) | share | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex01-seller-audit#47`<br>`log://ex01-seller-audit#65` |
-| c10 | external_window | seller:host:tienda.textokit.store | 2026-10-20T04:51:24.352Z..2026-10-21T21:18:17.136Z | iso8601 | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex01-seller-audit#45`<br>`log://ex01-seller-audit#66` |
-| c11 | external_sales_by_service | seller:host:tienda.textokit.store | cuit-ar=3, normativa-ar=2, x402-ping=2, bcra-indicadores=1, cartas-ar=1, comparar-textos=1, crypto-prices=1, dev-utils=1, direcciones-ar=1, dolar-ar=1, fx-rates=1, polymarket-markets=1, source-bounded-summary=1, translate-es=1, url-text=1, web-read=1, x402-adoption=1 | text | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex01-seller-audit#48`<br>`log://ex01-seller-audit#67` |
-| c12 | external_sales_by_day | seller:host:tienda.textokit.store | 2026-10-20=20, 2026-10-21=1 | text | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex01-seller-audit#56`<br>`log://ex01-seller-audit#68` |
-| c13 | external_sales_30d | seller:host:tienda.textokit.store | 21 | count | 0.9 | True | self_reported_receipts (mem-seed-003), basis_mismatch (mem-seed-007) | k02 | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex01-seller-audit#56`<br>`log://ex01-seller-audit#69` |
-| c14 | bazaar_listings_for_host | seller:host:tienda.textokit.store | 17 | count | 0.9 | True | search_limit_20 (mem-seed-002) | k01 | <https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?urlSubstring=tienda.textokit.store&limit=20> sha256 da993b56bae8… [replayed]<br>`log://ex01-seller-audit#49`<br>`log://ex01-seller-audit#70` |
-| c15 | bazaar_payto_for_host | seller:host:tienda.textokit.store | 1 | count | 0.9 | True | search_limit_20 (mem-seed-002) | - | <https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?urlSubstring=tienda.textokit.store&limit=20> sha256 da993b56bae8… [replayed]<br>`log://ex01-seller-audit#49`<br>`log://ex01-seller-audit#71` |
-| c16 | bazaar_calls_30d_for_host | seller:host:tienda.textokit.store | 60 | count | 0.9 | True | search_limit_20 (mem-seed-002), basis_mismatch (mem-seed-007) | k02 | <https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?urlSubstring=tienda.textokit.store&limit=20> sha256 da993b56bae8… [replayed]<br>`log://ex01-seller-audit#49`<br>`log://ex01-seller-audit#72` |
-| c17 | bazaar_payto_matches_seller | seller:host:tienda.textokit.store | 17 | count | 0.9 | True | search_limit_20 (mem-seed-002), self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br><https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?urlSubstring=tienda.textokit.store&limit=20> sha256 da993b56bae8… [replayed]<br>`log://ex01-seller-audit#50`<br>`log://ex01-seller-audit#73` |
-| c18 | endpoint_count_for_host | seller:host:tienda.textokit.store | cdp_search=17, store_openapi=17, agent402_paid=17, agent402_tools=34, vet402=19, x402_trust_search=36 | text | 0.9 | True | search_limit_20 (mem-seed-002), third_party_aggregate (mem-seed-004) | k01 | <https://tienda.textokit.store/openapi.json> sha256 3cc61746315e… [replayed]<br><https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?urlSubstring=tienda.textokit.store&limit=20> sha256 da993b56bae8… [replayed]<br><https://agent402.tools/api/index?seller=tienda.textokit.store> sha256 e8a04c9322f4… [replayed]<br><https://agent402.tools/api/route?q=x402%20adoption&include=external> sha256 7bdec79ccccc… [replayed]<br><https://vet402.com/api/v1/resolve?q=tienda.textokit.store> sha256 53d8e517e95e… [replayed]<br><https://x402-trust.com/trust/search?q=tienda.textokit.store&limit=25&offset=0> sha256 d0afd0ef43c9… [replayed]<br><https://x402-trust.com/trust/stats> sha256 26ee64acb78a… [replayed]<br><https://x402-trust.com/verified.json?limit=25&offset=0> sha256 c52eacf29374… [replayed]<br>`log://ex01-seller-audit#51`<br>`log://ex01-seller-audit#74` |
-| c19 | settlements_verified | seller:host:tienda.textokit.store | 1 | count | 0.9 | True | payer_from_transfer_log (mem-seed-005), self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br><https://mainnet.base.org> sha256 c756d78d11b3… [replayed]<br><https://basescan.org/tx/0x62c01526c5beb13cad96634ec80e837e576df496905f1bac8019c6ffa3e358c3> [replayed, verified]<br>`log://ex01-seller-audit#55`<br>`log://ex01-seller-audit#75` |
+| c01 | sales_total | seller:host:tienda.textokit.store | 77 | count | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex01-seller-audit#45`<br>`log://ex01-seller-audit#58` |
+| c02 | own_wallet_sales | seller:host:tienda.textokit.store | 56 | count | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex01-seller-audit#45`<br>`log://ex01-seller-audit#59` |
+| c03 | own_wallets_total | seller:host:tienda.textokit.store | 3 | count | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex01-seller-audit#45`<br>`log://ex01-seller-audit#60` |
+| c04 | external_sales_total | seller:host:tienda.textokit.store | 21 | count | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex01-seller-audit#45`<br>`log://ex01-seller-audit#61` |
+| c05 | external_usdc_atomic | seller:host:tienda.textokit.store | 44000 | atomic_usdc | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex01-seller-audit#45`<br>`log://ex01-seller-audit#62` |
+| c06 | external_payers_total | seller:host:tienda.textokit.store | 4 | count | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex01-seller-audit#46`<br>`log://ex01-seller-audit#63` |
+| c07 | self_settlement_share | seller:host:tienda.textokit.store | 56 / 77 = 0.7272727272727273 | share | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex01-seller-audit#45`<br>`log://ex01-seller-audit#64` |
+| c08 | repeat_external_payers | seller:host:tienda.textokit.store | 1 | count | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex01-seller-audit#47`<br>`log://ex01-seller-audit#65` |
+| c09 | top_payer_share | seller:host:tienda.textokit.store | 18 / 21 = 0.8571428571428571 (payer=0xec2abd3eda89bed90124736e317e847d5fb6d034) | share | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex01-seller-audit#48`<br>`log://ex01-seller-audit#66` |
+| c10 | external_window | seller:host:tienda.textokit.store | 2026-10-20T04:51:24.352Z..2026-10-21T21:18:17.136Z | iso8601 | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex01-seller-audit#46`<br>`log://ex01-seller-audit#67` |
+| c11 | external_sales_by_service | seller:host:tienda.textokit.store | cuit-ar=3, normativa-ar=2, x402-ping=2, bcra-indicadores=1, cartas-ar=1, comparar-textos=1, crypto-prices=1, dev-utils=1, direcciones-ar=1, dolar-ar=1, fx-rates=1, polymarket-markets=1, source-bounded-summary=1, translate-es=1, url-text=1, web-read=1, x402-adoption=1 | text | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex01-seller-audit#49`<br>`log://ex01-seller-audit#68` |
+| c12 | external_sales_by_day | seller:host:tienda.textokit.store | 2026-10-20=20, 2026-10-21=1 | text | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex01-seller-audit#57`<br>`log://ex01-seller-audit#69` |
+| c13 | external_sales_30d | seller:host:tienda.textokit.store | 21 | count | 0.9 | True | self_reported_receipts (mem-seed-003), basis_mismatch (mem-seed-007) | k02 | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex01-seller-audit#57`<br>`log://ex01-seller-audit#70` |
+| c14 | bazaar_listings_for_host | seller:host:tienda.textokit.store | 17 | count | 0.9 | True | search_limit_20 (mem-seed-002) | k01 | <https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?urlSubstring=tienda.textokit.store&limit=20> sha256 da993b56bae8… [replayed]<br>`log://ex01-seller-audit#50`<br>`log://ex01-seller-audit#71` |
+| c15 | bazaar_payto_for_host | seller:host:tienda.textokit.store | 1 | count | 0.9 | True | search_limit_20 (mem-seed-002) | - | <https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?urlSubstring=tienda.textokit.store&limit=20> sha256 da993b56bae8… [replayed]<br>`log://ex01-seller-audit#50`<br>`log://ex01-seller-audit#72` |
+| c16 | bazaar_calls_30d_for_host | seller:host:tienda.textokit.store | 60 | count | 0.9 | True | search_limit_20 (mem-seed-002), basis_mismatch (mem-seed-007) | k02 | <https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?urlSubstring=tienda.textokit.store&limit=20> sha256 da993b56bae8… [replayed]<br>`log://ex01-seller-audit#50`<br>`log://ex01-seller-audit#73` |
+| c17 | bazaar_payto_matches_seller | seller:host:tienda.textokit.store | 17 | count | 0.9 | True | search_limit_20 (mem-seed-002), self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br><https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?urlSubstring=tienda.textokit.store&limit=20> sha256 da993b56bae8… [replayed]<br>`log://ex01-seller-audit#51`<br>`log://ex01-seller-audit#74` |
+| c18 | endpoint_count_for_host | seller:host:tienda.textokit.store | cdp_search=17, store_openapi=17, agent402_paid=17, agent402_tools=34, vet402=19, x402_trust_search=36 | text | 0.9 | True | search_limit_20 (mem-seed-002), third_party_aggregate (mem-seed-004) | k01 | <https://tienda.textokit.store/openapi.json> sha256 3cc61746315e… [replayed]<br><https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?urlSubstring=tienda.textokit.store&limit=20> sha256 da993b56bae8… [replayed]<br><https://agent402.tools/api/index?seller=tienda.textokit.store> sha256 e8a04c9322f4… [replayed]<br><https://agent402.tools/api/route?q=x402%20adoption&include=external> sha256 7bdec79ccccc… [replayed]<br><https://vet402.com/api/v1/resolve?q=tienda.textokit.store> sha256 53d8e517e95e… [replayed]<br><https://x402-trust.com/trust/search?q=tienda.textokit.store&limit=25&offset=0> sha256 d0afd0ef43c9… [replayed]<br><https://x402-trust.com/trust/stats> sha256 26ee64acb78a… [replayed]<br><https://x402-trust.com/verified.json?limit=25&offset=0> sha256 c52eacf29374… [replayed]<br>`log://ex01-seller-audit#52`<br>`log://ex01-seller-audit#75` |
+| c19 | settlements_verified | seller:host:tienda.textokit.store | 1 | count | 0.9 | True | payer_from_transfer_log (mem-seed-005), self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br><https://mainnet.base.org> sha256 c756d78d11b3… [replayed]<br><https://basescan.org/tx/0x62c01526c5beb13cad96634ec80e837e576df496905f1bac8019c6ffa3e358c3> [replayed, verified]<br>`log://ex01-seller-audit#56`<br>`log://ex01-seller-audit#76` |
 
 ### Derivations and critique trail
 
-- **c01** The receipts of tienda.textokit.store list 77 settled sales in total. — query `q01_sales_by_wallet_class` on `sqlite` (sql sha256 `78da86f00660`), reducer `reducers.sales_total`, 2 row(s), sources receipts, fields ownWallet, amountAtomic; log `log://ex01-seller-audit#44`
-  - critique: r1 A accept: C1-C7 passed
-- **c02** 56 of those sales were paid from the seller's own wallets. — query `q01_sales_by_wallet_class` on `sqlite` (sql sha256 `78da86f00660`), reducer `reducers.own_wallet_sales`, 2 row(s), sources receipts, fields ownWallet; log `log://ex01-seller-audit#44`
-  - critique: r1 A accept: C1-C7 passed
-- **c03** 3 distinct own wallets settled those self-payments. — query `q01_sales_by_wallet_class` on `sqlite` (sql sha256 `78da86f00660`), reducer `reducers.own_wallets_total`, 2 row(s), sources receipts, fields ownWallet, payer; log `log://ex01-seller-audit#44`
-  - critique: r1 A accept: C1-C7 passed
-- **c04** 21 sales were paid by external wallets. — query `q01_sales_by_wallet_class` on `sqlite` (sql sha256 `78da86f00660`), reducer `reducers.external_sales_total`, 2 row(s), sources receipts, fields ownWallet; log `log://ex01-seller-audit#44`
-  - critique: r1 A accept: C1-C7 passed
-- **c05** External sales total 44000 atomic USDC (0.044 USDC). — query `q01_sales_by_wallet_class` on `sqlite` (sql sha256 `78da86f00660`), reducer `reducers.external_usdc_atomic`, 2 row(s), sources receipts, fields ownWallet, amountAtomic; log `log://ex01-seller-audit#44`
-  - critique: r1 A accept: C1-C7 passed
-- **c06** 4 distinct external payers appear in the receipts. — query `q02_external_payers` on `sqlite` (sql sha256 `af1c53c93fda`), reducer `reducers.external_payers_total`, 4 row(s), sources receipts, fields payer, ownWallet; log `log://ex01-seller-audit#45`
-  - critique: r1 A accept: C1-C7 passed
-- **c07** Self-settlement share: 56 of 77 sales (72.7 %). — query `q01_sales_by_wallet_class` on `sqlite` (sql sha256 `78da86f00660`), reducer `reducers.self_settlement_share`, 2 row(s), sources receipts, fields ownWallet; log `log://ex01-seller-audit#44`
-  - critique: r1 A accept: C1-C7 passed
-- **c08** 1 external payer(s) bought more than once. — query `q03_repeat_external_payers` on `sqlite` (sql sha256 `dc5467b281c7`), reducer `reducers.repeat_external_payers`, 1 row(s), sources receipts, fields payer, ownWallet; log `log://ex01-seller-audit#46`
-  - critique: r1 A accept: C1-C7 passed
-- **c09** The top external payer 0xec2abd3eda89bed90124736e317e847d5fb6d034 made 18 of 21 external sales (85.7 %). — query `q04_top_payer_share` on `sqlite` (sql sha256 `9b40ee7dbcad`), reducer `reducers.top_payer_share`, 1 row(s), sources receipts, fields payer, ownWallet; log `log://ex01-seller-audit#47`
-  - critique: r1 A accept: C1-C7 passed
-- **c10** External sales span 2026-10-20T04:51:24.352Z..2026-10-21T21:18:17.136Z. — query `q02_external_payers` on `sqlite` (sql sha256 `af1c53c93fda`), reducer `reducers.external_window`, 4 row(s), sources receipts, fields at, ownWallet; log `log://ex01-seller-audit#45`
-  - critique: r1 A accept: C1-C7 passed
-- **c11** External sales by service: cuit-ar=3, normativa-ar=2, x402-ping=2, bcra-indicadores=1, cartas-ar=1, comparar-textos=1, crypto-prices=1, dev-utils=1, direcciones-ar=1, dolar-ar=1, fx-rates=1, polymarket-markets=1, source-bounded-summary=1, translate-es=1, url-text=1, web-read=1, x402-adoption=1. — query `q05_external_sales_by_service` on `sqlite` (sql sha256 `566e3b5c519c`), reducer `reducers.external_sales_by_service`, 17 row(s), sources receipts, fields service, ownWallet; log `log://ex01-seller-audit#48`
-  - critique: r1 A accept: C1-C7 passed
-- **c12** External sales per day: 2026-10-20=20, 2026-10-21=1. — query `q18_external_sales_by_day` on `sqlite` (sql sha256 `6e443de0aa36`), reducer `reducers.external_sales_by_day`, 2 row(s), sources receipts, fields at, ownWallet; log `log://ex01-seller-audit#56`
-  - critique: r1 A accept: C1-C7 passed
-- **c13** External sales settled inside the 30-day window ending 2026-10-22: 21. — query `q18_external_sales_by_day` on `sqlite` (sql sha256 `6e443de0aa36`), reducer `reducers.external_sales_30d`, 2 row(s), sources receipts, fields at, ownWallet; log `log://ex01-seller-audit#56`
-  - critique: r1 A accept: C1-C7 passed
-- **c14** The CDP Bazaar search returns 17 listings for tienda.textokit.store. — query `q06_bazaar_host_listings` on `sqlite` (sql sha256 `db6f09d947db`), reducer `reducers.bazaar_listings_for_host`, 1 row(s), sources cdp_search, fields resource, payTo; coverage 17 of None (search capped at 20); log `log://ex01-seller-audit#49`
-  - critique: r1 A accept: C1-C7 passed
-- **c15** Those listings pay to 1 distinct wallet(s). — query `q06_bazaar_host_listings` on `sqlite` (sql sha256 `db6f09d947db`), reducer `reducers.bazaar_payto_for_host`, 1 row(s), sources cdp_search, fields payTo; coverage 17 of None (search capped at 20); log `log://ex01-seller-audit#49`
-  - critique: r1 A accept: C1-C7 passed
-- **c16** Bazaar 30-day call counters summed over the listings of tienda.textokit.store: 60. — query `q06_bazaar_host_listings` on `sqlite` (sql sha256 `db6f09d947db`), reducer `reducers.bazaar_calls_30d_for_host`, 1 row(s), sources cdp_search, fields l30DaysTotalCalls; coverage 17 of None (search capped at 20); log `log://ex01-seller-audit#49`
-  - critique: r1 A accept: C1-C7 passed
-- **c17** 17 Bazaar listings pay to the wallet the receipts name as seller. — query `q07_bazaar_payto_vs_receipts_seller` on `sqlite` (sql sha256 `793f72e81505`), reducer `reducers.bazaar_payto_matches_seller`, 17 row(s), sources cdp_search, receipts, fields payTo, seller; log `log://ex01-seller-audit#50`
-  - critique: r1 A accept: C1-C7 passed
-- **c18** Registries disagree on the endpoint count for tienda.textokit.store: cdp_search=17, store_openapi=17, agent402_paid=17, agent402_tools=34, vet402=19, x402_trust_search=36. — query `q12_registry_count_openapi` on `sqlite` (sql sha256 `c9c6c473767b`), reducer `reducers.endpoint_count_for_host`, 1 row(s), sources store_openapi, cdp_search, agent402, vet402, x402_trust, fields paths, paidToolCount, endpoints, total; log `log://ex01-seller-audit#51`
-  - critique: r1 A accept: C1-C7 passed
-- **c19** 1 sampled settlement(s) verified on Base against the receipts. — query `q16_settlements_vs_receipts` on `sqlite` (sql sha256 `82a4f8cbe2ab`), reducer `reducers.settlements_verified`, 1 row(s), sources receipts, base_rpc, fields transaction, payer, amountAtomic; log `log://ex01-seller-audit#55`
-  - critique: r1 A accept: C1-C7 passed
+- **c01** The receipts of tienda.textokit.store list 77 settled sales in total. — query `q01_sales_by_wallet_class` on `sqlite` (sql sha256 `78da86f00660`), reducer `reducers.sales_total`, 2 row(s), sources receipts, fields ownWallet, amountAtomic; log `log://ex01-seller-audit#45`
+  - critique: r1 A accept: C1-C7 passed; r2 A accept: C1-C7 passed
+- **c02** 56 of those sales were paid from the seller's own wallets. — query `q01_sales_by_wallet_class` on `sqlite` (sql sha256 `78da86f00660`), reducer `reducers.own_wallet_sales`, 2 row(s), sources receipts, fields ownWallet; log `log://ex01-seller-audit#45`
+  - critique: r1 A accept: C1-C7 passed; r2 A accept: C1-C7 passed
+- **c03** 3 distinct own wallets settled those self-payments. — query `q01_sales_by_wallet_class` on `sqlite` (sql sha256 `78da86f00660`), reducer `reducers.own_wallets_total`, 2 row(s), sources receipts, fields ownWallet, payer; log `log://ex01-seller-audit#45`
+  - critique: r1 A accept: C1-C7 passed; r2 A accept: C1-C7 passed
+- **c04** 21 sales were paid by external wallets. — query `q01_sales_by_wallet_class` on `sqlite` (sql sha256 `78da86f00660`), reducer `reducers.external_sales_total`, 2 row(s), sources receipts, fields ownWallet; log `log://ex01-seller-audit#45`
+  - critique: r1 A accept: C1-C7 passed; r2 A accept: C1-C7 passed
+- **c05** External sales total 44000 atomic USDC (0.044 USDC). — query `q01_sales_by_wallet_class` on `sqlite` (sql sha256 `78da86f00660`), reducer `reducers.external_usdc_atomic`, 2 row(s), sources receipts, fields ownWallet, amountAtomic; log `log://ex01-seller-audit#45`
+  - critique: r1 A accept: C1-C7 passed; r2 A accept: C1-C7 passed
+- **c06** 4 distinct external payers appear in the receipts. — query `q02_external_payers` on `sqlite` (sql sha256 `af1c53c93fda`), reducer `reducers.external_payers_total`, 4 row(s), sources receipts, fields payer, ownWallet; log `log://ex01-seller-audit#46`
+  - critique: r1 A accept: C1-C7 passed; r2 A accept: C1-C7 passed
+- **c07** Self-settlement share: 56 of 77 sales (72.7 %). — query `q01_sales_by_wallet_class` on `sqlite` (sql sha256 `78da86f00660`), reducer `reducers.self_settlement_share`, 2 row(s), sources receipts, fields ownWallet; log `log://ex01-seller-audit#45`
+  - critique: r1 A accept: C1-C7 passed; r2 A accept: C1-C7 passed
+- **c08** 1 external payer(s) bought more than once. — query `q03_repeat_external_payers` on `sqlite` (sql sha256 `dc5467b281c7`), reducer `reducers.repeat_external_payers`, 1 row(s), sources receipts, fields payer, ownWallet; log `log://ex01-seller-audit#47`
+  - critique: r1 A accept: C1-C7 passed; r2 A accept: C1-C7 passed
+- **c09** The top external payer 0xec2abd3eda89bed90124736e317e847d5fb6d034 made 18 of 21 external sales (85.7 %). — query `q04_top_payer_share` on `sqlite` (sql sha256 `9b40ee7dbcad`), reducer `reducers.top_payer_share`, 1 row(s), sources receipts, fields payer, ownWallet; log `log://ex01-seller-audit#48`
+  - critique: r1 A accept: C1-C7 passed; r2 A accept: C1-C7 passed
+- **c10** External sales span 2026-10-20T04:51:24.352Z..2026-10-21T21:18:17.136Z. — query `q02_external_payers` on `sqlite` (sql sha256 `af1c53c93fda`), reducer `reducers.external_window`, 4 row(s), sources receipts, fields at, ownWallet; log `log://ex01-seller-audit#46`
+  - critique: r1 A accept: C1-C7 passed; r2 A accept: C1-C7 passed
+- **c11** External sales by service: cuit-ar=3, normativa-ar=2, x402-ping=2, bcra-indicadores=1, cartas-ar=1, comparar-textos=1, crypto-prices=1, dev-utils=1, direcciones-ar=1, dolar-ar=1, fx-rates=1, polymarket-markets=1, source-bounded-summary=1, translate-es=1, url-text=1, web-read=1, x402-adoption=1. — query `q05_external_sales_by_service` on `sqlite` (sql sha256 `566e3b5c519c`), reducer `reducers.external_sales_by_service`, 17 row(s), sources receipts, fields service, ownWallet; log `log://ex01-seller-audit#49`
+  - critique: r1 A accept: C1-C7 passed; r2 A accept: C1-C7 passed
+- **c12** External sales per day: 2026-10-20=20, 2026-10-21=1. — query `q18_external_sales_by_day` on `sqlite` (sql sha256 `6e443de0aa36`), reducer `reducers.external_sales_by_day`, 2 row(s), sources receipts, fields at, ownWallet; log `log://ex01-seller-audit#57`
+  - critique: r1 A accept: C1-C7 passed; r2 A accept: C1-C7 passed
+- **c13** External sales settled inside the 30-day window ending 2026-10-22: 21. — query `q18_external_sales_by_day` on `sqlite` (sql sha256 `6e443de0aa36`), reducer `reducers.external_sales_30d`, 2 row(s), sources receipts, fields at, ownWallet; log `log://ex01-seller-audit#57`
+  - critique: r1 A accept: C1-C7 passed; r2 A accept: C1-C7 passed
+- **c14** The CDP Bazaar search returns 17 listings for tienda.textokit.store. — query `q06_bazaar_host_listings` on `sqlite` (sql sha256 `db6f09d947db`), reducer `reducers.bazaar_listings_for_host`, 1 row(s), sources cdp_search, fields resource, payTo; coverage 17 of None (search capped at 20); log `log://ex01-seller-audit#50`
+  - critique: r1 A accept: C1-C7 passed; r2 A accept: C1-C7 passed
+- **c15** Those listings pay to 1 distinct wallet(s). — query `q06_bazaar_host_listings` on `sqlite` (sql sha256 `db6f09d947db`), reducer `reducers.bazaar_payto_for_host`, 1 row(s), sources cdp_search, fields payTo; coverage 17 of None (search capped at 20); log `log://ex01-seller-audit#50`
+  - critique: r1 A accept: C1-C7 passed; r2 A accept: C1-C7 passed
+- **c16** Bazaar 30-day call counters summed over the listings of tienda.textokit.store: 60. — query `q06_bazaar_host_listings` on `sqlite` (sql sha256 `db6f09d947db`), reducer `reducers.bazaar_calls_30d_for_host`, 1 row(s), sources cdp_search, fields l30DaysTotalCalls; coverage 17 of None (search capped at 20); log `log://ex01-seller-audit#50`
+  - critique: r1 A accept: C1-C7 passed; r2 A accept: C1-C7 passed
+- **c17** 17 Bazaar listings pay to the wallet the receipts name as seller. — query `q07_bazaar_payto_vs_receipts_seller` on `sqlite` (sql sha256 `793f72e81505`), reducer `reducers.bazaar_payto_matches_seller`, 17 row(s), sources cdp_search, receipts, fields payTo, seller; log `log://ex01-seller-audit#51`
+  - critique: r1 A accept: C1-C7 passed; r2 A accept: C1-C7 passed
+- **c18** Registries disagree on the endpoint count for tienda.textokit.store: cdp_search=17, store_openapi=17, agent402_paid=17, agent402_tools=34, vet402=19, x402_trust_search=36. — query `q12_registry_count_openapi` on `sqlite` (sql sha256 `c9c6c473767b`), reducer `reducers.endpoint_count_for_host`, 1 row(s), sources store_openapi, cdp_search, agent402, vet402, x402_trust, fields paths, paidToolCount, endpoints, total; log `log://ex01-seller-audit#52`
+  - critique: r1 A accept: C1-C7 passed; r2 A accept: C1-C7 passed
+- **c19** 1 sampled settlement(s) verified on Base against the receipts. — query `q16_settlements_vs_receipts` on `sqlite` (sql sha256 `82a4f8cbe2ab`), reducer `reducers.settlements_verified`, 1 row(s), sources receipts, base_rpc, fields transaction, payer, amountAtomic; log `log://ex01-seller-audit#56`
+  - critique: r1 A accept: C1-C7 passed; r2 A accept: C1-C7 passed
 
 ## Rejected claims
 
@@ -168,12 +175,24 @@ retrieved: 7, cited: mem-seed-002, mem-seed-003, mem-seed-004, mem-seed-005, mem
 
 | role | generator-backed | generator used | attempts | status | notes |
 |---|---|---|---|---|---|
-| planner | True | none | 1 | ok | - |
+| planner | True | recorded | 1 | ok | - |
 | collector | False | None | 1 | ok | 9 ok, 0 stale fixture fallback(s), 0 fixture miss(es), 0 unavailable, 1 deferred to the verifier; deferred: base_rpc_batch |
 | keeper | False | None | 3 | ok | chain facts asserted: 1; claims asserted as agent facts: 19; ingested 9 observations, 917 events appended; second pass: {'runId': 'run_bce5c176f222', 'processed': 0, 'skippedUnchanged': 9, 'eventsAppended': 0, 'changed': False} |
 | verifier | False | None | 1 | ok | 4 tx sampled (most recent external sale per distinct payer, newest first, capped at max_tx_verifications): 1 verified, 0 failed, 3 unverifiable (fixture_miss x3); chain facts: 1; cross-checks: 6; settlements export: yes; tx_count for 0xec2abd3eda89bed90124736e317e847d5fb6d034 not available: fixture_miss; usdc_balance_atomic for 0xec2abd3eda89bed90124736e317e847d5fb6d034 not available: fixture_miss |
 | analyst | False | None | 1 | ok | views without export: bazaar_resources, catalog_resources, chain_facts |
-| writer | True | none | 1 | ok | - |
-| critic | True | none | 1 | ok | - |
+| writer | True | recorded | 2 | ok | - |
+| critic | True | recorded | 2 | ok | - |
 
-Critique rounds: 1. Log files: fetch.jsonl, hmem.trace.jsonl, run.jsonl, sql.jsonl, world.audit.jsonl, world.events.jsonl, world.observations.jsonl.
+## Model calls
+
+Which model handled each generator request (`generate` events in run.jsonl; Nightshift receipts).
+
+| role | prompt | provider | requested | model that answered | route | receipt | recorded | log |
+|---|---|---|---|---|---|---|---|---|
+| planner | planner | meterless | meterless/auto | local-runtime/llama-3.2-3b-instruct-q8 | Llama 3.2 3B Q8 Verifier (Runtime GGUF) (local) | rcpt_req_9b5cyzck | True | log://ex01-seller-audit#5 |
+| writer | writer-r1 | meterless | meterless/auto | local-runtime/llama-3.2-3b-instruct-q8 | Llama 3.2 3B Q8 Verifier (Runtime GGUF) (local) | rcpt_req_h66ab8e2 | True | log://ex01-seller-audit#81 |
+| critic | critic-r1 | meterless | meterless/auto | local-runtime/llama-3.2-3b-instruct-q8 | Llama 3.2 3B Q8 Verifier (Runtime GGUF) (local) | rcpt_req_gt1apn34 | True | log://ex01-seller-audit#120 |
+| writer | writer-r2 | meterless | meterless/auto | local-runtime/llama-3.2-3b-instruct-q8 | Llama 3.2 3B Q8 Verifier (Runtime GGUF) (local) | rcpt_req_2mgvmos5 | True | log://ex01-seller-audit#142 |
+| critic | critic-r2 | meterless | meterless/auto | local-runtime/llama-3.2-3b-instruct-q8 | Llama 3.2 3B Q8 Verifier (Runtime GGUF) (local) | rcpt_req_zpr6mfev | True | log://ex01-seller-audit#174 |
+
+Critique rounds: 2. Log files: fetch.jsonl, generator.jsonl, hmem.trace.jsonl, run.jsonl, sql.jsonl, world.audit.jsonl, world.events.jsonl, world.observations.jsonl.

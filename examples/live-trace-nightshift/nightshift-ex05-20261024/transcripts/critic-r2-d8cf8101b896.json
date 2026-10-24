@@ -1,0 +1,46 @@
+{
+  "prompt_id": "critic-r2",
+  "prompt_sha256": "d8cf8101b8968474c3c949b6145f9d27754f6eb700063cb2fac0bee32b815e32",
+  "model": "local-runtime/llama-3.2-3b-instruct-q8",
+  "recorded_at": "2026-10-24T16:30:48.162Z",
+  "response": "[\n  {\"sentence_index\": 0, \"reason\": \"No claim supports the existence of tienda.textokit.store\", \"claim_id\": null},\n  {\"sentence_index\": 1, \"reason\": \"No claim supports the total value of the purchase\", \"claim_id\": null},\n  {\"sentence_index\": 2, \"reason\": \"No claim supports the payer having 1 distinct service\", \"claim_id\": null},\n  {\"sentence_index\": 3, \"reason\": \"No claim supports the USDC balance at capture\", \"claim_id\": null},\n  {\"sentence_index\": 4, \"reason\": \"No claim supports the transaction count (nonce) at capture\", \"claim_id\": null},\n  {\"sentence_index\": 5, \"reason\": \"Claim c07 supports the payer making a single purchase from tienda.textokit.store\", \"claim_id\": \"c07\"},\n  {\"sentence_index\": 6, \"reason\": \"Claim c07 supports the payer making a single purchase from tienda.textokit.store, but memory context indicates otherwise\", \"claim_id\": \"c07\"},\n  {\"sentence_index\": 7, \"reason\": \"Claim c07 supports the payer making a single purchase from tienda.textokit.store, but memory context indicates otherwise\", \"claim_id\": \"c07\"},\n  {\"sentence_index\": 8, \"reason\": \"Claim c07 supports the payer making a single purchase from tienda.textokit.store, but memory context indicates otherwise\", \"claim_id\": \"c07\"},\n  {\"sentence_index\": 9, \"reason\": \"Claim c07 supports the payer making a single purchase from tienda.textokit.store, but memory context indicates otherwise\", \"claim_id\": \"c07\"},\n  {\"sentence_index\": 10, \"reason\": \"Claim c07 supports the payer making a single purchase from tienda.textokit.store, but memory context indicates otherwise\", \"claim_id\": \"c07\"},\n  {\"sentence_index\": 11, \"reason\": \"Claim c07 supports the payer making a single purchase from tienda.textokit.store, but memory context indicates otherwise\", \"claim_id\": \"c07\"},\n  {\"sentence_index\": 12, \"reason\": \"Claim c07 supports the payer making a single purchase from tienda.textokit.store, but memory context indicates otherwise\", \"claim_id\": \"c07\"},\n  {\"sentence_index\": 13, \"reason\": \"Claim c07 supports",
+  "usage": {
+    "prompt_tokens": 1766,
+    "completion_tokens": 500,
+    "total_tokens": 2266
+  },
+  "provider": "meterless",
+  "requested_model": "meterless/auto",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_q4bempy3",
+    "decision_id": "req_q4bempy3",
+    "requested_model": "meterless/auto",
+    "routed_model": "local-runtime/llama-3.2-3b-instruct-q8",
+    "winning_route": {
+      "model": "local-runtime/llama-3.2-3b-instruct-q8",
+      "label": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
+      "provider": "local-runtime",
+      "kind": "local",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "planning",
+        "model": "local-runtime/llama-3.2-3b-instruct-q8",
+        "ms": 4574
+      }
+    ],
+    "latency_ms": 4574,
+    "usage": {
+      "input_tokens": 1766,
+      "output_tokens": 500,
+      "total_tokens": 2266
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "local-only",
+    "wall_ms": 4641
+  }
+}

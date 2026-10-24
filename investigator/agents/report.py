@@ -165,5 +165,18 @@ def render_report(envelope: dict[str, Any]) -> str:
     for a in out.get("agents", []):
         lines.append(f"| {a.get('role')} | {a.get('generator_backed')} | {a.get('generator_used')} | {a.get('attempts')} | "
                      f"{a.get('status')} | {'; '.join(a.get('notes', [])) or '-'} |")
+    calls = [(a.get("role"), c) for a in out.get("agents", []) for c in a.get("generator_calls", [])]
+    if calls:
+        lines += ["", "## Model calls", "",
+                  "Which model handled each generator request (`generate` events in run.jsonl; Nightshift receipts).", "",
+                  "| role | prompt | provider | requested | model that answered | route | receipt | recorded | log |",
+                  "|---|---|---|---|---|---|---|---|---|"]
+        for role, c in sorted(calls, key=lambda rc: rc[1].get("log_seq") or 0):
+            route = c.get("route") or "-"
+            if c.get("route_kind"):
+                route = f"{route} ({c['route_kind']})"
+            lines.append(f"| {role} | {c.get('prompt_id')} | {c.get('provider')} | {c.get('requested_model') or '-'} | "
+                         f"{c.get('model')} | {route} | {c.get('receipt_id') or '-'} | {c.get('recorded')} | "
+                         f"log://{envelope.get('run_id')}#{c.get('log_seq')} |")
     lines += ["", f"Critique rounds: {out.get('critique_rounds')}. Log files: {', '.join(out.get('log_files', []))}.", ""]
     return "\n".join(lines)

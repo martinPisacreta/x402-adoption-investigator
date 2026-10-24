@@ -1,0 +1,47 @@
+{
+  "prompt_id": "writer-r2",
+  "prompt_sha256": "183825754d3ee1d1a59b28ba4123aea766f4bca7c9d68a9c814a4ba7276bec3a",
+  "model": "local-runtime/llama-3.2-3b-instruct-q8",
+  "recorded_at": "2026-10-24T16:12:47.650Z",
+  "response": "- The CDP Bazaar sells on the CDP Bazaar [c01].\n- The paid calls are concentrated, meaning that the majority of the calls are made to a small number of hosts [c06, c07, c09].\n- The share of listed endpoints that saw any call in the last 30 days is 99.6% [c05].\n\nThe CDP Bazaar is a platform where resources are served by 2680 distinct hosts [c02] and 1785 distinct payTo wallets receive payments [c03]. The Bazaar catalog snapshot holds 28462 unique resources [c01], and the top host www.ax1.vc accounts for 29.5% of the 824796 30-day calls [c06]. The top ten hosts account for 73.3% of the 824796 30-day calls [c07], and the top payTo wallet 0x7284d41b5b852f2bd4c99bdf95043d84452d299c receives 29.5% of the 824796 30-day calls [c09]. The largest per-endpoint 30-day unique-payer counter is 2708 [c10]. The share of listed endpoints that saw any call in the last 30 days is 99.6% [c05].",
+  "usage": {
+    "prompt_tokens": 3152,
+    "completion_tokens": 277,
+    "total_tokens": 3429
+  },
+  "provider": "meterless",
+  "requested_model": "meterless/auto",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_xxrzswnp",
+    "decision_id": "req_xxrzswnp",
+    "requested_model": "meterless/auto",
+    "routed_model": "local-runtime/llama-3.2-3b-instruct-q8",
+    "winning_route": {
+      "model": "local-runtime/llama-3.2-3b-instruct-q8",
+      "label": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
+      "provider": "local-runtime",
+      "kind": "local",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "final_synthesis",
+        "model": "local-runtime/llama-3.2-3b-instruct-q8",
+        "ms": 3150
+      }
+    ],
+    "latency_ms": 3150,
+    "usage": {
+      "input_tokens": 3152,
+      "output_tokens": 277,
+      "total_tokens": 3429
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "local-only",
+    "wall_ms": 3218
+  },
+  "prompt_context": "sample mode on the committed fixtures"
+}

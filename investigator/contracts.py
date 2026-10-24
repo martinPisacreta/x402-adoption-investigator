@@ -237,6 +237,7 @@ class GeneratorResult:
     usage: dict[str, int]
     provider: str = ""              # "meterless" (Nightshift) | "openai" | the recorded call's provider
     requested_model: Optional[str] = None   # what was asked for, e.g. the routing mode "meterless/auto"
+    routing: dict[str, Any] = field(default_factory=dict)   # Nightshift compute-receipt facts (generator.meterless_receipt)
 
 
 class Generator(Protocol):

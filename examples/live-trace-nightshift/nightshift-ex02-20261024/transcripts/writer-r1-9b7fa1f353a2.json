@@ -1,0 +1,51 @@
+{
+  "prompt_id": "writer-r1",
+  "prompt_sha256": "9b7fa1f353a2d9d59b9a7645b2825816617dd54c9c0ab86b95d24180ac10c79b",
+  "model": "local-runtime/llama-3.2-3b-instruct-q8",
+  "recorded_at": "2026-10-24T16:28:45.691Z",
+  "response": "- The CDP Bazaar sells on itself.\n- The paid calls are concentrated with a confidence level of 0.90.\n- 99.6% of the 28462 unique resources saw any call in the last 30 days [c05].\n- The top host www.ax1.vc accounts for 29.5% of the 824796 30-day calls [c06].\n- The top ten hosts account for 73.3% of the 824796 30-day calls [c07].\n- The largest per-endpoint 30-day unique-payer counter is 2708 [c10].\n\nThe CDP Bazaar is the platform where resources are sold. The paid calls are concentrated, meaning that a high percentage of the calls are made to a small number of hosts. The top host www.ax1.vc accounts for 29.5% of the 824796 30-day calls, while the top ten hosts account for 73.3% of the calls. This concentration of calls suggests that the CDP Bazaar is a relatively small and specialized market. The fact that 99.6% of the unique resources saw any call in the last 30 days indicates that the market is active and dynamic.",
+  "usage": {
+    "prompt_tokens": 4354,
+    "completion_tokens": 500,
+    "total_tokens": 4854
+  },
+  "provider": "meterless",
+  "requested_model": "meterless/auto",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_nrbpm6lr",
+    "decision_id": "req_nrbpm6lr",
+    "requested_model": "meterless/auto",
+    "routed_model": "local-runtime/llama-3.2-3b-instruct-q8",
+    "winning_route": {
+      "model": "local-runtime/llama-3.2-3b-instruct-q8",
+      "label": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
+      "provider": "local-runtime",
+      "kind": "local",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "planning",
+        "model": "local-runtime/llama-3.2-3b-instruct-q8",
+        "ms": 2711
+      },
+      {
+        "phase": "code_patch",
+        "model": "local-runtime/llama-3.2-3b-instruct-q8",
+        "ms": 2612
+      }
+    ],
+    "latency_ms": 5323,
+    "usage": {
+      "input_tokens": 4354,
+      "output_tokens": 500,
+      "total_tokens": 4854
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "local-only",
+    "wall_ms": 5422
+  }
+}

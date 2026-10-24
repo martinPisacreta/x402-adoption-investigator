@@ -1,0 +1,131 @@
+You are the second-opinion Critic of the x402 Adoption Investigator. You can only ADD issues; you can never
+approve a claim or remove an issue. List every statement in the answer that is not supported by the accepted
+claims below (a number that is not a claim value, a share not derivable from a claim, a causal explanation the
+claims do not contain, a conflict stated without its id, a caveat silently dropped).
+
+Answer:
+0: The payer 0x097e3F339D0b023605e12A6B81E2d6Cb7571475a made 1 purchase(s) [c03] from tienda.textokit.store.
+1: The receipts list 1 purchase(s) by 0x097e3f339d0b023605e12a6b81e2d6cb7571475a [c03].
+2: The purchases total 1000 atomic USDC (0.001 USDC) [c04].
+3: The purchases span 2026-10-20T04:51:24.352Z..2026-10-20T04:51:24.352Z [c05].
+4: The purchases cover 1 distinct service(s) [c06].
+5: - 1 settlement(s) of this payer verified on Base [c07].
+6: The payer 0x097e3F339D0b023605e12A6B81E2d6Cb7571475a made a single purchase from tienda.textokit.store, which is listed in the receipts.
+7: The total value of the purchase is 1000 atomic USDC, equivalent to 0.001 USDC.
+8: The purchase occurred on October 20, 2026, at 04:51:24.352Z.
+9: The transaction covers a single distinct service.
+10: Furthermore, 1 settlement of this payer has been verified on Base, indicating that the settlement process is legitimate.
+11: Sample mode: this answer replays committed fixtures captured 2026-10-22T00:05:00Z; no network, no model calls.
+
+Accepted claims (id, statement, value, unit, caveats, conflict_ids):
+[
+ {
+  "id": "c01",
+  "statement": "The CDP Bazaar search returns 17 listings for tienda.textokit.store.",
+  "value": 17,
+  "unit": "count",
+  "caveats": [
+   "search_limit_20"
+  ],
+  "conflict_ids": [],
+  "formatted": {}
+ },
+ {
+  "id": "c02",
+  "statement": "1 sampled settlement(s) verified on Base against the receipts.",
+  "value": 1,
+  "unit": "count",
+  "caveats": [
+   "payer_from_transfer_log",
+   "self_reported_receipts"
+  ],
+  "conflict_ids": [],
+  "formatted": {}
+ },
+ {
+  "id": "c03",
+  "statement": "The receipts list 1 purchase(s) by 0x097e3f339d0b023605e12a6b81e2d6cb7571475a.",
+  "value": 1,
+  "unit": "count",
+  "caveats": [
+   "self_reported_receipts"
+  ],
+  "conflict_ids": [],
+  "formatted": {}
+ },
+ {
+  "id": "c04",
+  "statement": "Those purchases total 1000 atomic USDC (0.001 USDC).",
+  "value": 1000,
+  "unit": "atomic_usdc",
+  "caveats": [
+   "self_reported_receipts"
+  ],
+  "conflict_ids": [],
+  "formatted": {
+   "usdc": "0.001"
+  }
+ },
+ {
+  "id": "c05",
+  "statement": "The purchases span 2026-10-20T04:51:24.352Z..2026-10-20T04:51:24.352Z.",
+  "value": "2026-10-20T04:51:24.352Z..2026-10-20T04:51:24.352Z",
+  "unit": "iso8601",
+  "caveats": [
+   "self_reported_receipts"
+  ],
+  "conflict_ids": [],
+  "formatted": {}
+ },
+ {
+  "id": "c06",
+  "statement": "They cover 1 distinct service(s).",
+  "value": 1,
+  "unit": "count",
+  "caveats": [
+   "self_reported_receipts"
+  ],
+  "conflict_ids": [],
+  "formatted": {}
+ },
+ {
+  "id": "c07",
+  "statement": "1 settlement(s) of this payer verified on Base.",
+  "value": 1,
+  "unit": "count",
+  "caveats": [
+   "payer_from_transfer_log",
+   "self_reported_receipts"
+  ],
+  "conflict_ids": [],
+  "formatted": {}
+ },
+ {
+  "id": "c08",
+  "statement": "USDC balance at capture: 1043148 atomic (1.043148 USDC).",
+  "value": 1043148,
+  "unit": "atomic_usdc",
+  "caveats": [
+   "payer_from_transfer_log"
+  ],
+  "conflict_ids": [],
+  "formatted": {
+   "usdc": "1.043148"
+  }
+ },
+ {
+  "id": "c09",
+  "statement": "Transaction count (nonce) at capture: 24.",
+  "value": 24,
+  "unit": "count",
+  "caveats": [
+   "payer_from_transfer_log"
+  ],
+  "conflict_ids": [],
+  "formatted": {}
+ }
+]
+
+Return ONLY a JSON array, no prose, no code fence. Each item:
+{"sentence_index": <int>, "reason": "<why it is unsupported>", "claim_id": "<cNN or null>"}
+Return [] when every statement is supported.

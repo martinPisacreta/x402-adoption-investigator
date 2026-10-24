@@ -1,0 +1,51 @@
+{
+  "prompt_id": "planner",
+  "prompt_sha256": "519242e84a7bb940da66179b7b6bc66e03fc2f4ee0a0baaca467154e7e757ca4",
+  "model": "local-runtime/llama-3.2-3b-instruct-q8",
+  "recorded_at": "2026-10-24T16:27:34.177Z",
+  "response": "{\"playbook\": \"seller_profile\", \"hypotheses\": [\"Tienda.textokit.store is a legitimate seller with a high volume of sales.\", \"The majority of tienda.textokit.store's sales are paid in USDC.\", \"Tienda.textokit.store's repeat external payer rate is higher than average.\", \"Registries disagree about tienda.textokit.store's payment history due to differences in data sources.\", \"Tienda.textokit.store's settlements verified rate is lower than expected.\", \"Tienda.textokit.store's top payer share is comprised of a single entity.\", \"Tienda.textokit.store's external sales by service and day are concentrated in specific areas.\", \"Tienda.textokit.store's external sales 30d is higher than average.\", \"Tienda.textokit.store's bazaar payto matches seller rate is lower than expected.\", \"Tienda.textokit.store's endpoint count for host is higher than average.\", \"Tienda.textokit.store's self-settlement share is higher than average.\", \"Tienda.textokit.store's external window is longer than average.\", \"Tienda.textokit.store's external sales by service is concentrated in a single service.\", \"Tienda.textokit.store's external sales by day is concentrated in a single day.\", \"Tienda.textokit.store's external usdc atomic sales are higher than average.\", \"Tienda.textokit.store's external payers total is higher than average.\", \"Tienda.textokit.store's external sales total is higher than average.\", \"Tienda.textokit.store's own wallet sales are higher than average.\", \"Tienda.textokit.store's own wallet total is higher than average.\", \"Tienda.textokit.store's external sales by day is higher than average.\", \"Tienda.textokit.store's external sales 30d is higher than average.\", \"Tienda.textokit.store's bazaar listings for host is higher than average.\", \"Tienda.textokit.store's bazaar payto for host is higher than average.\", \"",
+  "usage": {
+    "prompt_tokens": 2073,
+    "completion_tokens": 800,
+    "total_tokens": 2873
+  },
+  "provider": "meterless",
+  "requested_model": "meterless/auto",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_n6ld2jmx",
+    "decision_id": "req_n6ld2jmx",
+    "requested_model": "meterless/auto",
+    "routed_model": "local-runtime/llama-3.2-3b-instruct-q8",
+    "winning_route": {
+      "model": "local-runtime/llama-3.2-3b-instruct-q8",
+      "label": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
+      "provider": "local-runtime",
+      "kind": "local",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "planning",
+        "model": "local-runtime/llama-3.2-3b-instruct-q8",
+        "ms": 3904
+      },
+      {
+        "phase": "code_patch",
+        "model": "local-runtime/llama-3.2-3b-instruct-q8",
+        "ms": 3750
+      }
+    ],
+    "latency_ms": 7654,
+    "usage": {
+      "input_tokens": 2073,
+      "output_tokens": 800,
+      "total_tokens": 2873
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "local-only",
+    "wall_ms": 7750
+  }
+}

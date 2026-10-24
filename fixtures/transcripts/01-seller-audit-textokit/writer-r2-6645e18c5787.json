@@ -1,0 +1,47 @@
+{
+  "prompt_id": "writer-r2",
+  "prompt_sha256": "6645e18c5787858a09dc154c97c1952ed19f78408599353ed3cbeac31e374e97",
+  "model": "local-runtime/llama-3.2-3b-instruct-q8",
+  "recorded_at": "2026-10-24T16:11:23.010Z",
+  "response": "- 77 sales [c01] settled by the seller themselves [c07].\n- 56 of those sales were paid from the seller's own wallets [c02].\n- 3 distinct own wallets settled those self-payments [c03].\n- 21 sales were paid by external wallets [c04].\n- External sales total 44000 atomic USDC (0.044 USDC) [c05].\n- External sales per day: 2026-10-20=20, 2026-10-21=1 [c12].\n- External sales settled inside the 30-day window ending 2026-10-22: 21 [c13].\n- The CDP Bazaar search returns 17 listings for tienda.textokit.store [c14].\n- Those listings pay to 1 distinct wallet(s) [c15].\n- Bazaar 30-day call counters summed over the listings of tienda.textokit.store: 60 [c16].\n- 17 Bazaar listings pay to the wallet the receipts name as seller [c17].\n- Registries disagree on the endpoint count for tienda.textokit.store: cdp_search=17, store_openapi=17, agent402_paid=17, agent402_tools=34, vet402=19, x402_trust_search=36 [c18].\n\nThe adoption of tienda.textokit.store appears to be mostly self-settled, with 72.7% of the total sales settled by the seller themselves [c07]. However, this trust is not reflected in the endpoint count for tienda.textokit.store, as registries disagree on the number of active endpoints [c18]. The discrepancy may be due to differences in the sources' methods of tracking endpoint activity, such as the use of Bazaar search, paid operations declared by the store's openapi.json, or tools crawled by Agent402. Despite this, the available data suggests that tienda.textokit.store has a significant level of adoption and trust among users.",
+  "usage": {
+    "prompt_tokens": 6050,
+    "completion_tokens": 411,
+    "total_tokens": 6461
+  },
+  "provider": "meterless",
+  "requested_model": "meterless/auto",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_2mgvmos5",
+    "decision_id": "req_2mgvmos5",
+    "requested_model": "meterless/auto",
+    "routed_model": "local-runtime/llama-3.2-3b-instruct-q8",
+    "winning_route": {
+      "model": "local-runtime/llama-3.2-3b-instruct-q8",
+      "label": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
+      "provider": "local-runtime",
+      "kind": "local",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "planning",
+        "model": "local-runtime/llama-3.2-3b-instruct-q8",
+        "ms": 5026
+      }
+    ],
+    "latency_ms": 5026,
+    "usage": {
+      "input_tokens": 6050,
+      "output_tokens": 411,
+      "total_tokens": 6461
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "local-only",
+    "wall_ms": 5094
+  },
+  "prompt_context": "sample mode on the committed fixtures"
+}

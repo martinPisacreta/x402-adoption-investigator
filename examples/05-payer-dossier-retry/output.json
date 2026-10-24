@@ -6,12 +6,12 @@
       "mode": "sample",
       "fetcher": "fixture",
       "executor": "sqlite",
-      "generator": "null",
+      "generator": "recorded",
       "fixtures_captured_at": "2026-10-22T00:05:00Z",
       "zetaris_version": null,
       "zetaris_source": null
     },
-    "sample_mode_notice": "This run replayed committed fixtures captured 2026-10-22T00:05:00Z; no network, no model calls. It also replayed the 2 transient failure(s) scripted in fixtures/transient/05-payer-dossier-retry/faults.json (simulated: written by hand, not captured from the sources) through the retry policy live runs use; the `retry` events in run.jsonl show each one.",
+    "sample_mode_notice": "This run replayed committed fixtures captured 2026-10-22T00:05:00Z; no network, no model calls. The generator-backed roles replayed 5 recorded answer(s) from fixtures/transcripts/05-payer-dossier-retry/ (provider meterless, model local-runtime/llama-3.2-3b-instruct-q8); each `generate` event says recorded: true. It also replayed the 2 transient failure(s) scripted in fixtures/transient/05-payer-dossier-retry/faults.json (simulated: written by hand, not captured from the sources) through the retry policy live runs use; the `retry` events in run.jsonl show each one.",
     "question": "What do we know about the payer 0x097e3F339D0b023605e12A6B81E2d6Cb7571475a: what it bought from tienda.textokit.store, and can the settlement be verified on Base?",
     "plan": {
       "playbook": "payer_dossier",
@@ -26,7 +26,7 @@
         "cdp_search",
         "base_rpc"
       ],
-      "planner_source": "rules",
+      "planner_source": "recorded-generator",
       "metrics": [
         "bazaar_listings_for_host",
         "settlements_verified",
@@ -38,7 +38,13 @@
         "usdc_balance_atomic",
         "tx_count"
       ],
-      "hypotheses": [],
+      "hypotheses": [
+        "The payer has a verified wallet on Base.",
+        "The payer has a balance of USDC on Base.",
+        "The settlement can be verified on Base.",
+        "The settlement was made on tienda.textokit.store.",
+        "The payer has a settlement on Base."
+      ],
       "hmem_memory_ids": [
         "mem-seed-005"
       ]
@@ -75,7 +81,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex05-retry#35",
+            "ref": "log://ex05-retry#37",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -86,7 +92,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex05-retry#37",
+            "ref": "log://ex05-retry#39",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -110,7 +116,7 @@
           "sources": [
             "cdp_search"
           ],
-          "log_seq": 35
+          "log_seq": 37
         },
         "coverage": {
           "items_seen": 17,
@@ -131,6 +137,13 @@
         "critique": [
           {
             "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
             "rule": "A",
             "verdict": "accept",
             "reason": "C1-C7 passed",
@@ -182,7 +195,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex05-retry#33",
+            "ref": "log://ex05-retry#35",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -193,7 +206,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex05-retry#38",
+            "ref": "log://ex05-retry#40",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -219,7 +232,7 @@
             "receipts",
             "base_rpc"
           ],
-          "log_seq": 33
+          "log_seq": 35
         },
         "coverage": null,
         "caveats": [
@@ -237,6 +250,13 @@
         "critique": [
           {
             "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
             "rule": "A",
             "verdict": "accept",
             "reason": "C1-C7 passed",
@@ -266,7 +286,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex05-retry#34",
+            "ref": "log://ex05-retry#36",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -277,7 +297,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex05-retry#39",
+            "ref": "log://ex05-retry#41",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -300,7 +320,7 @@
           "sources": [
             "receipts"
           ],
-          "log_seq": 34
+          "log_seq": 36
         },
         "coverage": null,
         "caveats": [
@@ -316,6 +336,13 @@
         "critique": [
           {
             "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
             "rule": "A",
             "verdict": "accept",
             "reason": "C1-C7 passed",
@@ -345,7 +372,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex05-retry#34",
+            "ref": "log://ex05-retry#36",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -356,7 +383,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex05-retry#40",
+            "ref": "log://ex05-retry#42",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -380,7 +407,7 @@
           "sources": [
             "receipts"
           ],
-          "log_seq": 34
+          "log_seq": 36
         },
         "coverage": null,
         "caveats": [
@@ -396,6 +423,13 @@
         "critique": [
           {
             "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
             "rule": "A",
             "verdict": "accept",
             "reason": "C1-C7 passed",
@@ -425,7 +459,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex05-retry#34",
+            "ref": "log://ex05-retry#36",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -436,7 +470,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex05-retry#41",
+            "ref": "log://ex05-retry#43",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -460,7 +494,7 @@
           "sources": [
             "receipts"
           ],
-          "log_seq": 34
+          "log_seq": 36
         },
         "coverage": null,
         "caveats": [
@@ -476,6 +510,13 @@
         "critique": [
           {
             "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
             "rule": "A",
             "verdict": "accept",
             "reason": "C1-C7 passed",
@@ -505,7 +546,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex05-retry#34",
+            "ref": "log://ex05-retry#36",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -516,7 +557,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex05-retry#42",
+            "ref": "log://ex05-retry#44",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -540,7 +581,7 @@
           "sources": [
             "receipts"
           ],
-          "log_seq": 34
+          "log_seq": 36
         },
         "coverage": null,
         "caveats": [
@@ -556,6 +597,13 @@
         "critique": [
           {
             "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
             "rule": "A",
             "verdict": "accept",
             "reason": "C1-C7 passed",
@@ -607,7 +655,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex05-retry#33",
+            "ref": "log://ex05-retry#35",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -618,7 +666,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex05-retry#43",
+            "ref": "log://ex05-retry#45",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -642,7 +690,7 @@
             "receipts",
             "base_rpc"
           ],
-          "log_seq": 33
+          "log_seq": 35
         },
         "coverage": null,
         "caveats": [
@@ -660,6 +708,13 @@
         "critique": [
           {
             "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
             "rule": "A",
             "verdict": "accept",
             "reason": "C1-C7 passed",
@@ -700,7 +755,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex05-retry#36",
+            "ref": "log://ex05-retry#38",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -711,7 +766,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex05-retry#44",
+            "ref": "log://ex05-retry#46",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -734,7 +789,7 @@
           "sources": [
             "base_rpc"
           ],
-          "log_seq": 36
+          "log_seq": 38
         },
         "coverage": null,
         "caveats": [
@@ -750,6 +805,13 @@
         "critique": [
           {
             "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
             "rule": "A",
             "verdict": "accept",
             "reason": "C1-C7 passed",
@@ -790,7 +852,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex05-retry#36",
+            "ref": "log://ex05-retry#38",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -801,7 +863,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex05-retry#45",
+            "ref": "log://ex05-retry#47",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -824,7 +886,7 @@
           "sources": [
             "base_rpc"
           ],
-          "log_seq": 36
+          "log_seq": 38
         },
         "coverage": null,
         "caveats": [
@@ -840,6 +902,13 @@
         "critique": [
           {
             "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
             "rule": "A",
             "verdict": "accept",
             "reason": "C1-C7 passed",
@@ -929,7 +998,7 @@
         "status": "fixture_miss",
         "http": null,
         "sha256": null,
-        "captured_at": "2026-10-22T00:05:01.037Z",
+        "captured_at": "2026-10-22T00:05:01.042Z",
         "replayed": true,
         "stale": false,
         "error": "no fixture for this request key",
@@ -943,7 +1012,7 @@
         "status": "fixture_miss",
         "http": null,
         "sha256": null,
-        "captured_at": "2026-10-22T00:05:01.042Z",
+        "captured_at": "2026-10-22T00:05:01.047Z",
         "replayed": true,
         "stale": false,
         "error": "no fixture for this request key",
@@ -957,7 +1026,7 @@
         "status": "fixture_miss",
         "http": null,
         "sha256": null,
-        "captured_at": "2026-10-22T00:05:01.047Z",
+        "captured_at": "2026-10-22T00:05:01.052Z",
         "replayed": true,
         "stale": false,
         "error": "no fixture for this request key",
@@ -1136,10 +1205,23 @@
       {
         "role": "planner",
         "generator_backed": true,
-        "generator_used": "none",
+        "generator_used": "recorded",
         "attempts": 1,
         "status": "ok",
-        "notes": []
+        "notes": [],
+        "generator_calls": [
+          {
+            "prompt_id": "planner",
+            "provider": "meterless",
+            "requested_model": "meterless/auto",
+            "model": "local-runtime/llama-3.2-3b-instruct-q8",
+            "route": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
+            "route_kind": "local",
+            "receipt_id": "rcpt_req_9qigqh9w",
+            "recorded": true,
+            "log_seq": 6
+          }
+        ]
       },
       {
         "role": "collector",
@@ -1190,24 +1272,73 @@
       {
         "role": "writer",
         "generator_backed": true,
-        "generator_used": "none",
-        "attempts": 1,
+        "generator_used": "recorded",
+        "attempts": 2,
         "status": "ok",
-        "notes": []
+        "notes": [],
+        "generator_calls": [
+          {
+            "prompt_id": "writer-r1",
+            "provider": "meterless",
+            "requested_model": "meterless/auto",
+            "model": "local-runtime/llama-3.2-3b-instruct-q8",
+            "route": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
+            "route_kind": "local",
+            "receipt_id": "rcpt_req_moog745x",
+            "recorded": true,
+            "log_seq": 51
+          },
+          {
+            "prompt_id": "writer-r2",
+            "provider": "meterless",
+            "requested_model": "meterless/auto",
+            "model": "local-runtime/llama-3.2-3b-instruct-q8",
+            "route": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
+            "route_kind": "local",
+            "receipt_id": "rcpt_req_9m6wh00b",
+            "recorded": true,
+            "log_seq": 88
+          }
+        ]
       },
       {
         "role": "critic",
         "generator_backed": true,
-        "generator_used": "none",
-        "attempts": 1,
+        "generator_used": "recorded",
+        "attempts": 2,
         "status": "ok",
-        "notes": []
+        "notes": [],
+        "generator_calls": [
+          {
+            "prompt_id": "critic-r1",
+            "provider": "meterless",
+            "requested_model": "meterless/auto",
+            "model": "local-runtime/llama-3.2-3b-instruct-q8",
+            "route": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
+            "route_kind": "local",
+            "receipt_id": "rcpt_req_97ac1j9g",
+            "recorded": true,
+            "log_seq": 74
+          },
+          {
+            "prompt_id": "critic-r2",
+            "provider": "meterless",
+            "requested_model": "meterless/auto",
+            "model": "local-runtime/llama-3.2-3b-instruct-q8",
+            "route": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
+            "route_kind": "local",
+            "receipt_id": "rcpt_req_i4y9c8pq",
+            "recorded": true,
+            "log_seq": 111
+          }
+        ]
       }
     ],
-    "critique_rounds": 1,
+    "critique_rounds": 2,
     "report_path": "logs/ex05-retry/report.md",
     "log_files": [
       "fetch.jsonl",
+      "generator.jsonl",
       "hmem.trace.jsonl",
       "run.jsonl",
       "sql.jsonl",

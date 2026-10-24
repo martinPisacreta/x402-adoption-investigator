@@ -1,0 +1,46 @@
+{
+  "prompt_id": "critic-r1",
+  "prompt_sha256": "1b332d243369a39d2f72e0c98b7785fa7cf270d506d89ce0ad2f10c2038bc954",
+  "model": "local-runtime/llama-3.2-3b-instruct-q8",
+  "recorded_at": "2026-10-24T16:28:52.089Z",
+  "response": "[\n  {\"sentence_index\": 0, \"reason\": \"not supported by claims\", \"claim_id\": null},\n  {\"sentence_index\": 7, \"reason\": \"not supported by claims\", \"claim_id\": null},\n  {\"sentence_index\": 8, \"reason\": \"not supported by claims\", \"claim_id\": null},\n  {\"sentence_index\": 9, \"reason\": \"not supported by claims\", \"claim_id\": null},\n  {\"sentence_index\": 10, \"reason\": \"not supported by claims\", \"claim_id\": null},\n  {\"sentence_index\": 1, \"reason\": \"not supported by claims\", \"claim_id\": null},\n  {\"sentence_index\": 3, \"reason\": \"not supported by claims\", \"claim_id\": null},\n  {\"sentence_index\": 4, \"reason\": \"not supported by claims\", \"claim_id\": null},\n  {\"sentence_index\": 5, \"reason\": \"not supported by claims\", \"claim_id\": null},\n  {\"sentence_index\": 6, \"reason\": \"not supported by claims\", \"claim_id\": null},\n  {\"sentence_index\": 2, \"reason\": \"not supported by claims\", \"claim_id\": null},\n  {\"sentence_index\": 11, \"reason\": \"conflict with claim c01\", \"claim_id\": \"c01\"},\n  {\"sentence_index\": 11, \"reason\": \"conflict with claim c02\", \"claim_id\": \"c02\"},\n  {\"sentence_index\": 11, \"reason\": \"conflict with claim c03\", \"claim_id\": \"c03\"},\n  {\"sentence_index\": 11, \"reason\": \"conflict with claim c04\", \"claim_id\": \"c04\"},\n  {\"sentence_index\": 11, \"reason\": \"conflict with claim c05\", \"claim_id\": \"c05\"},\n  {\"sentence_index\": 11, \"reason\": \"conflict with claim c06\", \"claim_id\": \"c06\"},\n  {\"sentence_index\": 11, \"reason\": \"conflict with claim c07\", \"claim_id\": \"c07\"},\n  {\"sentence_index\": 11, \"reason\": \"conflict with claim c08\", \"claim_id\": \"c08\"},\n  {\"sentence_index\": 11, \"reason\": \"conflict with claim c09\", \"claim_id\": \"c09\"},\n  {\"sentence",
+  "usage": {
+    "prompt_tokens": 1760,
+    "completion_tokens": 500,
+    "total_tokens": 2260
+  },
+  "provider": "meterless",
+  "requested_model": "meterless/auto",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_huwcpnw4",
+    "decision_id": "req_huwcpnw4",
+    "requested_model": "meterless/auto",
+    "routed_model": "local-runtime/llama-3.2-3b-instruct-q8",
+    "winning_route": {
+      "model": "local-runtime/llama-3.2-3b-instruct-q8",
+      "label": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
+      "provider": "local-runtime",
+      "kind": "local",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "planning",
+        "model": "local-runtime/llama-3.2-3b-instruct-q8",
+        "ms": 4729
+      }
+    ],
+    "latency_ms": 4729,
+    "usage": {
+      "input_tokens": 1760,
+      "output_tokens": 500,
+      "total_tokens": 2260
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "local-only",
+    "wall_ms": 4797
+  }
+}

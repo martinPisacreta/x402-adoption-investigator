@@ -1,0 +1,46 @@
+{
+  "prompt_id": "critic-r2",
+  "prompt_sha256": "e3ebbf5f18c5f70f086666b5009fc8981d98caa50179dea1b01ee2988cde98e5",
+  "model": "local-runtime/llama-3.2-3b-instruct-q8",
+  "recorded_at": "2026-10-24T16:28:59.082Z",
+  "response": "[\n  {\"sentence_index\": 0, \"reason\": \"not supported by claims\", \"claim_id\": null},\n  {\"sentence_index\": 6, \"reason\": \"not supported by claims\", \"claim_id\": null},\n  {\"sentence_index\": 7, \"reason\": \"not supported by claims\", \"claim_id\": null},\n  {\"sentence_index\": 8, \"reason\": \"not supported by claims\", \"claim_id\": null},\n  {\"sentence_index\": 9, \"reason\": \"not supported by claims\", \"claim_id\": null},\n  {\"sentence_index\": 1, \"reason\": \"supported by claim c07\", \"claim_id\": \"c07\"},\n  {\"sentence_index\": 3, \"reason\": \"supported by claim c06\", \"claim_id\": \"c06\"},\n  {\"sentence_index\": 4, \"reason\": \"supported by claim c10\", \"claim_id\": \"c10\"},\n  {\"sentence_index\": 5, \"reason\": \"supported by claim c05\", \"claim_id\": \"c05\"},\n  {\"sentence_index\": 2, \"reason\": \"supported by claim c05\", \"claim_id\": \"c05\"},\n  {\"sentence_index\": 10, \"reason\": \"not supported by claims\", \"claim_id\": null}",
+  "usage": {
+    "prompt_tokens": 1755,
+    "completion_tokens": 270,
+    "total_tokens": 2025
+  },
+  "provider": "meterless",
+  "requested_model": "meterless/auto",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_ralueqme",
+    "decision_id": "req_ralueqme",
+    "requested_model": "meterless/auto",
+    "routed_model": "local-runtime/llama-3.2-3b-instruct-q8",
+    "winning_route": {
+      "model": "local-runtime/llama-3.2-3b-instruct-q8",
+      "label": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
+      "provider": "local-runtime",
+      "kind": "local",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "planning",
+        "model": "local-runtime/llama-3.2-3b-instruct-q8",
+        "ms": 2706
+      }
+    ],
+    "latency_ms": 2706,
+    "usage": {
+      "input_tokens": 1755,
+      "output_tokens": 270,
+      "total_tokens": 2025
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "local-only",
+    "wall_ms": 2765
+  }
+}

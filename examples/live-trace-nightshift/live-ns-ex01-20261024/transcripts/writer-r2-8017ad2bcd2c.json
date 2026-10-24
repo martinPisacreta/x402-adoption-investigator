@@ -1,0 +1,46 @@
+{
+  "prompt_id": "writer-r2",
+  "prompt_sha256": "8017ad2bcd2c3f488e4a0c324dd8ff2e9ce0c97d094ad0f6c63a3416d389ce61",
+  "model": "local-runtime/llama-3.2-3b-instruct-q8",
+  "recorded_at": "2026-10-24T16:01:29.190Z",
+  "response": "- Self-settled_mostly (confidence 0.90)\n\n- The total number of settled sales is 80 [c01], with 56 of those sales paid from the seller's own wallets [c02], and 3 distinct own wallets settled those self-payments [c03]. The remaining 24 sales were paid by external wallets [c04], totaling 55000 atomic USDC (0.055 USDC) [c05]. \n\n- External sales settled inside the 30-day window ending 2026-10-24: 24 [c13]. \n\n- Registries disagree on the endpoint count for tienda.textokit.store: cdp_search=17, store_openapi=17, agent402_paid=17, agent402_tools=34, vet402=19, x402_trust_search=36 [c18]. \n\n- The top external payer 0xec2abd3eda89bed90124736e317e847d5fb6d034 made 20 of 24 external sales (83.3 %) [c09]. \n\n- External sales per day: 2026-10-20=20, 2026-10-21=1, 2026-10-23=1, 2026-10-24=2 [c12]. \n\n- 5 sampled settlement(s) verified on Base against the receipts [c19]. \n\n- Where sources disagree, registries disagree on the endpoint count for tienda.textokit.store: cdp_search=17, store_openapi=17, agent402_paid=17, agent402_tools=34, vet402=19, x402_trust_search=36 [c18], and registries also disagree on the calls_30d_for_host: cdp_search=63, receipts=80, receipts=24 [k02].",
+  "usage": {
+    "prompt_tokens": 4391,
+    "completion_tokens": 381,
+    "total_tokens": 4772
+  },
+  "provider": "meterless",
+  "requested_model": "meterless/auto",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_4vgv0g2y",
+    "decision_id": "req_4vgv0g2y",
+    "requested_model": "meterless/auto",
+    "routed_model": "local-runtime/llama-3.2-3b-instruct-q8",
+    "winning_route": {
+      "model": "local-runtime/llama-3.2-3b-instruct-q8",
+      "label": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
+      "provider": "local-runtime",
+      "kind": "local",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "final_synthesis",
+        "model": "local-runtime/llama-3.2-3b-instruct-q8",
+        "ms": 4305
+      }
+    ],
+    "latency_ms": 4305,
+    "usage": {
+      "input_tokens": 4391,
+      "output_tokens": 381,
+      "total_tokens": 4772
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "local-only",
+    "wall_ms": 4375
+  }
+}

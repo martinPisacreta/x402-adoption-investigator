@@ -1,0 +1,51 @@
+{
+  "prompt_id": "writer-r1",
+  "prompt_sha256": "ae65d34c53f9486c4bac4ac97be2757e9bcfda972936190e5fbf8449e1ec2a37",
+  "model": "local-runtime/llama-3.2-3b-instruct-q8",
+  "recorded_at": "2026-10-24T16:30:04.070Z",
+  "response": "- 1 settlement verified on Base [c07].\n- 5 sampled settlements verified on Base against receipts [c02].\n- 1 purchase by 0xa1d1C0cf717402ff3651aA4873CcF96410B01978 [c03].\n- 1000 atomic USDC (0.001 USDC) [c04].\n- 1 distinct service [c06].\n- 17 listings for tienda.textokit.store [c01].\n\nWe know that the payer 0xA1d1C0cf717402ff3651aA4873CcF96410B01978 made 1 purchase(s) from tienda.textokit.store, which is listed 17 times on the CDP Bazaar search. The total value of this purchase is 1000 atomic USDC (0.001 USDC). \n\nWhere sources disagree, there is no information on whether the settlement of this payer can be verified on Base, as the available metrics only provide information on the verification of settlements against receipts, not the verification of settlements on Base itself. \n\nWhere sources disagree, there is no information on whether the payer 0xA1d1C0cf717402ff3651aA4873CcF96410B01978 has a verified settlement on Base, as the available metrics only provide information on the verification of settlements against receipts, not the verification of settlements on Base itself. \n\nThe payer 0xA1d1C0cf717402ff3651aA4873CcF96410B01978 has a verified settlement on Base, as 1 settlement(s) of this payer verified on Base [c07]. However, the exact basis of this verification is not specified.",
+  "usage": {
+    "prompt_tokens": 3766,
+    "completion_tokens": 1056,
+    "total_tokens": 4822
+  },
+  "provider": "meterless",
+  "requested_model": "meterless/auto",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_8sewde79",
+    "decision_id": "req_8sewde79",
+    "requested_model": "meterless/auto",
+    "routed_model": "local-runtime/llama-3.2-3b-instruct-q8",
+    "winning_route": {
+      "model": "local-runtime/llama-3.2-3b-instruct-q8",
+      "label": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
+      "provider": "local-runtime",
+      "kind": "local",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "planning",
+        "model": "local-runtime/llama-3.2-3b-instruct-q8",
+        "ms": 6497
+      },
+      {
+        "phase": "code_patch",
+        "model": "local-runtime/llama-3.2-3b-instruct-q8",
+        "ms": 3525
+      }
+    ],
+    "latency_ms": 10022,
+    "usage": {
+      "input_tokens": 3766,
+      "output_tokens": 1056,
+      "total_tokens": 4822
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "local-only",
+    "wall_ms": 10125
+  }
+}

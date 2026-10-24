@@ -1,0 +1,187 @@
+You are the second-opinion Critic of the x402 Adoption Investigator. You can only ADD issues; you can never
+approve a claim or remove an issue. List every statement in the answer that is not supported by the accepted
+claims below (a number that is not a claim value, a share not derivable from a claim, a causal explanation the
+claims do not contain, a conflict stated without its id, a caveat silently dropped).
+
+Answer:
+0: The CDP Bazaar sells on itself.
+1: The paid calls are concentrated with a confidence level of 0.90.
+2: 99.6% of the 28462 unique resources saw any call in the last 30 days [c05].
+3: The top host www.ax1.vc accounts for 29.5% of the 824796 30-day calls [c06].
+4: The top ten hosts account for 73.3% of the 824796 30-day calls [c07].
+5: - The largest per-endpoint 30-day unique-payer counter is 2708 [c10].
+6: The CDP Bazaar is the platform where resources are sold.
+7: The paid calls are concentrated, meaning that a high percentage of the calls are made to a small number of hosts.
+8: The top host www.ax1.vc accounts for 29.5% of the 824796 30-day calls, while the top ten hosts account for 73.3% of the calls.
+9: This concentration of calls suggests that the CDP Bazaar is a relatively small and specialized market.
+10: The fact that 99.6% of the unique resources saw any call in the last 30 days indicates that the market is active and dynamic.
+
+Accepted claims (id, statement, value, unit, caveats, conflict_ids):
+[
+ {
+  "id": "c01",
+  "statement": "The Bazaar catalog snapshot holds 28462 unique resources.",
+  "value": 28462,
+  "unit": "count",
+  "caveats": [
+   "snapshot_dated"
+  ],
+  "conflict_ids": [
+   "k01"
+  ],
+  "formatted": {}
+ },
+ {
+  "id": "c02",
+  "statement": "Those resources are served by 2680 distinct hosts.",
+  "value": 2680,
+  "unit": "count",
+  "caveats": [
+   "snapshot_dated"
+  ],
+  "conflict_ids": [],
+  "formatted": {}
+ },
+ {
+  "id": "c03",
+  "statement": "1785 distinct payTo wallets receive the payments.",
+  "value": 1785,
+  "unit": "count",
+  "caveats": [
+   "snapshot_dated"
+  ],
+  "conflict_ids": [],
+  "formatted": {}
+ },
+ {
+  "id": "c04",
+  "statement": "The 30-day call counters sum to 824796 across the snapshot.",
+  "value": 824796,
+  "unit": "count",
+  "caveats": [
+   "snapshot_dated",
+   "basis_mismatch"
+  ],
+  "conflict_ids": [],
+  "formatted": {}
+ },
+ {
+  "id": "c05",
+  "statement": "28347 of 28462 resources saw at least one call in the 30-day window (99.6 %).",
+  "value": {
+   "numerator": 28347,
+   "denominator": 28462,
+   "share": 0.995959524980676
+  },
+  "unit": "share",
+  "caveats": [
+   "snapshot_dated",
+   "basis_mismatch"
+  ],
+  "conflict_ids": [],
+  "formatted": {
+   "percent": "99.6"
+  }
+ },
+ {
+  "id": "c06",
+  "statement": "The top host www.ax1.vc accounts for 243580 of 824796 30-day calls (29.5 %).",
+  "value": {
+   "numerator": 243580,
+   "denominator": 824796,
+   "share": 0.2953215098036363,
+   "host": "www.ax1.vc"
+  },
+  "unit": "share",
+  "caveats": [
+   "snapshot_dated",
+   "basis_mismatch"
+  ],
+  "conflict_ids": [],
+  "formatted": {
+   "percent": "29.5"
+  }
+ },
+ {
+  "id": "c07",
+  "statement": "The top ten hosts account for 604248 of 824796 30-day calls (73.3 %).",
+  "value": {
+   "numerator": 604248,
+   "denominator": 824796,
+   "share": 0.7326029709164448
+  },
+  "unit": "share",
+  "caveats": [
+   "snapshot_dated",
+   "basis_mismatch"
+  ],
+  "conflict_ids": [],
+  "formatted": {
+   "percent": "73.3"
+  }
+ },
+ {
+  "id": "c08",
+  "statement": "Hosts with the most listings in the snapshot: saylorinnovations.com=1568, agentshelf.syntexa.ch=1236, dns.intel.rallylive.ca=694, agent402.tools=613.",
+  "value": "saylorinnovations.com=1568, agentshelf.syntexa.ch=1236, dns.intel.rallylive.ca=694, agent402.tools=613",
+  "unit": "text",
+  "caveats": [
+   "snapshot_dated"
+  ],
+  "conflict_ids": [],
+  "formatted": {}
+ },
+ {
+  "id": "c09",
+  "statement": "The top payTo wallet 0x7284d41b5b852f2bd4c99bdf95043d84452d299c receives 243601 of 824796 30-day calls (29.5 %).",
+  "value": {
+   "numerator": 243601,
+   "denominator": 824796,
+   "share": 0.2953469706448625,
+   "pay_to": "0x7284d41b5b852f2bd4c99bdf95043d84452d299c"
+  },
+  "unit": "share",
+  "caveats": [
+   "snapshot_dated",
+   "basis_mismatch"
+  ],
+  "conflict_ids": [],
+  "formatted": {
+   "percent": "29.5"
+  }
+ },
+ {
+  "id": "c10",
+  "statement": "The largest per-endpoint 30-day unique-payer counter is 2708 (not deduplicable across endpoints).",
+  "value": 2708,
+  "unit": "count",
+  "caveats": [
+   "unique_payers_not_dedupable",
+   "snapshot_dated"
+  ],
+  "conflict_ids": [],
+  "formatted": {}
+ },
+ {
+  "id": "c11",
+  "statement": "x402-trust reports endpoints_listed=299393, endpoints_active=224617, settlements_30d=2545778, distinct_payers_30d=31600.",
+  "value": {
+   "endpoints_listed": 299393,
+   "endpoints_active": 224617,
+   "settlements_30d": 2545778,
+   "distinct_payers_30d": 31600
+  },
+  "unit": "text",
+  "caveats": [
+   "third_party_aggregate"
+  ],
+  "conflict_ids": [
+   "k01"
+  ],
+  "formatted": {}
+ }
+]
+
+Return ONLY a JSON array, no prose, no code fence. Each item:
+{"sentence_index": <int>, "reason": "<why it is unsupported>", "claim_id": "<cNN or null>"}
+Return [] when every statement is supported.

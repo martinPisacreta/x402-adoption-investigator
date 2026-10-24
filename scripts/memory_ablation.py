@@ -5,7 +5,9 @@ pitfall memory removed, and report exactly what changed in the output. Owner: in
 This is the honest way to show that memory changes the output: nothing is planted in the registry, the same
 input and the same fixtures run through the same code, and the only difference between the two runs is one
 line of memory/seed/memories.jsonl (plus its ledger entry). The differences the script reports are read from the
-two output.json files, never typed here.
+two output.json files, never typed here. Both runs mount the null generator (rules and templates): recorded
+transcripts are keyed by the exact prompt, and removing a memory changes the prompts, so a replay would mix the
+effect of the memory with a generator fallback in only one of the two runs.
 
     python scripts/memory_ablation.py                                   # ex01 without mem-seed-003, summary on stdout
     python scripts/memory_ablation.py --without mem-seed-002 --example 03-payer-dossier-onchain
@@ -26,7 +28,11 @@ from typing import Any
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
+from unittest import mock  # noqa: E402
+
+from investigator import runner  # noqa: E402
 from investigator.config import build_config  # noqa: E402
+from investigator.generator import NullGenerator  # noqa: E402
 from investigator.runner import run as run_investigation  # noqa: E402
 
 EXAMPLES = ("01-seller-audit-textokit", "02-catalog-concentration", "03-payer-dossier-onchain", "04-payer-dossier-unverifiable")
@@ -61,7 +67,8 @@ def run_once(example: str, out_dir: Path, seed_dir: Path | None) -> dict[str, An
     if seed_dir is not None:
         config.seed_dir_override = seed_dir
     payload = json.loads((REPO_ROOT / "examples" / example / "input.json").read_text(encoding="utf-8"))
-    envelope = run_investigation(payload, config, echo_stdout=False)
+    with mock.patch.object(runner, "build_generator", lambda *args, **kwargs: NullGenerator()):
+        envelope = run_investigation(payload, config, echo_stdout=False)
     if envelope["status"] == "error":
         raise SystemExit(f"{example}: {envelope['error']['code']} {envelope['error']['message']}")
     return envelope

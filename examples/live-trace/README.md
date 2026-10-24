@@ -1,5 +1,8 @@
 # Live traces
 
+These are the runs of 2026-10-22, with no model (generator `null`). The runs of 2026-10-24 through Meterless
+Nightshift are in `../live-trace-nightshift/`.
+
 Each `<run_id>/` folder is a real run on the demo machine (Windows 11, Zetaris 2.4.3.1 in Docker, 2026-10-22):
 live fetches of every public source, live Base JSON-RPC (`https://mainnet.base.org`), and, where noted, live
 Zetaris Lightning SQL through the REST API. They are labelled live so judges can diff them against the

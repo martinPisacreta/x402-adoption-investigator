@@ -234,7 +234,26 @@
         "generator_used": { "type": ["string", "null"] },
         "attempts": { "type": "integer", "minimum": 0 },
         "status": { "enum": ["ok", "degraded", "failed"] },
-        "notes": { "type": "array", "items": { "type": "string" } }
+        "notes": { "type": "array", "items": { "type": "string" } },
+        "generator_calls": {
+          "type": "array",
+          "description": "Generator-backed roles: one item per answered call, in order (which model handled each request).",
+          "items": {
+            "type": "object",
+            "required": ["prompt_id", "provider", "model", "recorded"],
+            "properties": {
+              "prompt_id": { "type": "string" },
+              "provider": { "type": "string" },
+              "requested_model": { "type": ["string", "null"] },
+              "model": { "type": "string" },
+              "route": { "type": ["string", "null"] },
+              "route_kind": { "type": ["string", "null"] },
+              "receipt_id": { "type": ["string", "null"] },
+              "recorded": { "type": "boolean" },
+              "log_seq": { "type": "integer", "minimum": 1 }
+            }
+          }
+        }
       }
     },
     "error": {

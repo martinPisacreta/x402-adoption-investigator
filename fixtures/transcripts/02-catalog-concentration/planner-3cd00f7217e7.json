@@ -1,0 +1,52 @@
+{
+  "prompt_id": "planner",
+  "prompt_sha256": "3cd00f7217e72f4c76fd252f80c06a7a7281f2bb835ccab7a80eab1403c3374a",
+  "model": "local-runtime/llama-3.2-3b-instruct-q8",
+  "recorded_at": "2026-10-24T16:11:56.642Z",
+  "response": "{\"playbook\": \"seller_profile\", \"hypotheses\": [\"The majority of sellers on the CDP Bazaar are individuals.\", \"The top 10 hosts account for more than 50% of the paid calls.\", \"More than 20% of listed endpoints saw a call in the last 30 days.\", \"The majority of calls are made to the top 5 hosts.\", \"The majority of sellers have a store openapi.\", \"The majority of sellers have receipts.\", \"The majority of sellers have a balanceOf greater than 0.\", \"The majority of sellers have a nonce greater than 0.\"], \"extra_metrics\": [\"catalog_resources\", \"catalog_hosts\", \"catalog_distinct_payto\", \"catalog_calls_30d_sum\", \"top_host_calls_share\"]}",
+  "usage": {
+    "prompt_tokens": 1280,
+    "completion_tokens": 318,
+    "total_tokens": 1598
+  },
+  "provider": "meterless",
+  "requested_model": "meterless/auto",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_m7l79xox",
+    "decision_id": "req_m7l79xox",
+    "requested_model": "meterless/auto",
+    "routed_model": "local-runtime/llama-3.2-3b-instruct-q8",
+    "winning_route": {
+      "model": "local-runtime/llama-3.2-3b-instruct-q8",
+      "label": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
+      "provider": "local-runtime",
+      "kind": "local",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "planning",
+        "model": "local-runtime/llama-3.2-3b-instruct-q8",
+        "ms": 1603
+      },
+      {
+        "phase": "code_patch",
+        "model": "local-runtime/llama-3.2-3b-instruct-q8",
+        "ms": 1517
+      }
+    ],
+    "latency_ms": 3120,
+    "usage": {
+      "input_tokens": 1280,
+      "output_tokens": 318,
+      "total_tokens": 1598
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "local-only",
+    "wall_ms": 3250
+  },
+  "prompt_context": "sample mode on the committed fixtures"
+}

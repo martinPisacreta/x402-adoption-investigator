@@ -1,0 +1,46 @@
+{
+  "prompt_id": "critic-r1",
+  "prompt_sha256": "c6fdd6b5c59919d0db62426b77582be7d81832907cea1b923c58ed392c864521",
+  "model": "local-runtime/llama-3.2-3b-instruct-q8",
+  "recorded_at": "2026-10-24T16:30:07.616Z",
+  "response": "[\n  {\"sentence_index\": 0, \"reason\": \"No information on verification on Base\", \"claim_id\": \"c07\"},\n  {\"sentence_index\": 8, \"reason\": \"No information on verification on Base\", \"claim_id\": \"c07\"},\n  {\"sentence_index\": 9, \"reason\": \"No information on verification on Base\", \"claim_id\": \"c07\"},\n  {\"sentence_index\": 10, \"reason\": \"No information on exact basis of verification\", \"claim_id\": \"c07\"},\n  {\"sentence_index\": 8, \"reason\": \"No information on verification on Base\", \"claim_id\": \"c02\"},\n  {\"sentence_index\": 9, \"reason\": \"No information on verification on Base\", \"claim_id\": \"c02\"},\n  {\"sentence_index\": 10, \"reason\": \"No information on exact basis of verification\", \"claim_id\": \"c02\"},\n  {\"sentence_index\": 8, \"reason\": \"No information on verification on Base\", \"claim_id\": \"c04\"},\n  {\"sentence_index\": 9, \"reason\": \"No information on verification on Base\", \"claim_id\": \"c04\"},\n  {\"sentence_index\": 10, \"reason\": \"No information on exact basis of verification\", \"claim_id\": \"c04\"},\n  {\"sentence_index\": 8, \"reason\": \"No information on verification on Base\", \"claim_id\": \"c06\"},\n  {\"sentence_index\": 9, \"reason\": \"No information on verification on Base\", \"claim_id\": \"c06\"},\n  {\"sentence_index\": 10, \"reason\": \"No information on exact basis of verification\", \"claim_id\": \"c06\"}\n]",
+  "usage": {
+    "prompt_tokens": 1399,
+    "completion_tokens": 358,
+    "total_tokens": 1757
+  },
+  "provider": "meterless",
+  "requested_model": "meterless/auto",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_5hnikrg9",
+    "decision_id": "req_5hnikrg9",
+    "requested_model": "meterless/auto",
+    "routed_model": "local-runtime/llama-3.2-3b-instruct-q8",
+    "winning_route": {
+      "model": "local-runtime/llama-3.2-3b-instruct-q8",
+      "label": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
+      "provider": "local-runtime",
+      "kind": "local",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "planning",
+        "model": "local-runtime/llama-3.2-3b-instruct-q8",
+        "ms": 3361
+      }
+    ],
+    "latency_ms": 3361,
+    "usage": {
+      "input_tokens": 1399,
+      "output_tokens": 358,
+      "total_tokens": 1757
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "local-only",
+    "wall_ms": 3437
+  }
+}

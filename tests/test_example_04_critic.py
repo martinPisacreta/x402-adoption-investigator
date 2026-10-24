@@ -94,10 +94,18 @@ class CommittedExample04(unittest.TestCase):
                             for e in recoveries))
         self.assertTrue(any(e["payload"]["reason"] == "fixture_miss" for e in recoveries))
         self.assertEqual(self.output["critique_rounds"], 2)
-        # Round 2 re-checks every surviving claim and accepts them all.
+        # Round 2 re-checks every surviving claim and accepts them all: no reject, and each claim rule's accept
+        # summary counts every surviving claim. What round 2 still asks of the replayed Nightshift draft (rules C3/C7
+        # on the narrative, B, LLM) is answered after the last round by the trim and the completion (recoveries).
         round2 = [p for p in critiques if p.get("round") == 2]
         self.assertTrue(round2)
-        self.assertFalse([p for p in round2 if p.get("verdict") in ("reject", "revise")])
+        self.assertFalse([p for p in round2 if p.get("verdict") == "reject"])
+        summaries = {p["rule"]: p["count"] for p in round2 if "count" in p}
+        for rule in ("C1", "C2", "C3", "C4", "C5", "C6", "C7"):
+            self.assertEqual(summaries[rule], len(self.output["claims"]), rule)
+        if any(p.get("verdict") == "revise" for p in round2):
+            reasons = [e["payload"]["reason"] for e in recoveries if e["agent"] == "writer"]
+            self.assertIn("narrative_completed", reasons)
 
     def test_the_final_answer_stays_honest(self) -> None:
         answer = self.output["answer"]

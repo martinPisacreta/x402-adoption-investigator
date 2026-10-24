@@ -6,12 +6,12 @@
       "mode": "sample",
       "fetcher": "fixture",
       "executor": "sqlite",
-      "generator": "null",
+      "generator": "recorded",
       "fixtures_captured_at": "2026-10-22T00:05:00Z",
       "zetaris_version": null,
       "zetaris_source": null
     },
-    "sample_mode_notice": "This run replayed committed fixtures captured 2026-10-22T00:05:00Z; no network, no model calls.",
+    "sample_mode_notice": "This run replayed committed fixtures captured 2026-10-22T00:05:00Z; no network, no model calls. The generator-backed roles replayed 5 recorded answer(s) from fixtures/transcripts/04-payer-dossier-unverifiable/ (provider meterless, model local-runtime/llama-3.2-3b-instruct-q8); each `generate` event says recorded: true.",
     "question": "What do we know about the payer 0xA1d1C0cf717402ff3651aA4873CcF96410B01978: what it bought from tienda.textokit.store, and can its settlement be verified on Base?",
     "plan": {
       "playbook": "payer_dossier",
@@ -26,7 +26,7 @@
         "cdp_search",
         "base_rpc"
       ],
-      "planner_source": "rules",
+      "planner_source": "recorded-generator",
       "metrics": [
         "bazaar_listings_for_host",
         "settlements_verified",
@@ -38,7 +38,13 @@
         "usdc_balance_atomic",
         "tx_count"
       ],
-      "hypotheses": [],
+      "hypotheses": [
+        "The payer has a verified wallet on Base.",
+        "The payer has a verified settlement on Base.",
+        "The payer has a balanceOf of 0 on Base.",
+        "The payer has a nonce of 0 on Base.",
+        "The payer has no unverified transactions on Base."
+      ],
       "hmem_memory_ids": []
     },
     "verdict": {
@@ -70,7 +76,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex04-unverified#35",
+            "ref": "log://ex04-unverified#36",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -81,7 +87,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex04-unverified#37",
+            "ref": "log://ex04-unverified#38",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -105,7 +111,7 @@
           "sources": [
             "cdp_search"
           ],
-          "log_seq": 35
+          "log_seq": 36
         },
         "coverage": {
           "items_seen": 17,
@@ -184,7 +190,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex04-unverified#33",
+            "ref": "log://ex04-unverified#34",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -195,7 +201,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex04-unverified#38",
+            "ref": "log://ex04-unverified#39",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -221,7 +227,7 @@
             "receipts",
             "base_rpc"
           ],
-          "log_seq": 33
+          "log_seq": 34
         },
         "coverage": null,
         "caveats": [
@@ -275,7 +281,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex04-unverified#34",
+            "ref": "log://ex04-unverified#35",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -286,7 +292,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex04-unverified#39",
+            "ref": "log://ex04-unverified#40",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -309,7 +315,7 @@
           "sources": [
             "receipts"
           ],
-          "log_seq": 34
+          "log_seq": 35
         },
         "coverage": null,
         "caveats": [
@@ -361,7 +367,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex04-unverified#34",
+            "ref": "log://ex04-unverified#35",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -372,7 +378,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex04-unverified#40",
+            "ref": "log://ex04-unverified#41",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -396,7 +402,7 @@
           "sources": [
             "receipts"
           ],
-          "log_seq": 34
+          "log_seq": 35
         },
         "coverage": null,
         "caveats": [
@@ -448,7 +454,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex04-unverified#34",
+            "ref": "log://ex04-unverified#35",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -459,7 +465,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex04-unverified#41",
+            "ref": "log://ex04-unverified#42",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -483,7 +489,7 @@
           "sources": [
             "receipts"
           ],
-          "log_seq": 34
+          "log_seq": 35
         },
         "coverage": null,
         "caveats": [
@@ -535,7 +541,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex04-unverified#34",
+            "ref": "log://ex04-unverified#35",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -546,7 +552,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex04-unverified#42",
+            "ref": "log://ex04-unverified#43",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -570,7 +576,7 @@
           "sources": [
             "receipts"
           ],
-          "log_seq": 34
+          "log_seq": 35
         },
         "coverage": null,
         "caveats": [
@@ -635,7 +641,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex04-unverified#33",
+            "ref": "log://ex04-unverified#34",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -646,7 +652,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex04-unverified#43",
+            "ref": "log://ex04-unverified#44",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -670,7 +676,7 @@
             "receipts",
             "base_rpc"
           ],
-          "log_seq": 33
+          "log_seq": 34
         },
         "coverage": null,
         "caveats": [
@@ -757,7 +763,7 @@
         "status": "fixture_miss",
         "http": null,
         "sha256": null,
-        "captured_at": "2026-10-22T00:05:00.027Z",
+        "captured_at": "2026-10-22T00:05:00.031Z",
         "replayed": true,
         "stale": false,
         "error": "no fixture for this request key",
@@ -771,7 +777,7 @@
         "status": "fixture_miss",
         "http": null,
         "sha256": null,
-        "captured_at": "2026-10-22T00:05:00.032Z",
+        "captured_at": "2026-10-22T00:05:00.036Z",
         "replayed": true,
         "stale": false,
         "error": "no fixture for this request key",
@@ -785,7 +791,7 @@
         "status": "fixture_miss",
         "http": null,
         "sha256": null,
-        "captured_at": "2026-10-22T00:05:00.037Z",
+        "captured_at": "2026-10-22T00:05:00.041Z",
         "replayed": true,
         "stale": false,
         "error": "no fixture for this request key",
@@ -827,7 +833,7 @@
         "status": "fixture_miss",
         "http": null,
         "sha256": null,
-        "captured_at": "2026-10-22T00:05:00.046Z",
+        "captured_at": "2026-10-22T00:05:00.050Z",
         "replayed": true,
         "stale": false,
         "error": "no fixture for this request key",
@@ -841,7 +847,7 @@
         "status": "fixture_miss",
         "http": null,
         "sha256": null,
-        "captured_at": "2026-10-22T00:05:00.049Z",
+        "captured_at": "2026-10-22T00:05:00.053Z",
         "replayed": true,
         "stale": false,
         "error": "no fixture for this request key",
@@ -972,10 +978,23 @@
       {
         "role": "planner",
         "generator_backed": true,
-        "generator_used": "none",
+        "generator_used": "recorded",
         "attempts": 1,
         "status": "ok",
-        "notes": []
+        "notes": [],
+        "generator_calls": [
+          {
+            "prompt_id": "planner",
+            "provider": "meterless",
+            "requested_model": "meterless/auto",
+            "model": "local-runtime/llama-3.2-3b-instruct-q8",
+            "route": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
+            "route_kind": "local",
+            "receipt_id": "rcpt_req_2dk6n6n9",
+            "recorded": true,
+            "log_seq": 5
+          }
+        ]
       },
       {
         "role": "collector",
@@ -1026,24 +1045,73 @@
       {
         "role": "writer",
         "generator_backed": true,
-        "generator_used": "none",
+        "generator_used": "recorded",
         "attempts": 2,
         "status": "ok",
-        "notes": []
+        "notes": [],
+        "generator_calls": [
+          {
+            "prompt_id": "writer-r1",
+            "provider": "meterless",
+            "requested_model": "meterless/auto",
+            "model": "local-runtime/llama-3.2-3b-instruct-q8",
+            "route": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
+            "route_kind": "local",
+            "receipt_id": "rcpt_req_b5iln9vg",
+            "recorded": true,
+            "log_seq": 47
+          },
+          {
+            "prompt_id": "writer-r2",
+            "provider": "meterless",
+            "requested_model": "meterless/auto",
+            "model": "local-runtime/llama-3.2-3b-instruct-q8",
+            "route": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
+            "route_kind": "local",
+            "receipt_id": "rcpt_req_o7nm123l",
+            "recorded": true,
+            "log_seq": 83
+          }
+        ]
       },
       {
         "role": "critic",
         "generator_backed": true,
-        "generator_used": "none",
+        "generator_used": "recorded",
         "attempts": 2,
         "status": "ok",
-        "notes": []
+        "notes": [],
+        "generator_calls": [
+          {
+            "prompt_id": "critic-r1",
+            "provider": "meterless",
+            "requested_model": "meterless/auto",
+            "model": "local-runtime/llama-3.2-3b-instruct-q8",
+            "route": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
+            "route_kind": "local",
+            "receipt_id": "rcpt_req_6p5663sh",
+            "recorded": true,
+            "log_seq": 72
+          },
+          {
+            "prompt_id": "critic-r2",
+            "provider": "meterless",
+            "requested_model": "meterless/auto",
+            "model": "local-runtime/llama-3.2-3b-instruct-q8",
+            "route": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
+            "route_kind": "local",
+            "receipt_id": "rcpt_req_2nyv82lb",
+            "recorded": true,
+            "log_seq": 102
+          }
+        ]
       }
     ],
     "critique_rounds": 2,
     "report_path": "logs/ex04-unverified/report.md",
     "log_files": [
       "fetch.jsonl",
+      "generator.jsonl",
       "hmem.trace.jsonl",
       "run.jsonl",
       "sql.jsonl",

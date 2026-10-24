@@ -1,0 +1,52 @@
+{
+  "prompt_id": "writer-r1",
+  "prompt_sha256": "524f1da3a8acdd04b56d5e3ba14c0ad7c2cd95f294d821edbd1b625e5d8076b3",
+  "model": "local-runtime/llama-3.2-3b-instruct-q8",
+  "recorded_at": "2026-10-24T16:12:15.135Z",
+  "response": "- The CDP Bazaar sells on the CDP Bazaar [c01].\n- The paid calls are concentrated with a confidence level of 0.90 [c04].\n- 99.6% of the 28462 unique resources saw any call in the last 30 days [c05].\n- The top host www.ax1.vc accounts for 29.5% of the 824796 30-day calls [c06].\n- The top ten hosts account for 73.3% of the 824796 30-day calls [c07].\n- The largest per-endpoint 30-day unique-payer counter is 2708 [c10].\n\nThe CDP Bazaar is the platform where resources are sold. The paid calls are concentrated, meaning that the majority of the calls are made to a small number of hosts. The top host www.ax1.vc accounts for 29.5% of the 824796 30-day calls, indicating that this host is the most active in receiving payments. The top ten hosts account for 73.3% of the 824796 30-day calls, further emphasizing the concentration of paid calls on a small number of hosts. The largest per-endpoint 30-day unique-payer counter is 2708, indicating that each endpoint has a unique payer for a significant portion of the 30-day period.",
+  "usage": {
+    "prompt_tokens": 4225,
+    "completion_tokens": 544,
+    "total_tokens": 4769
+  },
+  "provider": "meterless",
+  "requested_model": "meterless/auto",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_o93wx09x",
+    "decision_id": "req_o93wx09x",
+    "requested_model": "meterless/auto",
+    "routed_model": "local-runtime/llama-3.2-3b-instruct-q8",
+    "winning_route": {
+      "model": "local-runtime/llama-3.2-3b-instruct-q8",
+      "label": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
+      "provider": "local-runtime",
+      "kind": "local",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "planning",
+        "model": "local-runtime/llama-3.2-3b-instruct-q8",
+        "ms": 2794
+      },
+      {
+        "phase": "code_patch",
+        "model": "local-runtime/llama-3.2-3b-instruct-q8",
+        "ms": 2878
+      }
+    ],
+    "latency_ms": 5672,
+    "usage": {
+      "input_tokens": 4225,
+      "output_tokens": 544,
+      "total_tokens": 4769
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "local-only",
+    "wall_ms": 5781
+  },
+  "prompt_context": "sample mode on the committed fixtures"
+}

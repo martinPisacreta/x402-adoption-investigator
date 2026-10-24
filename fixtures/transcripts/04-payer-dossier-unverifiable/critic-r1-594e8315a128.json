@@ -1,0 +1,47 @@
+{
+  "prompt_id": "critic-r1",
+  "prompt_sha256": "594e8315a12835c53f69d2df8f6f99667ac64e3518fedd7042fa9f4830f1b05b",
+  "model": "local-runtime/llama-3.2-3b-instruct-q8",
+  "recorded_at": "2026-10-24T16:13:58.192Z",
+  "response": "[\n  {\"sentence_index\": 0, \"reason\": \"No claim for tienda.textokit.store\", \"claim_id\": null},\n  {\"sentence_index\": 1, \"reason\": \"No claim for the payer's total purchases\", \"claim_id\": null},\n  {\"sentence_index\": 2, \"reason\": \"No claim for the timestamp range\", \"claim_id\": null},\n  {\"sentence_index\": 3, \"reason\": \"No claim for the distinct service\", \"claim_id\": null},\n  {\"sentence_index\": 4, \"reason\": \"No claim for the payer's settlements verified on Base\", \"claim_id\": null},\n  {\"sentence_index\": 5, \"reason\": \"No claim for the payer's settlement status\", \"claim_id\": null},\n  {\"sentence_index\": 6, \"reason\": \"No claim for the uncertainty about the payer's settlement status\", \"claim_id\": null},\n  {\"sentence_index\": 7, \"reason\": \"No claim for the sample mode\", \"claim_id\": null}",
+  "usage": {
+    "prompt_tokens": 1049,
+    "completion_tokens": 217,
+    "total_tokens": 1266
+  },
+  "provider": "meterless",
+  "requested_model": "meterless/auto",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_6p5663sh",
+    "decision_id": "req_6p5663sh",
+    "requested_model": "meterless/auto",
+    "routed_model": "local-runtime/llama-3.2-3b-instruct-q8",
+    "winning_route": {
+      "model": "local-runtime/llama-3.2-3b-instruct-q8",
+      "label": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
+      "provider": "local-runtime",
+      "kind": "local",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "planning",
+        "model": "local-runtime/llama-3.2-3b-instruct-q8",
+        "ms": 2027
+      }
+    ],
+    "latency_ms": 2027,
+    "usage": {
+      "input_tokens": 1049,
+      "output_tokens": 217,
+      "total_tokens": 1266
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "local-only",
+    "wall_ms": 2109
+  },
+  "prompt_context": "sample mode on the committed fixtures"
+}

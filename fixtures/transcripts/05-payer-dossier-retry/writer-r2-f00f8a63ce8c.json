@@ -1,0 +1,47 @@
+{
+  "prompt_id": "writer-r2",
+  "prompt_sha256": "f00f8a63ce8c99dc71b5ed979ab749c61c20d2e4e724c85cd98c4ea0716931eb",
+  "model": "local-runtime/llama-3.2-3b-instruct-q8",
+  "recorded_at": "2026-10-24T16:14:25.425Z",
+  "response": "- The payer 0x097e3F339D0b023605e12A6B81E2d6Cb7571475a made a single purchase from tienda.textokit.store, which is listed in the receipts.\n- The purchase occurred on October 20, 2026, at 04:51:24.352Z.\n- The total value of the purchase is 1000 atomic USDC, equivalent to 0.001 USDC.\n- The transaction covers a single distinct service.\n- The purchase was verified on Base, with 1 settlement verified against the receipts [c02].\n- The purchase was made from tienda.textokit.store, with 1 listing returned by the CDP Bazaar search [c01].\n\nThe payer 0x097e3F339D0b023605e12A6B81E2d6Cb7571475a made a single purchase from tienda.textokit.store, which is listed in the receipts. The purchase occurred on October 20, 2026, at 04:51:24.352Z. The total value of the purchase is 1000 atomic USDC, equivalent to 0.001 USDC. The transaction covers a single distinct service. The purchase was verified on Base, with 1 settlement verified against the receipts [c02]. The purchase was made from tienda.textokit.store, with 1 listing returned by the CDP Bazaar search [c01].",
+  "usage": {
+    "prompt_tokens": 3062,
+    "completion_tokens": 303,
+    "total_tokens": 3365
+  },
+  "provider": "meterless",
+  "requested_model": "meterless/auto",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_9m6wh00b",
+    "decision_id": "req_9m6wh00b",
+    "requested_model": "meterless/auto",
+    "routed_model": "local-runtime/llama-3.2-3b-instruct-q8",
+    "winning_route": {
+      "model": "local-runtime/llama-3.2-3b-instruct-q8",
+      "label": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
+      "provider": "local-runtime",
+      "kind": "local",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "tool_call_format",
+        "model": "local-runtime/llama-3.2-3b-instruct-q8",
+        "ms": 3235
+      }
+    ],
+    "latency_ms": 3235,
+    "usage": {
+      "input_tokens": 3062,
+      "output_tokens": 303,
+      "total_tokens": 3365
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "local-only",
+    "wall_ms": 3297
+  },
+  "prompt_context": "sample mode on the committed fixtures"
+}

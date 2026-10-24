@@ -1,9 +1,9 @@
 # x402 Adoption Investigator report: `ex04-unverified`
 
 **Status:** partial  
-**Mode:** sample (fetcher fixture, executor sqlite, generator null, fixtures captured 2026-10-22T00:05:00Z)
+**Mode:** sample (fetcher fixture, executor sqlite, generator recorded, fixtures captured 2026-10-22T00:05:00Z)
 
-> This run replayed committed fixtures captured 2026-10-22T00:05:00Z; no network, no model calls.
+> This run replayed committed fixtures captured 2026-10-22T00:05:00Z; no network, no model calls. The generator-backed roles replayed 5 recorded answer(s) from fixtures/transcripts/04-payer-dossier-unverifiable/ (provider meterless, model local-runtime/llama-3.2-3b-instruct-q8); each `generate` event says recorded: true.
 
 ## Question
 
@@ -11,10 +11,17 @@ What do we know about the payer 0xA1d1C0cf717402ff3651aA4873CcF96410B01978: what
 
 ## Plan
 
-Playbook `payer_dossier` (planner source: rules).  
+Playbook `payer_dossier` (planner source: recorded-generator).  
 Sources: receipts, cdp_search, base_rpc.  
 Queries: q16_settlements_vs_receipts, q17_payer_dossier, q06_bazaar_host_listings, q22_payer_chain_facts.  
 Memories retrieved by the Planner: none.
+
+Hypotheses:
+- The payer has a verified wallet on Base.
+- The payer has a verified settlement on Base.
+- The payer has a balanceOf of 0 on Base.
+- The payer has a nonce of 0 on Base.
+- The payer has no unverified transactions on Base.
 
 ## Verdict
 
@@ -28,35 +35,35 @@ There is not enough accepted evidence to answer (verdict insufficient_evidence).
 
 | id | metric | subject | value | unit | conf. | cross-checked | caveats | conflicts | evidence |
 |---|---|---|---|---|---|---|---|---|---|
-| c01 | bazaar_listings_for_host | seller:host:tienda.textokit.store | 17 | count | 0.9 | True | search_limit_20 (mem-seed-002) | - | <https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?urlSubstring=tienda.textokit.store&limit=20> sha256 da993b56bae8… [replayed]<br>`log://ex04-unverified#35`<br>`log://ex04-unverified#37` |
-| c02 | settlements_verified | seller:host:tienda.textokit.store | 1 | count | 0.9 | True | payer_from_transfer_log (mem-seed-005), self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br><https://mainnet.base.org> sha256 c756d78d11b3… [replayed]<br><https://basescan.org/tx/0x62c01526c5beb13cad96634ec80e837e576df496905f1bac8019c6ffa3e358c3> [replayed, verified]<br>`log://ex04-unverified#33`<br>`log://ex04-unverified#38` |
-| c03 | payer_sales_total | wallet:base:0xa1d1c0cf717402ff3651aa4873ccf96410b01978 | 1 | count | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex04-unverified#34`<br>`log://ex04-unverified#39` |
-| c04 | payer_usdc_atomic | wallet:base:0xa1d1c0cf717402ff3651aa4873ccf96410b01978 | 1000 | atomic_usdc | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex04-unverified#34`<br>`log://ex04-unverified#40` |
-| c05 | payer_window | wallet:base:0xa1d1c0cf717402ff3651aa4873ccf96410b01978 | 2026-10-21T21:18:17.136Z..2026-10-21T21:18:17.136Z | iso8601 | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex04-unverified#34`<br>`log://ex04-unverified#41` |
-| c06 | payer_services | wallet:base:0xa1d1c0cf717402ff3651aa4873ccf96410b01978 | 1 | count | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex04-unverified#34`<br>`log://ex04-unverified#42` |
+| c01 | bazaar_listings_for_host | seller:host:tienda.textokit.store | 17 | count | 0.9 | True | search_limit_20 (mem-seed-002) | - | <https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?urlSubstring=tienda.textokit.store&limit=20> sha256 da993b56bae8… [replayed]<br>`log://ex04-unverified#36`<br>`log://ex04-unverified#38` |
+| c02 | settlements_verified | seller:host:tienda.textokit.store | 1 | count | 0.9 | True | payer_from_transfer_log (mem-seed-005), self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br><https://mainnet.base.org> sha256 c756d78d11b3… [replayed]<br><https://basescan.org/tx/0x62c01526c5beb13cad96634ec80e837e576df496905f1bac8019c6ffa3e358c3> [replayed, verified]<br>`log://ex04-unverified#34`<br>`log://ex04-unverified#39` |
+| c03 | payer_sales_total | wallet:base:0xa1d1c0cf717402ff3651aa4873ccf96410b01978 | 1 | count | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex04-unverified#35`<br>`log://ex04-unverified#40` |
+| c04 | payer_usdc_atomic | wallet:base:0xa1d1c0cf717402ff3651aa4873ccf96410b01978 | 1000 | atomic_usdc | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex04-unverified#35`<br>`log://ex04-unverified#41` |
+| c05 | payer_window | wallet:base:0xa1d1c0cf717402ff3651aa4873ccf96410b01978 | 2026-10-21T21:18:17.136Z..2026-10-21T21:18:17.136Z | iso8601 | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex04-unverified#35`<br>`log://ex04-unverified#42` |
+| c06 | payer_services | wallet:base:0xa1d1c0cf717402ff3651aa4873ccf96410b01978 | 1 | count | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex04-unverified#35`<br>`log://ex04-unverified#43` |
 
 ### Derivations and critique trail
 
-- **c01** The CDP Bazaar search returns 17 listings for tienda.textokit.store. — query `q06_bazaar_host_listings` on `sqlite` (sql sha256 `db6f09d947db`), reducer `reducers.bazaar_listings_for_host`, 1 row(s), sources cdp_search, fields resource, payTo; coverage 17 of None (search capped at 20); log `log://ex04-unverified#35`
+- **c01** The CDP Bazaar search returns 17 listings for tienda.textokit.store. — query `q06_bazaar_host_listings` on `sqlite` (sql sha256 `db6f09d947db`), reducer `reducers.bazaar_listings_for_host`, 1 row(s), sources cdp_search, fields resource, payTo; coverage 17 of None (search capped at 20); log `log://ex04-unverified#36`
   - critique: r1 A accept: C1-C7 passed; r2 A accept: C1-C7 passed
-- **c02** 1 sampled settlement(s) verified on Base against the receipts. — query `q16_settlements_vs_receipts` on `sqlite` (sql sha256 `82a4f8cbe2ab`), reducer `reducers.settlements_verified`, 1 row(s), sources receipts, base_rpc, fields transaction, payer, amountAtomic; log `log://ex04-unverified#33`
+- **c02** 1 sampled settlement(s) verified on Base against the receipts. — query `q16_settlements_vs_receipts` on `sqlite` (sql sha256 `82a4f8cbe2ab`), reducer `reducers.settlements_verified`, 1 row(s), sources receipts, base_rpc, fields transaction, payer, amountAtomic; log `log://ex04-unverified#34`
   - critique: r1 A accept: C1-C7 passed; r2 A accept: C1-C7 passed
-- **c03** The receipts list 1 purchase(s) by 0xa1d1c0cf717402ff3651aa4873ccf96410b01978. — query `q17_payer_dossier` on `sqlite` (sql sha256 `0bb4552dd849`), reducer `reducers.payer_sales_total`, 1 row(s), sources receipts, fields payer; log `log://ex04-unverified#34`
+- **c03** The receipts list 1 purchase(s) by 0xa1d1c0cf717402ff3651aa4873ccf96410b01978. — query `q17_payer_dossier` on `sqlite` (sql sha256 `0bb4552dd849`), reducer `reducers.payer_sales_total`, 1 row(s), sources receipts, fields payer; log `log://ex04-unverified#35`
   - critique: r1 A accept: C1-C7 passed; r2 A accept: C1-C7 passed
-- **c04** Those purchases total 1000 atomic USDC (0.001 USDC). — query `q17_payer_dossier` on `sqlite` (sql sha256 `0bb4552dd849`), reducer `reducers.payer_usdc_atomic`, 1 row(s), sources receipts, fields payer, amountAtomic; log `log://ex04-unverified#34`
+- **c04** Those purchases total 1000 atomic USDC (0.001 USDC). — query `q17_payer_dossier` on `sqlite` (sql sha256 `0bb4552dd849`), reducer `reducers.payer_usdc_atomic`, 1 row(s), sources receipts, fields payer, amountAtomic; log `log://ex04-unverified#35`
   - critique: r1 A accept: C1-C7 passed; r2 A accept: C1-C7 passed
-- **c05** The purchases span 2026-10-21T21:18:17.136Z..2026-10-21T21:18:17.136Z. — query `q17_payer_dossier` on `sqlite` (sql sha256 `0bb4552dd849`), reducer `reducers.payer_window`, 1 row(s), sources receipts, fields payer, at; log `log://ex04-unverified#34`
+- **c05** The purchases span 2026-10-21T21:18:17.136Z..2026-10-21T21:18:17.136Z. — query `q17_payer_dossier` on `sqlite` (sql sha256 `0bb4552dd849`), reducer `reducers.payer_window`, 1 row(s), sources receipts, fields payer, at; log `log://ex04-unverified#35`
   - critique: r1 A accept: C1-C7 passed; r2 A accept: C1-C7 passed
-- **c06** They cover 1 distinct service(s). — query `q17_payer_dossier` on `sqlite` (sql sha256 `0bb4552dd849`), reducer `reducers.payer_services`, 1 row(s), sources receipts, fields payer, service; log `log://ex04-unverified#34`
+- **c06** They cover 1 distinct service(s). — query `q17_payer_dossier` on `sqlite` (sql sha256 `0bb4552dd849`), reducer `reducers.payer_services`, 1 row(s), sources receipts, fields payer, service; log `log://ex04-unverified#35`
   - critique: r1 A accept: C1-C7 passed; r2 A accept: C1-C7 passed
 
 ## Rejected claims
 
 | id | metric | subject | value | unit | conf. | cross-checked | caveats | conflicts | evidence |
 |---|---|---|---|---|---|---|---|---|---|
-| c07 | verified_tx | wallet:base:0xa1d1c0cf717402ff3651aa4873ccf96410b01978 | 0 | count | 0.9 | True | payer_from_transfer_log (mem-seed-005), self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br><https://mainnet.base.org> sha256 c756d78d11b3… [replayed]<br>`log://ex04-unverified#33`<br>`log://ex04-unverified#43` |
+| c07 | verified_tx | wallet:base:0xa1d1c0cf717402ff3651aa4873ccf96410b01978 | 0 | count | 0.9 | True | payer_from_transfer_log (mem-seed-005), self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br><https://mainnet.base.org> sha256 c756d78d11b3… [replayed]<br>`log://ex04-unverified#34`<br>`log://ex04-unverified#44` |
 
-- **c07** 0 settlement(s) of this payer verified on Base. — query `q16_settlements_vs_receipts` on `sqlite` (sql sha256 `82a4f8cbe2ab`), reducer `reducers.verified_tx`, 1 row(s), sources receipts, base_rpc, fields transaction; log `log://ex04-unverified#33`
+- **c07** 0 settlement(s) of this payer verified on Base. — query `q16_settlements_vs_receipts` on `sqlite` (sql sha256 `82a4f8cbe2ab`), reducer `reducers.verified_tx`, 1 row(s), sources receipts, base_rpc, fields transaction; log `log://ex04-unverified#34`
   - critique: r1 C1 reject: verified_tx=0 for wallet:base:0xa1d1c0cf717402ff3651aa4873ccf96410b01978 rests on no decoded settlement of that subject (1 sampled: unverifiable fixture_miss x1); an unverifiable settlement is missing evidence, not evidence that it failed, so this count is reported as unknown
 
 ## Where sources disagree and why
@@ -110,12 +117,24 @@ retrieved: 2, cited: mem-seed-002, mem-seed-003, mem-seed-005, feedback entries:
 
 | role | generator-backed | generator used | attempts | status | notes |
 |---|---|---|---|---|---|
-| planner | True | none | 1 | ok | - |
+| planner | True | recorded | 1 | ok | - |
 | collector | False | None | 1 | ok | 2 ok, 0 stale fixture fallback(s), 0 fixture miss(es), 0 unavailable, 1 deferred to the verifier; deferred: base_rpc_batch |
 | keeper | False | None | 3 | ok | chain facts asserted: 1; claims asserted as agent facts: 6; ingested 2 observations, 370 events appended; second pass: {'runId': 'run_af5f68fd9bd3', 'processed': 0, 'skippedUnchanged': 2, 'eventsAppended': 0, 'changed': False} |
 | verifier | False | None | 1 | ok | 4 tx sampled (sales of focus.wallet first, then most recent external sale per distinct payer, capped at max_tx_verifications): 1 verified, 0 failed, 3 unverifiable (fixture_miss x3); chain facts: 1; cross-checks: 2; settlements export: yes; tx_count for 0xa1d1c0cf717402ff3651aa4873ccf96410b01978 not available: fixture_miss; usdc_balance_atomic for 0xa1d1c0cf717402ff3651aa4873ccf96410b01978 not available: fixture_miss |
 | analyst | False | None | 1 | ok | views without export: bazaar_resources, catalog_resources, openapi_paid_ops, agent402_tools, agent402_seller, vet402_endpoints, trust_search, trust_stats, chain_facts |
-| writer | True | none | 2 | ok | - |
-| critic | True | none | 2 | ok | - |
+| writer | True | recorded | 2 | ok | - |
+| critic | True | recorded | 2 | ok | - |
 
-Critique rounds: 2. Log files: fetch.jsonl, hmem.trace.jsonl, run.jsonl, sql.jsonl, world.audit.jsonl, world.events.jsonl, world.observations.jsonl.
+## Model calls
+
+Which model handled each generator request (`generate` events in run.jsonl; Nightshift receipts).
+
+| role | prompt | provider | requested | model that answered | route | receipt | recorded | log |
+|---|---|---|---|---|---|---|---|---|
+| planner | planner | meterless | meterless/auto | local-runtime/llama-3.2-3b-instruct-q8 | Llama 3.2 3B Q8 Verifier (Runtime GGUF) (local) | rcpt_req_2dk6n6n9 | True | log://ex04-unverified#5 |
+| writer | writer-r1 | meterless | meterless/auto | local-runtime/llama-3.2-3b-instruct-q8 | Llama 3.2 3B Q8 Verifier (Runtime GGUF) (local) | rcpt_req_b5iln9vg | True | log://ex04-unverified#47 |
+| critic | critic-r1 | meterless | meterless/auto | local-runtime/llama-3.2-3b-instruct-q8 | Llama 3.2 3B Q8 Verifier (Runtime GGUF) (local) | rcpt_req_6p5663sh | True | log://ex04-unverified#72 |
+| writer | writer-r2 | meterless | meterless/auto | local-runtime/llama-3.2-3b-instruct-q8 | Llama 3.2 3B Q8 Verifier (Runtime GGUF) (local) | rcpt_req_o7nm123l | True | log://ex04-unverified#83 |
+| critic | critic-r2 | meterless | meterless/auto | local-runtime/llama-3.2-3b-instruct-q8 | Llama 3.2 3B Q8 Verifier (Runtime GGUF) (local) | rcpt_req_2nyv82lb | True | log://ex04-unverified#102 |
+
+Critique rounds: 2. Log files: fetch.jsonl, generator.jsonl, hmem.trace.jsonl, run.jsonl, sql.jsonl, world.audit.jsonl, world.events.jsonl, world.observations.jsonl.

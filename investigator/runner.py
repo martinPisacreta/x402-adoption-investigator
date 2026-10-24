@@ -411,6 +411,8 @@ def run_pipeline(ctx: RunContext) -> dict[str, Any]:
         answer = writer.render_template(claims, conflicts, unavailable, compute_verdict(plan.playbook, []), None, [], False, rounds)
     elif critic_payload is not None and critic_payload.revise:
         answer = writer.trim_unsourced(ctx, answer, critic_payload, claims)
+    # a generated draft (or a trim) can leave out code-owned sentences; a template answer carries them all already
+    answer = writer.complete_requirements(ctx, answer, critic_payload, claims, conflicts, unavailable)
 
     accepted = [c for c in claims if c.status == "accepted"]
     rejected = [c for c in claims if c.status == "rejected"]
@@ -419,6 +421,11 @@ def run_pipeline(ctx: RunContext) -> dict[str, Any]:
         answer.sentences[0] = verdict_sentence(verdict)
         answer.verdict = verdict.label
         ctx.recover("writer", "narrative_trimmed", f"verdict sentence rewritten: final verdict {verdict.label} differs from the draft")
+    elif verdict.label not in answer.text:
+        # the draft never named the verdict label, or the trim cut the sentence that did: state it (code-owned)
+        answer.sentences.insert(0, verdict_sentence(verdict))
+        ctx.recover("writer", "narrative_completed", f"verdict sentence added: the final answer did not state {verdict.label}",
+                    sentences=[answer.sentences[0][:160]], added={"verdict": verdict.label})
 
     # keeper: assert accepted claims + second pass
     ctx.stage = "keeper"
@@ -449,6 +456,14 @@ def run_pipeline(ctx: RunContext) -> dict[str, Any]:
         captured = ctx.mounts.fixtures_captured_at or "unknown date"
         output["sample_mode_notice"] = (
             f"This run replayed committed fixtures captured {captured}; no network, no model calls.")
+        replayed = ctx.scratch.get("generator_calls", [])
+        if replayed and all(c.get("recorded") for c in replayed):
+            providers = ", ".join(sorted({str(c.get("provider")) for c in replayed}))
+            models = ", ".join(sorted({str((c.get("routing") or {}).get("routed_model") or c.get("model")) for c in replayed}))
+            output["sample_mode_notice"] += (
+                f" The generator-backed roles replayed {len(replayed)} recorded answer(s) from fixtures/transcripts/"
+                f"{ctx.config.example_name or ctx.example_name}/ (provider {providers}, model {models}); each `generate` "
+                "event says recorded: true.")
         faults = getattr(fixture_fetcher_for(ctx.fetcher), "faults", None)
         if faults is not None:
             origin = ("simulated: written by hand, not captured from the sources" if faults.simulated
@@ -577,9 +592,24 @@ def agent_summaries(ctx: RunContext) -> list[dict[str, Any]]:
         used = None
         if role in GENERATOR_BACKED:
             used = ctx.generator.name if any(c["agent"] == role for c in calls) else "none"
-        summaries.append({"role": role, "generator_backed": role in GENERATOR_BACKED,
-                          "generator_used": used, "attempts": len(results), "status": status, "notes": notes})
+        summary: dict[str, Any] = {"role": role, "generator_backed": role in GENERATOR_BACKED,
+                                   "generator_used": used, "attempts": len(results), "status": status, "notes": notes}
+        role_calls = [generator_call_summary(c) for c in calls if c["agent"] == role]
+        if role_calls:
+            summary["generator_calls"] = role_calls
+        summaries.append(summary)
     return summaries
+
+
+def generator_call_summary(line: dict[str, Any]) -> dict[str, Any]:
+    """One answered generator call as output.agents[].generator_calls[] shows it: which provider and model handled
+    it, the Nightshift route and receipt id when there is one, and the run.jsonl seq of its generate event."""
+    routing = line.get("routing") or {}
+    route = routing.get("winning_route") or {}
+    return {"prompt_id": line["prompt_id"], "provider": line["provider"], "requested_model": line.get("requested_model"),
+            "model": routing.get("routed_model") or line["model"], "route": route.get("label"),
+            "route_kind": route.get("kind"), "receipt_id": routing.get("receipt_id"), "recorded": bool(line["recorded"]),
+            "log_seq": line["seq"]}
 
 
 def scrub_paths(text: str, repo_root: Path) -> str:

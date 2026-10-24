@@ -6,12 +6,12 @@
       "mode": "sample",
       "fetcher": "fixture",
       "executor": "sqlite",
-      "generator": "null",
+      "generator": "recorded",
       "fixtures_captured_at": "2026-10-22T00:05:00Z",
       "zetaris_version": null,
       "zetaris_source": null
     },
-    "sample_mode_notice": "This run replayed committed fixtures captured 2026-10-22T00:05:00Z; no network, no model calls.",
+    "sample_mode_notice": "This run replayed committed fixtures captured 2026-10-22T00:05:00Z; no network, no model calls. The generator-backed roles replayed 5 recorded answer(s) from fixtures/transcripts/02-catalog-concentration/ (provider meterless, model local-runtime/llama-3.2-3b-instruct-q8); each `generate` event says recorded: true.",
     "question": "Who sells on the CDP Bazaar and how concentrated are the paid calls? What share of listed endpoints saw any call in the last 30 days?",
     "plan": {
       "playbook": "catalog_concentration",
@@ -29,7 +29,7 @@
         "cdp_bazaar",
         "x402_trust"
       ],
-      "planner_source": "rules",
+      "planner_source": "recorded-generator",
       "metrics": [
         "catalog_resources",
         "catalog_hosts",
@@ -43,7 +43,13 @@
         "unique_payers_per_endpoint_max",
         "trust_ecosystem_stats"
       ],
-      "hypotheses": [],
+      "hypotheses": [
+        "The majority of sellers on the CDP Bazaar are individuals.",
+        "The top 10 hosts account for more than 50% of the paid calls.",
+        "More than 20% of listed endpoints saw a call in the last 30 days.",
+        "The majority of calls are made to the top 5 hosts.",
+        "The majority of sellers have a store openapi."
+      ],
       "hmem_memory_ids": [
         "mem-seed-005"
       ]
@@ -79,7 +85,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#18",
+            "ref": "log://ex02-catalog-concentration#21",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -90,7 +96,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#25",
+            "ref": "log://ex02-catalog-concentration#28",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -113,7 +119,7 @@
           "sources": [
             "cdp_catalog_snapshot"
           ],
-          "log_seq": 18
+          "log_seq": 21
         },
         "coverage": {
           "items_seen": 28462,
@@ -136,6 +142,13 @@
         "critique": [
           {
             "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
             "rule": "A",
             "verdict": "accept",
             "reason": "C1-C7 passed",
@@ -165,7 +178,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#18",
+            "ref": "log://ex02-catalog-concentration#21",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -176,7 +189,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#26",
+            "ref": "log://ex02-catalog-concentration#29",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -199,7 +212,7 @@
           "sources": [
             "cdp_catalog_snapshot"
           ],
-          "log_seq": 18
+          "log_seq": 21
         },
         "coverage": {
           "items_seen": 28462,
@@ -220,6 +233,13 @@
         "critique": [
           {
             "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
             "rule": "A",
             "verdict": "accept",
             "reason": "C1-C7 passed",
@@ -249,7 +269,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#18",
+            "ref": "log://ex02-catalog-concentration#21",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -260,7 +280,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#27",
+            "ref": "log://ex02-catalog-concentration#30",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -283,7 +303,7 @@
           "sources": [
             "cdp_catalog_snapshot"
           ],
-          "log_seq": 18
+          "log_seq": 21
         },
         "coverage": {
           "items_seen": 28462,
@@ -304,6 +324,13 @@
         "critique": [
           {
             "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
             "rule": "A",
             "verdict": "accept",
             "reason": "C1-C7 passed",
@@ -333,7 +360,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#18",
+            "ref": "log://ex02-catalog-concentration#21",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -344,7 +371,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#28",
+            "ref": "log://ex02-catalog-concentration#31",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -367,7 +394,7 @@
           "sources": [
             "cdp_catalog_snapshot"
           ],
-          "log_seq": 18
+          "log_seq": 21
         },
         "coverage": {
           "items_seen": 28462,
@@ -388,6 +415,13 @@
         "critique": [
           {
             "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
             "rule": "A",
             "verdict": "accept",
             "reason": "C1-C7 passed",
@@ -421,7 +455,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#20",
+            "ref": "log://ex02-catalog-concentration#23",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -432,7 +466,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#29",
+            "ref": "log://ex02-catalog-concentration#32",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -455,7 +489,7 @@
           "sources": [
             "cdp_catalog_snapshot"
           ],
-          "log_seq": 20
+          "log_seq": 23
         },
         "coverage": {
           "items_seen": 28462,
@@ -476,6 +510,13 @@
         "critique": [
           {
             "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
             "rule": "A",
             "verdict": "accept",
             "reason": "C1-C7 passed",
@@ -510,7 +551,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#19",
+            "ref": "log://ex02-catalog-concentration#22",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -521,7 +562,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#30",
+            "ref": "log://ex02-catalog-concentration#33",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -544,7 +585,7 @@
           "sources": [
             "cdp_catalog_snapshot"
           ],
-          "log_seq": 19
+          "log_seq": 22
         },
         "coverage": {
           "items_seen": 28462,
@@ -565,6 +606,13 @@
         "critique": [
           {
             "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
             "rule": "A",
             "verdict": "accept",
             "reason": "C1-C7 passed",
@@ -598,7 +646,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#19",
+            "ref": "log://ex02-catalog-concentration#22",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -609,7 +657,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#31",
+            "ref": "log://ex02-catalog-concentration#34",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -632,7 +680,7 @@
           "sources": [
             "cdp_catalog_snapshot"
           ],
-          "log_seq": 19
+          "log_seq": 22
         },
         "coverage": {
           "items_seen": 28462,
@@ -653,6 +701,13 @@
         "critique": [
           {
             "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
             "rule": "A",
             "verdict": "accept",
             "reason": "C1-C7 passed",
@@ -682,7 +737,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#24",
+            "ref": "log://ex02-catalog-concentration#27",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -693,7 +748,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#32",
+            "ref": "log://ex02-catalog-concentration#35",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -716,7 +771,7 @@
           "sources": [
             "cdp_catalog_snapshot"
           ],
-          "log_seq": 24
+          "log_seq": 27
         },
         "coverage": {
           "items_seen": 28462,
@@ -737,6 +792,13 @@
         "critique": [
           {
             "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
             "rule": "A",
             "verdict": "accept",
             "reason": "C1-C7 passed",
@@ -771,7 +833,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#21",
+            "ref": "log://ex02-catalog-concentration#24",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -782,7 +844,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#33",
+            "ref": "log://ex02-catalog-concentration#36",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -806,7 +868,7 @@
           "sources": [
             "cdp_catalog_snapshot"
           ],
-          "log_seq": 21
+          "log_seq": 24
         },
         "coverage": {
           "items_seen": 28462,
@@ -827,6 +889,13 @@
         "critique": [
           {
             "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
             "rule": "A",
             "verdict": "accept",
             "reason": "C1-C7 passed",
@@ -856,7 +925,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#23",
+            "ref": "log://ex02-catalog-concentration#26",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -867,7 +936,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#34",
+            "ref": "log://ex02-catalog-concentration#37",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -890,7 +959,7 @@
           "sources": [
             "cdp_catalog_snapshot"
           ],
-          "log_seq": 23
+          "log_seq": 26
         },
         "coverage": {
           "items_seen": 28462,
@@ -913,6 +982,13 @@
         "critique": [
           {
             "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
             "rule": "A",
             "verdict": "accept",
             "reason": "C1-C7 passed",
@@ -969,7 +1045,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#22",
+            "ref": "log://ex02-catalog-concentration#25",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -980,7 +1056,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#35",
+            "ref": "log://ex02-catalog-concentration#38",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -1005,7 +1081,7 @@
           "sources": [
             "x402_trust"
           ],
-          "log_seq": 22
+          "log_seq": 25
         },
         "coverage": null,
         "caveats": [
@@ -1023,6 +1099,13 @@
         "critique": [
           {
             "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
             "rule": "A",
             "verdict": "accept",
             "reason": "C1-C7 passed",
@@ -1254,10 +1337,25 @@
       {
         "role": "planner",
         "generator_backed": true,
-        "generator_used": "none",
+        "generator_used": "recorded",
         "attempts": 1,
         "status": "ok",
-        "notes": []
+        "notes": [
+          "generator proposed seller_profile; router keeps catalog_concentration"
+        ],
+        "generator_calls": [
+          {
+            "prompt_id": "planner",
+            "provider": "meterless",
+            "requested_model": "meterless/auto",
+            "model": "local-runtime/llama-3.2-3b-instruct-q8",
+            "route": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
+            "route_kind": "local",
+            "receipt_id": "rcpt_req_m7l79xox",
+            "recorded": true,
+            "log_seq": 6
+          }
+        ]
       },
       {
         "role": "collector",
@@ -1305,24 +1403,73 @@
       {
         "role": "writer",
         "generator_backed": true,
-        "generator_used": "none",
-        "attempts": 1,
+        "generator_used": "recorded",
+        "attempts": 2,
         "status": "ok",
-        "notes": []
+        "notes": [],
+        "generator_calls": [
+          {
+            "prompt_id": "writer-r1",
+            "provider": "meterless",
+            "requested_model": "meterless/auto",
+            "model": "local-runtime/llama-3.2-3b-instruct-q8",
+            "route": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
+            "route_kind": "local",
+            "receipt_id": "rcpt_req_o93wx09x",
+            "recorded": true,
+            "log_seq": 43
+          },
+          {
+            "prompt_id": "writer-r2",
+            "provider": "meterless",
+            "requested_model": "meterless/auto",
+            "model": "local-runtime/llama-3.2-3b-instruct-q8",
+            "route": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
+            "route_kind": "local",
+            "receipt_id": "rcpt_req_xxrzswnp",
+            "recorded": true,
+            "log_seq": 79
+          }
+        ]
       },
       {
         "role": "critic",
         "generator_backed": true,
-        "generator_used": "none",
-        "attempts": 1,
+        "generator_used": "recorded",
+        "attempts": 2,
         "status": "ok",
-        "notes": []
+        "notes": [],
+        "generator_calls": [
+          {
+            "prompt_id": "critic-r1",
+            "provider": "meterless",
+            "requested_model": "meterless/auto",
+            "model": "local-runtime/llama-3.2-3b-instruct-q8",
+            "route": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
+            "route_kind": "local",
+            "receipt_id": "rcpt_req_wit08l7b",
+            "recorded": true,
+            "log_seq": 70
+          },
+          {
+            "prompt_id": "critic-r2",
+            "provider": "meterless",
+            "requested_model": "meterless/auto",
+            "model": "local-runtime/llama-3.2-3b-instruct-q8",
+            "route": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
+            "route_kind": "local",
+            "receipt_id": "rcpt_req_wjc6450o",
+            "recorded": true,
+            "log_seq": 102
+          }
+        ]
       }
     ],
-    "critique_rounds": 1,
+    "critique_rounds": 2,
     "report_path": "logs/ex02-catalog-concentration/report.md",
     "log_files": [
       "fetch.jsonl",
+      "generator.jsonl",
       "hmem.trace.jsonl",
       "run.jsonl",
       "sql.jsonl",

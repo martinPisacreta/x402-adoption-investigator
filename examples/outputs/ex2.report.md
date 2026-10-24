@@ -1,9 +1,9 @@
 # x402 Adoption Investigator report: `ex02-catalog-concentration`
 
 **Status:** ok  
-**Mode:** sample (fetcher fixture, executor sqlite, generator null, fixtures captured 2026-10-22T00:05:00Z)
+**Mode:** sample (fetcher fixture, executor sqlite, generator recorded, fixtures captured 2026-10-22T00:05:00Z)
 
-> This run replayed committed fixtures captured 2026-10-22T00:05:00Z; no network, no model calls.
+> This run replayed committed fixtures captured 2026-10-22T00:05:00Z; no network, no model calls. The generator-backed roles replayed 5 recorded answer(s) from fixtures/transcripts/02-catalog-concentration/ (provider meterless, model local-runtime/llama-3.2-3b-instruct-q8); each `generate` event says recorded: true.
 
 ## Question
 
@@ -11,10 +11,17 @@ Who sells on the CDP Bazaar and how concentrated are the paid calls? What share 
 
 ## Plan
 
-Playbook `catalog_concentration` (planner source: rules).  
+Playbook `catalog_concentration` (planner source: recorded-generator).  
 Sources: cdp_catalog_snapshot, cdp_bazaar, x402_trust.  
 Queries: q08_catalog_size, q09_catalog_top_hosts_by_calls, q10_catalog_active_share, q11_catalog_payto_concentration, q19_trust_ecosystem_stats, q20_catalog_unique_payers_max, q21_catalog_top_hosts_by_listings.  
 Memories retrieved by the Planner: mem-seed-005.
+
+Hypotheses:
+- The majority of sellers on the CDP Bazaar are individuals.
+- The top 10 hosts account for more than 50% of the paid calls.
+- More than 20% of listed endpoints saw a call in the last 30 days.
+- The majority of calls are made to the top 5 hosts.
+- The majority of sellers have a store openapi.
 
 ## Verdict
 
@@ -28,42 +35,42 @@ Paid calls are concentrated in a few hosts (verdict concentrated) based on [c07]
 
 | id | metric | subject | value | unit | conf. | cross-checked | caveats | conflicts | evidence |
 |---|---|---|---|---|---|---|---|---|---|
-| c01 | catalog_resources | catalog:cdp-bazaar | 28462 | count | 0.9 | True | snapshot_dated (mem-seed-006) | k01 | <https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources?limit=1000&offset=N> sha256 e1b0040a2265… [replayed]<br>`log://ex02-catalog-concentration#18`<br>`log://ex02-catalog-concentration#25` |
-| c02 | catalog_hosts | catalog:cdp-bazaar | 2680 | count | 0.9 | True | snapshot_dated (mem-seed-006) | - | <https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources?limit=1000&offset=N> sha256 e1b0040a2265… [replayed]<br>`log://ex02-catalog-concentration#18`<br>`log://ex02-catalog-concentration#26` |
-| c03 | catalog_distinct_payto | catalog:cdp-bazaar | 1785 | count | 0.9 | True | snapshot_dated (mem-seed-006) | - | <https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources?limit=1000&offset=N> sha256 e1b0040a2265… [replayed]<br>`log://ex02-catalog-concentration#18`<br>`log://ex02-catalog-concentration#27` |
-| c04 | catalog_calls_30d_sum | catalog:cdp-bazaar | 824796 | count | 0.9 | True | snapshot_dated (mem-seed-006) | - | <https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources?limit=1000&offset=N> sha256 e1b0040a2265… [replayed]<br>`log://ex02-catalog-concentration#18`<br>`log://ex02-catalog-concentration#28` |
-| c05 | catalog_active_share | catalog:cdp-bazaar | 28347 / 28462 = 0.995959524980676 | share | 0.9 | True | snapshot_dated (mem-seed-006) | - | <https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources?limit=1000&offset=N> sha256 e1b0040a2265… [replayed]<br>`log://ex02-catalog-concentration#20`<br>`log://ex02-catalog-concentration#29` |
-| c06 | top_host_calls_share | catalog:cdp-bazaar | 243580 / 824796 = 0.2953215098036363 (host=www.ax1.vc) | share | 0.9 | True | snapshot_dated (mem-seed-006) | - | <https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources?limit=1000&offset=N> sha256 e1b0040a2265… [replayed]<br>`log://ex02-catalog-concentration#19`<br>`log://ex02-catalog-concentration#30` |
-| c07 | top10_hosts_calls_share | catalog:cdp-bazaar | 604248 / 824796 = 0.7326029709164448 | share | 0.9 | True | snapshot_dated (mem-seed-006) | - | <https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources?limit=1000&offset=N> sha256 e1b0040a2265… [replayed]<br>`log://ex02-catalog-concentration#19`<br>`log://ex02-catalog-concentration#31` |
-| c08 | top_hosts_by_listings | catalog:cdp-bazaar | saylorinnovations.com=1568, agentshelf.syntexa.ch=1236, dns.intel.rallylive.ca=694, agent402.tools=613 | text | 0.9 | True | snapshot_dated (mem-seed-006) | - | <https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources?limit=1000&offset=N> sha256 e1b0040a2265… [replayed]<br>`log://ex02-catalog-concentration#24`<br>`log://ex02-catalog-concentration#32` |
-| c09 | top_payto_calls_share | catalog:cdp-bazaar | 243601 / 824796 = 0.2953469706448625 (pay_to=0x7284d41b5b852f2bd4c99bdf95043d84452d299c) | share | 0.9 | True | snapshot_dated (mem-seed-006) | - | <https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources?limit=1000&offset=N> sha256 e1b0040a2265… [replayed]<br>`log://ex02-catalog-concentration#21`<br>`log://ex02-catalog-concentration#33` |
-| c10 | unique_payers_per_endpoint_max | catalog:cdp-bazaar | 2708 | count | 0.9 | True | unique_payers_not_dedupable (mem-seed-001), snapshot_dated (mem-seed-006) | - | <https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources?limit=1000&offset=N> sha256 e1b0040a2265… [replayed]<br>`log://ex02-catalog-concentration#23`<br>`log://ex02-catalog-concentration#34` |
-| c11 | trust_ecosystem_stats | registry:name:x402-trust | endpoints_listed=286358, endpoints_active=210375, settlements_30d=2661042, distinct_payers_30d=32625 | text | 0.9 | True | third_party_aggregate (mem-seed-004) | k01 | <https://x402-trust.com/v1/facilitators> sha256 b4f1d54d5feb… [replayed]<br><https://x402-trust.com/trust/leaderboard?limit=25&offset=0> sha256 2d9d40a8e9e6… [replayed]<br><https://x402-trust.com/trust/stats> sha256 26ee64acb78a… [replayed]<br>`log://ex02-catalog-concentration#22`<br>`log://ex02-catalog-concentration#35` |
+| c01 | catalog_resources | catalog:cdp-bazaar | 28462 | count | 0.9 | True | snapshot_dated (mem-seed-006) | k01 | <https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources?limit=1000&offset=N> sha256 e1b0040a2265… [replayed]<br>`log://ex02-catalog-concentration#21`<br>`log://ex02-catalog-concentration#28` |
+| c02 | catalog_hosts | catalog:cdp-bazaar | 2680 | count | 0.9 | True | snapshot_dated (mem-seed-006) | - | <https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources?limit=1000&offset=N> sha256 e1b0040a2265… [replayed]<br>`log://ex02-catalog-concentration#21`<br>`log://ex02-catalog-concentration#29` |
+| c03 | catalog_distinct_payto | catalog:cdp-bazaar | 1785 | count | 0.9 | True | snapshot_dated (mem-seed-006) | - | <https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources?limit=1000&offset=N> sha256 e1b0040a2265… [replayed]<br>`log://ex02-catalog-concentration#21`<br>`log://ex02-catalog-concentration#30` |
+| c04 | catalog_calls_30d_sum | catalog:cdp-bazaar | 824796 | count | 0.9 | True | snapshot_dated (mem-seed-006) | - | <https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources?limit=1000&offset=N> sha256 e1b0040a2265… [replayed]<br>`log://ex02-catalog-concentration#21`<br>`log://ex02-catalog-concentration#31` |
+| c05 | catalog_active_share | catalog:cdp-bazaar | 28347 / 28462 = 0.995959524980676 | share | 0.9 | True | snapshot_dated (mem-seed-006) | - | <https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources?limit=1000&offset=N> sha256 e1b0040a2265… [replayed]<br>`log://ex02-catalog-concentration#23`<br>`log://ex02-catalog-concentration#32` |
+| c06 | top_host_calls_share | catalog:cdp-bazaar | 243580 / 824796 = 0.2953215098036363 (host=www.ax1.vc) | share | 0.9 | True | snapshot_dated (mem-seed-006) | - | <https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources?limit=1000&offset=N> sha256 e1b0040a2265… [replayed]<br>`log://ex02-catalog-concentration#22`<br>`log://ex02-catalog-concentration#33` |
+| c07 | top10_hosts_calls_share | catalog:cdp-bazaar | 604248 / 824796 = 0.7326029709164448 | share | 0.9 | True | snapshot_dated (mem-seed-006) | - | <https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources?limit=1000&offset=N> sha256 e1b0040a2265… [replayed]<br>`log://ex02-catalog-concentration#22`<br>`log://ex02-catalog-concentration#34` |
+| c08 | top_hosts_by_listings | catalog:cdp-bazaar | saylorinnovations.com=1568, agentshelf.syntexa.ch=1236, dns.intel.rallylive.ca=694, agent402.tools=613 | text | 0.9 | True | snapshot_dated (mem-seed-006) | - | <https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources?limit=1000&offset=N> sha256 e1b0040a2265… [replayed]<br>`log://ex02-catalog-concentration#27`<br>`log://ex02-catalog-concentration#35` |
+| c09 | top_payto_calls_share | catalog:cdp-bazaar | 243601 / 824796 = 0.2953469706448625 (pay_to=0x7284d41b5b852f2bd4c99bdf95043d84452d299c) | share | 0.9 | True | snapshot_dated (mem-seed-006) | - | <https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources?limit=1000&offset=N> sha256 e1b0040a2265… [replayed]<br>`log://ex02-catalog-concentration#24`<br>`log://ex02-catalog-concentration#36` |
+| c10 | unique_payers_per_endpoint_max | catalog:cdp-bazaar | 2708 | count | 0.9 | True | unique_payers_not_dedupable (mem-seed-001), snapshot_dated (mem-seed-006) | - | <https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources?limit=1000&offset=N> sha256 e1b0040a2265… [replayed]<br>`log://ex02-catalog-concentration#26`<br>`log://ex02-catalog-concentration#37` |
+| c11 | trust_ecosystem_stats | registry:name:x402-trust | endpoints_listed=286358, endpoints_active=210375, settlements_30d=2661042, distinct_payers_30d=32625 | text | 0.9 | True | third_party_aggregate (mem-seed-004) | k01 | <https://x402-trust.com/v1/facilitators> sha256 b4f1d54d5feb… [replayed]<br><https://x402-trust.com/trust/leaderboard?limit=25&offset=0> sha256 2d9d40a8e9e6… [replayed]<br><https://x402-trust.com/trust/stats> sha256 26ee64acb78a… [replayed]<br>`log://ex02-catalog-concentration#25`<br>`log://ex02-catalog-concentration#38` |
 
 ### Derivations and critique trail
 
-- **c01** The Bazaar catalog snapshot holds 28462 unique resources. — query `q08_catalog_size` on `sqlite` (sql sha256 `569da2298280`), reducer `reducers.catalog_resources`, 1 row(s), sources cdp_catalog_snapshot, fields resource; coverage 28462 of 28472 (compact snapshot 2026-10-22); log `log://ex02-catalog-concentration#18`
-  - critique: r1 A accept: C1-C7 passed
-- **c02** Those resources are served by 2680 distinct hosts. — query `q08_catalog_size` on `sqlite` (sql sha256 `569da2298280`), reducer `reducers.catalog_hosts`, 1 row(s), sources cdp_catalog_snapshot, fields resource; coverage 28462 of 28472 (compact snapshot 2026-10-22); log `log://ex02-catalog-concentration#18`
-  - critique: r1 A accept: C1-C7 passed
-- **c03** 1785 distinct payTo wallets receive the payments. — query `q08_catalog_size` on `sqlite` (sql sha256 `569da2298280`), reducer `reducers.catalog_distinct_payto`, 1 row(s), sources cdp_catalog_snapshot, fields payTo; coverage 28462 of 28472 (compact snapshot 2026-10-22); log `log://ex02-catalog-concentration#18`
-  - critique: r1 A accept: C1-C7 passed
-- **c04** The 30-day call counters sum to 824796 across the snapshot. — query `q08_catalog_size` on `sqlite` (sql sha256 `569da2298280`), reducer `reducers.catalog_calls_30d_sum`, 1 row(s), sources cdp_catalog_snapshot, fields l30DaysTotalCalls; coverage 28462 of 28472 (compact snapshot 2026-10-22); log `log://ex02-catalog-concentration#18`
-  - critique: r1 A accept: C1-C7 passed
-- **c05** 28347 of 28462 resources saw at least one call in the 30-day window (99.6 %). — query `q10_catalog_active_share` on `sqlite` (sql sha256 `f2dc2b1af77f`), reducer `reducers.catalog_active_share`, 1 row(s), sources cdp_catalog_snapshot, fields l30DaysTotalCalls; coverage 28462 of 28472 (compact snapshot 2026-10-22); log `log://ex02-catalog-concentration#20`
-  - critique: r1 A accept: C1-C7 passed
-- **c06** The top host www.ax1.vc accounts for 243580 of 824796 30-day calls (29.5 %). — query `q09_catalog_top_hosts_by_calls` on `sqlite` (sql sha256 `cd7605046bb6`), reducer `reducers.top_host_calls_share`, 10 row(s), sources cdp_catalog_snapshot, fields l30DaysTotalCalls; coverage 28462 of 28472 (compact snapshot 2026-10-22); log `log://ex02-catalog-concentration#19`
-  - critique: r1 A accept: C1-C7 passed
-- **c07** The top ten hosts account for 604248 of 824796 30-day calls (73.3 %). — query `q09_catalog_top_hosts_by_calls` on `sqlite` (sql sha256 `cd7605046bb6`), reducer `reducers.top10_hosts_calls_share`, 10 row(s), sources cdp_catalog_snapshot, fields l30DaysTotalCalls; coverage 28462 of 28472 (compact snapshot 2026-10-22); log `log://ex02-catalog-concentration#19`
-  - critique: r1 A accept: C1-C7 passed
-- **c08** Hosts with the most listings in the snapshot: saylorinnovations.com=1568, agentshelf.syntexa.ch=1236, dns.intel.rallylive.ca=694, agent402.tools=613. — query `q21_catalog_top_hosts_by_listings` on `sqlite` (sql sha256 `84906723659a`), reducer `reducers.top_hosts_by_listings`, 4 row(s), sources cdp_catalog_snapshot, fields resource; coverage 28462 of 28472 (compact snapshot 2026-10-22); log `log://ex02-catalog-concentration#24`
-  - critique: r1 A accept: C1-C7 passed
-- **c09** The top payTo wallet 0x7284d41b5b852f2bd4c99bdf95043d84452d299c receives 243601 of 824796 30-day calls (29.5 %). — query `q11_catalog_payto_concentration` on `sqlite` (sql sha256 `2307816ca37c`), reducer `reducers.top_payto_calls_share`, 10 row(s), sources cdp_catalog_snapshot, fields l30DaysTotalCalls, payTo; coverage 28462 of 28472 (compact snapshot 2026-10-22); log `log://ex02-catalog-concentration#21`
-  - critique: r1 A accept: C1-C7 passed
-- **c10** The largest per-endpoint 30-day unique-payer counter is 2708 (not deduplicable across endpoints). — query `q20_catalog_unique_payers_max` on `sqlite` (sql sha256 `d37a5473afae`), reducer `reducers.unique_payers_per_endpoint_max`, 1 row(s), sources cdp_catalog_snapshot, fields l30DaysUniquePayers; coverage 28462 of 28472 (compact snapshot 2026-10-22); log `log://ex02-catalog-concentration#23`
-  - critique: r1 A accept: C1-C7 passed
-- **c11** x402-trust reports endpoints_listed=286358, endpoints_active=210375, settlements_30d=2661042, distinct_payers_30d=32625. — query `q19_trust_ecosystem_stats` on `sqlite` (sql sha256 `4035f80e1f99`), reducer `reducers.trust_ecosystem_stats`, 1 row(s), sources x402_trust, fields endpointsListed, endpointsActive, settlements30d; log `log://ex02-catalog-concentration#22`
-  - critique: r1 A accept: C1-C7 passed
+- **c01** The Bazaar catalog snapshot holds 28462 unique resources. — query `q08_catalog_size` on `sqlite` (sql sha256 `569da2298280`), reducer `reducers.catalog_resources`, 1 row(s), sources cdp_catalog_snapshot, fields resource; coverage 28462 of 28472 (compact snapshot 2026-10-22); log `log://ex02-catalog-concentration#21`
+  - critique: r1 A accept: C1-C7 passed; r2 A accept: C1-C7 passed
+- **c02** Those resources are served by 2680 distinct hosts. — query `q08_catalog_size` on `sqlite` (sql sha256 `569da2298280`), reducer `reducers.catalog_hosts`, 1 row(s), sources cdp_catalog_snapshot, fields resource; coverage 28462 of 28472 (compact snapshot 2026-10-22); log `log://ex02-catalog-concentration#21`
+  - critique: r1 A accept: C1-C7 passed; r2 A accept: C1-C7 passed
+- **c03** 1785 distinct payTo wallets receive the payments. — query `q08_catalog_size` on `sqlite` (sql sha256 `569da2298280`), reducer `reducers.catalog_distinct_payto`, 1 row(s), sources cdp_catalog_snapshot, fields payTo; coverage 28462 of 28472 (compact snapshot 2026-10-22); log `log://ex02-catalog-concentration#21`
+  - critique: r1 A accept: C1-C7 passed; r2 A accept: C1-C7 passed
+- **c04** The 30-day call counters sum to 824796 across the snapshot. — query `q08_catalog_size` on `sqlite` (sql sha256 `569da2298280`), reducer `reducers.catalog_calls_30d_sum`, 1 row(s), sources cdp_catalog_snapshot, fields l30DaysTotalCalls; coverage 28462 of 28472 (compact snapshot 2026-10-22); log `log://ex02-catalog-concentration#21`
+  - critique: r1 A accept: C1-C7 passed; r2 A accept: C1-C7 passed
+- **c05** 28347 of 28462 resources saw at least one call in the 30-day window (99.6 %). — query `q10_catalog_active_share` on `sqlite` (sql sha256 `f2dc2b1af77f`), reducer `reducers.catalog_active_share`, 1 row(s), sources cdp_catalog_snapshot, fields l30DaysTotalCalls; coverage 28462 of 28472 (compact snapshot 2026-10-22); log `log://ex02-catalog-concentration#23`
+  - critique: r1 A accept: C1-C7 passed; r2 A accept: C1-C7 passed
+- **c06** The top host www.ax1.vc accounts for 243580 of 824796 30-day calls (29.5 %). — query `q09_catalog_top_hosts_by_calls` on `sqlite` (sql sha256 `cd7605046bb6`), reducer `reducers.top_host_calls_share`, 10 row(s), sources cdp_catalog_snapshot, fields l30DaysTotalCalls; coverage 28462 of 28472 (compact snapshot 2026-10-22); log `log://ex02-catalog-concentration#22`
+  - critique: r1 A accept: C1-C7 passed; r2 A accept: C1-C7 passed
+- **c07** The top ten hosts account for 604248 of 824796 30-day calls (73.3 %). — query `q09_catalog_top_hosts_by_calls` on `sqlite` (sql sha256 `cd7605046bb6`), reducer `reducers.top10_hosts_calls_share`, 10 row(s), sources cdp_catalog_snapshot, fields l30DaysTotalCalls; coverage 28462 of 28472 (compact snapshot 2026-10-22); log `log://ex02-catalog-concentration#22`
+  - critique: r1 A accept: C1-C7 passed; r2 A accept: C1-C7 passed
+- **c08** Hosts with the most listings in the snapshot: saylorinnovations.com=1568, agentshelf.syntexa.ch=1236, dns.intel.rallylive.ca=694, agent402.tools=613. — query `q21_catalog_top_hosts_by_listings` on `sqlite` (sql sha256 `84906723659a`), reducer `reducers.top_hosts_by_listings`, 4 row(s), sources cdp_catalog_snapshot, fields resource; coverage 28462 of 28472 (compact snapshot 2026-10-22); log `log://ex02-catalog-concentration#27`
+  - critique: r1 A accept: C1-C7 passed; r2 A accept: C1-C7 passed
+- **c09** The top payTo wallet 0x7284d41b5b852f2bd4c99bdf95043d84452d299c receives 243601 of 824796 30-day calls (29.5 %). — query `q11_catalog_payto_concentration` on `sqlite` (sql sha256 `2307816ca37c`), reducer `reducers.top_payto_calls_share`, 10 row(s), sources cdp_catalog_snapshot, fields l30DaysTotalCalls, payTo; coverage 28462 of 28472 (compact snapshot 2026-10-22); log `log://ex02-catalog-concentration#24`
+  - critique: r1 A accept: C1-C7 passed; r2 A accept: C1-C7 passed
+- **c10** The largest per-endpoint 30-day unique-payer counter is 2708 (not deduplicable across endpoints). — query `q20_catalog_unique_payers_max` on `sqlite` (sql sha256 `d37a5473afae`), reducer `reducers.unique_payers_per_endpoint_max`, 1 row(s), sources cdp_catalog_snapshot, fields l30DaysUniquePayers; coverage 28462 of 28472 (compact snapshot 2026-10-22); log `log://ex02-catalog-concentration#26`
+  - critique: r1 A accept: C1-C7 passed; r2 A accept: C1-C7 passed
+- **c11** x402-trust reports endpoints_listed=286358, endpoints_active=210375, settlements_30d=2661042, distinct_payers_30d=32625. — query `q19_trust_ecosystem_stats` on `sqlite` (sql sha256 `4035f80e1f99`), reducer `reducers.trust_ecosystem_stats`, 1 row(s), sources x402_trust, fields endpointsListed, endpointsActive, settlements30d; log `log://ex02-catalog-concentration#25`
+  - critique: r1 A accept: C1-C7 passed; r2 A accept: C1-C7 passed
 
 ## Rejected claims
 
@@ -117,12 +124,24 @@ retrieved: 7, cited: mem-seed-001, mem-seed-004, mem-seed-006, feedback entries:
 
 | role | generator-backed | generator used | attempts | status | notes |
 |---|---|---|---|---|---|
-| planner | True | none | 1 | ok | - |
+| planner | True | recorded | 1 | ok | generator proposed seller_profile; router keeps catalog_concentration |
 | collector | False | None | 1 | ok | 6 ok, 0 stale fixture fallback(s), 0 fixture miss(es), 0 unavailable, 0 deferred to the verifier |
 | keeper | False | None | 3 | ok | chain facts asserted: 0; claims asserted as agent facts: 11; ingested 6 observations, 21105 events appended; second pass: {'runId': 'run_7ce74f98914f', 'processed': 0, 'skippedUnchanged': 6, 'eventsAppended': 0, 'changed': False} |
 | verifier | False | None | 1 | ok | no receipts observation in this plan: no settlement to sample, no RPC call made |
 | analyst | False | None | 1 | ok | views without export: sales, purchases, bazaar_search, openapi_paid_ops, agent402_tools, agent402_seller, vet402_endpoints, trust_search, settlements, chain_facts |
-| writer | True | none | 1 | ok | - |
-| critic | True | none | 1 | ok | - |
+| writer | True | recorded | 2 | ok | - |
+| critic | True | recorded | 2 | ok | - |
 
-Critique rounds: 1. Log files: fetch.jsonl, hmem.trace.jsonl, run.jsonl, sql.jsonl, world.audit.jsonl, world.events.jsonl, world.observations.jsonl.
+## Model calls
+
+Which model handled each generator request (`generate` events in run.jsonl; Nightshift receipts).
+
+| role | prompt | provider | requested | model that answered | route | receipt | recorded | log |
+|---|---|---|---|---|---|---|---|---|
+| planner | planner | meterless | meterless/auto | local-runtime/llama-3.2-3b-instruct-q8 | Llama 3.2 3B Q8 Verifier (Runtime GGUF) (local) | rcpt_req_m7l79xox | True | log://ex02-catalog-concentration#6 |
+| writer | writer-r1 | meterless | meterless/auto | local-runtime/llama-3.2-3b-instruct-q8 | Llama 3.2 3B Q8 Verifier (Runtime GGUF) (local) | rcpt_req_o93wx09x | True | log://ex02-catalog-concentration#43 |
+| critic | critic-r1 | meterless | meterless/auto | local-runtime/llama-3.2-3b-instruct-q8 | Llama 3.2 3B Q8 Verifier (Runtime GGUF) (local) | rcpt_req_wit08l7b | True | log://ex02-catalog-concentration#70 |
+| writer | writer-r2 | meterless | meterless/auto | local-runtime/llama-3.2-3b-instruct-q8 | Llama 3.2 3B Q8 Verifier (Runtime GGUF) (local) | rcpt_req_xxrzswnp | True | log://ex02-catalog-concentration#79 |
+| critic | critic-r2 | meterless | meterless/auto | local-runtime/llama-3.2-3b-instruct-q8 | Llama 3.2 3B Q8 Verifier (Runtime GGUF) (local) | rcpt_req_wjc6450o | True | log://ex02-catalog-concentration#102 |
+
+Critique rounds: 2. Log files: fetch.jsonl, generator.jsonl, hmem.trace.jsonl, run.jsonl, sql.jsonl, world.audit.jsonl, world.events.jsonl, world.observations.jsonl.

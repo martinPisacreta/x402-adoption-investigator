@@ -417,6 +417,33 @@ primary AI provider. What changed for other modules (details in README "Meterles
   `requested_model` (defaulted, so existing constructors still work); transcripts store both. `generate()` now
   passes the generator's own timeout capped by the time left, and generator recoveries name the generator and
   provider. Nightshift mounts add `generator_mount` to `run_start` (never the token).
-- Committed examples are unchanged (sample mode has no transcripts, so no generator call happens).
+- Committed examples were unchanged at that point (sample mode had no transcripts, so no generator call happened).
   `tests/test_run_contract.py`'s live helper sets `NIGHTSHIFT_AUTODETECT=0` to stay hermetic; the detection path
-  is covered by `tests/test_nightshift.py` with a fake runtime. No live Nightshift run has been made yet.
+  is covered by `tests/test_nightshift.py` with a fake runtime. No live Nightshift run had been made yet (see the next section).
+
+## First real Nightshift runs and recorded transcripts (2026-10-24, later)
+
+Why: "a real request passes through" Nightshift, and the traces must say which model handled each request. What
+changed for other modules:
+- `investigator/config.py`: the guides' and the ns CLI's names are aliases (`METERLESS_BASE_URL`,
+  `METERLESS_RUNTIME_TOKEN`, `METERLESS_TOKEN`, `METERLESS_MODEL`; each `NIGHTSHIFT_*` twin wins) and
+  `meterless_state_dir()` copies the CLI's stateDir rule (`METERLESS_STATE_DIR`, else the OS default), read only from
+  the environment mapping given to `read_env`, so tests stay hermetic. The runtime's proxy-token file alone never
+  makes `--mode auto` live.
+- `investigator/generator.py`: token lookup NIGHTSHIFT_TOKEN, METERLESS_RUNTIME_TOKEN, METERLESS_TOKEN,
+  NIGHTSHIFT_TOKEN_FILE, `<stateDir>/proxy-token`; `meterless_receipt()` reduces the answer's `meterless` compute
+  receipt to `routing` (receipt id, routed model, winning route, phases, latency, tokens, cache), which the
+  `generate` event, `generator.jsonl`, the transcript and `output.agents[].generator_calls` carry (new optional
+  `GeneratorResult.routing`, defaulted; `contracts.py` got that one field); `salvage_json_list()` keeps the complete
+  items of an array cut at the token limit; `save_transcript(extra=...)` labels provenance.
+- Agents: the Planner normalises a reply over the schema's list limits before validating it, the Critic uses the
+  salvage, and after the last round `writer.complete_requirements()` adds the code-owned sentences a draft left out
+  (runner also states the verdict sentence when the answer lacks it). New recovery reasons
+  `generator_reply_repaired` and `narrative_completed` (`events.schema.json`, SPEC.md). Empty bullets ("- " alone) no
+  longer reach the narrative.
+- `scripts/record_transcripts.py --on-fixtures --prune` records Nightshift answers to the prompts of a sample-mode
+  run (live prompts carry live data and never replay); `fixtures/transcripts/<example>/` now holds 5 per example and
+  every committed example was regenerated with `scripts/regen_examples.py` (mounts.generator `recorded`, two Critic
+  rounds). `tests/test_agents_pipeline.py` and `scripts/memory_ablation.py` pin the null generator: they are about
+  the rules path and the memory, not the model.
+- Evidence: `examples/live-trace-nightshift/` (six live runs, 32 requests, Zetaris stopped so SQLite).

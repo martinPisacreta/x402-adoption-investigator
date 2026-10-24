@@ -1,0 +1,46 @@
+{
+  "prompt_id": "writer-r2",
+  "prompt_sha256": "0220a62a94eafdf708734208c3cc6ceb69f94935ea9078a088c89607ba04e494",
+  "model": "local-runtime/llama-3.2-3b-instruct-q8",
+  "recorded_at": "2026-10-24T16:28:55.020Z",
+  "response": "- The CDP Bazaar sells on itself.\n- The paid calls are concentrated, meaning that a high percentage of the calls are made to a small number of hosts, with the top ten hosts accounting for 73.3% of the calls [c07].\n- 99.6% of the unique resources saw any call in the last 30 days [c05].\n- The top host www.ax1.vc accounts for 29.5% of the 824796 30-day calls [c06].\n- The largest per-endpoint 30-day unique-payer counter is 2708 [c10].\n\nThe CDP Bazaar is the platform where resources are sold. The paid calls are concentrated, meaning that a high percentage of the calls are made to a small number of hosts. The top ten hosts account for 73.3% of the calls, indicating a relatively small and specialized market. On the other hand, 99.6% of the unique resources saw any call in the last 30 days, suggesting that the market is active and dynamic. The top host www.ax1.vc accounts for 29.5% of the 824796 30-day calls, further emphasizing the concentration of calls.",
+  "usage": {
+    "prompt_tokens": 3561,
+    "completion_tokens": 251,
+    "total_tokens": 3812
+  },
+  "provider": "meterless",
+  "requested_model": "meterless/auto",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_jj07sc7x",
+    "decision_id": "req_jj07sc7x",
+    "requested_model": "meterless/auto",
+    "routed_model": "local-runtime/llama-3.2-3b-instruct-q8",
+    "winning_route": {
+      "model": "local-runtime/llama-3.2-3b-instruct-q8",
+      "label": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
+      "provider": "local-runtime",
+      "kind": "local",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "final_synthesis",
+        "model": "local-runtime/llama-3.2-3b-instruct-q8",
+        "ms": 2852
+      }
+    ],
+    "latency_ms": 2852,
+    "usage": {
+      "input_tokens": 3561,
+      "output_tokens": 251,
+      "total_tokens": 3812
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "local-only",
+    "wall_ms": 2922
+  }
+}

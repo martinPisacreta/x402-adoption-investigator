@@ -1,0 +1,47 @@
+{
+  "prompt_id": "critic-r2",
+  "prompt_sha256": "1a691790a947005958b4337187ffc60b7fc63885c73c1de99863fa991f0230e1",
+  "model": "local-runtime/llama-3.2-3b-instruct-q8",
+  "recorded_at": "2026-10-24T16:13:04.736Z",
+  "response": "[\n  {\"sentence_index\": 0, \"reason\": \"not supported by claim\", \"claim_id\": \"c01\"},\n  {\"sentence_index\": 1, \"reason\": \"not supported by claim\", \"claim_id\": null},\n  {\"sentence_index\": 2, \"reason\": \"same as c05\", \"claim_id\": \"c05\"},\n  {\"sentence_index\": 3, \"reason\": \"not supported by claim\", \"claim_id\": \"c02\"},\n  {\"sentence_index\": 4, \"reason\": \"not supported by claim\", \"claim_id\": \"c01\"},\n  {\"sentence_index\": 5, \"reason\": \"same as c06\", \"claim_id\": \"c06\"},\n  {\"sentence_index\": 6, \"reason\": \"same as c05\", \"claim_id\": \"c05\"},\n  {\"sentence_index\": 7, \"reason\": \"same as c05\", \"claim_id\": \"c05\"},\n  {\"sentence_index\": 8, \"reason\": \"not supported by claim\", \"claim_id\": null}",
+  "usage": {
+    "prompt_tokens": 1783,
+    "completion_tokens": 223,
+    "total_tokens": 2006
+  },
+  "provider": "meterless",
+  "requested_model": "meterless/auto",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_wjc6450o",
+    "decision_id": "req_wjc6450o",
+    "requested_model": "meterless/auto",
+    "routed_model": "local-runtime/llama-3.2-3b-instruct-q8",
+    "winning_route": {
+      "model": "local-runtime/llama-3.2-3b-instruct-q8",
+      "label": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
+      "provider": "local-runtime",
+      "kind": "local",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "planning",
+        "model": "local-runtime/llama-3.2-3b-instruct-q8",
+        "ms": 2450
+      }
+    ],
+    "latency_ms": 2450,
+    "usage": {
+      "input_tokens": 1783,
+      "output_tokens": 223,
+      "total_tokens": 2006
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "local-only",
+    "wall_ms": 2516
+  },
+  "prompt_context": "sample mode on the committed fixtures"
+}

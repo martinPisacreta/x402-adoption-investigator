@@ -1,0 +1,47 @@
+{
+  "prompt_id": "critic-r1",
+  "prompt_sha256": "474f41187a838f20f90ab4ef1a9e61980398e1547a6c70330cba93eaaea110bf",
+  "model": "local-runtime/llama-3.2-3b-instruct-q8",
+  "recorded_at": "2026-10-24T16:12:30.680Z",
+  "response": "[\n  {\"sentence_index\": 0, \"reason\": \"not supported by claim\", \"claim_id\": \"c01\"},\n  {\"sentence_index\": 7, \"reason\": \"not supported by claim\", \"claim_id\": null},\n  {\"sentence_index\": 8, \"reason\": \"not supported by claim\", \"claim_id\": \"c06\"},\n  {\"sentence_index\": 9, \"reason\": \"not supported by claim\", \"claim_id\": \"c07\"},\n  {\"sentence_index\": 10, \"reason\": \"not supported by claim\", \"claim_id\": \"c10\"},\n  {\"sentence_index\": 11, \"reason\": \"not supported by claim\", \"claim_id\": \"c11\"}\n]",
+  "usage": {
+    "prompt_tokens": 1791,
+    "completion_tokens": 151,
+    "total_tokens": 1942
+  },
+  "provider": "meterless",
+  "requested_model": "meterless/auto",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_wit08l7b",
+    "decision_id": "req_wit08l7b",
+    "requested_model": "meterless/auto",
+    "routed_model": "local-runtime/llama-3.2-3b-instruct-q8",
+    "winning_route": {
+      "model": "local-runtime/llama-3.2-3b-instruct-q8",
+      "label": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
+      "provider": "local-runtime",
+      "kind": "local",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "planning",
+        "model": "local-runtime/llama-3.2-3b-instruct-q8",
+        "ms": 1819
+      }
+    ],
+    "latency_ms": 1819,
+    "usage": {
+      "input_tokens": 1791,
+      "output_tokens": 151,
+      "total_tokens": 1942
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "local-only",
+    "wall_ms": 1891
+  },
+  "prompt_context": "sample mode on the committed fixtures"
+}

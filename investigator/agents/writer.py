@@ -156,7 +156,7 @@ def render_template(claims: list[Claim], conflicts: list[Conflict], unavailable:
         sentences.append(conflict_sentence(conflict, live_ids))
     sentences.extend(caveat_sentences(usable))
     for item in unavailable:
-        sentences.append(f"Unavailable: {item.get('metric')} ({item.get('reason')}).")
+        sentences.append(unavailable_sentence(item))
     rejected_text = rejected_sentence(claims)
     if rejected_text:
         sentences.append(rejected_text)
@@ -216,7 +216,7 @@ def parse_generated(text: str, verdict: Verdict, round_no: int, recorded: bool) 
     body: list[str] = []
     for line in text.splitlines():
         stripped = line.strip()
-        if not stripped:
+        if not stripped or stripped in ("-", "*", "•"):     # blank lines and empty bullets ("- " alone) carry nothing
             continue
         if stripped.startswith(("- ", "* ", "• ")) and len(bullets) < 5:
             bullets.append(stripped[2:].strip())
@@ -280,6 +280,69 @@ def trim_unsourced(ctx: "RunContext", answer: Answer, critic_result: Any, claims
                   memory_ids_cited=answer.memory_ids_cited, source=answer.source + "+trimmed", round=answer.round)
 
 
+def unavailable_sentence(item: dict[str, Any]) -> str:
+    return f"Unavailable: {item.get('metric')} ({item.get('reason')})."
+
+
+def sample_notice(ctx: "RunContext") -> Optional[str]:
+    """The sentence every sample-mode answer ends with (None in live mode)."""
+    if not ctx.config.is_sample():
+        return None
+    captured = ctx.mounts.fixtures_captured_at or "unknown date"
+    return f"Sample mode: this answer replays committed fixtures captured {captured}; no network, no model calls."
+
+
+def complete_requirements(ctx: "RunContext", answer: Answer, critic_result: Any, claims: list[Claim],
+                          conflicts: list[Conflict], unavailable: list[dict[str, Any]]) -> Answer:
+    """After the last round: the code-owned sentences a final answer must carry are added back from the claims
+    when the answer lacks them (recovery narrative_completed): a "where sources disagree" sentence for each
+    conflict not cited as [kNN] (rule C7), a caveat sentence for each caveat code of a non-rejected claim not
+    carried as [code] (rule C3, read from the claims: C3 reports only the first missing code of a claim), an
+    "Unavailable:" sentence per unavailable metric, the sentence naming the rejected claims, the stale-evidence
+    disclaimer when it is due (C5) and the sample-mode notice. A generated draft can leave these out, and the
+    Critic's model second opinion can flag them (its prompt shows the accepted claims only), so trim_unsourced may
+    have cut them; a sentence that rule B flagged in the last round, or that the template left out after an issue,
+    is never put back. Nothing is removed and no number is introduced that is not a claim, conflict or coverage
+    value. An answer that already carries everything (every template answer) is returned unchanged."""
+    text = answer.text
+    usable = [c for c in claims if c.status != "rejected"]
+    excluded = set(answer.dropped) | {str(i.get("sentence_text")) for i in getattr(critic_result, "issues", []) or []
+                                      if i.get("rule") == "B" and i.get("sentence_text")}
+    present = set(answer.sentences)
+    missing_codes = sorted({code for c in usable for code in c.caveats if f"[{code}]" not in text})
+    live_ids = {c.id for c in usable}
+    middle = [conflict_sentence(k, live_ids) for k in conflicts if f"[{k.id}]" not in text]
+    middle += [s for s in caveat_sentences(usable) if any(s.startswith(f"Caveat [{code}]:") for code in missing_codes)]
+    middle += [unavailable_sentence(item) for item in unavailable
+               if f"Unavailable: {item.get('metric')} (" not in text]
+    stale = needs_stale_disclaimer(usable, ctx.start_ms)
+    tail = [s for s in (rejected_sentence(claims), STALE_DISCLAIMER if stale else None) if s]
+    notice = sample_notice(ctx)
+    added = [s for s in middle + tail + ([notice] if notice else []) if s not in present and s not in excluded]
+    if not added:
+        return answer
+    keep_tail = [s for s in tail if s in present or s in added]
+    body = [s for s in answer.sentences if s not in keep_tail and s != notice]
+    sentences = body + [s for s in middle if s in added] + keep_tail
+    if notice and (notice in present or notice in added):
+        sentences.append(notice)
+    memory_ids = sorted(set(answer.memory_ids_cited) | {m for c in usable for code, m in c.caveat_memory_ids.items()
+                                                        if code in missing_codes})
+    kinds = {"conflicts": [k.id for k in conflicts if conflict_sentence(k, live_ids) in added],
+             "caveats": [code for code in missing_codes if any(a.startswith(f"Caveat [{code}]:") for a in added)],
+             "unavailable": [str(i.get("metric")) for i in unavailable if unavailable_sentence(i) in added],
+             "rejected": rejected_sentence(claims) in added, "disclaimer": STALE_DISCLAIMER in added,
+             "sample_notice": bool(notice and notice in added)}
+    ctx.recover("writer", "narrative_completed",
+                f"{len(added)} code-owned sentence(s) added after the last critic round "
+                f"(conflicts: {', '.join(kinds['conflicts']) or 'none'}; caveats: {', '.join(kinds['caveats']) or 'none'}; "
+                f"unavailable: {', '.join(kinds['unavailable']) or 'none'}; rejected list: {'yes' if kinds['rejected'] else 'no'})",
+                sentences=[a[:160] for a in added], added=kinds)
+    return Answer(verdict=answer.verdict, summary=list(answer.summary), sentences=sentences,
+                  memory_ids_cited=memory_ids, source=answer.source if answer.source.endswith("+completed")
+                  else answer.source + "+completed", round=answer.round, dropped=list(answer.dropped))
+
+
 # ---------------------------------------------------------------------------------------------------------
 # Entry
 # ---------------------------------------------------------------------------------------------------------
@@ -287,10 +350,7 @@ def trim_unsourced(ctx: "RunContext", answer: Answer, critic_result: Any, claims
 def run_writer(ctx: "RunContext", claims: list[Claim], conflicts: list[Conflict], unavailable: list[dict[str, Any]],
                verdict: Verdict, issues: list[dict[str, Any]], round_no: int) -> AgentResult:
     notes: list[str] = []
-    notice = None
-    if ctx.config.is_sample():
-        captured = ctx.mounts.fixtures_captured_at or "unknown date"
-        notice = f"Sample mode: this answer replays committed fixtures captured {captured}; no network, no model calls."
+    notice = sample_notice(ctx)
     stale = needs_stale_disclaimer([c for c in claims if c.status != "rejected"], ctx.start_ms)
     reinjection, memory_ids = "", []
     if round_no == 1:

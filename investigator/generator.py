@@ -1,13 +1,18 @@
 """Generator protocol implementations (SPEC.md section 3 and 7.4 rule 5). Owner: B4.
 
 Exactly three roles are generator-backed (Planner, Writer, Critic second opinion); every other agent is tool-only.
-- NightshiftGenerator: Meterless Nightshift, the PRIMARY provider in live mode. The Meterless Runtime (0.90.0) is an
-  OpenAI-compatible provider (id `meterless`, default http://127.0.0.1:8088/v1): Bearer token from NIGHTSHIFT_TOKEN
-  or the file NIGHTSHIFT_TOKEN_FILE (<stateDir>/proxy-token), `meterless-app: x402-adoption-investigator` on every
-  request and `meterless-scope: user` on chat requests, routing mode NIGHTSHIFT_MODEL (default meterless/auto),
-  180 s timeout (cold model loads take minutes). detect_nightshift() decides its status from GET /v1/models
-  (401/403 unauthorized, 200 with meterless/* ids online, anything else offline) at NIGHTSHIFT_BASE_URL, or by Auto
-  Detect over ports 8088, 8090, 8787 and 11434 on 127.0.0.1, localhost and [::1].
+- NightshiftGenerator: Meterless Nightshift, the PRIMARY provider in live mode. The Meterless Runtime (0.90.0; run
+  against Nightshift 1.2.3 on 2026-10-24) is an OpenAI-compatible provider (id `meterless`, default
+  http://127.0.0.1:8088/v1). Bearer token, first found: NIGHTSHIFT_TOKEN, METERLESS_RUNTIME_TOKEN, METERLESS_TOKEN;
+  the file NIGHTSHIFT_TOKEN_FILE; <stateDir>/proxy-token, stateDir = METERLESS_STATE_DIR or the OS default the
+  official ns CLI uses (config.meterless_state_dir). `meterless-app: x402-adoption-investigator` on every request
+  and `meterless-scope: user` on chat requests, routing mode NIGHTSHIFT_MODEL / METERLESS_MODEL (default
+  meterless/auto), 180 s timeout (cold model loads take minutes). detect_nightshift() decides its status from GET
+  /v1/models (401/403 unauthorized, 200 with meterless/* ids online, anything else offline) at NIGHTSHIFT_BASE_URL
+  / METERLESS_BASE_URL, or by Auto Detect over ports 8088, 8090, 8787 and 11434 on 127.0.0.1, localhost and [::1].
+  The `meterless` compute receipt of each answer (meterless.compute_receipt.v1) is reduced by meterless_receipt()
+  to the routing facts (receipt id, requested and routed model, winning route, phases, latency, tokens, cache) that
+  the generate event, generator.jsonl and the transcript carry; the receipt's prompt preview is never copied.
 - OpenAIGenerator: OpenAI-compatible chat completions over urllib, the fallback when Nightshift is not online.
   Injected by env: OPENAI_API_KEY + OPENAI_BASE_URL + MODEL. Never the Codex/ChatGPT subscription.
 - RecordedGenerator: replays fixtures/transcripts/<example>/<prompt_id>-<prompt_sha12>.json (sample mode).
@@ -32,6 +37,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -102,10 +108,12 @@ class RecordedGenerator:
         digest = prompt_sha256(prompt)
         if record.get("prompt_sha256") != digest:
             return None
+        routing = record.get("routing")
         return GeneratorResult(text=str(record.get("response", "")), model=str(record.get("model", "recorded")),
                                recorded=True, prompt_sha256=digest, usage=dict(record.get("usage") or {}),
                                provider=str(record.get("provider") or "recorded"),
-                               requested_model=record.get("requested_model"))
+                               requested_model=record.get("requested_model"),
+                               routing=dict(routing) if isinstance(routing, dict) else {})
 
 
 class OpenAIGenerator:
@@ -162,6 +170,7 @@ class OpenAIGenerator:
         """POST {base_url}/chat/completions; returns the first choice's text with the usage block."""
         body: dict[str, Any] = {"model": self.model, "messages": [{"role": "user", "content": prompt}],
                                 "temperature": temperature, "max_tokens": max_tokens}
+        started = time.monotonic()
         try:
             payload = self._post(body, timeout)
         except GeneratorError as exc:
@@ -172,17 +181,25 @@ class OpenAIGenerator:
                 payload = self._post(body, timeout)
             else:
                 raise
+        wall_ms = int(round((time.monotonic() - started) * 1000))
+        if not isinstance(payload, dict):
+            raise GeneratorError("response is not a JSON object")
         choices = payload.get("choices") or []
-        if not choices:
+        if not choices or not isinstance(choices[0], dict):
             raise GeneratorError("response has no choices")
         message = choices[0].get("message") or {}
-        text = message.get("content")
+        text = message.get("content") if isinstance(message, dict) else None
         if not isinstance(text, str):
             raise GeneratorError("response has no text content")
-        usage = {k: int(v) for k, v in (payload.get("usage") or {}).items() if isinstance(v, (int, float))}
+        raw_usage = payload.get("usage") if isinstance(payload.get("usage"), dict) else {}
+        usage = {k: int(v) for k, v in raw_usage.items() if isinstance(v, (int, float)) and not isinstance(v, bool)}
         return GeneratorResult(text=text, model=str(payload.get("model") or self.model), recorded=False,
                                prompt_sha256=prompt_sha256(prompt), usage=usage, provider=self.provider,
-                               requested_model=self.model)
+                               requested_model=self.model, routing=self._routing(payload, wall_ms))
+
+    def _routing(self, payload: dict[str, Any], wall_ms: int) -> dict[str, Any]:
+        """Routing facts of one answer (none for a plain OpenAI-compatible endpoint)."""
+        return {}
 
 
 class NightshiftGenerator(OpenAIGenerator):
@@ -196,18 +213,95 @@ class NightshiftGenerator(OpenAIGenerator):
     timeout_s = NIGHTSHIFT_TIMEOUT_S
 
     def __init__(self, token: str, base_url: str = NIGHTSHIFT_DEFAULT_BASE_URL, model: str = NIGHTSHIFT_DEFAULT_MODEL,
-                 opener: Optional[Any] = None, models: Optional[list[str]] = None, found_by: str = "") -> None:
+                 opener: Optional[Any] = None, models: Optional[list[str]] = None, found_by: str = "",
+                 token_source: str = "") -> None:
         super().__init__(token, normalize_nightshift_url(base_url), model or NIGHTSHIFT_DEFAULT_MODEL, opener=opener)
         self.name = f"nightshift:{self.model}"
         self.models = list(models or [])
         self.mount_info: dict[str, Any] = {"provider": self.provider, "base_url": self.base_url,
                                            "routing_mode": self.model, "found_by": found_by or "configured",
                                            "models": self.models, "timeout_s": self.timeout_s}
+        if token_source:                     # where the token came from (variable names only, never the value)
+            self.mount_info["token_source"] = token_source
 
     def _headers(self) -> dict[str, str]:
         headers = nightshift_headers(self._api_key)
         headers.update({"Content-Type": "application/json", "meterless-scope": "user"})
         return headers
+
+    def _routing(self, payload: dict[str, Any], wall_ms: int) -> dict[str, Any]:
+        return meterless_receipt(payload, wall_ms)
+
+
+RECEIPT_ROUTE_KEYS: tuple[str, ...] = ("model", "label", "provider", "kind", "tier")
+RECEIPT_USAGE_KEYS: tuple[str, ...] = ("input_tokens", "output_tokens", "total_tokens")
+RECEIPT_TEXT_MAX = 160
+
+
+def _receipt_text(value: Any) -> Optional[str]:
+    """A short receipt string (ids, model names, labels); anything else -> None."""
+    if isinstance(value, str) and value.strip():
+        return value.strip()[:RECEIPT_TEXT_MAX]
+    return None
+
+
+def _receipt_int(value: Any) -> Optional[int]:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return None
+    return int(round(value))
+
+
+def meterless_receipt(payload: dict[str, Any], wall_ms: Optional[int] = None) -> dict[str, Any]:
+    """The routing facts of a Nightshift answer, from its `meterless` compute receipt (meterless.compute_receipt.v1):
+    receipt_id, decision_id, requested_model (routing mode), routed_model (the model that answered),
+    winning_route {model, label, provider, kind, tier}, phases [{phase, model, ms}], latency_ms (the receipt's) and
+    usage {input_tokens, output_tokens, total_tokens}, cache status, from_cache, privacy path, plus wall_ms (the
+    request as this process timed it). Only those keys are copied: the receipt's prompt_preview, cost and host
+    telemetry stay out of the logs. A response without the object gives {} (wall_ms alone is not routing)."""
+    receipt = payload.get("meterless") if isinstance(payload, dict) else None
+    if not isinstance(receipt, dict):
+        return {}
+    out: dict[str, Any] = {"source": "meterless_receipt"}
+    for key in ("schema", "receipt_id", "decision_id", "requested_model", "routed_model"):
+        text = _receipt_text(receipt.get(key))
+        if text:
+            out[key] = text
+    route = receipt.get("winning_route")
+    if isinstance(route, dict):
+        kept = {k: _receipt_text(route.get(k)) for k in RECEIPT_ROUTE_KEYS}
+        kept = {k: v for k, v in kept.items() if v}
+        if kept:
+            out["winning_route"] = kept
+    phases = []
+    for phase in receipt.get("phases") if isinstance(receipt.get("phases"), list) else []:
+        if not isinstance(phase, dict):
+            continue
+        item = {"phase": _receipt_text(phase.get("phase")), "model": _receipt_text(phase.get("model")),
+                "ms": _receipt_int(phase.get("ms"))}
+        item = {k: v for k, v in item.items() if v is not None}
+        if item:
+            phases.append(item)
+    if phases:
+        out["phases"] = phases[:10]
+    usage = receipt.get("usage") if isinstance(receipt.get("usage"), dict) else {}
+    latency = _receipt_int(usage.get("latency_ms"))
+    if latency is not None:
+        out["latency_ms"] = latency
+    tokens = {k: _receipt_int(usage.get(k)) for k in RECEIPT_USAGE_KEYS}
+    tokens = {k: v for k, v in tokens.items() if v is not None}
+    if tokens:
+        out["usage"] = tokens
+    cache = receipt.get("cache")
+    if isinstance(cache, dict) and _receipt_text(cache.get("status")):
+        out["cache"] = _receipt_text(cache.get("status"))
+    if isinstance(receipt.get("from_cache"), bool):
+        out["from_cache"] = receipt["from_cache"]
+    privacy = receipt.get("privacy")
+    if isinstance(privacy, dict) and _receipt_text(privacy.get("path")):
+        out["privacy_path"] = _receipt_text(privacy.get("path"))
+    if wall_ms is not None:
+        out["wall_ms"] = int(wall_ms)
+    return out
 
 
 # ----------------------------------------------------------------------------------------------------------
@@ -248,20 +342,36 @@ def nightshift_headers(token: Optional[str]) -> dict[str, str]:
     return headers
 
 
+TOKEN_VARS_TEXT = "NIGHTSHIFT_TOKEN / METERLESS_RUNTIME_TOKEN / METERLESS_TOKEN"
+
+
 def resolve_nightshift_token(env: Env) -> tuple[Optional[str], str]:
-    """(token, where it came from). NIGHTSHIFT_TOKEN, else the file at NIGHTSHIFT_TOKEN_FILE (the runtime writes it
-    to <stateDir>/proxy-token), else none. The second value names variables only, never the token or the path, and
-    is safe to log. The placeholder rt-local is never sent (the runtime rejects it)."""
-    if env.nightshift_token:
-        token, source = env.nightshift_token.strip(), "NIGHTSHIFT_TOKEN"
+    """(token, where it came from), first found: the token variables (NIGHTSHIFT_TOKEN, METERLESS_RUNTIME_TOKEN,
+    METERLESS_TOKEN; Env keeps the first one set), the file at NIGHTSHIFT_TOKEN_FILE, then <stateDir>/proxy-token
+    (the file the runtime itself writes; stateDir = METERLESS_STATE_DIR or the OS default, config.meterless_state_dir),
+    else none. The second value names variables only, never the token or a path, and is safe to log. The
+    placeholder rt-local is never sent (the runtime rejects it)."""
+    if env.nightshift_token and env.nightshift_token.strip():
+        token, source = env.nightshift_token.strip(), env.nightshift_token_var or "NIGHTSHIFT_TOKEN"
     elif env.nightshift_token_file:
         try:
             token = Path(env.nightshift_token_file).expanduser().read_text(encoding="utf-8").strip()
         except (OSError, UnicodeDecodeError) as exc:
             return None, f"NIGHTSHIFT_TOKEN_FILE could not be read ({type(exc).__name__})"
         source = "NIGHTSHIFT_TOKEN_FILE"
+    elif env.nightshift_state_dir:
+        where = "METERLESS_STATE_DIR" if env.nightshift_state_dir_var == "METERLESS_STATE_DIR" else "the default stateDir"
+        source = f"<stateDir>/proxy-token ({'METERLESS_STATE_DIR' if where == 'METERLESS_STATE_DIR' else 'default stateDir'})"
+        path = Path(env.nightshift_state_dir).expanduser() / "proxy-token"
+        if not path.is_file():
+            return None, (f"no token configured ({TOKEN_VARS_TEXT} and NIGHTSHIFT_TOKEN_FILE unset, no proxy-token in "
+                          f"{where})")
+        try:
+            token = path.read_text(encoding="utf-8").strip()
+        except (OSError, UnicodeDecodeError) as exc:
+            return None, f"{source} could not be read ({type(exc).__name__})"
     else:
-        return None, "no token configured (NIGHTSHIFT_TOKEN / NIGHTSHIFT_TOKEN_FILE unset)"
+        return None, f"no token configured ({TOKEN_VARS_TEXT} / NIGHTSHIFT_TOKEN_FILE unset, no stateDir known)"
     if not token:
         return None, f"{source} is empty"
     if token == NIGHTSHIFT_PLACEHOLDER_TOKEN:
@@ -340,14 +450,15 @@ def detect_nightshift(token: Optional[str] = None, *, base_url: Optional[str] = 
                            detail=f"Auto Detect: no Meterless Runtime on ports {ports} of {hosts}")
 
 
-def nightshift_unavailable_reason(probe: Optional[NightshiftProbe], explicit: bool, token_source: str) -> str:
+def nightshift_unavailable_reason(probe: Optional[NightshiftProbe], explicit: bool, token_source: str,
+                                  base_url_var: str = "NIGHTSHIFT_BASE_URL") -> str:
     """One loggable sentence (variable names only) saying why Nightshift is not the mounted generator."""
     if probe is None:
-        return "Nightshift not configured: NIGHTSHIFT_BASE_URL is unset and NIGHTSHIFT_AUTODETECT=0"
-    where = f"{probe.base_url} ({'NIGHTSHIFT_BASE_URL' if explicit else 'auto-detected'})"
+        return "Nightshift not configured: NIGHTSHIFT_BASE_URL / METERLESS_BASE_URL is unset and NIGHTSHIFT_AUTODETECT=0"
+    where = f"{probe.base_url} ({base_url_var if explicit else 'auto-detected'})"
     if probe.status == "unauthorized":
         return (f"Nightshift at {where} is unauthorized ({probe.detail}); token: {token_source}; set NIGHTSHIFT_TOKEN "
-                "or NIGHTSHIFT_TOKEN_FILE to the runtime's <stateDir>/proxy-token")
+                "(or METERLESS_RUNTIME_TOKEN) or NIGHTSHIFT_TOKEN_FILE to the runtime's <stateDir>/proxy-token")
     if explicit:
         return f"Nightshift at {where} is offline: {probe.detail}"
     return f"Nightshift not found: {probe.detail}"
@@ -361,8 +472,8 @@ def build_generator(config: RunConfig, example_name: Optional[str] = None, *, op
     """Mount the generator for this run.
 
     Sample mode: recorded (when fixtures/transcripts/<example>/ has transcripts) | null; no network and no Nightshift
-    detection. Live mode, in order: Nightshift when its runtime is online (NIGHTSHIFT_BASE_URL, else Auto Detect
-    unless NIGHTSHIFT_AUTODETECT=0) -> the OpenAI-compatible generator when OPENAI_API_KEY is set -> null. A live
+    detection. Live mode, in order: Nightshift when its runtime is online (NIGHTSHIFT_BASE_URL / METERLESS_BASE_URL,
+    else Auto Detect unless NIGHTSHIFT_AUTODETECT=0) -> the OpenAI-compatible generator when OPENAI_API_KEY is set -> null. A live
     generator other than Nightshift carries `nightshift_unavailable` (the reason), which the runner logs as
     recovery{nightshift_unavailable}. `opener` is the urlopen-compatible transport (tests)."""
     if config.is_sample():
@@ -378,23 +489,26 @@ def build_generator(config: RunConfig, example_name: Optional[str] = None, *, op
     if explicit or env.nightshift_autodetect:
         probe = detect_nightshift(token, base_url=env.nightshift_base_url, opener=opener)
         if probe.status == "online":
-            found_by = "NIGHTSHIFT_BASE_URL" if explicit else "auto_detect"
+            found_by = env.nightshift_base_url_var if explicit else "auto_detect"
             return NightshiftGenerator(token or "", probe.base_url, env.nightshift_model, opener=opener,
-                                       models=probe.models, found_by=found_by)
+                                       models=probe.models, found_by=found_by,
+                                       token_source=token_source if token else "none")
     fallback: Any
     if env.has_generator():
         fallback = OpenAIGenerator(env.openai_api_key or "", env.openai_base_url, env.model, opener=opener)
     else:
         fallback = NullGenerator()
     fallback.nightshift_unavailable = {
-        "detail": nightshift_unavailable_reason(probe, explicit, token_source),
+        "detail": nightshift_unavailable_reason(probe, explicit, token_source, env.nightshift_base_url_var),
         "status": probe.status if probe else "not_configured",
         "base_url": probe.base_url if probe else None}
     return fallback
 
 
-def save_transcript(folder: Path, prompt_id: str, prompt: str, result: GeneratorResult, recorded_at: str) -> Path:
-    """Write <prompt_id>-<sha12>.json and the prompt text beside it (used by --record-transcripts)."""
+def save_transcript(folder: Path, prompt_id: str, prompt: str, result: GeneratorResult, recorded_at: str,
+                    extra: Optional[dict[str, Any]] = None) -> Path:
+    """Write <prompt_id>-<sha12>.json and the prompt text beside it (used by --record-transcripts and
+    scripts/record_transcripts.py). `extra`: provenance keys (recorded_in_run, prompt_context); replays ignore them."""
     folder.mkdir(parents=True, exist_ok=True)
     name = transcript_filename(prompt_id, prompt)
     record: dict[str, Any] = {"prompt_id": prompt_id, "prompt_sha256": result.prompt_sha256, "model": result.model,
@@ -403,6 +517,9 @@ def save_transcript(folder: Path, prompt_id: str, prompt: str, result: Generator
         record["provider"] = result.provider
     if result.requested_model:
         record["requested_model"] = result.requested_model
+    if result.routing:
+        record["routing"] = result.routing
+    record.update(extra or {})
     path = folder / name
     path.write_text(json.dumps(record, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
     (folder / name.replace(".json", ".prompt.txt")).write_text(prompt, encoding="utf-8", newline="\n")
@@ -471,13 +588,18 @@ def generate(ctx: "RunContext", agent: str, prompt_id: str, prompt: str, *, max_
     if ctx.config.record_transcripts and not result.recorded:
         example = ctx.config.example_name or ctx.example_name
         if example:
-            save_transcript(ctx.config.transcripts_dir / example, prompt_id, prompt, result, ctx.clock.now_iso())
+            save_transcript(ctx.config.transcripts_dir / example, prompt_id, prompt, result, ctx.clock.now_iso(),
+                            extra={"recorded_in_run": ctx.run_id, "prompt_context": f"live run {ctx.run_id}"})
     # Which provider and model handled this request: one run.jsonl `generate` event, and generator.jsonl repeats
-    # its seq with the call's parameters and the transcript path.
+    # its seq with the call's parameters and the transcript path. A Nightshift answer adds `routing`, the facts of
+    # its compute receipt (receipt id, routed model, winning route, latency, tokens); a replay repeats the recorded
+    # call's routing with recorded: true.
     event = {"prompt_id": prompt_id, "attempt": attempt, "generator": generator.name,
              "provider": result.provider or route["provider"],
              "requested_model": result.requested_model or route["requested_model"], "model": result.model,
              "recorded": result.recorded, "prompt_sha256": result.prompt_sha256, "response_sha256": response_sha}
+    if result.routing:
+        event["routing"] = result.routing
     seq = ctx.log.emit("generate", agent, event)
     line = {"seq": seq, "agent": agent, **event, "max_tokens": max_tokens, "temperature": GENERATOR_TEMPERATURE,
             "timeout_s": round(timeout, 3), "usage": result.usage,
@@ -518,3 +640,30 @@ def parse_json_list(text: str) -> Optional[list[Any]]:
     except ValueError:
         return None
     return data if isinstance(data, list) else None
+
+
+def salvage_json_list(text: str) -> tuple[Optional[list[Any]], int]:
+    """parse_json_list, else the complete leading items of a JSON array the model cut off (a reply that hit its
+    token limit mid-array, as the 3B lane of 2026-10-24 did): (items, 0) for a whole array, (items, n) when n
+    complete items were read from a truncated one, (None, 0) when there is no array at all. Items are decoded with
+    json's own decoder, one by one; the first incomplete or malformed item ends the salvage (nothing is guessed)."""
+    whole = parse_json_list(text)
+    if whole is not None:
+        return whole, 0
+    start = text.find("[")
+    if start < 0:
+        return None, 0
+    decoder = json.JSONDecoder()
+    items: list[Any] = []
+    pos = start + 1
+    while True:
+        while pos < len(text) and text[pos] in " \t\r\n,":
+            pos += 1
+        if pos >= len(text) or text[pos] == "]":
+            break
+        try:
+            item, pos = decoder.raw_decode(text, pos)
+        except ValueError:
+            break
+        items.append(item)
+    return (items, len(items)) if items else (None, 0)

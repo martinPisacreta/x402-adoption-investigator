@@ -1,0 +1,51 @@
+{
+  "prompt_id": "planner",
+  "prompt_sha256": "78b3f137c105cb40160ca3870e69ce3d7c87433c25d6de84144fb245f09e501b",
+  "model": "local-runtime/llama-3.2-3b-instruct-q8",
+  "recorded_at": "2026-10-24T16:00:55.705Z",
+  "response": "{\"playbook\": \"seller_profile\", \"hypotheses\": [\"Tienda.textokit.store is a legitimate seller with a high volume of sales on CDP Bazaar.\", \"Tienda.textokit.store may be a fake or compromised seller with low sales volume.\", \"The registries disagree about Tienda.textokit.store due to differences in data collection and verification processes.\", \"Tienda.textokit.store is a legitimate seller with a high volume of sales on CDP Bazaar.\", \"Tienda.textokit.store may be a fake or compromised seller with low sales volume.\", \"The registries disagree about Tienda.textokit.store due to differences in data collection and verification processes.\"], \"extra_metrics\": [\"bazaar_listings_for_host\", \"bazaar_payto_for_host\", \"bazaar_calls_30d_for_host\", \"bazaar_payto_matches_seller\", \"endpoint_count_for_host\", \"settlements_verified\"]}",
+  "usage": {
+    "prompt_tokens": 1574,
+    "completion_tokens": 315,
+    "total_tokens": 1889
+  },
+  "provider": "meterless",
+  "requested_model": "meterless/auto",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_v3gwd5jz",
+    "decision_id": "req_v3gwd5jz",
+    "requested_model": "meterless/auto",
+    "routed_model": "local-runtime/llama-3.2-3b-instruct-q8",
+    "winning_route": {
+      "model": "local-runtime/llama-3.2-3b-instruct-q8",
+      "label": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
+      "provider": "local-runtime",
+      "kind": "local",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "planning",
+        "model": "local-runtime/llama-3.2-3b-instruct-q8",
+        "ms": 1129
+      },
+      {
+        "phase": "code_patch",
+        "model": "local-runtime/llama-3.2-3b-instruct-q8",
+        "ms": 1749
+      }
+    ],
+    "latency_ms": 2878,
+    "usage": {
+      "input_tokens": 1574,
+      "output_tokens": 315,
+      "total_tokens": 1889
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "local-only",
+    "wall_ms": 2968
+  }
+}

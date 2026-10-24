@@ -1,0 +1,46 @@
+{
+  "prompt_id": "critic-r1",
+  "prompt_sha256": "48a14e87f3fcda0bcffb81d27499d503ee9a625ab33f99fa0e711252a4c7272c",
+  "model": "local-runtime/llama-3.2-3b-instruct-q8",
+  "recorded_at": "2026-10-24T16:30:36.654Z",
+  "response": "[\n  {\"sentence_index\": 0, \"reason\": \"No claim provided\", \"claim_id\": null},\n  {\"sentence_index\": 1, \"reason\": \"No claim provided\", \"claim_id\": null},\n  {\"sentence_index\": 2, \"reason\": \"No claim provided\", \"claim_id\": null},\n  {\"sentence_index\": 3, \"reason\": \"No claim provided\", \"claim_id\": null},\n  {\"sentence_index\": 4, \"reason\": \"No claim provided\", \"claim_id\": null},\n  {\"sentence_index\": 5, \"reason\": \"Claim c07 is not supported by claim c04\", \"claim_id\": \"c04\"},\n  {\"sentence_index\": 6, \"reason\": \"Claim c06 is not supported by claim c04\", \"claim_id\": \"c04\"},\n  {\"sentence_index\": 7, \"reason\": \"Claim c08 is not supported by claim c04\", \"claim_id\": \"c04\"},\n  {\"sentence_index\": 8, \"reason\": \"Claim c09 is not supported by claim c04\", \"claim_id\": \"c04\"},\n  {\"sentence_index\": 9, \"reason\": \"Claim c04 is not supported by claim c07\", \"claim_id\": \"c07\"},\n  {\"sentence_index\": 9, \"reason\": \"Claim c04 is not supported by claim c08\", \"claim_id\": \"c08\"},\n  {\"sentence_index\": 9, \"reason\": \"Claim c04 is not supported by claim c09\", \"claim_id\": \"c09\"}\n]",
+  "usage": {
+    "prompt_tokens": 1313,
+    "completion_tokens": 330,
+    "total_tokens": 1643
+  },
+  "provider": "meterless",
+  "requested_model": "meterless/auto",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_tghsvyux",
+    "decision_id": "req_tghsvyux",
+    "requested_model": "meterless/auto",
+    "routed_model": "local-runtime/llama-3.2-3b-instruct-q8",
+    "winning_route": {
+      "model": "local-runtime/llama-3.2-3b-instruct-q8",
+      "label": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
+      "provider": "local-runtime",
+      "kind": "local",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "planning",
+        "model": "local-runtime/llama-3.2-3b-instruct-q8",
+        "ms": 3067
+      }
+    ],
+    "latency_ms": 3067,
+    "usage": {
+      "input_tokens": 1313,
+      "output_tokens": 330,
+      "total_tokens": 1643
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "local-only",
+    "wall_ms": 3156
+  }
+}

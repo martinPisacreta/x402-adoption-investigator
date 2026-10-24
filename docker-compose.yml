@@ -1,8 +1,10 @@
 # docker compose run --rm investigator --sample --input examples/01-seller-audit-textokit/input.json   # offline replay
 # docker compose run --rm investigator --mode live --input examples/ex1.json                             # live (needs .env.local)
 # Live mode reads secrets from .env.local (gitignored, optional); without --mode the default `auto` is live only
-# when that file sets OPENAI_API_KEY or ZETARIS_PASSWORD. The Zetaris driver container reaches the artifact server
-# on this machine through host.docker.internal.
+# when that file sets a Nightshift variable (METERLESS_BASE_URL, METERLESS_RUNTIME_TOKEN, ...), OPENAI_API_KEY or
+# ZETARIS_PASSWORD. Nightshift on the host is http://host.docker.internal:8088/v1 from inside the container (the
+# host's token file is not visible there: set METERLESS_RUNTIME_TOKEN). The Zetaris driver container reaches the
+# artifact server on this machine through host.docker.internal.
 services:
   investigator:
     build: .

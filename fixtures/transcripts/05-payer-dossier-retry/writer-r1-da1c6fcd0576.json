@@ -1,0 +1,52 @@
+{
+  "prompt_id": "writer-r1",
+  "prompt_sha256": "da1c6fcd057676f36c0abcf92d4e99ab934d3be5146a30f96aa0fa1a29595f66",
+  "model": "local-runtime/llama-3.2-3b-instruct-q8",
+  "recorded_at": "2026-10-24T16:14:16.943Z",
+  "response": "- The payer 0x097e3F339D0b023605e12A6B81E2d6Cb7571475a made 1 purchase(s) [c03] from tienda.textokit.store.\n- The receipts list 1 purchase(s) by 0x097e3f339d0b023605e12a6b81e2d6cb7571475a [c03].\n- The purchases total 1000 atomic USDC (0.001 USDC) [c04].\n- The purchases span 2026-10-20T04:51:24.352Z..2026-10-20T04:51:24.352Z [c05].\n- The purchases cover 1 distinct service(s) [c06].\n- 1 settlement(s) of this payer verified on Base [c07].\n\nThe payer 0x097e3F339D0b023605e12A6B81E2d6Cb7571475a made a single purchase from tienda.textokit.store, which is listed in the receipts. The total value of the purchase is 1000 atomic USDC, equivalent to 0.001 USDC. The purchase occurred on October 20, 2026, at 04:51:24.352Z. The transaction covers a single distinct service. Furthermore, 1 settlement of this payer has been verified on Base, indicating that the settlement process is legitimate.",
+  "usage": {
+    "prompt_tokens": 2828,
+    "completion_tokens": 512,
+    "total_tokens": 3340
+  },
+  "provider": "meterless",
+  "requested_model": "meterless/auto",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_moog745x",
+    "decision_id": "req_moog745x",
+    "requested_model": "meterless/auto",
+    "routed_model": "local-runtime/llama-3.2-3b-instruct-q8",
+    "winning_route": {
+      "model": "local-runtime/llama-3.2-3b-instruct-q8",
+      "label": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
+      "provider": "local-runtime",
+      "kind": "local",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "planning",
+        "model": "local-runtime/llama-3.2-3b-instruct-q8",
+        "ms": 1972
+      },
+      {
+        "phase": "code_patch",
+        "model": "local-runtime/llama-3.2-3b-instruct-q8",
+        "ms": 2929
+      }
+    ],
+    "latency_ms": 4901,
+    "usage": {
+      "input_tokens": 2828,
+      "output_tokens": 512,
+      "total_tokens": 3340
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "local-only",
+    "wall_ms": 5031
+  },
+  "prompt_context": "sample mode on the committed fixtures"
+}

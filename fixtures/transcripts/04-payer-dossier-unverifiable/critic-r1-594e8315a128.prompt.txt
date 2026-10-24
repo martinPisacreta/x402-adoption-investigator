@@ -1,0 +1,91 @@
+You are the second-opinion Critic of the x402 Adoption Investigator. You can only ADD issues; you can never
+approve a claim or remove an issue. List every statement in the answer that is not supported by the accepted
+claims below (a number that is not a claim value, a share not derivable from a claim, a causal explanation the
+claims do not contain, a conflict stated without its id, a caveat silently dropped).
+
+Answer:
+0: The payer 0xA1d1C0cf717402ff3651aA4873CcF96410B01978 bought 1 purchase [c03] from tienda.textokit.store [c01].
+1: The payer 0xA1d1C0cf717402ff3651aA4873CcF96410B01978's purchases total 1000 atomic USDC [c04].
+2: The purchases span from October 21, 2026, 21:18:17.136Z [c05] to the same timestamp [c05].
+3: The purchases cover 1 distinct service [c06].
+4: The payer 0xA1d1C0cf717402ff3651aA4873CcF96410B01978 has 0 settlements verified on Base [c07].
+5: Insufficient evidence exists to verify the settlement of the payer 0xA1d1C0cf717402ff3651aA4873CcF96410B01978 on Base.
+6: Where sources disagree, the lack of settlements verified on Base [c07] and the absence of usdc_balance_atomic and tx_count metrics [unavailable metrics] create uncertainty about the payer's settlement status.
+7: Sample mode: this answer replays committed fixtures captured 2026-10-22T00:05:00Z; no network, no model calls.
+
+Accepted claims (id, statement, value, unit, caveats, conflict_ids):
+[
+ {
+  "id": "c01",
+  "statement": "The CDP Bazaar search returns 17 listings for tienda.textokit.store.",
+  "value": 17,
+  "unit": "count",
+  "caveats": [
+   "search_limit_20"
+  ],
+  "conflict_ids": [],
+  "formatted": {}
+ },
+ {
+  "id": "c02",
+  "statement": "1 sampled settlement(s) verified on Base against the receipts.",
+  "value": 1,
+  "unit": "count",
+  "caveats": [
+   "payer_from_transfer_log",
+   "self_reported_receipts"
+  ],
+  "conflict_ids": [],
+  "formatted": {}
+ },
+ {
+  "id": "c03",
+  "statement": "The receipts list 1 purchase(s) by 0xa1d1c0cf717402ff3651aa4873ccf96410b01978.",
+  "value": 1,
+  "unit": "count",
+  "caveats": [
+   "self_reported_receipts"
+  ],
+  "conflict_ids": [],
+  "formatted": {}
+ },
+ {
+  "id": "c04",
+  "statement": "Those purchases total 1000 atomic USDC (0.001 USDC).",
+  "value": 1000,
+  "unit": "atomic_usdc",
+  "caveats": [
+   "self_reported_receipts"
+  ],
+  "conflict_ids": [],
+  "formatted": {
+   "usdc": "0.001"
+  }
+ },
+ {
+  "id": "c05",
+  "statement": "The purchases span 2026-10-21T21:18:17.136Z..2026-10-21T21:18:17.136Z.",
+  "value": "2026-10-21T21:18:17.136Z..2026-10-21T21:18:17.136Z",
+  "unit": "iso8601",
+  "caveats": [
+   "self_reported_receipts"
+  ],
+  "conflict_ids": [],
+  "formatted": {}
+ },
+ {
+  "id": "c06",
+  "statement": "They cover 1 distinct service(s).",
+  "value": 1,
+  "unit": "count",
+  "caveats": [
+   "self_reported_receipts"
+  ],
+  "conflict_ids": [],
+  "formatted": {}
+ }
+]
+
+Return ONLY a JSON array, no prose, no code fence. Each item:
+{"sentence_index": <int>, "reason": "<why it is unsupported>", "claim_id": "<cNN or null>"}
+Return [] when every statement is supported.

@@ -165,7 +165,9 @@ Not an engine port: Meterless Nightshift is the runtime the generator-backed rol
 (`NightshiftGenerator` in `investigator/generator.py`, OpenAI-compatible provider `meterless`, routing mode
 `meterless/auto`, Auto Detect, fallback to the OpenAI-compatible env and then to rules). The H-MEM reinjection block
 reaches its prompts exactly as described above. README section "Meterless Nightshift (primary AI provider)" lists
-what is implemented and what is not claimed (no committed run used it); tests in `tests/test_nightshift.py`.
+what is implemented, what ran (32 requests on 2026-10-24, `examples/live-trace-nightshift/`; 25 recorded answers
+replayed by the committed examples, `fixtures/transcripts/`) and what is not claimed; tests in
+`tests/test_nightshift.py`.
 
 ## Licensing
 

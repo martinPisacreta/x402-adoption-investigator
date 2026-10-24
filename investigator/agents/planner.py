@@ -27,6 +27,11 @@ from ..sources import registry as registry_mod
 from ..sources.registry import SNAPSHOT_KEY, URLS, canonical_request_key, rpc_request_key
 from .metrics import METRICS, metrics_for_playbook, query_ids_for_metrics
 
+PLANNER_MAX_HYPOTHESES = 5      # plan.schema.json $defs/generator_response: hypotheses maxItems
+PLANNER_MAX_EXTRA_METRICS = 5   # extra_metrics maxItems
+HYPOTHESIS_MAX_CHARS = 300
+METRIC_ID_RE = re.compile(r"^[a-z0-9_]+$")
+
 if TYPE_CHECKING:
     from ..runner import RunContext
 
@@ -239,6 +244,48 @@ def _sha(text: str) -> str:
 # Generator refinement
 # ---------------------------------------------------------------------------------------------------------
 
+def normalise_reply(data: Any) -> tuple[Any, list[str]]:
+    """Bring a generator reply inside the schema's list limits before validation, without inventing anything:
+    exact duplicate hypotheses (case and spacing ignored) and blank ones are dropped, extra_metrics keep only known
+    metric ids (unknown ones are dropped later anyway) without duplicates, and both lists are cut to their first 5
+    items. The playbook and every other key are left alone, so a wrong playbook or an extra key still fails
+    validation. Returns (data, changes); changes name what was dropped, for a recovery line."""
+    if not isinstance(data, dict):
+        return data, []
+    changes: list[str] = []
+    hypotheses = data.get("hypotheses")
+    if isinstance(hypotheses, list) and all(isinstance(h, str) for h in hypotheses):
+        seen: set[str] = set()
+        kept: list[str] = []
+        for text in hypotheses:
+            key = " ".join(text.lower().split())
+            if len(key) < 3 or key in seen:
+                continue
+            seen.add(key)
+            kept.append(text.strip())
+        dropped = len(hypotheses) - len(kept)
+        if len(kept) > PLANNER_MAX_HYPOTHESES:
+            changes.append(f"hypotheses {len(hypotheses)} -> {PLANNER_MAX_HYPOTHESES} ({dropped} duplicate or blank "
+                           f"dropped, then the first {PLANNER_MAX_HYPOTHESES} kept)")
+            kept = kept[:PLANNER_MAX_HYPOTHESES]
+        elif dropped:
+            changes.append(f"hypotheses {len(hypotheses)} -> {len(kept)} ({dropped} duplicate or blank dropped)")
+        data = {**data, "hypotheses": kept}
+    extra = data.get("extra_metrics")
+    if isinstance(extra, list) and all(isinstance(m, str) for m in extra):
+        kept_ids: list[str] = []
+        for metric_id in extra:
+            if METRIC_ID_RE.match(metric_id) and metric_id in METRICS and metric_id not in kept_ids:
+                kept_ids.append(metric_id)
+        if len(kept_ids) != len(extra) or len(kept_ids) > PLANNER_MAX_EXTRA_METRICS:
+            capped = kept_ids[:PLANNER_MAX_EXTRA_METRICS]
+            changes.append(f"extra_metrics {len(extra)} -> {len(capped)} (unknown or repeated ids dropped"
+                           + (f", then the first {PLANNER_MAX_EXTRA_METRICS} kept)" if len(kept_ids) > len(capped) else ")"))
+            kept_ids = capped
+        data = {**data, "extra_metrics": kept_ids}
+    return data, changes
+
+
 def refine_with_generator(ctx: "RunContext", question: str, focus: Focus, reinjection: str,
                           playbook: str, memory_ids: Optional[list[str]] = None) -> tuple[Optional[dict[str, Any]], str]:
     """One prompts/planner.txt call (max_tokens 400) -> {playbook, hypotheses, extra_metrics} validated by
@@ -259,9 +306,12 @@ def refine_with_generator(ctx: "RunContext", question: str, focus: Focus, reinje
         if result is None:
             return None, source
         source = "recorded-generator" if result.recorded else "generator"
-        data = parse_json_object(result.text)
+        data, changes = normalise_reply(parse_json_object(result.text))
         errors = validate(data, response_schema) if data is not None else ["response is not a JSON object"]
         if not errors:
+            if changes:
+                ctx.recover("planner", "generator_reply_repaired", f"planner attempt {attempt}: " + "; ".join(changes),
+                            prompt_id="planner", attempt=attempt)
             return data, source
         if attempt == 1:
             ctx.log.emit("retry", "planner", {"stage": "planner", "target": "planner", "attempt": 1, "next_attempt": 2,

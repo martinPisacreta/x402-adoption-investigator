@@ -1,0 +1,46 @@
+{
+  "prompt_id": "critic-r2",
+  "prompt_sha256": "e1f5f543a725fb8e4c0ff56492681582ecb6a3706df09848dd0ad0ab1ed1697e",
+  "model": "local-runtime/llama-3.2-3b-instruct-q8",
+  "recorded_at": "2026-10-24T16:30:12.329Z",
+  "response": "[\n  {\"sentence_index\": 0, \"reason\": \"No claim for Base [c07]\", \"claim_id\": null},\n  {\"sentence_index\": 1, \"reason\": \"No claim for Base [c03]\", \"claim_id\": null},\n  {\"sentence_index\": 2, \"reason\": \"No claim for atomic USDC [c04]\", \"claim_id\": null},\n  {\"sentence_index\": 3, \"reason\": \"No claim for tienda.textokit.store [c01]\", \"claim_id\": \"c01\"},\n  {\"sentence_index\": 4, \"reason\": \"No claim for distinct service(s) [c06]\", \"claim_id\": \"c06\"},\n  {\"sentence_index\": 5, \"reason\": \"Claim not derivable from claims\", \"claim_id\": null},\n  {\"sentence_index\": 6, \"reason\": \"No claim for verification on Base\", \"claim_id\": null},\n  {\"sentence_index\": 7, \"reason\": \"No claim for verified settlement on Base\", \"claim_id\": null}",
+  "usage": {
+    "prompt_tokens": 1254,
+    "completion_tokens": 221,
+    "total_tokens": 1475
+  },
+  "provider": "meterless",
+  "requested_model": "meterless/auto",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_60qs0f24",
+    "decision_id": "req_60qs0f24",
+    "requested_model": "meterless/auto",
+    "routed_model": "local-runtime/llama-3.2-3b-instruct-q8",
+    "winning_route": {
+      "model": "local-runtime/llama-3.2-3b-instruct-q8",
+      "label": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
+      "provider": "local-runtime",
+      "kind": "local",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "planning",
+        "model": "local-runtime/llama-3.2-3b-instruct-q8",
+        "ms": 2075
+      }
+    ],
+    "latency_ms": 2075,
+    "usage": {
+      "input_tokens": 1254,
+      "output_tokens": 221,
+      "total_tokens": 1475
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "local-only",
+    "wall_ms": 2140
+  }
+}

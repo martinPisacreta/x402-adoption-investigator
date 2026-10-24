@@ -1,0 +1,51 @@
+{
+  "prompt_id": "writer-r1",
+  "prompt_sha256": "ebbcd2f2637218926ad26835020741451b85a7ad898ab9e71773cde8d72571c0",
+  "model": "local-runtime/llama-3.2-3b-instruct-q8",
+  "recorded_at": "2026-10-24T16:28:01.950Z",
+  "response": "- The self-settlement share is 70.0% [c07].\n- External sales total 55000 atomic USDC [c05].\n- 1 external payer(s) bought more than once [c08].\n- The top external payer 0xec2abd3eda89bed90124736e317e847d5fb6d034 made 20 of 24 external sales [c09].\n- External sales settled inside the 30-day window ending 2026-10-24: 24 [c13].\n- 17 Bazaar listings pay to the wallet the receipts name as seller [c17].\n- Registries disagree on the endpoint count for tienda.textokit.store: cdp_search=17, store_openapi=17, agent402_paid=17, agent402_tools=34, vet402=19, x402_trust_search=36 [c18].\n\nThe adoption of tienda.textokit.store appears to be mostly self-settled, with 56 of 80 sales settled by the seller's own wallets, representing a self-settlement share of 70.0%. However, external sales also occur, totaling 55000 atomic USDC. The top external payer, 0xec2abd3eda89bed90124736e317e847d5fb6d034, made 20 of 24 external sales, representing 83.3% of external sales. External sales are settled inside the 30-day window ending 2026-10-24, with 24 sales settled. Despite the significant number of external sales, registries disagree on the endpoint count for tienda.textokit.store, with varying counts reported by CDP Bazaar, the store's own openapi.json, Agent402, vet402, and x402-trust search. This discrepancy highlights the complexity of tracking and aggregating data across different sources and registries.",
+  "usage": {
+    "prompt_tokens": 6990,
+    "completion_tokens": 1087,
+    "total_tokens": 8077
+  },
+  "provider": "meterless",
+  "requested_model": "meterless/auto",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_xcpf3ovw",
+    "decision_id": "req_xcpf3ovw",
+    "requested_model": "meterless/auto",
+    "routed_model": "local-runtime/llama-3.2-3b-instruct-q8",
+    "winning_route": {
+      "model": "local-runtime/llama-3.2-3b-instruct-q8",
+      "label": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
+      "provider": "local-runtime",
+      "kind": "local",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "planning",
+        "model": "local-runtime/llama-3.2-3b-instruct-q8",
+        "ms": 7190
+      },
+      {
+        "phase": "code_patch",
+        "model": "local-runtime/llama-3.2-3b-instruct-q8",
+        "ms": 4162
+      }
+    ],
+    "latency_ms": 11352,
+    "usage": {
+      "input_tokens": 6990,
+      "output_tokens": 1087,
+      "total_tokens": 8077
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "local-only",
+    "wall_ms": 11453
+  }
+}

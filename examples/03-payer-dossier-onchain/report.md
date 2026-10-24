@@ -1,9 +1,9 @@
 # x402 Adoption Investigator report: `ex03-payer-dossier`
 
 **Status:** ok  
-**Mode:** sample (fetcher fixture, executor sqlite, generator null, fixtures captured 2026-10-22T00:05:00Z)
+**Mode:** sample (fetcher fixture, executor sqlite, generator recorded, fixtures captured 2026-10-22T00:05:00Z)
 
-> This run replayed committed fixtures captured 2026-10-22T00:05:00Z; no network, no model calls.
+> This run replayed committed fixtures captured 2026-10-22T00:05:00Z; no network, no model calls. The generator-backed roles replayed 5 recorded answer(s) from fixtures/transcripts/03-payer-dossier-onchain/ (provider meterless, model local-runtime/llama-3.2-3b-instruct-q8); each `generate` event says recorded: true.
 
 ## Question
 
@@ -11,10 +11,17 @@ What do we know about the payer 0x097e3F339D0b023605e12A6B81E2d6Cb7571475a: what
 
 ## Plan
 
-Playbook `payer_dossier` (planner source: rules).  
+Playbook `payer_dossier` (planner source: recorded-generator).  
 Sources: receipts, cdp_search, base_rpc.  
 Queries: q16_settlements_vs_receipts, q17_payer_dossier, q06_bazaar_host_listings, q22_payer_chain_facts.  
 Memories retrieved by the Planner: mem-seed-005.
+
+Hypotheses:
+- The payer has a verified wallet on Base.
+- The payer has a balance of USDC on Base.
+- The settlement can be verified on Base.
+- The settlement was made on tienda.textokit.store.
+- The payer has a settlement on Base.
 
 ## Verdict
 
@@ -28,36 +35,36 @@ The evidence shows thin adoption (verdict adoption_thin) based on [c03], [c07]. 
 
 | id | metric | subject | value | unit | conf. | cross-checked | caveats | conflicts | evidence |
 |---|---|---|---|---|---|---|---|---|---|
-| c01 | bazaar_listings_for_host | seller:host:tienda.textokit.store | 17 | count | 0.9 | True | search_limit_20 (mem-seed-002) | - | <https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?urlSubstring=tienda.textokit.store&limit=20> sha256 da993b56bae8… [replayed]<br>`log://ex03-payer-dossier#33`<br>`log://ex03-payer-dossier#35` |
-| c02 | settlements_verified | seller:host:tienda.textokit.store | 1 | count | 0.9 | True | payer_from_transfer_log (mem-seed-005), self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br><https://mainnet.base.org> sha256 c756d78d11b3… [replayed]<br><https://basescan.org/tx/0x62c01526c5beb13cad96634ec80e837e576df496905f1bac8019c6ffa3e358c3> [replayed, verified]<br>`log://ex03-payer-dossier#31`<br>`log://ex03-payer-dossier#36` |
-| c03 | payer_sales_total | wallet:base:0x097e3f339d0b023605e12a6b81e2d6cb7571475a | 1 | count | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex03-payer-dossier#32`<br>`log://ex03-payer-dossier#37` |
-| c04 | payer_usdc_atomic | wallet:base:0x097e3f339d0b023605e12a6b81e2d6cb7571475a | 1000 | atomic_usdc | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex03-payer-dossier#32`<br>`log://ex03-payer-dossier#38` |
-| c05 | payer_window | wallet:base:0x097e3f339d0b023605e12a6b81e2d6cb7571475a | 2026-10-20T04:51:24.352Z..2026-10-20T04:51:24.352Z | iso8601 | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex03-payer-dossier#32`<br>`log://ex03-payer-dossier#39` |
-| c06 | payer_services | wallet:base:0x097e3f339d0b023605e12a6b81e2d6cb7571475a | 1 | count | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex03-payer-dossier#32`<br>`log://ex03-payer-dossier#40` |
-| c07 | verified_tx | wallet:base:0x097e3f339d0b023605e12a6b81e2d6cb7571475a | 1 | count | 0.9 | True | payer_from_transfer_log (mem-seed-005), self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br><https://mainnet.base.org> sha256 c756d78d11b3… [replayed]<br><https://basescan.org/tx/0x62c01526c5beb13cad96634ec80e837e576df496905f1bac8019c6ffa3e358c3> [replayed, verified]<br>`log://ex03-payer-dossier#31`<br>`log://ex03-payer-dossier#41` |
-| c08 | usdc_balance_atomic | wallet:base:0x097e3f339d0b023605e12a6b81e2d6cb7571475a | 1043148 | atomic_usdc | 0.9 | True | payer_from_transfer_log (mem-seed-005) | - | <https://mainnet.base.org> sha256 c756d78d11b3… [replayed]<br><https://basescan.org/tx/0x62c01526c5beb13cad96634ec80e837e576df496905f1bac8019c6ffa3e358c3> [replayed, verified]<br>`log://ex03-payer-dossier#34`<br>`log://ex03-payer-dossier#42` |
-| c09 | tx_count | wallet:base:0x097e3f339d0b023605e12a6b81e2d6cb7571475a | 24 | count | 0.9 | True | payer_from_transfer_log (mem-seed-005) | - | <https://mainnet.base.org> sha256 c756d78d11b3… [replayed]<br><https://basescan.org/tx/0x62c01526c5beb13cad96634ec80e837e576df496905f1bac8019c6ffa3e358c3> [replayed, verified]<br>`log://ex03-payer-dossier#34`<br>`log://ex03-payer-dossier#43` |
+| c01 | bazaar_listings_for_host | seller:host:tienda.textokit.store | 17 | count | 0.9 | True | search_limit_20 (mem-seed-002) | - | <https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?urlSubstring=tienda.textokit.store&limit=20> sha256 da993b56bae8… [replayed]<br>`log://ex03-payer-dossier#35`<br>`log://ex03-payer-dossier#37` |
+| c02 | settlements_verified | seller:host:tienda.textokit.store | 1 | count | 0.9 | True | payer_from_transfer_log (mem-seed-005), self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br><https://mainnet.base.org> sha256 c756d78d11b3… [replayed]<br><https://basescan.org/tx/0x62c01526c5beb13cad96634ec80e837e576df496905f1bac8019c6ffa3e358c3> [replayed, verified]<br>`log://ex03-payer-dossier#33`<br>`log://ex03-payer-dossier#38` |
+| c03 | payer_sales_total | wallet:base:0x097e3f339d0b023605e12a6b81e2d6cb7571475a | 1 | count | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex03-payer-dossier#34`<br>`log://ex03-payer-dossier#39` |
+| c04 | payer_usdc_atomic | wallet:base:0x097e3f339d0b023605e12a6b81e2d6cb7571475a | 1000 | atomic_usdc | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex03-payer-dossier#34`<br>`log://ex03-payer-dossier#40` |
+| c05 | payer_window | wallet:base:0x097e3f339d0b023605e12a6b81e2d6cb7571475a | 2026-10-20T04:51:24.352Z..2026-10-20T04:51:24.352Z | iso8601 | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex03-payer-dossier#34`<br>`log://ex03-payer-dossier#41` |
+| c06 | payer_services | wallet:base:0x097e3f339d0b023605e12a6b81e2d6cb7571475a | 1 | count | 0.9 | True | self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br>`log://ex03-payer-dossier#34`<br>`log://ex03-payer-dossier#42` |
+| c07 | verified_tx | wallet:base:0x097e3f339d0b023605e12a6b81e2d6cb7571475a | 1 | count | 0.9 | True | payer_from_transfer_log (mem-seed-005), self_reported_receipts (mem-seed-003) | - | <https://tienda.textokit.store/receipts.json> sha256 e179af8c2864… [replayed]<br><https://mainnet.base.org> sha256 c756d78d11b3… [replayed]<br><https://basescan.org/tx/0x62c01526c5beb13cad96634ec80e837e576df496905f1bac8019c6ffa3e358c3> [replayed, verified]<br>`log://ex03-payer-dossier#33`<br>`log://ex03-payer-dossier#43` |
+| c08 | usdc_balance_atomic | wallet:base:0x097e3f339d0b023605e12a6b81e2d6cb7571475a | 1043148 | atomic_usdc | 0.9 | True | payer_from_transfer_log (mem-seed-005) | - | <https://mainnet.base.org> sha256 c756d78d11b3… [replayed]<br><https://basescan.org/tx/0x62c01526c5beb13cad96634ec80e837e576df496905f1bac8019c6ffa3e358c3> [replayed, verified]<br>`log://ex03-payer-dossier#36`<br>`log://ex03-payer-dossier#44` |
+| c09 | tx_count | wallet:base:0x097e3f339d0b023605e12a6b81e2d6cb7571475a | 24 | count | 0.9 | True | payer_from_transfer_log (mem-seed-005) | - | <https://mainnet.base.org> sha256 c756d78d11b3… [replayed]<br><https://basescan.org/tx/0x62c01526c5beb13cad96634ec80e837e576df496905f1bac8019c6ffa3e358c3> [replayed, verified]<br>`log://ex03-payer-dossier#36`<br>`log://ex03-payer-dossier#45` |
 
 ### Derivations and critique trail
 
-- **c01** The CDP Bazaar search returns 17 listings for tienda.textokit.store. — query `q06_bazaar_host_listings` on `sqlite` (sql sha256 `db6f09d947db`), reducer `reducers.bazaar_listings_for_host`, 1 row(s), sources cdp_search, fields resource, payTo; coverage 17 of None (search capped at 20); log `log://ex03-payer-dossier#33`
-  - critique: r1 A accept: C1-C7 passed
-- **c02** 1 sampled settlement(s) verified on Base against the receipts. — query `q16_settlements_vs_receipts` on `sqlite` (sql sha256 `82a4f8cbe2ab`), reducer `reducers.settlements_verified`, 1 row(s), sources receipts, base_rpc, fields transaction, payer, amountAtomic; log `log://ex03-payer-dossier#31`
-  - critique: r1 A accept: C1-C7 passed
-- **c03** The receipts list 1 purchase(s) by 0x097e3f339d0b023605e12a6b81e2d6cb7571475a. — query `q17_payer_dossier` on `sqlite` (sql sha256 `0bb4552dd849`), reducer `reducers.payer_sales_total`, 1 row(s), sources receipts, fields payer; log `log://ex03-payer-dossier#32`
-  - critique: r1 A accept: C1-C7 passed
-- **c04** Those purchases total 1000 atomic USDC (0.001 USDC). — query `q17_payer_dossier` on `sqlite` (sql sha256 `0bb4552dd849`), reducer `reducers.payer_usdc_atomic`, 1 row(s), sources receipts, fields payer, amountAtomic; log `log://ex03-payer-dossier#32`
-  - critique: r1 A accept: C1-C7 passed
-- **c05** The purchases span 2026-10-20T04:51:24.352Z..2026-10-20T04:51:24.352Z. — query `q17_payer_dossier` on `sqlite` (sql sha256 `0bb4552dd849`), reducer `reducers.payer_window`, 1 row(s), sources receipts, fields payer, at; log `log://ex03-payer-dossier#32`
-  - critique: r1 A accept: C1-C7 passed
-- **c06** They cover 1 distinct service(s). — query `q17_payer_dossier` on `sqlite` (sql sha256 `0bb4552dd849`), reducer `reducers.payer_services`, 1 row(s), sources receipts, fields payer, service; log `log://ex03-payer-dossier#32`
-  - critique: r1 A accept: C1-C7 passed
-- **c07** 1 settlement(s) of this payer verified on Base. — query `q16_settlements_vs_receipts` on `sqlite` (sql sha256 `82a4f8cbe2ab`), reducer `reducers.verified_tx`, 1 row(s), sources receipts, base_rpc, fields transaction; log `log://ex03-payer-dossier#31`
-  - critique: r1 A accept: C1-C7 passed
-- **c08** USDC balance at capture: 1043148 atomic (1.043148 USDC). — query `q22_payer_chain_facts` on `sqlite` (sql sha256 `6f24ed6d9dc3`), reducer `reducers.usdc_balance_atomic`, 2 row(s), sources base_rpc, fields balanceOf; log `log://ex03-payer-dossier#34`
-  - critique: r1 A accept: C1-C7 passed
-- **c09** Transaction count (nonce) at capture: 24. — query `q22_payer_chain_facts` on `sqlite` (sql sha256 `6f24ed6d9dc3`), reducer `reducers.tx_count`, 2 row(s), sources base_rpc, fields eth_getTransactionCount; log `log://ex03-payer-dossier#34`
-  - critique: r1 A accept: C1-C7 passed
+- **c01** The CDP Bazaar search returns 17 listings for tienda.textokit.store. — query `q06_bazaar_host_listings` on `sqlite` (sql sha256 `db6f09d947db`), reducer `reducers.bazaar_listings_for_host`, 1 row(s), sources cdp_search, fields resource, payTo; coverage 17 of None (search capped at 20); log `log://ex03-payer-dossier#35`
+  - critique: r1 A accept: C1-C7 passed; r2 A accept: C1-C7 passed
+- **c02** 1 sampled settlement(s) verified on Base against the receipts. — query `q16_settlements_vs_receipts` on `sqlite` (sql sha256 `82a4f8cbe2ab`), reducer `reducers.settlements_verified`, 1 row(s), sources receipts, base_rpc, fields transaction, payer, amountAtomic; log `log://ex03-payer-dossier#33`
+  - critique: r1 A accept: C1-C7 passed; r2 A accept: C1-C7 passed
+- **c03** The receipts list 1 purchase(s) by 0x097e3f339d0b023605e12a6b81e2d6cb7571475a. — query `q17_payer_dossier` on `sqlite` (sql sha256 `0bb4552dd849`), reducer `reducers.payer_sales_total`, 1 row(s), sources receipts, fields payer; log `log://ex03-payer-dossier#34`
+  - critique: r1 A accept: C1-C7 passed; r2 A accept: C1-C7 passed
+- **c04** Those purchases total 1000 atomic USDC (0.001 USDC). — query `q17_payer_dossier` on `sqlite` (sql sha256 `0bb4552dd849`), reducer `reducers.payer_usdc_atomic`, 1 row(s), sources receipts, fields payer, amountAtomic; log `log://ex03-payer-dossier#34`
+  - critique: r1 A accept: C1-C7 passed; r2 A accept: C1-C7 passed
+- **c05** The purchases span 2026-10-20T04:51:24.352Z..2026-10-20T04:51:24.352Z. — query `q17_payer_dossier` on `sqlite` (sql sha256 `0bb4552dd849`), reducer `reducers.payer_window`, 1 row(s), sources receipts, fields payer, at; log `log://ex03-payer-dossier#34`
+  - critique: r1 A accept: C1-C7 passed; r2 A accept: C1-C7 passed
+- **c06** They cover 1 distinct service(s). — query `q17_payer_dossier` on `sqlite` (sql sha256 `0bb4552dd849`), reducer `reducers.payer_services`, 1 row(s), sources receipts, fields payer, service; log `log://ex03-payer-dossier#34`
+  - critique: r1 A accept: C1-C7 passed; r2 A accept: C1-C7 passed
+- **c07** 1 settlement(s) of this payer verified on Base. — query `q16_settlements_vs_receipts` on `sqlite` (sql sha256 `82a4f8cbe2ab`), reducer `reducers.verified_tx`, 1 row(s), sources receipts, base_rpc, fields transaction; log `log://ex03-payer-dossier#33`
+  - critique: r1 A accept: C1-C7 passed; r2 A accept: C1-C7 passed
+- **c08** USDC balance at capture: 1043148 atomic (1.043148 USDC). — query `q22_payer_chain_facts` on `sqlite` (sql sha256 `6f24ed6d9dc3`), reducer `reducers.usdc_balance_atomic`, 2 row(s), sources base_rpc, fields balanceOf; log `log://ex03-payer-dossier#36`
+  - critique: r1 A accept: C1-C7 passed; r2 A accept: C1-C7 passed
+- **c09** Transaction count (nonce) at capture: 24. — query `q22_payer_chain_facts` on `sqlite` (sql sha256 `6f24ed6d9dc3`), reducer `reducers.tx_count`, 2 row(s), sources base_rpc, fields eth_getTransactionCount; log `log://ex03-payer-dossier#36`
+  - critique: r1 A accept: C1-C7 passed; r2 A accept: C1-C7 passed
 
 ## Rejected claims
 
@@ -114,12 +121,24 @@ retrieved: 5, cited: mem-seed-002, mem-seed-003, mem-seed-005, feedback entries:
 
 | role | generator-backed | generator used | attempts | status | notes |
 |---|---|---|---|---|---|
-| planner | True | none | 1 | ok | - |
+| planner | True | recorded | 1 | ok | - |
 | collector | False | None | 1 | ok | 2 ok, 0 stale fixture fallback(s), 0 fixture miss(es), 0 unavailable, 1 deferred to the verifier; deferred: base_rpc_batch |
 | keeper | False | None | 3 | ok | chain facts asserted: 3; claims asserted as agent facts: 9; ingested 2 observations, 370 events appended; second pass: {'runId': 'run_af5f68fd9bd3', 'processed': 0, 'skippedUnchanged': 2, 'eventsAppended': 0, 'changed': False} |
 | verifier | False | None | 1 | ok | 4 tx sampled (sales of focus.wallet first, then most recent external sale per distinct payer, capped at max_tx_verifications): 1 verified, 0 failed, 3 unverifiable (fixture_miss x3); chain facts: 3; cross-checks: 2; settlements export: yes |
 | analyst | False | None | 1 | ok | views without export: bazaar_resources, catalog_resources, openapi_paid_ops, agent402_tools, agent402_seller, vet402_endpoints, trust_search, trust_stats |
-| writer | True | none | 1 | ok | - |
-| critic | True | none | 1 | ok | - |
+| writer | True | recorded | 2 | ok | - |
+| critic | True | recorded | 2 | ok | - |
 
-Critique rounds: 1. Log files: fetch.jsonl, hmem.trace.jsonl, run.jsonl, sql.jsonl, world.audit.jsonl, world.events.jsonl, world.observations.jsonl.
+## Model calls
+
+Which model handled each generator request (`generate` events in run.jsonl; Nightshift receipts).
+
+| role | prompt | provider | requested | model that answered | route | receipt | recorded | log |
+|---|---|---|---|---|---|---|---|---|
+| planner | planner | meterless | meterless/auto | local-runtime/llama-3.2-3b-instruct-q8 | Llama 3.2 3B Q8 Verifier (Runtime GGUF) (local) | rcpt_req_uiq4t6rq | True | log://ex03-payer-dossier#6 |
+| writer | writer-r1 | meterless | meterless/auto | local-runtime/llama-3.2-3b-instruct-q8 | Llama 3.2 3B Q8 Verifier (Runtime GGUF) (local) | rcpt_req_0gy1sn3h | True | log://ex03-payer-dossier#49 |
+| critic | critic-r1 | meterless | meterless/auto | local-runtime/llama-3.2-3b-instruct-q8 | Llama 3.2 3B Q8 Verifier (Runtime GGUF) (local) | rcpt_req_g18z152a | True | log://ex03-payer-dossier#72 |
+| writer | writer-r2 | meterless | meterless/auto | local-runtime/llama-3.2-3b-instruct-q8 | Llama 3.2 3B Q8 Verifier (Runtime GGUF) (local) | rcpt_req_p4w8bgz4 | True | log://ex03-payer-dossier#86 |
+| critic | critic-r2 | meterless | meterless/auto | local-runtime/llama-3.2-3b-instruct-q8 | Llama 3.2 3B Q8 Verifier (Runtime GGUF) (local) | rcpt_req_9voy01q0 | True | log://ex03-payer-dossier#109 |
+
+Critique rounds: 2. Log files: fetch.jsonl, generator.jsonl, hmem.trace.jsonl, run.jsonl, sql.jsonl, world.audit.jsonl, world.events.jsonl, world.observations.jsonl.

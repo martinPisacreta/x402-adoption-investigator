@@ -1,0 +1,46 @@
+{
+  "prompt_id": "writer-r2",
+  "prompt_sha256": "92e9be033439c396cbc4dbf900e977ae9292968bb84a511ea395486d3b9f489a",
+  "model": "local-runtime/llama-3.2-3b-instruct-q8",
+  "recorded_at": "2026-10-24T16:28:13.647Z",
+  "response": "- 56 of 80 sales [c07] were paid from the seller's own wallets.\n- 3 distinct own wallets [c03] settled those self-payments.\n- 24 sales [c04] were paid by external wallets.\n- External sales total 55000 atomic USDC [c05].\n- 5 distinct external payers [c06] appear in the receipts.\n- 20 of 24 external sales [c09] were made by the top external payer 0xec2abd3eda89bed90124736e317e847d5fb6d034.\n- External sales settled inside the 30-day window ending 2026-10-24: 24 [c13].\n- 17 Bazaar listings [c14] pay to the wallet the receipts name as seller.\n- Registries disagree on the endpoint count for tienda.textokit.store: cdp_search=17, store_openapi=17, agent402_paid=17, agent402_tools=34, vet402=19, x402_trust_search=36 [c18].\n- 1 external payer(s) [c08] bought more than once.\n- External sales are settled inside the 30-day window ending 2026-10-24, with 24 sales settled [c09].\n- Despite the significant number of external sales, registries disagree on the endpoint count for tienda.textokit.store, with varying counts reported by CDP Bazaar, the store's own openapi.json, Agent402, vet402, and x402-trust search [c10].\n- This discrepancy highlights the complexity of tracking and aggregating data across different sources and registries [c11].\n\nThe self-settled share is 70.0% [c07], indicating that the majority of sales are settled by the seller's own wallets. However, external sales also occur, totaling 55000 atomic USDC [c05]. The top external payer, 0xec2abd3eda89bed90124736e317e847d5fb6d034, made 20 of 24 external sales, representing 83.3% of external sales [c09]. Despite the significant number of external sales, registries disagree on the endpoint count for tienda.textokit.store, with varying counts reported by CDP Bazaar, the store's own openapi.json, Agent402, vet402, and x402-trust search [c10]. This discrepancy highlights the complexity of tracking and aggregating data across different sources and registries [c11].",
+  "usage": {
+    "prompt_tokens": 6191,
+    "completion_tokens": 524,
+    "total_tokens": 6715
+  },
+  "provider": "meterless",
+  "requested_model": "meterless/auto",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_r9fhdfhq",
+    "decision_id": "req_r9fhdfhq",
+    "requested_model": "meterless/auto",
+    "routed_model": "local-runtime/llama-3.2-3b-instruct-q8",
+    "winning_route": {
+      "model": "local-runtime/llama-3.2-3b-instruct-q8",
+      "label": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
+      "provider": "local-runtime",
+      "kind": "local",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "planning",
+        "model": "local-runtime/llama-3.2-3b-instruct-q8",
+        "ms": 6250
+      }
+    ],
+    "latency_ms": 6250,
+    "usage": {
+      "input_tokens": 6191,
+      "output_tokens": 524,
+      "total_tokens": 6715
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "local-only",
+    "wall_ms": 6328
+  }
+}

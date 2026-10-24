@@ -2,10 +2,16 @@
 
 - load_env_local() reads KEY=VALUE lines from .env.local without printing values (names only are reported).
 - resolve_mode() implements the mode rule: `sample` if SAMPLE_MODE=1 or none of OPENAI_API_KEY,
-  ZETARIS_PASSWORD and the Nightshift variables (NIGHTSHIFT_BASE_URL, NIGHTSHIFT_TOKEN, NIGHTSHIFT_TOKEN_FILE) is
-  set; else `live`. Mode resolution never probes the network (Nightshift Auto Detect runs only once the mode is
-  live, in generator.build_generator). `--mode sample` reads no credential and no .env.local; the only
-  variable it honours is LOG_DIR (where the run folders go; --out wins over it).
+  ZETARIS_PASSWORD and the Nightshift variables (NIGHTSHIFT_BASE_URL / METERLESS_BASE_URL, NIGHTSHIFT_TOKEN /
+  METERLESS_RUNTIME_TOKEN / METERLESS_TOKEN, NIGHTSHIFT_TOKEN_FILE) is set; else `live`. Mode resolution never probes
+  the network (Nightshift Auto Detect runs only once the mode is live, in generator.build_generator), and the
+  runtime's own <stateDir>/proxy-token file never makes a run live by itself. `--mode sample` reads no credential
+  and no .env.local; the only variable it honours is LOG_DIR (where the run folders go; --out wins over it).
+- Nightshift aliases: the hackathon guides name METERLESS_BASE_URL, METERLESS_RUNTIME_TOKEN and METERLESS_MODEL, the
+  official `ns` CLI METERLESS_TOKEN and METERLESS_STATE_DIR; each NIGHTSHIFT_* name wins over its aliases.
+  meterless_state_dir() copies the CLI's stateDir rule (METERLESS_STATE_DIR, else %LOCALAPPDATA%/ai.meterless.runtime
+  on Windows, ~/Library/Application Support/ai.meterless.runtime on macOS, /var/lib/meterless elsewhere), read
+  from the environment mapping it is given so tests stay hermetic.
 - parse_request() validates the run.py input against schemas/input.schema.json and builds RunInput; a bad
   input is E_INPUT with details.
 Secrets live only in the Env dataclass fields marked repr=False and are never logged.
@@ -17,6 +23,7 @@ import datetime as _dt
 import os
 import re
 import secrets
+import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Literal, Optional
@@ -30,6 +37,11 @@ RUN_ID_RE = re.compile(r"^[A-Za-z0-9._-]{1,64}$")
 WALLET_RE = re.compile(r"^0x[0-9a-fA-F]{40}$")
 RequestedMode = Literal["sample", "live", "auto"]
 NIGHTSHIFT_DEFAULT_MODEL = "meterless/auto"     # Meterless routing mode (not a model file); NIGHTSHIFT_MODEL overrides
+# (name, aliases...): the first one set wins; the aliases are the names of the hackathon guides and the ns CLI
+NIGHTSHIFT_BASE_URL_VARS: tuple[str, ...] = ("NIGHTSHIFT_BASE_URL", "METERLESS_BASE_URL")
+NIGHTSHIFT_TOKEN_VARS: tuple[str, ...] = ("NIGHTSHIFT_TOKEN", "METERLESS_RUNTIME_TOKEN", "METERLESS_TOKEN")
+NIGHTSHIFT_MODEL_VARS: tuple[str, ...] = ("NIGHTSHIFT_MODEL", "METERLESS_MODEL")
+METERLESS_LINUX_STATE_DIR = "/var/lib/meterless"   # the ns CLI's DEFAULT_STATE_DIR (Linux / packaged DGX daemon)
 
 
 @dataclass
@@ -37,9 +49,13 @@ class Env:
     """Environment values. Secret fields are repr=False and must never be logged or printed."""
 
     # Meterless Nightshift: the primary generator (OpenAI-compatible Meterless Runtime, provider id `meterless`)
-    nightshift_base_url: Optional[str] = None       # NIGHTSHIFT_BASE_URL as pasted; normalised to <host>/v1 when used
-    nightshift_token: Optional[str] = field(default=None, repr=False)   # NIGHTSHIFT_TOKEN
+    nightshift_base_url: Optional[str] = None       # NIGHTSHIFT_BASE_URL | METERLESS_BASE_URL as pasted; normalised to <host>/v1
+    nightshift_base_url_var: str = "NIGHTSHIFT_BASE_URL"   # which of the two names set it (a name, never a value)
+    nightshift_token: Optional[str] = field(default=None, repr=False)   # NIGHTSHIFT_TOKEN | METERLESS_RUNTIME_TOKEN | METERLESS_TOKEN
+    nightshift_token_var: str = "NIGHTSHIFT_TOKEN"  # which name carried the token (only the name is ever logged)
     nightshift_token_file: Optional[str] = None     # NIGHTSHIFT_TOKEN_FILE: path of <stateDir>/proxy-token
+    nightshift_state_dir: Optional[str] = None      # the runtime's stateDir (METERLESS_STATE_DIR or the OS default)
+    nightshift_state_dir_var: str = ""              # "METERLESS_STATE_DIR" | "default" | "" (none known)
     nightshift_model: str = NIGHTSHIFT_DEFAULT_MODEL
     nightshift_autodetect: bool = True              # NIGHTSHIFT_AUTODETECT=0: no localhost probe without a base URL
     # OpenAI-compatible fallback generator
@@ -64,7 +80,8 @@ class Env:
         return bool(self.openai_api_key)
 
     def has_nightshift_config(self) -> bool:
-        """A Nightshift variable is set (Auto Detect may still find a runtime without any)."""
+        """A Nightshift variable is set (Auto Detect may still find a runtime without any). The stateDir's
+        proxy-token alone does not count: an installed runtime never switches `--mode auto` to live."""
         return bool(self.nightshift_base_url or self.nightshift_token or self.nightshift_token_file)
 
     def has_zetaris(self) -> bool:
@@ -99,6 +116,38 @@ def _flag(value: Optional[str]) -> bool:
     return (value or "").strip().lower() in ("1", "true", "yes", "on")
 
 
+def first_set(env: dict[str, str], names: tuple[str, ...]) -> tuple[Optional[str], str]:
+    """(value, name) of the first variable in `names` with a non-blank value; (None, names[0]) when none is."""
+    for name in names:
+        value = env.get(name)
+        if value and value.strip():
+            return value, name
+    return None, names[0]
+
+
+def meterless_state_dir(env: dict[str, str], platform: Optional[str] = None) -> tuple[Optional[str], str]:
+    """(stateDir, "METERLESS_STATE_DIR" | "default" | "") by the official ns CLI's rule (lib/transport.mjs stateDir):
+    METERLESS_STATE_DIR, else %LOCALAPPDATA%/ai.meterless.runtime on Windows (USERPROFILE/AppData/Local when
+    LOCALAPPDATA is unset), ~/Library/Application Support/ai.meterless.runtime on macOS, /var/lib/meterless
+    elsewhere. Only `env` is read (never os.environ behind the caller's back); a Windows or macOS default whose base
+    variable is missing gives (None, "")."""
+    explicit = (env.get("METERLESS_STATE_DIR") or "").strip()
+    if explicit:
+        return explicit, "METERLESS_STATE_DIR"
+    platform = platform or sys.platform
+    if platform.startswith("win"):
+        local = (env.get("LOCALAPPDATA") or "").strip()
+        if not local and (env.get("USERPROFILE") or "").strip():
+            local = str(Path(env["USERPROFILE"].strip()) / "AppData" / "Local")
+        return (str(Path(local) / "ai.meterless.runtime"), "default") if local else (None, "")
+    if platform == "darwin":
+        home = (env.get("HOME") or "").strip()
+        if not home:
+            return None, ""
+        return str(Path(home) / "Library" / "Application Support" / "ai.meterless.runtime"), "default"
+    return METERLESS_LINUX_STATE_DIR, "default"
+
+
 def read_env(environ: Optional[dict[str, str]] = None) -> Env:
     env = dict(os.environ if environ is None else environ)
     get = lambda k, d=None: (env.get(k) or d)  # noqa: E731
@@ -106,11 +155,19 @@ def read_env(environ: Optional[dict[str, str]] = None) -> Env:
         port = int(get("ARTIFACT_SERVER_PORT", "0") or 0)
     except ValueError:
         port = 0
+    base_url, base_url_var = first_set(env, NIGHTSHIFT_BASE_URL_VARS)
+    token, token_var = first_set(env, NIGHTSHIFT_TOKEN_VARS)
+    routing_mode, _ = first_set(env, NIGHTSHIFT_MODEL_VARS)
+    state_dir, state_dir_var = meterless_state_dir(env)
     return Env(
-        nightshift_base_url=get("NIGHTSHIFT_BASE_URL"),
-        nightshift_token=get("NIGHTSHIFT_TOKEN"),
+        nightshift_base_url=base_url,
+        nightshift_base_url_var=base_url_var,
+        nightshift_token=token,
+        nightshift_token_var=token_var,
         nightshift_token_file=get("NIGHTSHIFT_TOKEN_FILE"),
-        nightshift_model=get("NIGHTSHIFT_MODEL", NIGHTSHIFT_DEFAULT_MODEL),
+        nightshift_state_dir=state_dir,
+        nightshift_state_dir_var=state_dir_var,
+        nightshift_model=(routing_mode or NIGHTSHIFT_DEFAULT_MODEL).strip(),
         nightshift_autodetect=_flag(get("NIGHTSHIFT_AUTODETECT", "1")),
         openai_api_key=get("OPENAI_API_KEY"),
         openai_base_url=get("OPENAI_BASE_URL", "https://api.openai.com/v1"),

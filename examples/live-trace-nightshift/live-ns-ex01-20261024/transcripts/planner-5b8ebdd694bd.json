@@ -1,0 +1,51 @@
+{
+  "prompt_id": "planner",
+  "prompt_sha256": "5b8ebdd694bdff11a21a484ef341f5b50c1b436ec5f24dd8964a54effee64a0b",
+  "model": "local-runtime/llama-3.2-3b-instruct-q8",
+  "recorded_at": "2026-10-24T16:00:52.722Z",
+  "response": "{\"playbook\": \"seller_profile\", \"hypotheses\": [\"Tienda.textokit.store is a legitimate seller with a high volume of sales on CDP Bazaar.\", \"Tienda.textokit.store may be a fake or compromised seller with low sales volume.\", \"Tienda.textokit.store's sales are primarily driven by external payers.\", \"Tienda.textokit.store's sales are primarily driven by self-settlements.\", \"Tienda.textokit.store's sales are primarily driven by repeat external payers.\", \"Tienda.textokit.store's sales are primarily driven by top payers.\", \"Tienda.textokit.store's sales are primarily driven by external sales through specific services.\", \"Tienda.textokit.store's sales are primarily driven by external sales over a 30-day period.\", \"Tienda.textokit.store's sales are primarily driven by external sales over a 30-day period and are verified by settlements.\", \"Tienda.textokit.store's sales are primarily driven by external sales over a 30-day period and are verified by settlements and repeat external payers.\", \"Tienda.textokit.store's sales are primarily driven by external sales over a 30-day period and are verified by settlements, repeat external payers, and top payers.\", \"Tienda.textokit.store's sales are primarily driven by external sales over a 30-day period and are verified by settlements, repeat external payers, top payers, and external sales by service.\", \"Tienda.textokit.store's sales are primarily driven by external sales over a 30-day period and are verified by settlements, repeat external payers, top payers, external sales by service, and external sales by day.\", \"Tienda.textokit.store's sales are primarily driven by external sales over a 30-day period and are verified by settlements, repeat external payers, top payers, external sales by service, external sales by day, and external window.\", \"Tienda.textokit.store's sales are primarily driven by external",
+  "usage": {
+    "prompt_tokens": 1808,
+    "completion_tokens": 800,
+    "total_tokens": 2608
+  },
+  "provider": "meterless",
+  "requested_model": "meterless/auto",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_wtqluy7w",
+    "decision_id": "req_wtqluy7w",
+    "requested_model": "meterless/auto",
+    "routed_model": "local-runtime/llama-3.2-3b-instruct-q8",
+    "winning_route": {
+      "model": "local-runtime/llama-3.2-3b-instruct-q8",
+      "label": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
+      "provider": "local-runtime",
+      "kind": "local",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "planning",
+        "model": "local-runtime/llama-3.2-3b-instruct-q8",
+        "ms": 3763
+      },
+      {
+        "phase": "code_patch",
+        "model": "local-runtime/llama-3.2-3b-instruct-q8",
+        "ms": 3799
+      }
+    ],
+    "latency_ms": 7562,
+    "usage": {
+      "input_tokens": 1808,
+      "output_tokens": 800,
+      "total_tokens": 2608
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "local-only",
+    "wall_ms": 7703
+  }
+}

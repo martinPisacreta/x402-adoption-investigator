@@ -1,0 +1,47 @@
+{
+  "prompt_id": "critic-r1",
+  "prompt_sha256": "9d2c9a632dd1660afc32d675cb903b9ce09521be9985bb8e17d7da5f839d09d2",
+  "model": "local-runtime/llama-3.2-3b-instruct-q8",
+  "recorded_at": "2026-10-24T16:11:17.471Z",
+  "response": "[\n  {\"sentence_index\": 7, \"reason\": \"caveat silently dropped\", \"claim_id\": \"c09\"},\n  {\"sentence_index\": 8, \"reason\": \"caveat silently dropped\", \"claim_id\": \"c09\"},\n  {\"sentence_index\": 9, \"reason\": \"causal explanation the claims do not contain\", \"claim_id\": null},\n  {\"sentence_index\": 10, \"reason\": \"caveat silently dropped\", \"claim_id\": null},\n  {\"sentence_index\": 11, \"reason\": \"conflict stated without its id\", \"claim_id\": null},\n  {\"sentence_index\": 6, \"reason\": \"caveat silently dropped\", \"claim_id\": \"c07\"},\n  {\"sentence_index\": 8, \"reason\": \"caveat silently dropped\", \"claim_id\": \"c07\"},\n  {\"sentence_index\": 9, \"reason\": \"caveat silently dropped\", \"claim_id\": \"c07\"},\n  {\"sentence_index\": 10, \"reason\": \"caveat silently dropped\", \"claim_id\": \"c07\"},\n  {\"sentence_index\": 9, \"reason\": \"caveat silently dropped\", \"claim_id\": \"c18\"},\n  {\"sentence_index\": 10, \"reason\": \"caveat silently dropped\", \"claim_id\": \"c18\"},\n  {\"sentence_index\": 11, \"reason\": \"conflict stated without its id\", \"claim_id\": \"c18\"},\n  {\"sentence_index\": 9, \"reason\": \"caveat silently dropped\", \"claim_id\": \"c18\"},\n  {\"sentence_index\": 10, \"reason\": \"caveat silently dropped\", \"claim_id\": \"c18\"},\n  {\"sentence_index\": 11, \"reason\": \"conflict stated without its id\", \"claim_id\": \"c18\"},\n  {\"sentence_index\": 9, \"reason\": \"caveat silently dropped\", \"claim_id\": \"c18\"},\n  {\"sentence_index\": 10, \"reason\": \"caveat silently dropped\", \"claim_id\": \"c18\"},\n  {\"sentence_index\": 11, \"reason\": \"conflict stated without its id\", \"claim_id\": \"c18\"},\n  {\"sentence_index\": 9, \"reason\": \"caveat silently dropped\", \"claim_id\": \"c18\"},\n  {\"sentence_index",
+  "usage": {
+    "prompt_tokens": 2581,
+    "completion_tokens": 500,
+    "total_tokens": 3081
+  },
+  "provider": "meterless",
+  "requested_model": "meterless/auto",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_gt1apn34",
+    "decision_id": "req_gt1apn34",
+    "requested_model": "meterless/auto",
+    "routed_model": "local-runtime/llama-3.2-3b-instruct-q8",
+    "winning_route": {
+      "model": "local-runtime/llama-3.2-3b-instruct-q8",
+      "label": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
+      "provider": "local-runtime",
+      "kind": "local",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "planning",
+        "model": "local-runtime/llama-3.2-3b-instruct-q8",
+        "ms": 4915
+      }
+    ],
+    "latency_ms": 4915,
+    "usage": {
+      "input_tokens": 2581,
+      "output_tokens": 500,
+      "total_tokens": 3081
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "local-only",
+    "wall_ms": 4969
+  },
+  "prompt_context": "sample mode on the committed fixtures"
+}

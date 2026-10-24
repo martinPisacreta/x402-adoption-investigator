@@ -5,6 +5,16 @@ suites check, what was dropped and why (SPEC.md sections 8 and 9). Both engines 
 ports of `engines/world-model/reference/src` and `engines/hmem/reference/src` (Apache-2.0 upstream; this
 repository is MIT, see "Licensing").
 
+## In short
+
+| engine | what it does here | feature it powers | tests |
+|---|---|---|---|
+| World Model (`investigator/worldmodel/`) | the run's shared state: entities, contexts, bitemporal relationships and facts, each with provenance | a claim cannot exist without evidence (the claim policy inside `assert_fact`), and every output proves idempotent ingest | 8/8 upstream checks (`tests/test_worldmodel_conformance.py`), `tests/test_meterless_keeper.py`, `tests/test_adapters.py` |
+| H-MEM (`investigator/hmem/`) | seven pitfall memories, retrieval with the spec formula, trust ledger, mining, sleep preview | the caveat gate (the Analyst attaches the caveats, the Critic's C3 checks them) and the `[MEMORY CONTEXT]` block in the Planner and Writer prompts sent to Nightshift | 13/13 upstream vectors (`tests/test_hmem_conformance.py`), `tests/test_meterless_hmem.py`, `tests/test_generator_hmem.py`, `tests/test_critic.py` |
+
+Markovian and Scout Intent are not used (runs are bounded to seconds or minutes by `max_seconds`). Both engines
+work in every run, sample and live, and the suite passes (`python -m unittest discover -s tests`).
+
 ## Where the engines sit in the pipeline
 
 ```
@@ -24,8 +34,11 @@ collector -> keeper(ingest pass 1) -> verifier -> keeper(chain facts) -> analyst
   (`memory/seed/memories.jsonl`) are copied into `logs/<run_id>/hmem/` for every sample run (live runs persist
   `memory/state/`); the Planner and Writer retrieve with the spec formula (trace lines in `hmem.trace.jsonl`) and,
   when a generator is mounted, their prompts carry the `[MEMORY CONTEXT]` reinjection block, logged before each call
-  as a `memory` event `op: "inject"` (prompt and block sha256; `tests/test_generator_hmem.py` checks it offline with
-  an in-process OpenAI-compatible double, since no committed run had a model key), the Analyst and the Critic's C3
+  as a `memory` event `op: "inject"` (prompt and block sha256, the prompt's being the `prompt_sha256` of the
+  `generate` event that follows; 9 such lines in the committed examples 02, 03 and 05, which replay Nemotron answers
+  recorded through Nightshift, and 16 in the six Nemotron live runs of `examples/live-trace-nightshift/`;
+  `tests/test_generator_hmem.py` checks the block inside the prompts actually sent with an in-process
+  OpenAI-compatible double), the Analyst and the Critic's C3
   gate read the same deterministic `policy_memories(fields, sources, metrics)` index (the Analyst attaches the
   caveats, the Critic verifies them), feedback writes the exact deltas to `ledger.jsonl`,
   and the runner mines one factual record per accepted claim at the end of the run. `scripts/memory_ablation.py`
@@ -169,7 +182,8 @@ NVIDIA's hosted API (`METERLESS_MODEL=nvidia/nemotron-3.5-lightning-30b-a3b`; th
 Nightshift, not in the app), and also Nemotron Nano 9B v2 as Nightshift's local lane on the RTX 5080 Laptop GPU
 (`local-runtime/nvidia-nvidia-nemotron-nano-9b-v2-q4-k-m`); thinking is off per request
 (`NIGHTSHIFT_REASONING_EFFORT`, default `none`). The first runs that day used a local Llama 3.2 3B lane. The H-MEM
-reinjection block reaches its prompts exactly as described above. README section "Meterless Nightshift (primary AI
+reinjection block reaches its prompts exactly as described above (the `memory` inject lines of those runs precede
+the `generate` events with the same prompt sha256). README section "Meterless Nightshift (primary AI
 provider)" lists what is implemented, what ran (32 Nemotron requests on 2026-10-24, 27 hosted and 5 local,
 `examples/live-trace-nightshift/`; 25 recorded Nemotron answers replayed by the committed examples,
 `fixtures/transcripts/`; the earlier 32 Llama requests in `examples/live-trace-nightshift/llama-3.2-3b/`) and what

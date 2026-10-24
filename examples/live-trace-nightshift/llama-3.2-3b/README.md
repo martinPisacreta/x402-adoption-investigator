@@ -52,13 +52,14 @@ has a "Model calls" table. The receipt's prompt preview, cost and host telemetry
 `llama-server.exe` listed by `nvidia-smi` as a compute process on that GPU with the CUDA backend loaded
 (`ggml-cuda.dll`, `nvcuda.dll`, `cudart64_12.dll`; it also loads the Vulkan backend). The active Nightshift fleet,
 named `quicktest` in the Nightshift app (the name is not in the logs), has one lane: Llama-3.2-3B-Instruct Q8_0 GGUF.
-No Nemotron model and no NVIDIA-hosted endpoint was used: none is configured in that Nightshift.
+No Nemotron model and no NVIDIA-hosted endpoint was used: none was configured in that Nightshift yet (the NVIDIA
+key and the Nemotron lane were added later that day; `../README.md`).
 
 ## Zetaris fell back to SQLite
 
 Zetaris was stopped on purpose for these runs (the machine was short of memory). Every run starts with
 `recovery{zetaris_unreachable}` at seq 1 ("connection refused"; `zetaris.jsonl` of ex01 shows the failed login)
-and runs the whole SQL on SQLite (`mounts.executor: "sqlite"`, `derivation.backend: "sqlite"`), which is why
+and runs the whole SQL on SQLite (`mounts.executor: "sqlite"`, `derivation.backend: "sqlite-fallback"`), which is why
 every status is `partial`. The live trace computed on Zetaris Lightning SQL is
 `../../live-trace/live-ex01-20261022/` (2026-10-22, before Nightshift was installed, generator `null`).
 

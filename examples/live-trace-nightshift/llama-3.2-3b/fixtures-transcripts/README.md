@@ -3,7 +3,8 @@
 _Archived on 2026-10-24, just before the Nemotron recordings (17:13 UTC onwards): this is `fixtures/transcripts/README.md` as it stood with the 25 transcripts
 beside it, moved here unchanged below this note. The committed examples replayed them from f06bc36 until the set was
 re-recorded with NVIDIA Nemotron 3.5 Lightning 30B A3B (`fixtures/transcripts/README.md`); they no longer replay,
-because the Writer and Critic prompts were tightened that day. "The live runs of the same day" below are in `../`._
+because the Writer and Critic prompts were tightened that day. "The live runs of the same day" below are in `../`,
+and the `machine.txt` it cites is now `../machine.txt`._
 
 `<example>/<prompt_id>-<prompt_sha12>.json` with `{prompt_id, prompt_sha256, model, recorded_at, response, usage,
 provider, requested_model, routing, prompt_context}` and the exact prompt beside it as

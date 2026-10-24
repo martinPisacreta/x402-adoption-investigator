@@ -15,7 +15,7 @@ live run's prompts carry live data (fresh counters, a new receipts file), so its
 prompts of a sample-mode run on the committed fixtures. This mode therefore runs the example IN SAMPLE MODE (network
 guard installed, fixtures only) with a recorder that replays what is already recorded and notes the first prompt
 that has no transcript; after the run the guard is lifted, that exact prompt is sent once to Nightshift (the same
-call generate() makes: temperature 0, the role's max_tokens, Nightshift's 180 s timeout) and the answer is saved
+call generate() makes: temperature 0, the role's max_tokens, Nightshift's 90 s timeout) and the answer is saved
 with its compute receipt; then the sample run starts over. It stops when a sample run finds every prompt recorded
 (each answer feeds the next prompt, so the calls are made in pipeline order: Planner, Writer round 1, Critic round
 1, ...). Every saved transcript is a real Nightshift answer to the prompt sample mode sends, labelled

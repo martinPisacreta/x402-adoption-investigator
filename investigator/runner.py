@@ -28,7 +28,7 @@ from . import __version__
 from .agents import analyst, collector, critic, keeper, planner, report, verifier, writer
 from .agents.verdict import Verdict, compute_verdict
 from .agents.writer import Answer, verdict_sentence
-from .clock import Clock, SampleClock, SystemClock
+from .clock import Clock, SampleClock, SystemClock, iso_from_ms
 from .config import RunConfig, parse_request
 from .contracts import AgentResult, Budget, Claim, Conflict, Mounts, Observation, Plan, RunInput, to_json
 from .errors import InvestigatorError
@@ -615,7 +615,12 @@ def generator_call_summary(line: dict[str, Any]) -> dict[str, Any]:
 def scrub_paths(text: str, repo_root: Path) -> str:
     """Replace the repository root and the home directory with <repo> and ~ (both slash styles), so a traceback
     written to logs/<run_id>/traceback.txt carries no machine-specific absolute path."""
-    for prefix, label in ((repo_root.resolve(), "<repo>"), (Path.home(), "~")):
+    prefixes = [(repo_root.resolve(), "<repo>")]
+    try:
+        prefixes.append((Path.home(), "~"))
+    except (RuntimeError, KeyError, OSError):   # no USERPROFILE / HOME: only the repository root is replaced
+        pass
+    for prefix, label in prefixes:
         for form in (str(prefix), prefix.as_posix()):
             if form and form not in (".", "/"):
                 text = text.replace(form, label)
@@ -659,7 +664,7 @@ def run(payload: Any, config: RunConfig, run_id_override: Optional[str] = None, 
         input_sha = sha256_json(to_json(inp))
         start_payload: dict[str, Any] = {
             "mounts": to_json(ctx.mounts), "input_sha256": input_sha, "budget": to_json(inp.budget),
-            "deadline_at": ctx.clock.now_iso(), "version": __version__, "engines": {
+            "deadline_at": iso_from_ms(ctx.deadline_ms), "version": __version__, "engines": {
                 "hmem": ctx.hmem is not None, "world_model": ctx.world is not None}}
         mount_info = getattr(ctx.generator, "mount_info", None)
         if mount_info:   # Nightshift: where it answered, how it was found, the routing mode (never the token)
@@ -697,7 +702,10 @@ def run(payload: Any, config: RunConfig, run_id_override: Optional[str] = None, 
                                          "exception": "NetworkDisabledError"})
         return _error_envelope(ctx, run_id, err)
     except Exception as exc:  # noqa: BLE001 - converted to E_INTERNAL, never to partial
-        tb = scrub_paths(traceback.format_exc(), config.repo_root)
+        try:
+            tb = scrub_paths(traceback.format_exc(), config.repo_root)
+        except Exception:  # noqa: BLE001 - the envelope must still be returned (and run.jsonl closed)
+            tb = traceback.format_exc().replace(str(config.repo_root), "<repo>")
         stage = ctx.stage if ctx else "mounts"
         details = {"agent": stage, "last_log_seq": ctx.log.seq if ctx else 0,
                    "traceback_sha256": sha256_text(tb), "exception": type(exc).__name__}

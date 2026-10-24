@@ -127,7 +127,7 @@ or on the local NVIDIA GPU.
     (`examples/memory-ablation/`). Tests: 13/13 upstream vectors (`tests/test_hmem_conformance.py`),
     `tests/test_meterless_hmem.py`, `tests/test_generator_hmem.py`, `tests/test_critic.py`.
 
-  All 308 tests pass, 0 failures, 0 skips (`python -m unittest discover -s tests`).
+  All 317 tests pass, 0 failures, 0 skips (`python -m unittest discover -s tests`).
   [Details](#meterless-integration-h-mem--world-model).
 - **Meterless Nightshift (primary AI provider).** In live mode the Planner, the Writer and the Critic's second
   opinion send every request to Nightshift's Meterless Runtime first (`NightshiftGenerator` in
@@ -704,7 +704,7 @@ on 2026-10-22 between 00:02 and 00:08 UTC.
 ## Tests
 
 ```
-python -m unittest discover -s tests     # 308 tests, no third-party dependency
+python -m unittest discover -s tests     # 317 tests, no third-party dependency
 python -m pytest -q                      # same suite under pytest if installed
 ```
 

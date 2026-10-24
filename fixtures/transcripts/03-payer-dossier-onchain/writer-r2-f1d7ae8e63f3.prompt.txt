@@ -216,15 +216,6 @@ Critic issues from the previous round (fix every one):
   "reason": "the answer does not carry caveat [payer_from_transfer_log] required by c09"
  },
  {
-  "target": 5,
-  "rule": "LLM",
-  "verdict": "revise",
-  "memory_ids": [],
-  "reason": "overlaps with c02, dual verification context not a claim value",
-  "claim_id": "c07",
-  "sentence_text": "Where sources disagree [c07]: the claim that 1 settlement(s) of this payer was verified on Base overlaps with the self-reported receipts verification in c02, creating a dual verification context."
- },
- {
   "target": 6,
   "rule": "LLM",
   "verdict": "revise",

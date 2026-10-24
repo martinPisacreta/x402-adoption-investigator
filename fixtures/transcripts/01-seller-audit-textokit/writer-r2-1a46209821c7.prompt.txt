@@ -508,51 +508,6 @@ Critic issues from the previous round (fix every one):
   "sentence_text": "- 1 external payer bought more than once [c08]. - The top external payer 0xec2abd3eda89bed90124736e317e847d5fb6d034 made 18 of 21 external sales (85.7 %) [c09]. - External sales occurred between 2026-10-20T04:51:24.352Z and 2026-10-21T21:18:17.136Z [c10]. - External sales were distributed across 15 services: cuit-ar=3, normativa-ar=2, x402-ping=2, bcra-indicadores=1, cartas-ar=1, comparar-textos=1, crypto-prices=1, dev-utils=1, direcciones-ar=1, dolar-ar=1, fx-rates=1, polymarket-markets=1, source-bounded-summary=1, translate-es=1, url-text=1, web-read=1, x402-adoption=1 [c11]. - External sales per day: 20 on 2026-10-20 and 1 on 2026-10-21 [c12]. - Self-settlement share: 56 of 77 sales (72.7 %) [c07]. - Registries disagree on the endpoint count for tienda.textokit.store: cdp_search=17, store_openapi=17, agent402_paid=17, agent402_tools=34, vet402=19, x402_trust_search=36 [c18]. - Where sources disagree on endpoint_count_for_host [k01], the counts differ because CDP Bazaar is capped at twenty results and lists one row per resource, the store's openapi.json declares paid operations, Agent402 counts tools including free ones (paidToolCount=17), vet402 counts every observed endpoint (including /api/maintenance-helper and /api/preparar-solicitud which the openapi does not declare as paid), and x402-trust search matches across its own index [k01]. - Where sources disagree on calls_30d_for_host [k02], the Bazaar 30-day counters sum 60 per-endpoint calls (capped at twenty listings) while receipts show 77 total settled rows (including own-wallet) and 21 external rows; the windows and bases differ [k02]."
  },
  {
-  "target": 1,
-  "rule": "LLM",
-  "verdict": "revise",
-  "memory_ids": [],
-  "reason": "56 self-payments from 3 wallets not derivable from c01 alone",
-  "claim_id": "c02",
-  "sentence_text": "56 of those sales were self-payments from 3 distinct wallets [c02] [c03]."
- },
- {
-  "target": 1,
-  "rule": "LLM",
-  "verdict": "revise",
-  "memory_ids": [],
-  "reason": "3 distinct wallets not derivable from c01 alone",
-  "claim_id": "c03",
-  "sentence_text": "56 of those sales were self-payments from 3 distinct wallets [c02] [c03]."
- },
- {
-  "target": 2,
-  "rule": "LLM",
-  "verdict": "revise",
-  "memory_ids": [],
-  "reason": "21 external sales not derivable from c01 alone",
-  "claim_id": "c04",
-  "sentence_text": "21 sales were paid by external wallets [c04]."
- },
- {
-  "target": 3,
-  "rule": "LLM",
-  "verdict": "revise",
-  "memory_ids": [],
-  "reason": "44000 atomic USDC value not derivable from c01 alone",
-  "claim_id": "c05",
-  "sentence_text": "External sales totaled 44000 atomic USDC (0.044 USDC) [c05]."
- },
- {
-  "target": 4,
-  "rule": "LLM",
-  "verdict": "revise",
-  "memory_ids": [],
-  "reason": "4 distinct external payers not derivable from c01 alone",
-  "claim_id": "c06",
-  "sentence_text": "4 distinct external payers appear in the receipts [c06]."
- },
- {
   "target": 5,
   "rule": "LLM",
   "verdict": "revise",

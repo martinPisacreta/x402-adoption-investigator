@@ -16,7 +16,7 @@ Sources: cdp_catalog_snapshot, cdp_bazaar, x402_trust.
 Queries: q08_catalog_size, q09_catalog_top_hosts_by_calls, q10_catalog_active_share, q11_catalog_payto_concentration, q19_trust_ecosystem_stats, q20_catalog_unique_payers_max, q21_catalog_top_hosts_by_listings.  
 Memories retrieved by the Planner: mem-seed-005.
 
-Hypotheses:
+Hypotheses (written by the Planner, source recorded-generator; untested: no rule checks them against the claims below, and they are not findings):
 - A small number of hosts control the majority of paid calls on the CDP Bazaar
 - The concentration of paid calls is higher than the concentration of listed endpoints
 - Most listed endpoints have not seen any paid call activity in the last 30 days

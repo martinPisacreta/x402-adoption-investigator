@@ -216,33 +216,6 @@ Critic issues from the previous round (fix every one):
   "reason": "the answer does not carry caveat [payer_from_transfer_log] required by c09"
  },
  {
-  "target": 0,
-  "rule": "LLM",
-  "verdict": "revise",
-  "memory_ids": [],
-  "reason": "Index 0 references claim c03, but statement is not a restatement of c03's value and id.",
-  "claim_id": "null",
-  "sentence_text": "1 purchase(s) by 0x097e3f339d0b023605e12a6b81e2d6cb7571475a at tienda.textokit.store [c03]"
- },
- {
-  "target": 1,
-  "rule": "LLM",
-  "verdict": "revise",
-  "memory_ids": [],
-  "reason": "Index 1 references claim c04, but statement is not a restatement of c04's value and id.",
-  "claim_id": "null",
-  "sentence_text": "1000 atomic USDC (0.001 USDC) total for that purchase [c04]"
- },
- {
-  "target": 2,
-  "rule": "LLM",
-  "verdict": "revise",
-  "memory_ids": [],
-  "reason": "Index 2 references claim c06, but statement is not a restatement of c06's value and id.",
-  "claim_id": "null",
-  "sentence_text": "1 distinct service(s) covered by the purchase [c06]"
- },
- {
   "target": 3,
   "rule": "LLM",
   "verdict": "revise",
@@ -250,24 +223,6 @@ Critic issues from the previous round (fix every one):
   "reason": "Index 3 references claim c05, but statement is not a restatement of c05's value and id.",
   "claim_id": "null",
   "sentence_text": "Purchase timestamp: 2026-10-20T04:51:24.352Z [c05]"
- },
- {
-  "target": 4,
-  "rule": "LLM",
-  "verdict": "revise",
-  "memory_ids": [],
-  "reason": "Index 4 references claim c02, but statement is not a restatement of c02's value and id.",
-  "claim_id": "null",
-  "sentence_text": "1 settlement(s) verified on Base against the receipts [c02]"
- },
- {
-  "target": 5,
-  "rule": "LLM",
-  "verdict": "revise",
-  "memory_ids": [],
-  "reason": "Index 5 references claims c07 and c08, but statement is not a restatement of their values and ids.",
-  "claim_id": "null",
-  "sentence_text": "Where sources disagree [c07] and [c08]: c07 reports 1 settlement verified on Base using the payer from the transfer log and self-reported receipts, while c08 reports the USDC balance at capture as 1043148 atomic (1.043148 USDC) also from the payer from the transfer log. adoption_thin (confidence 0.90)"
  },
  {
   "target": 6,

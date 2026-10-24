@@ -1,7 +1,7 @@
 """Meterless Nightshift as the primary generator (investigator/generator.py; hackathon rule: Nightshift is the
 primary AI provider).
 
-Nightshift is not needed: every test talks to an in-process fake of the Meterless Runtime 0.90.0 contract
+Nightshift is not needed: every test talks to an in-process fake of the Meterless Runtime provider contract
 (FakeRuntime below), passed as the urlopen-compatible transport, so no socket is opened and no real token exists.
 The tests pin the contract the adapter implements:
 - a pasted URL (with or without scheme, /v1, /v1/chat/completions, /v1/models, /healthz) normalises to <host>/v1,
@@ -10,7 +10,7 @@ The tests pin the contract the adapter implements:
   kept), anything else offline; Auto Detect probes ports 8088, 8090, 8787, 11434 on 127.0.0.1, localhost and [::1]
   and keeps the first online or unauthorized hit in that order;
 - chat requests carry the Bearer token, `meterless-app: x402-adoption-investigator` and `meterless-scope: user`,
-  ask for the routing mode meterless/auto and use a 180 s timeout;
+  ask for the routing mode meterless/auto and use a 90 s timeout;
 - provider precedence in live mode: Nightshift > OpenAI-compatible env > rules/templates, with
   recovery{nightshift_unavailable} naming the reason; sample mode never runs detection;
 - every answered call is a `generate` event in run.jsonl (provider, requested routing mode, model that answered)
@@ -343,7 +343,7 @@ class ChatRequests(unittest.TestCase):
         nightshift = gen.NightshiftGenerator(TOKEN, "127.0.0.1:8088/healthz", opener=fake)
         self.assertEqual(nightshift.name, "nightshift:meterless/auto")
         self.assertEqual(nightshift.provider, "meterless")
-        self.assertEqual(nightshift.timeout_s, 180.0)
+        self.assertEqual(nightshift.timeout_s, 90.0)
         result = nightshift.complete("critic-r1", "You are the second-opinion Critic. Reply [] if fine.",
                                      max_tokens=64, temperature=0.0, timeout=nightshift.timeout_s)
         call = fake.chats()[0]
@@ -351,7 +351,7 @@ class ChatRequests(unittest.TestCase):
         self.assertEqual(call["headers"]["authorization"], f"Bearer {TOKEN}")
         self.assertEqual(call["headers"]["meterless-app"], "x402-adoption-investigator")
         self.assertEqual(call["headers"]["meterless-scope"], "user")
-        self.assertEqual(call["timeout"], 180.0)
+        self.assertEqual(call["timeout"], 90.0)
         self.assertEqual(fake.requests[0]["body"]["model"], "meterless/auto")
         self.assertIsInstance(result.text, str)
         self.assertEqual((result.provider, result.requested_model, result.model), ("meterless", "meterless/auto", BACKEND_MODEL))
@@ -709,7 +709,7 @@ class TracedCalls(unittest.TestCase):
             self.assertEqual(call["headers"]["meterless-app"], "x402-adoption-investigator")
             self.assertEqual(call["headers"]["meterless-scope"], "user")
             self.assertEqual(call["headers"]["authorization"], f"Bearer {TOKEN}")
-            self.assertLessEqual(call["timeout"], 180.0)
+            self.assertLessEqual(call["timeout"], 90.0)
 
     def test_each_call_is_a_generate_event_naming_provider_and_model(self) -> None:
         schema = load_schema("events")

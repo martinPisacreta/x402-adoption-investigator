@@ -347,6 +347,33 @@ class HttpRunContract(unittest.TestCase):
         status, _ = self._call("POST", "/nope", b"{}")
         self.assertEqual(status, 404)
 
+    def test_unknown_path_with_a_body_is_404_not_a_reset(self) -> None:
+        # The handler reads the unused body before answering: on Windows a socket closed with unread bytes sends a
+        # reset, and the client saw ConnectionAbortedError instead of the 404 (one full suite run in two).
+        for _ in range(3):
+            status, body = self._call("POST", "/nope", b"{" + b" " * 262_144 + b"}")
+            self.assertEqual(status, 404)
+            self.assertEqual(body["error"]["code"], "E_INPUT")
+
+
+class RunStartAndErrorPath(unittest.TestCase):
+    def test_deadline_at_is_start_plus_max_seconds(self) -> None:
+        from investigator.clock import parse_iso_ms
+        for name in EXAMPLES:
+            first = json.loads((REPO_ROOT / "examples" / name / "run.jsonl").read_text(encoding="utf-8").splitlines()[1])
+            with self.subTest(example=name):
+                self.assertEqual(first["type"], "run_start")
+                budget_ms = first["payload"]["budget"]["max_seconds"] * 1000
+                gap = parse_iso_ms(first["payload"]["deadline_at"]) - parse_iso_ms(first["at"])
+                self.assertTrue(budget_ms - 50 <= gap <= budget_ms, gap)
+
+    def test_scrub_paths_survives_a_missing_home_directory(self) -> None:
+        text = f"File \"{REPO_ROOT / 'run.py'}\", line 1"
+        with mock.patch.object(Path, "home", side_effect=RuntimeError("Could not determine home directory.")):
+            scrubbed = runner.scrub_paths(text, REPO_ROOT)
+        self.assertIn("<repo>", scrubbed)
+        self.assertNotIn(str(REPO_ROOT), scrubbed)
+
 
 class NoHardcodedNumbers(unittest.TestCase):
     def test_pitch_numbers_are_not_in_code(self) -> None:

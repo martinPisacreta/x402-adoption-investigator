@@ -92,7 +92,11 @@ def render_report(envelope: dict[str, Any]) -> str:
               f"Sources: {', '.join(plan.get('sources', []))}.  ", f"Queries: {', '.join(plan.get('query_ids', []))}.  ",
               f"Memories retrieved by the Planner: {', '.join(plan.get('hmem_memory_ids', [])) or 'none'}.", ""]
     if plan.get("hypotheses"):
-        lines += ["Hypotheses:", *[f"- {h}" for h in plan["hypotheses"]], ""]
+        # Free text from the Planner (the model's when planner_source is not rules): nothing checks it against the
+        # claims, so the report says so instead of printing it as a finding.
+        lines += [f"Hypotheses (written by the Planner, source {plan.get('planner_source')}; untested: no rule checks "
+                  "them against the claims below, and they are not findings):",
+                  *[f"- {h}" for h in plan["hypotheses"]], ""]
     verdict = out.get("verdict", {})
     lines += ["## Verdict", "", f"**{verdict.get('label')}** (confidence {verdict.get('confidence')}; why: "
               f"{', '.join(verdict.get('why', [])) or 'none'})", ""]

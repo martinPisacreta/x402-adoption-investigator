@@ -7,7 +7,7 @@
 It builds the live run context of examples/ex1.json (runner.build_context: the mounts only; no source is fetched and
 no SQL runs), logs a run_start with the generator mount, sends the prompt file's text through
 investigator.generator.generate() (the call the Planner, Writer and Critic make: temperature 0, the given max_tokens,
-Nightshift's 180 s timeout) and closes the log. logs/<run_id>/run.jsonl then holds the real `generate` event, or the
+Nightshift's 90 s timeout) and closes the log. logs/<run_id>/run.jsonl then holds the real `generate` event, or the
 `recovery{generator_fallback}` with the error when the call failed; generator.jsonl the call parameters; transcripts/
 the reply and the prompt. The model is METERLESS_MODEL / NIGHTSHIFT_MODEL, as in a run; --reasoning-effort sets
 NIGHTSHIFT_REASONING_EFFORT for this one call (unset: the environment's value, default none). Prints one JSON line:
@@ -26,6 +26,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
 from investigator import runner  # noqa: E402
+from investigator.clock import iso_from_ms  # noqa: E402
 from investigator.config import build_config, default_run_id, parse_request  # noqa: E402
 from investigator.contracts import to_json  # noqa: E402
 from investigator.generator import NightshiftGenerator, generate, parse_json_object, salvage_json_list  # noqa: E402
@@ -70,7 +71,7 @@ def main(argv: list[str] | None = None) -> int:
         ctx.deadline_ms = ctx.start_ms + inp.budget.max_seconds * 1000
         ctx.log.emit("run_start", "runner", {
             "mounts": to_json(ctx.mounts), "input_sha256": runner.sha256_json(to_json(inp)), "smoke_test": True,
-            "budget": to_json(inp.budget), "deadline_at": ctx.clock.now_iso(), "generator_mount": ctx.generator.mount_info})
+            "budget": to_json(inp.budget), "deadline_at": iso_from_ms(ctx.deadline_ms), "generator_mount": ctx.generator.mount_info})
         result = generate(ctx, args.agent, args.prompt_id, prompt, max_tokens=args.max_tokens)
         summary: dict = {"run_id": run_id, "requested_model": ctx.generator.model,
                          "call_options": ctx.generator.call_options, "max_tokens": args.max_tokens}

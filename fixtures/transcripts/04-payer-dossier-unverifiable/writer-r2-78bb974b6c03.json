@@ -1,0 +1,54 @@
+{
+  "prompt_id": "writer-r2",
+  "prompt_sha256": "78bb974b6c03c137ee4424d8801bc1737e705ee7f45fbed11595d83b10ca9650",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "recorded_at": "2026-10-24T18:44:00.437Z",
+  "response": "- 17 listings for tienda.textokit.store [c01]\n- 1 purchase by 0xa1d1c0cf717402ff3651aa4873ccf96410b01978 [c03]\n- 1 purchase totaling 1000 atomic USDC (0.001 USDC) [c04]\n- 1 distinct service purchased [c06]\n- Purchase timestamp: 2026-10-21T21:18:17.136Z [c05]\n\nWhere sources disagree [c01] The CDP Bazaar search for tienda.textokit.store is limited to 20 results, and 17 listings were returned.\n\nThe receipts confirm 1 purchase by 0xa1d1c0cf717402ff3651aa4873ccf96410b01978 at tienda.textokit.store, totaling 0.001 USDC for 1 distinct service at a single timestamp. The settlement for this payer involves 1 sampled verification on Base against receipts [c02], but full settlement verification on Base is not available for this payer.",
+  "usage": {
+    "prompt_tokens": 2688,
+    "completion_tokens": 281,
+    "total_tokens": 2969
+  },
+  "provider": "meterless",
+  "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_r0mflbwz",
+    "decision_id": "req_r0mflbwz",
+    "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "winning_route": {
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "label": "Nemotron 3.5 Lightning 30B A3B",
+      "provider": "nvidia",
+      "kind": "cloud",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "final_synthesis",
+        "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+        "ms": 2806
+      }
+    ],
+    "latency_ms": 2806,
+    "usage": {
+      "input_tokens": 2688,
+      "output_tokens": 281,
+      "total_tokens": 2969
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "cloud-ok",
+    "wall_ms": 2828
+  },
+  "prompt_context": "sample mode on the committed fixtures",
+  "request": {
+    "max_tokens": 700,
+    "call_options": {
+      "reasoning_effort": "none",
+      "system_turn": "/no_think"
+    }
+  }
+}

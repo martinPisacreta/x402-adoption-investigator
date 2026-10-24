@@ -2,9 +2,9 @@
 
 - every repository path it names exists;
 - the test count it states is the number of tests unittest discovers in tests/ (this module included);
-- README.md quotes that same count, and the submitted deck source quotes the count recorded for it
-  (tests.count_in_submitted_deck): the deck, narration and video were submitted on 2026-10-22 and are not edited
-  afterwards, so the suite may have grown since, and metadata.json says by how much instead of the deck drifting.
+- README.md quotes that same count, and the deck source quotes the count recorded for it
+  (tests.count_in_submitted_deck): the deck is re-rendered only when the pitch changes (2026-10-22, 2026-10-24), so
+  the suite may have grown since, and metadata.json says by how much instead of the deck drifting.
 """
 from __future__ import annotations
 

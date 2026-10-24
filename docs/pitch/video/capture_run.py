@@ -6,6 +6,12 @@ Usage (what produced run-capture.json; the image was built from a fresh clone of
         docker run --rm --network none x402-demo --sample --input examples/ex4.json --print-output
 
 Each line keeps its exact text; "t" is seconds since the command was launched. Standard library only.
+
+--cmdline passes one string to the OS as the exact command line instead of an argument list (on Windows the string
+goes to CreateProcess unchanged, so Git's grep sees single-quoted JSON patterns as a shell would). What produced
+live-capture-cloud.json and live-capture-local.json, from the repository root in Git Bash on Windows:
+    python docs/pitch/video/capture_run.py --out docs/pitch/video/live-capture-cloud.json --cmdline "grep '\"type\":\"generate\"' examples/live-trace-nightshift/nemotron-cloud/nemotron-cloud-ex01-20261024/run.jsonl"
+    python docs/pitch/video/capture_run.py --out docs/pitch/video/live-capture-local.json --cmdline "grep -m 1 '\"type\":\"generate\"' examples/live-trace-nightshift/nemotron-local/nemotron-local-ex01-20261024/run.jsonl"
 """
 import argparse
 import datetime
@@ -19,9 +25,14 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", required=True)
     ap.add_argument("--meta", action="append", default=[], help="key=value stored in the capture header")
+    ap.add_argument("--cmdline", help="one command line string handed to the OS as is")
     ap.add_argument("cmd", nargs=argparse.REMAINDER)
     a = ap.parse_args()
     cmd = a.cmd[1:] if a.cmd[:1] == ["--"] else a.cmd
+    if a.cmdline:
+        if cmd:
+            ap.error("give --cmdline or an argument list, not both")
+        cmd = a.cmdline
     if not cmd:
         ap.error("no command given")
     meta = dict(kv.split("=", 1) for kv in a.meta)
@@ -34,7 +45,7 @@ def main() -> int:
     err = proc.stderr.read().decode("utf-8")
     rc = proc.wait()
     total = round(time.perf_counter() - t0, 4)
-    doc = {"cmd": cmd, "meta": meta, "started_utc": started, "rc": rc, "total_s": total, "stderr": err,
+    doc = {("cmdline" if isinstance(cmd, str) else "cmd"): cmd, "meta": meta, "started_utc": started, "rc": rc, "total_s": total, "stderr": err,
            "lines": lines}
     with open(a.out, "w", encoding="utf-8", newline="\n") as fh:
         json.dump(doc, fh, indent=1, ensure_ascii=False)

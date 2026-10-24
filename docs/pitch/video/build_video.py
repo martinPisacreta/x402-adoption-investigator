@@ -11,6 +11,12 @@ What goes in, all from this repository:
     line of the printed envelope and says how many lines follow.
   - viewer/index.html rendering that run's envelope (a scratch copy whose DEFAULT_URL points at the captured
     envelope, the same as picking that file in the viewer), screenshot by headless Chrome.
+  - docs/pitch/video/live-capture-cloud.json and live-capture-local.json, the stdout of `grep` over the committed
+    logs of two live runs through Meterless Nightshift (examples/live-trace-nightshift/: nemotron-cloud-ex01-20261024
+    and nemotron-local-ex01-20261024, 24 Oct), recorded by capture_run.py --cmdline. The Nightshift part of the
+    video shows those generate events verbatim (the model each request was routed to, the route kind and the
+    compute receipt id), paced to the narration; the build checks that every captured line is a line of the
+    committed run.jsonl. It takes the narration of deck slide 9; the slide 9 image itself is not shown.
 
 Steps (Windows; ffmpeg, ffprobe and Chrome installed; pymupdf is used only here, to draw the terminal frames):
   powershell -NoProfile -ExecutionPolicy Bypass -File docs/pitch/video/tts.ps1 -OutDir <work>/tts -Rate 1
@@ -36,18 +42,21 @@ import pymupdf
 REPO = Path(__file__).resolve().parents[3]
 PITCH = REPO / "docs" / "pitch"
 EX04 = REPO / "examples" / "04-payer-dossier-unverifiable"
+LIVE_DIR = REPO / "examples" / "live-trace-nightshift"
+LIVE_CAPTURES = (PITCH / "video" / "live-capture-cloud.json", PITCH / "video" / "live-capture-local.json")
 
 # A wide motion search lets x264 follow the terminal scroll; with the default range that segment alone is ~14 MB.
 # Video order. The recorded run follows slide 7 (the same rejection, condensed) and the viewer opened on that
-# run's output takes the narration of slide 11; the slide 11 image itself is not shown.
+# run's output takes the narration of slide 12; the slide 12 image itself is not shown. The generate events of the
+# live Nightshift runs follow slide 8 and take the narration of slide 9, whose image is not shown either.
 ORDER = [("s01", "slide"), ("s02", "slide"), ("s03", "slide"), ("s04", "slide"), ("s05", "slide"),
-         ("s06", "slide"), ("s07", "slide"), ("run", "terminal"), ("s11", "viewer"), ("s08", "slide"),
-         ("s09", "slide"), ("s10", "slide"), ("s12", "slide")]
+         ("s06", "slide"), ("s07", "slide"), ("run", "terminal"), ("s12", "viewer"), ("s08", "slide"),
+         ("s09", "live"), ("s10", "slide"), ("s11", "slide"), ("s13", "slide")]
 XFADE = 0.5                      # crossfade between segments, seconds
 # The recorded run starts with its first line (the guard) as the voice starts, not after an empty terminal, and
 # its closing note shows while the voice ends, so the run leaves no long silent tail before the viewer.
-LEAD = {"s01": 1.0, "run": 0.8, "s11": 0.6}   # picture before the voice starts (default 0.6)
-TAIL = {"run": 1.8, "s11": 0.9, "s12": 2.0}   # picture after the voice ends (default 0.5)
+LEAD = {"s01": 1.0, "run": 0.8, "s12": 0.6, "s09": 0.8}   # picture before the voice starts (default 0.6)
+TAIL = {"run": 1.8, "s12": 0.9, "s09": 1.5, "s13": 2.0}   # picture after the voice ends (default 0.5)
 FPS = 30
 W, H = 1920, 1080
 # SpeakProgress.AudioPosition on this engine counts 16 kHz time whatever the output rate (tts.ps1 header).
@@ -67,7 +76,7 @@ C = {k: hexc(v) for k, v in {
     "bar": "#1a2029", "text": "#c9d1d9", "dim": "#6e7681", "key": "#79c0ff", "str": "#7ee787",
     "num": "#ffa657", "punct": "#8b949e", "prompt": "#3fb950", "hl_bg": "#3a3117", "hl_bar": "#e3b341",
     "old_bar": "#7d6526", "cap": "#e3b341", "cap_text": "#f0f3f6", "red": "#ff5f57", "yellow": "#febc2e",
-    "green": "#28c840"}.items()}
+    "green": "#28c840", "span": "#1f3a2a", "span_hl": "#6a5414"}.items()}
 
 
 def run(cmd, **kw):
@@ -209,7 +218,10 @@ class Term:
         self.cols = int((1880 - 24 - self.X0) // self.cw)
         self.width = self.cols - self.PREFIX
         meta = cap["meta"]
-        self.title = ("Recorded run  ·  example 04  ·  sample mode  ·  offline: docker run --network none")
+        gen = json.loads(cap["lines"][1]["line"])["payload"]["mounts"]["generator"]
+        day = cap["started_utc"][:10]
+        self.title = (f"Recorded run of {day} (generator {gen})  ·  example 04  ·  sample mode  ·  "
+                      f"offline: docker run --network none")
         self.sub = (f"stdout of a fresh clone at {meta['commit']} (image x402-demo), replayed verbatim and in "
                     f"order, slowed down to follow the narration.  Left column: real arrival time after launch; "
                     f"the whole run took {cap['total_s']:.2f} s.")
@@ -241,7 +253,10 @@ class Term:
         page.insert_font(fontname="sans", fontfile=str(SANS))
         page.insert_font(fontname="sanssb", fontfile=str(SANS_SB))
         page.draw_rect(page.rect, color=None, fill=C["bg"])
-        page.insert_text((40, 58), self.title, fontsize=30, fontname="sanssb", color=C["title"])
+        tfs = 30
+        while pymupdf.Font(fontfile=str(SANS_SB)).text_length(self.title, fontsize=tfs) > 1840:
+            tfs -= 0.5
+        page.insert_text((40, 58), self.title, fontsize=tfs, fontname="sanssb", color=C["title"])
         fs = 19
         while pymupdf.Font(fontfile=str(SANS)).text_length(self.sub, fontsize=fs) > 1840:
             fs -= 0.5
@@ -350,6 +365,172 @@ def terminal_clip(ffmpeg, cap, words, lead, duration, work, out):
     return [(round(appear[i], 2), i) for i in highlights]
 
 
+# ---------------------------------------------------------------- live runs through Nightshift
+
+LIVE_SPANS = re.compile(r'"(?:agent|routed_model|kind|receipt_id)":"[^"]*"')
+
+
+def load_live_captures():
+    """The two grep captures, each line checked against the committed run.jsonl it was cut from."""
+    caps = []
+    for path in LIVE_CAPTURES:
+        cap = json.loads(path.read_text(encoding="utf-8"))
+        if cap["rc"] != 0 or not cap["lines"]:
+            sys.exit(f"{path.name}: the captured command did not succeed")
+        log = cap["cmdline"].split()[-1]
+        committed = (REPO / log).read_text(encoding="utf-8").splitlines()
+        generate = [l for l in committed if '"type":"generate"' in l]
+        got = [r["line"] for r in cap["lines"]]
+        if got != generate[:len(got)]:
+            sys.exit(f"{path.name}: captured lines are not the generate events of {log}")
+        cap["log"] = log
+        caps.append(cap)
+    return caps
+
+
+def live_caption(line):
+    """Fields of one generate event: which model answered it, on which route, under which receipt."""
+    ev = json.loads(line)
+    p = ev["payload"]
+    r = p["routing"]
+    return (f"seq {ev['seq']} · {p['prompt_id']} · routed_model {r['routed_model']} · "
+            f"kind {r['winning_route']['kind']} · {r['receipt_id']} · {r['latency_ms']} ms")
+
+
+class LiveTerm:
+    X0, ROW_H, FS, TOP = 64, 22, 17, 190
+    ROWS = 36
+
+    def __init__(self, caps):
+        self.font = pymupdf.Font(fontfile=str(MONO))
+        self.cw = self.font.text_length("M", fontsize=self.FS)
+        self.width = int((1880 - 24 - self.X0) // self.cw)
+        self.items = []                      # (kind, text): one prompt per capture, then its stdout lines
+        for cap in caps:
+            self.items.append(("prompt", "$ " + cap["cmdline"]))
+            self.items += [("line", r["line"]) for r in cap["lines"]]
+        first = [json.loads(cap["lines"][0]["line"]) for cap in caps]
+        when = " and ".join(f"{ev['at'][11:16]} UTC ({json.loads(cap['lines'][0]['line'])['payload']['routing']['winning_route']['kind']})"
+                            for ev, cap in zip(first, caps))
+        self.title = (f"Live runs through Meterless Nightshift  ·  example 01  ·  {first[0]['at'][:10]}, {when}")
+        self.sub = ("Captured stdout of grep over the committed logs in examples/live-trace-nightshift/: the generate "
+                    "events, verbatim. Zetaris was stopped for these runs (recovery zetaris_unreachable at seq 1), so "
+                    "their SQL ran on SQLite.")
+
+    def rows_of(self, n, kind, text):
+        if kind == "prompt":
+            return [(n, kind, text[k:k + self.width], k, text) for k in range(0, len(text), self.width)]
+        return [(n, kind, text[k:k + self.width], k, text) for k in range(0, len(text), self.width)]
+
+    def frame(self, path, shown, current, caption, cap_label):
+        doc = pymupdf.open()
+        page = doc.new_page(width=W, height=H)
+        page.insert_font(fontname="mono", fontfile=str(MONO))
+        page.insert_font(fontname="sans", fontfile=str(SANS))
+        page.insert_font(fontname="sanssb", fontfile=str(SANS_SB))
+        page.draw_rect(page.rect, color=None, fill=C["bg"])
+        tfs = 30
+        while pymupdf.Font(fontfile=str(SANS_SB)).text_length(self.title, fontsize=tfs) > 1840:
+            tfs -= 0.5
+        page.insert_text((40, 58), self.title, fontsize=tfs, fontname="sanssb", color=C["title"])
+        fs = 19
+        while pymupdf.Font(fontfile=str(SANS)).text_length(self.sub, fontsize=fs) > 1840:
+            fs -= 0.5
+        page.insert_text((40, 96), self.sub, fontsize=fs, fontname="sans", color=C["sub"])
+        win = pymupdf.Rect(40, 118, 1880, 1000)
+        page.draw_rect(win, color=C["border"], fill=C["win"], width=1.2, radius=0.012)
+        page.draw_rect(pymupdf.Rect(41, 119, 1879, 156), color=None, fill=C["bar"], radius=0.3)
+        page.draw_rect(pymupdf.Rect(41, 140, 1879, 156), color=None, fill=C["bar"])
+        for x, col in ((66, "red"), (90, "yellow"), (114, "green")):
+            page.draw_circle((x, 137), 6.5, color=None, fill=C[col])
+        page.insert_text((140, 143), "captured stdout", fontsize=16, fontname="sans", color=C["dim"])
+        rows = []
+        for n in range(shown):
+            rows += self.rows_of(n, *self.items[n])
+        rows = rows[-self.ROWS:]
+        for r, (n, kind, txt, off, full) in enumerate(rows):
+            y = self.TOP + r * self.ROW_H
+            if n == current:
+                page.draw_rect(pymupdf.Rect(46, y - 16, 1874, y + 6), color=None, fill=C["hl_bg"])
+                page.draw_rect(pymupdf.Rect(46, y - 16, 51, y + 6), color=None, fill=C["hl_bar"])
+            if kind == "prompt":
+                page.insert_text((self.X0, y), txt, fontsize=self.FS, fontname="mono", color=C["prompt"])
+                continue
+            for m in LIVE_SPANS.finditer(full):
+                a, b = max(m.start(), off), min(m.end(), off + len(txt))
+                if a < b:
+                    page.draw_rect(pymupdf.Rect(self.X0 + (a - off) * self.cw - 1, y - 15,
+                                                self.X0 + (b - off) * self.cw + 1, y + 5),
+                                   color=None, fill=C["span_hl" if n == current else "span"])
+            cols = json_colors(full)[off:off + len(txt)]
+            Term.draw_runs(self, page, self.X0, y, txt, cols)
+        if caption:
+            page.insert_text((40, 1046), cap_label, fontsize=20, fontname="sanssb", color=C["cap"])
+            x = 40 + pymupdf.Font(fontfile=str(SANS_SB)).text_length(cap_label, fontsize=20) + 18
+            room = 1880 - x
+            if self.font.text_length(caption, fontsize=22) <= room:
+                page.insert_text((x, 1046), caption, fontsize=22, fontname="mono", color=C["cap_text"])
+            else:
+                per = int(room // self.font.text_length("M", fontsize=19))
+                first = caption[:per].rsplit(" ", 1)[0]
+                second = caption[len(first):].strip()
+                assert len(second) <= per, caption
+                for yy, t in ((1033, first), (1061, second)):
+                    page.insert_text((x, yy), t, fontsize=19, fontname="mono", color=C["cap_text"])
+        page.get_pixmap(alpha=False).save(str(path))
+        doc.close()
+
+
+def live_clip(ffmpeg, caps, words, lead, duration, work, out):
+    term = LiveTerm(caps)
+    items = term.items
+    lines_at = [n for n, (k, _) in enumerate(items) if k == "line"]
+    prompts_at = [n for n, (k, _) in enumerate(items) if k == "prompt"]
+    assert len(prompts_at) == 2 and len(lines_at) == 6, (prompts_at, lines_at)
+    wt = functools.partial(word_time, words)
+    # each item appears as the narration reaches it: the cloud run's five requests at "planner", "writer",
+    # "critic", "answered", "lightning"; the local run's command at "second" and its first request at "nano".
+    appear = {prompts_at[0]: 0.0}
+    for n, word in zip(lines_at[:5], ("planner", "writer", "critic", "answered", "lightning")):
+        appear[n] = lead + wt(word)
+    appear[prompts_at[1]] = lead + wt("second")
+    appear[lines_at[5]] = lead + wt("nano")
+    order = sorted(appear)
+    assert all(appear[a] < appear[b] for a, b in zip(order, order[1:])), appear
+    kinds = [json.loads(items[n][1])["payload"]["routing"] for n in lines_at]
+    cloud = [r["routed_model"] for r in kinds if r["winning_route"]["kind"] == "cloud"]
+    local = [r["routed_model"] for r in kinds if r["winning_route"]["kind"] == "local"]
+    note = (f"{len(cloud)} cloud requests, all routed_model {sorted(set(cloud))[0]}; "
+            f"{len(local)} local request, routed_model {sorted(set(local))[0]}")
+    assert len(set(cloud)) == 1 and len(set(local)) == 1, (cloud, local)
+    fdir = work / "live"
+    shutil.rmtree(fdir, ignore_errors=True)
+    fdir.mkdir(parents=True)
+    states = []
+    for n in order:
+        cur = max([m for m in lines_at if m <= n] or [None], key=lambda v: -1 if v is None else v)
+        states.append((round(appear[n] * FPS) / FPS, n + 1, cur))
+    states.append((round((lead + words[-1]["s"] + 0.6) * FPS) / FPS, len(items), None))
+    concat = []
+    for k, (t, shown, cur) in enumerate(states):
+        png = fdir / f"f{k:04d}.png"
+        if k == len(states) - 1:
+            term.frame(png, shown, None, note, "note")
+        elif cur is not None:
+            term.frame(png, shown, cur, live_caption(items[cur][1]), "narrated line")
+        else:
+            term.frame(png, shown, None, "", "")
+        nxt = states[k + 1][0] if k + 1 < len(states) else duration
+        concat.append(f"file '{png.name}'\nduration {max(nxt - t, 1 / FPS):.4f}")
+    concat.append(f"file '{png.name}'")
+    (fdir / "list.txt").write_text("\n".join(concat) + "\n", encoding="utf-8")
+    run([ffmpeg, "-y", "-v", "error", "-f", "concat", "-safe", "0", "-i", fdir / "list.txt", "-vf",
+         f"fps={FPS},format=yuv420p", "-t", f"{duration:.3f}", "-c:v", "libx264", "-preset", "medium", "-crf",
+         "12", out])
+    print(f"live: {len(states)} states, {len(lines_at)} generate events")
+    return [(round(appear[n], 2), n) for n in order]
+
+
 # ---------------------------------------------------------------- viewer
 
 def viewer_clip(ffmpeg, chrome, cap, words, lead, duration, work, out):
@@ -449,6 +630,8 @@ def main():
     print("captured stdout equals examples/04 run.jsonl + output.json:", same)
     cap["note_end"] = ("The 83 events and the envelope are byte-identical to the committed "
                        "examples/04-payer-dossier-unverifiable/run.jsonl and output.json." if same else "")
+    live_caps = load_live_captures()
+    print("live captures: every line is a generate event of", ", ".join(c["log"] for c in live_caps))
 
     plan, t = [], 0.0
     for seg, kind in ORDER:
@@ -473,6 +656,8 @@ def main():
             clip = work / f"{p['seg']}.mp4"
             if p["kind"] == "terminal":
                 p["marks"] = terminal_clip(ffmpeg, cap, words, p["lead"], clip_d, work, clip)
+            elif p["kind"] == "live":
+                p["marks"] = live_clip(ffmpeg, live_caps, words, p["lead"], clip_d, work, clip)
             else:
                 p["marks"] = viewer_clip(ffmpeg, a.chrome, cap, words, p["lead"], clip_d, work, clip)
             inputs += ["-i", str(clip)]

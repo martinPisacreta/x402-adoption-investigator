@@ -1,0 +1,53 @@
+{
+  "prompt_id": "critic-r1",
+  "prompt_sha256": "f674fdb52ac5fea7d04a35699ac4b9aff9e9d559bff89680f5983f8b6b3389b1",
+  "model": "local-runtime/nvidia-nvidia-nemotron-nano-9b-v2-q4-k-m",
+  "recorded_at": "2026-10-24T22:41:51.834Z",
+  "response": "[]\n",
+  "usage": {
+    "prompt_tokens": 3011,
+    "completion_tokens": 2,
+    "total_tokens": 3013
+  },
+  "provider": "meterless",
+  "requested_model": "local-runtime/nvidia-nvidia-nemotron-nano-9b-v2-q4-k-m",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_zebf3f61",
+    "decision_id": "req_zebf3f61",
+    "requested_model": "local-runtime/nvidia-nvidia-nemotron-nano-9b-v2-q4-k-m",
+    "routed_model": "local-runtime/nvidia-nvidia-nemotron-nano-9b-v2-q4-k-m",
+    "winning_route": {
+      "model": "local-runtime/nvidia-nvidia-nemotron-nano-9b-v2-q4-k-m",
+      "label": "nvidia_NVIDIA-Nemotron-Nano-9B-v2-Q4_K_M · Runtime",
+      "provider": "local-runtime",
+      "kind": "local",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "final_synthesis",
+        "model": "local-runtime/nvidia-nvidia-nemotron-nano-9b-v2-q4-k-m",
+        "ms": 1314
+      }
+    ],
+    "latency_ms": 1314,
+    "usage": {
+      "input_tokens": 3011,
+      "output_tokens": 2,
+      "total_tokens": 3013
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "local-only",
+    "wall_ms": 1344
+  },
+  "request": {
+    "max_tokens": 500,
+    "call_options": {
+      "reasoning_effort": "none",
+      "system_turn": "/no_think"
+    }
+  }
+}

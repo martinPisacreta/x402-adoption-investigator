@@ -28,8 +28,9 @@ from investigator.zetaris.views_sqlite import VIEW_NAMES  # noqa: E402
 
 EXPECTED_QUERY_IDS = [f"q{n:02d}" for n in range(1, 23)]
 # Queries added on 2026-10-22 after the Zetaris recording session, so that every registry metric has an SQL half
-# (no Zetaris login was available afterwards). They run on SQLite in every sample run, where each claim compares
-# them with its reducer, but fixtures/zetaris/ holds no recording of them yet. The set is explicit so a new query
+# (no recording session was run afterwards; on 2026-10-24 q20 and q21 ran on Zetaris over the fixture catalog inside
+# a live run, examples/live-trace-zetaris-nightshift/, which is no recording). They run on SQLite in every sample
+# run, where each claim compares them with its reducer, but fixtures/zetaris/ holds no recording of them yet. The set is explicit so a new query
 # cannot silently skip the recording check; scripts/record_zetaris_results.py --from-fixtures records them.
 NOT_YET_RECORDED = frozenset({"q20_catalog_unique_payers_max", "q21_catalog_top_hosts_by_listings", "q22_payer_chain_facts"})
 RECORDINGS_DIR = REPO_ROOT / "fixtures" / "zetaris"

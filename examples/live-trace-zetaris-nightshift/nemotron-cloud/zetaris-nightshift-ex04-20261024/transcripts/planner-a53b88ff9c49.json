@@ -1,0 +1,53 @@
+{
+  "prompt_id": "planner",
+  "prompt_sha256": "a53b88ff9c49b49907cfb6f1823e0457b4f6c5e2a5a0cc083efe34f5e0c362db",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "recorded_at": "2026-10-24T22:40:10.532Z",
+  "response": "{\n  \"playbook\": \"payer_dossier\",\n  \"hypotheses\": [\n    \"The wallet 0xa1d1c0cf717402ff3651aa4873ccf96410b01978 purchased a specific item from tienda.textokit.store that is recorded in a verified settlement on Base.\",\n    \"The settlement for the purchase from tienda.textokit.store by wallet 0xa1d1c0cf717402ff3651aa4873ccf96410b01978 occurred within the last 30 days.\",\n    \"Wallet 0xa1d1c0cf717402ff3651aa4873ccf96410b01978 holds a non-zero USDC balance atomic at the time of the settlement on Base.\",\n    \"The receipt for the transaction from wallet 0xa1d1c0cf717402ff3651aa4873ccf96410b01978 to tienda.textokit.store contains a valid x402 payment nonce.\",\n    \"The transaction from wallet 0xa1d1c0cf717402ff3651aa4873ccf96410b01978 to tienda.textokit.store is one of the 5 sampled settlements verified on Base against receipts.\"\n  ],\n  \"extra_metrics\": [\n    \"payer_sales_total\",\n    \"payer_usdc_atomic\",\n    \"verified_tx\",\n    \"payer_services\",\n    \"tx_count\"\n  ]\n}",
+  "usage": {
+    "prompt_tokens": 828,
+    "completion_tokens": 377,
+    "total_tokens": 1205
+  },
+  "provider": "meterless",
+  "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_7jfja0q4",
+    "decision_id": "req_7jfja0q4",
+    "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "winning_route": {
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "label": "Nemotron 3.5 Lightning 30B A3B",
+      "provider": "nvidia",
+      "kind": "cloud",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "final_synthesis",
+        "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+        "ms": 3536
+      }
+    ],
+    "latency_ms": 3536,
+    "usage": {
+      "input_tokens": 828,
+      "output_tokens": 377,
+      "total_tokens": 1205
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "cloud-ok",
+    "wall_ms": 3546
+  },
+  "request": {
+    "max_tokens": 400,
+    "call_options": {
+      "reasoning_effort": "none",
+      "system_turn": "/no_think"
+    }
+  }
+}

@@ -3,9 +3,10 @@
 examples/live-trace-nightshift/nightshift-ledger/receipts.jsonl is an unedited excerpt of the runtime's
 <stateDir>/receipts.jsonl (scripts/nightshift_ledger.py --copy-to). Each line is an envelope {body, sig_b64,
 pubkey_b64} signed by Nightshift's daemon with Ed25519. These tests check, offline: the verifier against the RFC 8032
-test vectors; that every receipt id named by a committed live trace, a recorded transcript or a committed example is
-in the excerpt with a valid signature and with the routed model the trace names; and that one changed byte breaks the
-signature. Owner: integrator.
+test vectors; that every receipt id named by a committed live trace (examples/live-trace-nightshift/ and
+examples/live-trace-zetaris-nightshift/), a recorded transcript or a committed example is in the excerpt with a valid
+signature and with the routed model the trace names; and that one changed byte breaks the signature. Owner:
+integrator.
 """
 from __future__ import annotations
 
@@ -30,8 +31,12 @@ RFC8032 = [
 ]
 
 
+ZETARIS_NIGHTSHIFT = REPO_ROOT / "examples" / "live-trace-zetaris-nightshift"
+
+
 def cited_sources() -> list:
     traces = sorted({p.parent for p in (REPO_ROOT / "examples" / "live-trace-nightshift").rglob("run.jsonl")})
+    traces += sorted({p.parent for p in ZETARIS_NIGHTSHIFT.rglob("run.jsonl")})
     examples = sorted(p for p in (REPO_ROOT / "examples").glob("0*-*") if (p / "run.jsonl").is_file())
     return traces + examples + [REPO_ROOT / "fixtures" / "transcripts",
                                 REPO_ROOT / "examples" / "live-trace-nightshift" / "llama-3.2-3b" / "fixtures-transcripts"]
@@ -54,7 +59,7 @@ class CommittedLedgerExcerpt(unittest.TestCase):
 
     def test_every_cited_receipt_is_in_the_ledger_signed_and_names_the_traced_model(self) -> None:
         requests = [req for source in cited_sources() for req in ledger.requests_of(source)]
-        self.assertGreaterEqual(len({r["receipt_id"] for r in requests}), 127)
+        self.assertGreaterEqual(len({r["receipt_id"] for r in requests}), 157)
         for req in requests:
             envelope = self.by_id.get(req["receipt_id"])
             self.assertIsNotNone(envelope, req)
@@ -71,6 +76,24 @@ class CommittedLedgerExcerpt(unittest.TestCase):
         self.assertEqual([l["run"]["prompt_id"] for l in lines], ["planner", "writer-r1", "critic-r1", "writer-r2", "critic-r2"])
         self.assertEqual({(l["winner"], l["kind"], l["provider"], l["egress"]) for l in lines},
                          {("nvidia/nemotron-3.5-lightning-30b-a3b", "cloud", "nvidia", "nvidia")})
+
+    def test_the_zetaris_runs_are_answered_by_the_routes_their_logs_name(self) -> None:
+        """The six runs on Zetaris: 25 requests to the hosted Nemotron (egress nvidia), 5 to the local Nano (no egress),
+        issued 22:36-22:42 UTC, and appended after the 127 lines the excerpt held before them."""
+        routes = {}
+        for run in sorted({p.parent for p in ZETARIS_NIGHTSHIFT.rglob("run.jsonl")}):
+            for req in ledger.run_requests(run):
+                line = ledger.ledger_line(req, self.by_id[req["receipt_id"]], True)
+                self.assertTrue(line["run"]["same_model"], req)
+                self.assertTrue("2026-10-24T22:36:00" <= line["issued_at"] <= "2026-10-24T22:43:00", line["issued_at"])
+                key = (line["winner"], line["kind"], line["egress"])
+                routes[key] = routes.get(key, 0) + 1
+        self.assertEqual(routes, {("nvidia/nemotron-3.5-lightning-30b-a3b", "cloud", "nvidia"): 25,
+                                  ("local-runtime/nvidia-nvidia-nemotron-nano-9b-v2-q4-k-m", "local", "none"): 5})
+        ids = [json.loads(l)["body"]["receipt"]["receipt_id"] for l in self.lines[127:]]
+        self.assertEqual(len(ids), 30)
+        self.assertEqual(set(ids), {r["receipt_id"] for run in ZETARIS_NIGHTSHIFT.rglob("run.jsonl")
+                                    for r in ledger.run_requests(run.parent)})
 
     def test_one_changed_byte_breaks_the_signature(self) -> None:
         envelope = json.loads(self.lines[0])

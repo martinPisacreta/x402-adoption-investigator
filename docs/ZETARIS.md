@@ -3,7 +3,8 @@
 Owner: B3. What the code in `investigator/zetaris/` does, in order, with the REST calls, DDL and SQL that were
 verified against the local instance, the fallback matrix as it shows up in the logs, and the evidence. Every
 timing and count below was measured on 2026-10-22 on the demo machine (Zetaris 2.4.3.1, build cb88df0b, Docker
-containers ui:3000, api:8888, driver:10000, postgres; Windows 11, Docker Desktop). Credentials, tokens and
+containers ui:3000, api:8888, driver:10000, postgres; Windows 11, Docker Desktop). The exceptions are the runs of
+2026-10-24 with Meterless Nightshift, dated where they appear (sections 3, 5 and 6). Credentials, login tokens and
 headers never appear in logs, fixtures or this document.
 
 ## 1. Instance and REST surface (verified)
@@ -76,9 +77,20 @@ saw no request) the executor switches to `direct` for those three tables by itse
 - Views: `investigator/sql/views/VIEWS.md` (names, columns, parity rules) and `views_sqlite.VIEWS` (the
   machine-readable copy both backends share). Thirteen views, one per source family plus `purchases`,
   `agent402_seller`, `trust_stats` and `chain_facts`. `chain_facts` and the queries q20-q22 were added on
-  2026-10-22 after the live session below, so that every metric has an SQL half: they run on SQLite in every sample
-  run, `fixtures/zetaris/` holds no recording of them yet (`tests/test_sql_dual_backend.py` lists them as
-  `NOT_YET_RECORDED`), and on Zetaris a failure sends the query to SQLite (`recovery{zetaris_query_fallback}`).
+  2026-10-22 after the live session below, so that every metric has an SQL half. They run on SQLite in every sample
+  run, and `fixtures/zetaris/` holds no recording of them yet (`tests/test_sql_dual_backend.py` lists them as
+  `NOT_YET_RECORDED`). On Zetaris a failure sends the query to SQLite (`recovery{zetaris_query_fallback}`).
+
+  The first runs on record that ran them on Zetaris are those of 2026-10-24 in
+  `examples/live-trace-zetaris-nightshift/` (no committed run or run folder in `logs/` has them there before, and the
+  driver's log first names `chain_facts` that day; that folder's `machine.txt`):
+  - q20 and q21 in example 02, at seq 23-24, over the committed catalog snapshot: their rows equal the SQLite rows
+    of `examples/02-catalog-concentration/sql.jsonl`, but no recording or test holds that comparison;
+  - `CREATE OR REPLACE SCHEMASTORE VIEW chain_facts ...` with its `conv(substring(result_hex, 3), 16, 10)` returned
+    HTTP 200 in every run but example 02, first in example 01 at 22:37 UTC;
+  - q22, which reads it, in examples 03-05: 2 rows at seq 38, over that day's live chain facts.
+
+  All with no fallback, and with values equal to the Python reducer's (C2).
 - One row per listing: `bazaar_resources`, `bazaar_search` and `catalog_resources` use the primary accept
   (`accepts[0]`). Half of the 28,462 snapshot items carry several accepts (up to 18, across Base, Solana and
   other chains); exploding them would make `COUNT(*)` count accepts, not resources.
@@ -104,11 +116,12 @@ saw no request) the executor switches to `direct` for those three tables by itse
 | live, login/connect fails (bounded 10 s) | `build_executor` returns `SqliteExecutor(fallback_reason="zetaris_unreachable: ...")` for the whole run | runner `recovery{zetaris_unreachable}`, status `partial` |
 | live, DDL for database/container fails | executor degraded; every query on SQLite | `recovery{zetaris_ddl_failed}`, `sql.jsonl` executor `sqlite` + `fallback_reason` |
 | live, one REST table or view cannot be built | queries reading that view run on SQLite, the others stay on Zetaris | `recovery{zetaris_query_fallback}` per query, `fallback_reason: view_unavailable:<view>(<reason>)`, claim `backend: sqlite-fallback` |
+| live, a REST table that no query reads cannot be built | nothing falls back | only `zetaris.jsonl` (HTTP 400): no recovery, status unchanged, `--require-zetaris` does not fire (example 02 of `examples/live-trace-zetaris-nightshift/`) |
 | live, one query HTTP 400 | that query on SQLite | `fallback_reason: zetaris_http_400: <msg>`, `backend: sqlite-fallback` |
 | live, 401 | re-login once, then as above | `zetaris.jsonl` line `msg: "401: re-login once"` |
 | live, artifact server cannot bind or driver cannot reach it | direct URLs for receipts/Bazaar, SQLite for the rest | `recovery{artifact_server_unreachable}`, `mounts.zetaris_source: direct` |
 | live, catalog snapshot too large | catalog family on SQLite | `fallback_reason: catalog_too_large_for_rest_table` |
-| `--require-zetaris` | any of the above -> `E_ZETARIS_REQUIRED` (`details.reason = "zetaris_required"`) | error object |
+| `--require-zetaris` | any of the above that sends a query to SQLite -> `E_ZETARIS_REQUIRED` (`details.reason = "zetaris_required"`) | error object |
 
 Every fallback recovery payload also carries `degraded: true`, so a log reader can grep one word for the degraded
 path. `backend_label(result)` turns a `SqlResult` into the `Derivation.backend` value (`zetaris` / `sqlite` /
@@ -143,6 +156,21 @@ Real `zetaris.jsonl` lines (from the live probe; the seq is added by the EventLo
   cleanup in its `zetaris.jsonl`; 4/4 settlements verified on Base), `examples/live-trace/live-ex03-20261022/` (`--require-zetaris`), and
   `examples/live-trace/live-nozetaris-ex03/` (credentials withheld: `recovery{zetaris_unreachable}`, whole run on
   SQLite, status `partial`). Secrets were grepped for before copying; none appear.
+- Live traces with a model (integrator, 2026-10-24, 22:36-22:42 UTC): `examples/live-trace-zetaris-nightshift/`,
+  six runs with `--require-zetaris --require-generator`: the five example inputs with NVIDIA Nemotron 3.5 Lightning
+  through Meterless Nightshift, and example 01 again with the local Nemotron Nano. In all six:
+  - status `ok` and executor `zetaris`, with no Zetaris recovery;
+  - all 76 claims with `derivation.backend: "zetaris"`;
+  - `run-query` calls one per `sql` event plus `SHOW SERVER VERSION`, 14, 8, 5, 5, 5 and 14, the analytics queries
+    taking 131-1,064 ms each (`time_used_ms` in `zetaris.jsonl`);
+  - every object dropped at the end.
+
+  The instance (Docker Compose project `zetaris`) ran with the driver heap at 2 GB (`-Xmx2g`, its `machine.txt`).
+  In example 02, `CACHE TABLE X402_B4B1827B.bazaar_page0` returned HTTP 400 ("Connection reset") after 16,686 ms. The
+  driver's log shows what happened: stage "In-memory table X402_B4B1827B.bazaar_page0", then
+  `java.lang.OutOfMemoryError: Java heap space`. Docker restarted the driver container (`restarts 1`), and the run
+  went on to cache the 32 MB catalog snapshot (5,099 ms) and answer its seven queries. No query of that run reads
+  the Bazaar page, so no recovery was logged and the status stayed `ok`.
 
 ## 6. Known limits
 
@@ -153,3 +181,16 @@ Real `zetaris.jsonl` lines (from the live probe; the seq is added by the EventLo
   must cite the figures the committed example outputs produce.
 - `CACHE TABLE` is a session cache; with `--keep-zetaris-objects` the kept REST tables point at an artifact
   server that no longer runs, so a later uncached SELECT on them fails (logged at cleanup).
+- With the driver heap at 2 GB, `CACHE TABLE` of the first Bazaar page (`cdp_page_0`) ran the driver out of memory
+  in example 02 of the 24 Oct runs above (once in those six runs). The same driver's log shows the same on 2026-10-22
+  at 02:08-02:09 UTC (`X402_5E9C5F9C.bazaar_page0`, stage 463, a session whose log is not committed), while the same
+  kind of table cached in about 5 s at 01:54 and 03:16 that day (`machine.txt` of
+  `examples/live-trace-zetaris-nightshift/`). On 24 Oct the driver that failed had served example 01 first, and right
+  after the restart the same heap cached the 32 MB catalog snapshot in 5,099 ms. Whether the page or the driver's
+  accumulated state is the cause is not shown.
+  - A table that fails to cache only marks the views built on it as unavailable. A `recovery` line appears only when
+    a query then falls back, so `run.jsonl` does not show a failure no query depends on; `zetaris.jsonl` does.
+  - `sql.jsonl` does not show it either: its `tables` key lists every table the run registered, the same on every
+    line, not the tables each query read, and `tables_summary()` drops their status. Example 02's seven lines still
+    name `bazaar_page0`.
+  - Neither a retry nor a larger heap has been tried.

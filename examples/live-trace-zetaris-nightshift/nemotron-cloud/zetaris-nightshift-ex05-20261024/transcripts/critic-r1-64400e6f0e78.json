@@ -1,0 +1,53 @@
+{
+  "prompt_id": "critic-r1",
+  "prompt_sha256": "64400e6f0e7803136425fa80301802881ec933e91a785b4a5644a8db28524776",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "recorded_at": "2026-10-24T22:41:00.557Z",
+  "response": "[\n  {\n    \"sentence_index\": 0,\n    \"reason\": \"Restates claim c01 value without citing id.\",\n    \"claim_id\": \"c01\"\n  },\n  {\n    \"sentence_index\": 1,\n    \"reason\": \"Restates claim c03 value without citing id.\",\n    \"claim_id\": \"c03\"\n  },\n  {\n    \"sentence_index\": 2,\n    \"reason\": \"Restates claim c04 value without citing id.\",\n    \"claim_id\": \"c04\"\n  },\n  {\n    \"sentence_index\": 3,\n    \"reason\": \"Restates claim c05 value without citing id.\",\n    \"claim_id\": \"c05\"\n  },\n  {\n    \"sentence_index\": 4,\n    \"reason\": \"Restates claim c06 value without citing id.\",\n    \"claim_id\": \"c06\"\n  },\n  {\n    \"sentence_index\": 5,\n    \"reason\": \"Restates claim c07 value without citing id.\",\n    \"claim_id\": \"c07\"\n  },\n  {\n    \"sentence_index\": 6,\n    \"reason\": \"Restates claim c08 value without citing id.\",\n    \"claim_id\": \"c08\"\n  },\n  {\n    \"sentence_index\": 7,\n    \"reason\": \"Restates claim c09 value without citing id.\",\n    \"claim_id\": \"c09\"\n  }\n]",
+  "usage": {
+    "prompt_tokens": 1559,
+    "completion_tokens": 315,
+    "total_tokens": 1874
+  },
+  "provider": "meterless",
+  "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_991ywwmq",
+    "decision_id": "req_991ywwmq",
+    "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "winning_route": {
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "label": "Nemotron 3.5 Lightning 30B A3B",
+      "provider": "nvidia",
+      "kind": "cloud",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "final_synthesis",
+        "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+        "ms": 2973
+      }
+    ],
+    "latency_ms": 2973,
+    "usage": {
+      "input_tokens": 1559,
+      "output_tokens": 315,
+      "total_tokens": 1874
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "cloud-ok",
+    "wall_ms": 3016
+  },
+  "request": {
+    "max_tokens": 500,
+    "call_options": {
+      "reasoning_effort": "none",
+      "system_turn": "/no_think"
+    }
+  }
+}

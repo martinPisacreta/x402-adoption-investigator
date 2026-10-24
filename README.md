@@ -18,8 +18,8 @@ USDC, here on Base; the CDP Bazaar is Coinbase's x402 discovery catalog.)
 | **What the agents do** | Seven roles in a bounded loop. Planner: playbook, sources, queries. Collector: fetch and hash. Keeper: Meterless World Model. Verifier: settlements decoded on Base. Analyst: every metric twice, in committed SQL and in a Python reducer. Writer: an answer where every number cites a claim. Critic: rules C1-C7 and a narrative pass; it rejects claims or sends the answer back. |
 | **Try it** | `python run.py --sample --input examples/ex1.json` from a clean clone: offline, no keys, Python 3.11 standard library only. Docker: `docker run --rm --network none x402-investigator`. [Quick start](#quick-start-clean-clone-one-command). |
 | **Critique, recovery and retries** | Example 04 (`examples/ex4.json`): the Critic rejects a "0 verified" count that no decoded settlement supports, the Writer's second round drops and names it, status `partial`, verdict `insufficient_evidence`. Example 05 (`examples/ex5.json`): a 503 from the store and a 429 from the Base RPC, replayed from a hand-written fault script, are each retried after a logged backoff by the same retry code live runs use, and the answer comes out with example 03's numbers. [Examples](#examples). |
-| **Sponsor tech** | Zetaris Lightning SQL is the data layer of live runs when it is reachable (the 22 Oct live seller audit, which had no model, computed all 19 claims on it; the 24 Oct model runs fell back to SQLite because Zetaris was stopped, and no committed run has Zetaris and a model together). Meterless World Model (provenance, evidence-only claims, idempotent ingest) and H-MEM (the caveats the Critic enforces, memory injected into the prompts) work in every run and pass the upstream conformance checks (8/8, 13/13). Meterless Nightshift is the primary AI provider: on 24 Oct, with the model pinned by `METERLESS_MODEL`, every Planner, Writer and Critic request of seven live runs went through it to NVIDIA Nemotron, 32 to Nemotron 3.5 Lightning 30B A3B on NVIDIA's hosted API (the NVIDIA key is configured inside Nightshift, not in the app) and 5 to Nemotron Nano 9B v2 on the local RTX 5080 Laptop GPU, each with a compute receipt naming the model ([examples/live-trace-nightshift/](examples/live-trace-nightshift/)), and every receipt the repository cites is in the committed [excerpt](examples/live-trace-nightshift/nightshift-ledger/) of Nightshift's Ed25519-signed ledger, each signature valid (checked by `scripts/nightshift_ledger.py`); six earlier runs on the default `meterless/auto` went to a local Llama 3.2 3B lane instead, and their receipts say so. The committed examples replay 25 recorded Nemotron answers. Cursor (optional since 22 Oct): two Cursor Agent sessions, the report viewer and a first draft of the README Pitch section. [Summary](#sponsor-technology), machine-readable in [metadata.json](metadata.json). |
-| **Honesty** | Nemotron writes the plan's hypotheses (the report marks them untested), the drafts and the second-opinion critique; claim values, rejections and verdicts come from code and rules, never from the model. Its drafts still drop caveat codes and conflict ids, so the final answers are partly completed from the claims, and many of its Critic issues are wrong (those on sentences whose numbers rule B maps to the cited claims are dismissed and logged). The 22 Oct live traces (two of them on Zetaris) ran with no model; the 24 Oct Nightshift runs ran on SQLite because Zetaris was stopped ([Limitations](#limitations-and-honesty-notes)). Pre-existing: the author's own Automata store, used only as a data source ([declared](#pre-existing-components-declared)). |
+| **Sponsor tech** | Zetaris Lightning SQL is the data layer of live runs when it is reachable. The 22 Oct live seller audit, which had no model, computed all 19 claims on it. The first 24 Oct model runs fell back to SQLite because Zetaris was stopped. Six later runs that day, 22:36-22:42 UTC, computed every claim of the five example inputs on Zetaris while every model request went through Nightshift to Nemotron, status `ok` ([examples/live-trace-zetaris-nightshift/](examples/live-trace-zetaris-nightshift/)). Meterless World Model (provenance, evidence-only claims, idempotent ingest) and H-MEM (the caveats the Critic enforces, memory injected into the prompts) work in every run and pass the upstream conformance checks (8/8, 13/13). Meterless Nightshift is the primary AI provider: on 24 Oct, with the model pinned by `METERLESS_MODEL`, every Planner, Writer and Critic request of thirteen live runs went through it to NVIDIA Nemotron: 57 to Nemotron 3.5 Lightning 30B A3B on NVIDIA's hosted API (the NVIDIA key is configured inside Nightshift, not in the app) and 10 to Nemotron Nano 9B v2 on the local RTX 5080 Laptop GPU, each with a compute receipt naming the model. Seven of those runs used SQLite ([examples/live-trace-nightshift/](examples/live-trace-nightshift/)) and six used Zetaris ([examples/live-trace-zetaris-nightshift/](examples/live-trace-zetaris-nightshift/)). Every receipt the repository cites is in the committed [excerpt](examples/live-trace-nightshift/nightshift-ledger/) of Nightshift's Ed25519-signed ledger, each signature valid (checked by `scripts/nightshift_ledger.py`); six earlier runs on the default `meterless/auto` went to a local Llama 3.2 3B lane instead, and their receipts say so. The committed examples replay 25 recorded Nemotron answers. Cursor (optional since 22 Oct): two Cursor Agent sessions, the report viewer and a first draft of the README Pitch section. [Summary](#sponsor-technology), machine-readable in [metadata.json](metadata.json). |
+| **Honesty** | Nemotron writes the plan's hypotheses (the report marks them untested), the drafts and the second-opinion critique; claim values, rejections and verdicts come from code and rules, never from the model. Its drafts still drop caveat codes and conflict ids, so the final answers are partly completed from the claims, and many of its Critic issues are wrong (those on sentences whose numbers rule B maps to the cited claims are dismissed and logged). The 22 Oct live traces (two of them on Zetaris) ran with no model. The 24 Oct Nightshift runs up to 18:55 UTC ran on SQLite, because Zetaris was stopped. In the six later runs on Zetaris, its 2 GB driver heap ran out once, while caching a table no query of that run reads, for a reason not isolated ([Limitations](#limitations-and-honesty-notes)). Pre-existing: the author's own Automata store, used only as a data source ([declared](#pre-existing-components-declared)). |
 
 Full specification: [SPEC.md](SPEC.md). Build log: [docs/BUILD_LOG.md](docs/BUILD_LOG.md). Demo script:
 [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md). Sponsor integrations: [docs/METERLESS.md](docs/METERLESS.md),
@@ -27,7 +27,7 @@ Full specification: [SPEC.md](SPEC.md). Build log: [docs/BUILD_LOG.md](docs/BUIL
 
 Every finding about x402 data in this README comes from a committed fixture (`fixtures/raw/`, captured 2026-10-22
 ~00:05Z), a committed example output (`examples/*/output.json`) or a committed live trace (`examples/live-trace/`,
-`examples/live-trace-nightshift/`); run times and machine facts name their file, or say when they come from an
+`examples/live-trace-nightshift/`, `examples/live-trace-zetaris-nightshift/`); run times and machine facts name their file, or say when they come from an
 uncommitted measurement.
 
 ## Pitch
@@ -62,14 +62,19 @@ captures and the scripts that rebuild it):
 - **Zetaris in a live run, from its committed log**: `grep` of the `run_start` and the 13 `sql` events of
   `examples/live-trace/live-ex01-20261022/run.jsonl` (22 Oct, executor `zetaris`, generator `null`: that run had no
   model; [zetaris-capture.json](docs/pitch/video/zetaris-capture.json)). No run in the video uses Zetaris and
-  Nightshift together; none is committed yet.
+  Nightshift together. The six committed runs that do were made after the video's last commit (1b8dc92, 20:26 UTC
+  on 24 Oct), at 22:36-22:42 UTC ([examples/live-trace-zetaris-nightshift/](examples/live-trace-zetaris-nightshift/)).
 
 Slide deck: [docs/pitch/deck.pdf](docs/pitch/deck.pdf) (14 slides; slide 9 shows the five requests of the video's
 live run with their receipts, slide 14 what was unique and the future enhancements). Source:
 [docs/pitch/deck.html](docs/pitch/deck.html); slide images in [docs/pitch/slides/](docs/pitch/slides/); the video
 shows slides 1-8, 11 and 13. Deck, narration and video were submitted on HackOS on 22 Oct; the versions in this
 repository were rebuilt on 24 Oct for the Nightshift runs and have not replaced them on the HackOS form yet;
-docs/BUILD_LOG.md will record the date when they do.
+docs/BUILD_LOG.md will record the date when they do. Slides 9, 10, 13 and 14 of the repository deck were updated
+after the runs on Zetaris (24 Oct, after 22:42 UTC), and `deck.pdf` and their images in `slides/` were re-rendered.
+The video was not rebuilt: it does not show slides 9, 10 and 14, and the slide 13 it shows is the earlier one, with
+the test count of that day (324, which its narration says) and 32 and 5 Nemotron requests, the counts before the
+runs on Zetaris.
 
 ## Overview
 
@@ -115,21 +120,33 @@ NVIDIA Nemotron, hosted by NVIDIA or on the local NVIDIA GPU (the portable defau
 elsewhere; every receipt names the model).
 
 - **Zetaris (Lightning SQL, the data layer of live runs).** In live mode with Zetaris reachable, the SQL half of
-  every metric runs on Zetaris Lightning 2.4.3.1 (local Docker, REST API); the committed runs that did so are the two
-  of 22 Oct, which had no model, and the 24 Oct model runs found it stopped and fell back to SQLite (below). For
+  every metric runs on Zetaris Lightning 2.4.3.1 (local Docker, REST API); the committed runs that did so are these:
+  the two of 22 Oct, which had no model, and six of 24 Oct (22:36-22:42 UTC) with every model request through
+  Nightshift to Nemotron. The earlier 24 Oct model runs found it stopped and fell back to SQLite (below). For
   each run the investigator registers the exports the Collector hashed as Lightning REST tables, served to the Zetaris driver by a stdlib artifact server, so Zetaris
   computes on exactly the bytes whose sha256 the claims cite; SchemaStore views flatten the JSON and the 22
   committed ANSI queries run on them (each query with its first rows, executor and timing in `sql.jsonl`, every REST call
-  in `zetaris.jsonl`, every object dropped at finalize). A view or query that fails there falls back to SQLite with
-  a logged recovery, and `--require-zetaris` turns any fallback into `E_ZETARIS_REQUIRED`. Code:
+  in `zetaris.jsonl`, every object dropped at finalize). When a table or view that a query reads, or the query itself,
+  fails there, that query falls back to SQLite with a logged recovery, and `--require-zetaris` turns any such fallback into
+  `E_ZETARIS_REQUIRED`; a table that no query reads can fail with no recovery (example 02 of
+  `examples/live-trace-zetaris-nightshift/`). Code:
   `investigator/zetaris/`, SQL: `investigator/sql/`. On Zetaris: the 22 Oct live seller audit computed all 19 of
   its claims there (`derivation.backend: "zetaris"`, `examples/live-trace/live-ex01-20261022/`), and the live payer
   dossier ran with `--require-zetaris` (7 of its 9 claims on Zetaris; balance and nonce had no SQL half yet). Not
-  on Zetaris: the 24 Oct Nightshift runs, because Zetaris was stopped on purpose (the machine was short of memory):
-  each logs `recovery{zetaris_unreachable}` at seq 1 and runs the same SQL on SQLite (`mounts.executor: "sqlite"`,
-  `derivation.backend: "sqlite-fallback"`, status `partial`). Offline the same SQL runs on SQLite, and
-  `tests/test_sql_dual_backend.py` proves SQLite returns the rows Zetaris returned for q01-q19
-  (`fixtures/zetaris/`); q20-q22 were added after the live session and have not run on Zetaris yet.
+  on Zetaris: the 24 Oct Nightshift runs of 16:00-18:55 UTC, because Zetaris was stopped on purpose (the machine was
+  short of memory). Each logs `recovery{zetaris_unreachable}` at seq 1 and runs the same SQL on SQLite
+  (`mounts.executor: "sqlite"`, `derivation.backend: "sqlite-fallback"`, status `partial`).
+
+  With Zetaris started again, the six runs of `examples/live-trace-zetaris-nightshift/` computed all 76 of their
+  claims there (`derivation.backend: "zetaris"`, status `ok`): the five inputs on the hosted Nemotron, and example 01
+  on the local Nano. Once in the six runs, in example 02, the Zetaris driver ran out of its 2 GB heap while caching
+  a Bazaar page that no query of that run reads; why was not isolated, and the driver's log shows the same once on
+  22 Oct. Docker restarted the driver and the run went on (`zetaris.jsonl` and `machine.txt` there).
+
+  Offline the same SQL runs on SQLite, and `tests/test_sql_dual_backend.py` proves SQLite returns the rows Zetaris
+  returned for q01-q19 (`fixtures/zetaris/`). q20-q22 were added after the 22 Oct session. The runs of 24 Oct,
+  22:36-22:42 UTC, are the first on record that ran them on Zetaris (q20 and q21 over the committed catalog snapshot,
+  with the rows SQLite gives in `examples/02-catalog-concentration/`), but they have no recorded result set yet.
   [Details](#zetaris-integration-tables-sql-fallback).
 - **Meterless engines: World Model and H-MEM** (Markovian and Scout Intent are not used). Both are Python
   standard-library ports of the Meterless reference architectures, and both work in every run, sample and live.
@@ -146,12 +163,13 @@ elsewhere; every receipt names the model).
     without one. Features it powers: that caveat gate, and memory in the model's prompts. The Planner's and the
     Writer's retrievals go into their prompts as a `[MEMORY CONTEXT]` block, logged before the call as a `memory`
     event `op: "inject"` whose `prompt_sha256` is the one on the `generate` event of that request (9 such events in
-    the committed examples 02, 03 and 05, 17 in the seven Nemotron live runs). Measured: removing one memory from
-    example 01 drops one caveat and fifteen citations and leaves the verdict unchanged
+    the committed examples 02, 03 and 05, 17 in the seven Nemotron live runs on SQLite and 14 in the six on
+    Zetaris). Measured: removing one memory from example 01 drops one caveat and fifteen citations and leaves the
+    verdict unchanged
     (`examples/memory-ablation/`). Tests: 13/13 upstream vectors (`tests/test_hmem_conformance.py`),
     `tests/test_meterless_hmem.py`, `tests/test_generator_hmem.py`, `tests/test_critic.py`.
 
-  All 324 tests pass, 0 failures, 0 skips (`python -m unittest discover -s tests`).
+  All 330 tests pass, 0 failures, 0 skips (`python -m unittest discover -s tests`).
   [Details](#meterless-integration-h-mem--world-model).
 - **Meterless Nightshift (primary AI provider).** In live mode the Planner, the Writer and the Critic's second
   opinion send every request to Nightshift's Meterless Runtime first (`NightshiftGenerator` in
@@ -168,24 +186,29 @@ elsewhere; every receipt names the model).
   request is a `generate` event in `run.jsonl` naming the model that answered, with the facts of its Meterless
   compute receipt (`receipt_id`, `routed_model`, `winning_route`, latency, tokens), and Nightshift keeps the same
   receipt, Ed25519-signed, in its own ledger: `scripts/nightshift_ledger.py` finds every receipt the repository cites
-  there (127, committed excerpt in `examples/live-trace-nightshift/nightshift-ledger/`) and verifies each signature,
-  offline in `tests/test_nightshift_ledger.py`. On 2026-10-24 seven live runs
-  pinned to Nemotron sent all their 37 requests through it, and the committed examples replay 25 more of its answers.
+  there (157, committed excerpt in `examples/live-trace-nightshift/nightshift-ledger/`) and verifies each signature,
+  offline in `tests/test_nightshift_ledger.py`. On 2026-10-24 thirteen live runs pinned to Nemotron sent all their 67
+  requests through it, six of them with Zetaris as the SQL executor. The committed examples replay 25 more of its
+  answers.
   [Details](#meterless-nightshift-primary-ai-provider).
 - **NVIDIA (Nemotron, always through Nightshift).** Primary model: NVIDIA Nemotron 3.5 Lightning 30B A3B on
   NVIDIA's hosted API (`METERLESS_MODEL=nvidia/nemotron-3.5-lightning-30b-a3b`). Nightshift reaches it with the
   NVIDIA API key entered in its Setup > Providers tab: the key is never in this repository, its environment or its
   logs, and this route needs no GPU. Where it shows: every `generate` event of the six runs in
-  `examples/live-trace-nightshift/nemotron-cloud/` (32 requests) has `routing.routed_model:
+  `examples/live-trace-nightshift/nemotron-cloud/` (32 requests) and of the five in
+  `examples/live-trace-zetaris-nightshift/nemotron-cloud/` (25) has `routing.routed_model:
   nvidia/nemotron-3.5-lightning-30b-a3b` and `routing.winning_route` `{label: "Nemotron 3.5 Lightning 30B A3B",
   provider: nvidia, kind: cloud}`, and so do the 25 answers the committed examples replay (`recorded: true`). Also
   shown: NVIDIA Nemotron Nano 9B v2 (Q4_K_M GGUF) as Nightshift's local lane on the demo machine's NVIDIA GeForce
-  RTX 5080 Laptop GPU: one live run, 5 requests, `routing.routed_model:
+  RTX 5080 Laptop GPU: two live runs of 5 requests (one on SQLite, one on Zetaris), `routing.routed_model:
   local-runtime/nvidia-nvidia-nemotron-nano-9b-v2-q4-k-m`, `kind: local`, and the daemon's `lane nemotron placed
-  full on CUDA0` line in `examples/live-trace-nightshift/machine.txt`. Thinking is switched off per request
+  full on CUDA0` line in `examples/live-trace-nightshift/machine.txt` (the same line, with the lane's timing of the
+  five requests of the run on Zetaris, is in `examples/live-trace-zetaris-nightshift/machine.txt`). Thinking is
+  switched off per request
   (`reasoning_effort: "none"` and a `/no_think` system turn) so the token budget goes to the answer; some replies still
   reach it (in the committed replays example 01's critic-r1 and writer-r2 and the critic-r2 of examples 04 and 05;
-  in the video's live run critic-r1, critic-r2 and writer-r2), and a cut Critic array keeps its complete items
+  in the video's live run critic-r1, critic-r2 and writer-r2; in the runs on Zetaris example 01's critic-r1,
+  critic-r2 and writer-r2 and the critic-r2 of examples 03 and 04), and a cut Critic array keeps its complete items
   (`recovery{generator_reply_repaired}`). With the
   portable default `meterless/auto` Nightshift may pick a lane that is not Nemotron, and the receipt then names
   that lane: the first runs of 24 Oct went that way to a local Llama 3.2 3B lane (archived in
@@ -208,7 +231,8 @@ elsewhere; every receipt names the model).
   `llama-3.2-3b/nightshift-ex01-20261024/`, `nemotron-cloud/nemotron-cloud-ex01-20261024/` and
   `nemotron-local/nemotron-local-ex01-20261024/` under `examples/live-trace-nightshift/`); the fifth, at 18:55 UTC for
   the video (`nemotron-cloud/live-video-ex01-20261024/`), has the same verdict and 18 of the 19 values: the Bazaar
-  30-day call counter of the host had moved from 63 to 64.
+  30-day call counter of the host had moved from 63 to 64. The two of 22:36 and 22:41 UTC, on Zetaris
+  (`examples/live-trace-zetaris-nightshift/`, hosted and local), have the same 19 values as the 18:55 run.
 - **The model's critique is checked by the rules.** A second-opinion issue on a sentence whose every number rule B
   maps to a claim that sentence cites is logged as `critique{rule: LLM, verdict: dismissed, dismissed_by: B,
   claim_ids}` and not acted on (`investigator/agents/critic.py`, `tests/test_critic_dismissal.py`): 20 of the 58
@@ -220,7 +244,7 @@ elsewhere; every receipt names the model).
   with the exact prompt beside it. The live runs link the same way, with each run's own `transcripts/`.
 - **Nightshift's own records back the app's logs.** The receipt id in each `generate` event is checked against the
   ledger Nightshift writes and signs (Ed25519, verified with the standard library against the RFC 8032 vectors): all
-  127 receipts the repository cites are in the committed excerpt of Nightshift's signed ledger
+  157 receipts the repository cites are in the committed excerpt of Nightshift's signed ledger
   (`examples/live-trace-nightshift/nightshift-ledger/`), each Ed25519 signature valid under the one public key the
   lines carry, issued to app `x402-adoption-investigator` and routed to the model the log names: that proves the
   lines are unchanged since signing, not which machine signed them.
@@ -298,7 +322,7 @@ What is implemented (`investigator/generator.py`, added 2026-10-24, tests in `te
   in the ledger the runtime writes (`<stateDir>/receipts.jsonl`, or `--ledger FILE`), verifies its Ed25519 signature
   (the body as compact JSON, the public key the envelope carries) and prints, per request, what Nightshift recorded:
   issue time, app, router winner, route kind, egress, tokens, latency, signer, next to the run's seq and prompt id.
-  The receipt's prompt preview is never printed. Committed: the 127 ledger lines the repository cites
+  The receipt's prompt preview is never printed. Committed: the 157 ledger lines the repository cites
   (`examples/live-trace-nightshift/nightshift-ledger/`), all signatures valid under the one public key the lines
   carry; the private signing key stays in Nightshift's state directory, so the excerpt proves the lines are unchanged
   since signing, not which machine signed.
@@ -324,7 +348,13 @@ each a `generate` event with `model` and `routing.routed_model` `nvidia/nemotron
 the plan (two after one re-ask). A seventh, recorded for the video at 18:55 UTC with the build that dismisses
 rule-B-backed issues (`nemotron-cloud/live-video-ex01-20261024/`, 5 requests, `kind: cloud`), had both Critic replies
 and the second Writer draft reach their token budgets; the Critic arrays kept their complete items
-(`recovery{generator_reply_repaired}`). The committed examples replay 25 more real Nemotron answers, recorded through
+(`recovery{generator_reply_repaired}`).
+
+Six more ran at 22:36-22:42 UTC with Zetaris running, in `examples/live-trace-zetaris-nightshift/`: the five inputs
+on the hosted Nemotron (25 requests) and example 01 on the local Nano (5). They ran every query on Zetaris and ended
+`ok`. Five of their Critic replies were cut or malformed and were repaired the same way.
+
+The committed examples replay 25 more real Nemotron answers, recorded through
 Nightshift on the prompts sample mode builds from the fixtures (`METERLESS_MODEL=nvidia/nemotron-3.5-lightning-30b-a3b
 python scripts/record_transcripts.py <example> --on-fixtures --prune`; `fixtures/transcripts/README.md`): 17 at
 17:15-17:24 UTC and the round-2 Writer and Critic answers of examples 01, 03, 04 and 05 (8) at 18:43-18:44 UTC,
@@ -351,8 +381,9 @@ Earlier that day six runs went through a local Llama 3.2 3B lane with `meterless
 What is not claimed: Nemotron's drafts still leave caveat codes and conflict ids out, so the final answers are
 partly completed from the claims, and several of its Critic issues are wrong (see the live traces' README); the
 Writer and Critic prompts were tightened for Nemotron the same day, so part of the gain over the 3B run is the
-prompts; the hosted model is not deterministic at temperature 0; the live Nightshift runs used SQLite, not Zetaris
-(Zetaris was stopped); from a container only one smoke request is committed, no full run; the dismissal reads
+prompts; the hosted model is not deterministic at temperature 0; the Nightshift runs of 16:00-18:55 UTC used SQLite, not Zetaris
+(Zetaris was stopped), and in one of the six later runs on Zetaris a table no query reads was lost to the driver's
+heap; from a container only one smoke request is committed, no full run; the dismissal reads
 numbers and citations only, so a wrong word beside a backed number is no longer cut; the fake-runtime tests (`tests/test_nightshift.py`) remain what proves the error paths (unauthorized, offline, Auto
 Detect order).
 
@@ -532,7 +563,8 @@ generator when only `OPENAI_API_KEY` is set). The default `--mode auto` resolves
 a Nightshift variable (`NIGHTSHIFT_BASE_URL` / `METERLESS_BASE_URL`, `NIGHTSHIFT_TOKEN` / `METERLESS_RUNTIME_TOKEN` /
 `METERLESS_TOKEN`, `NIGHTSHIFT_TOKEN_FILE`), `OPENAI_API_KEY` or `ZETARIS_PASSWORD` is set (in an env file or in
 the shell) and to sample otherwise, without touching the network; `SAMPLE_MODE=1` forces
-sample mode. Each missing piece degrades to a logged recovery instead of a crash:
+sample mode. Each missing piece that a query or a model request needs degrades to a logged recovery instead of a
+crash:
 
 | missing | behaviour | log marks |
 |---|---|---|
@@ -540,6 +572,7 @@ sample mode. Each missing piece degrades to a logged recovery instead of a crash
 | Nightshift and `OPENAI_API_KEY` | Planner/Writer rules and templates, Critic rules only | `recovery{nightshift_unavailable}`, `recovery{generator_fallback}`, `mounts.generator: "null"`, status `partial` |
 | Zetaris credentials or instance | the same SQL on SQLite for the whole run | `recovery{zetaris_unreachable}`, `mounts.executor: "sqlite"`, status `partial` |
 | one Zetaris view or query | that query on SQLite, the rest on Zetaris | `recovery{zetaris_query_fallback}`, `derivation.backend: "sqlite-fallback"` |
+| a Zetaris REST table that no query reads | nothing falls back, the run goes on | only `zetaris.jsonl` (HTTP 400): no recovery, status unchanged (example 02 of `examples/live-trace-zetaris-nightshift/`) |
 | the mounted executor cannot build its views | the same SQL on an embedded SQLite executor over the same exports | `recovery{zetaris_query_fallback, to: sqlite}`, `derivation.backend: "sqlite-fallback"` |
 | a query skipped (SQL budget, deadline) | the claims that need it have one value only and the Critic's C2 rejects them | `recovery{budget_exhausted | deadline_skip}`, `rejected_claims[]`, status `partial` |
 | a source after retries | fixture replayed as stale, or `unavailable` + `unavailable[]` metrics | `retry`, `recovery{fixture_fallback | source_unavailable}` |
@@ -558,6 +591,12 @@ README): every generator request through Meterless Nightshift to NVIDIA Nemotron
 3.5 Lightning, one of them the video's, one on the local Nemotron Nano 9B v2) with its compute receipt (`generate` events, `generator.jsonl`,
 the transcripts), and the six earlier runs on a local Llama 3.2 3B lane. Zetaris was stopped, so each run logs
 `recovery{zetaris_unreachable}` and runs its SQL on SQLite (status `partial`).
+
+The same five inputs ran again on 2026-10-24 at 22:36-22:42 UTC, with Zetaris started and with `--require-zetaris`
+and `--require-generator` (`examples/live-trace-zetaris-nightshift/`, see its README). Five ran on the hosted
+Nemotron and example 01 on the local Nano. Every query ran on Zetaris and every request went through Nightshift,
+with no query or generator fallback (one Zetaris table that no query reads failed in example 02). Their status is
+`ok`, the only committed live runs that have it.
 
 ## Meterless integration (H-MEM + World Model)
 
@@ -645,7 +684,9 @@ the syntax facts learned on the instance are in [docs/ZETARIS.md](docs/ZETARIS.m
   every cell as a string; cells are cast per the meta file. A lint test keeps Spark-only syntax out of the catalog.
   q20-q22 were added after the live Zetaris session so that every metric has an SQL half: q20 and q21 read the
   existing `catalog_resources` view; q22 reads the new `chain_facts` view, whose Zetaris definition decodes the
-  JSON-RPC hex with `conv()` and has not run on an instance yet (a failure there sends that query to SQLite).
+  JSON-RPC hex with `conv()`. That view was built with HTTP 200 in five of the six runs of
+  `examples/live-trace-zetaris-nightshift/` (all but example 02, first in example 01 at 22:37 UTC on 2026-10-24), and
+  q22, which reads it, ran in examples 03-05 and returned 2 rows. A failure there would send that query to SQLite.
 - **What worked on the demo machine (2026-10-22).** `scripts/zetaris_preflight.py` 8/8 PASS (login, version,
   metadata, artifact server bound and reachable from the driver container, SchemaStore view, cleanup);
   `scripts/record_zetaris_results.py --from-fixtures` recorded the 19 result sets of q01-q19 in `fixtures/zetaris/`
@@ -654,10 +695,22 @@ the syntax facts learned on the instance are in [docs/ZETARIS.md](docs/ZETARIS.m
   all 19 claims on Zetaris (`derivation.backend: "zetaris"`; its 13 queries took 106-447 ms each, the
   `time_used_ms` of `examples/live-trace/live-ex01-20261022/sql.jsonl`; 75 REST calls including the cleanup in
   `zetaris.jsonl` next to it), and example 03 ran with `--require-zetaris`.
+- **What ran with a model (2026-10-24, 22:36-22:42 UTC).** `examples/live-trace-zetaris-nightshift/` holds six runs
+  of the five inputs (example 01 twice, hosted and local Nemotron), run with `--require-zetaris --require-generator`:
+  - all 76 claims on Zetaris;
+  - the analytics queries took 131-1,064 ms each (`time_used_ms` in `zetaris.jsonl`);
+  - every object was dropped at the end.
+
+  The instance ran with the driver heap at 2 GB (`-Xmx2g`). In example 02, the `CACHE TABLE` of the first Bazaar
+  page ran it out of heap: `java.lang.OutOfMemoryError` in the driver log, HTTP 400 in `zetaris.jsonl`. Docker
+  restarted the driver, and the run continued on it, because none of its queries reads that page. Why the heap ran
+  out was not isolated: the restarted driver cached the 32 MB catalog snapshot right after, and the driver's log has
+  one earlier case on the same kind of table, on 22 Oct ([docs/ZETARIS.md](docs/ZETARIS.md), section 6).
 - **Fallback.** Login failure or an unreachable instance -> SQLite for the whole run with
   `recovery{zetaris_unreachable}` (trace `examples/live-trace/live-nozetaris-ex03/`); a view or query that fails
   -> that query on SQLite with `fallback_reason` and `backend: "sqlite-fallback"`; `--require-zetaris` turns any of
-  these into `E_ZETARIS_REQUIRED`. Sample mode never opens a socket, so it is always SQLite.
+  these into `E_ZETARIS_REQUIRED`. A REST table that no query reads can fail with neither (example 02 above). Sample
+  mode never opens a socket, so it is always SQLite.
 
 ## Logs
 
@@ -818,7 +871,7 @@ on 2026-10-22 between 00:02 and 00:08 UTC.
 ## Tests
 
 ```
-python -m unittest discover -s tests     # 324 tests, no third-party dependency
+python -m unittest discover -s tests     # 330 tests, no third-party dependency
 python -m pytest -q                      # same suite under pytest if installed
 ```
 
@@ -836,16 +889,21 @@ headers, token lookup order and the `METERLESS_*` aliases, compute-receipt parsi
 token or prompt preview in any file, no detection in sample mode, the thinking switch on every request and in the
 logs, the 3B model's reply shapes repaired and completed without the model deciding a claim or the verdict), the
 Nightshift ledger check (the Ed25519 verifier against the RFC 8032 vectors, every cited receipt signed and naming the
-traced model, a changed byte rejected; `tests/test_nightshift_ledger.py`), inline comments in env files, the
+traced model, a changed byte rejected; `tests/test_nightshift_ledger.py`), the runs on Zetaris and Nightshift
+against their logs and their README table (`tests/test_live_trace_zetaris_nightshift.py`), inline comments in env
+files, the
 sample-mode fallback for a `run_id` that is no example's, sample-mode
 offline proof, byte-for-byte reproducibility of the committed examples, and `metadata.json` (every path it names
 exists, its test count is the discovered one and README quotes it; the deck quotes the count of the day it was last
 rendered, which `metadata.json` records as `tests.count_in_repo_deck`; the deck on the HackOS form, until it is
 replaced, says 225, `tests.count_in_hackos_deck`).
 
-On 2026-10-24, after the second review round, the 324 tests ran green in the author tree (Python 3.11.9); before
-that, after the first review fixes (commit a8650c4 and the docs commit after it), the suite (318 then) ran green in
-the author tree. The fresh-clone and Docker checks that follow predate both. The tests added that day
+On 2026-10-24, after the six runs on Zetaris and Nightshift were added, the 330 tests ran green in the author tree
+(Python 3.11.9), and again after the review of that folder. The 6 added then check that folder against its logs and README
+(`tests/test_live_trace_zetaris_nightshift.py`, 5) and its 30 receipts in the ledger excerpt
+(`tests/test_nightshift_ledger.py`, 1). Before that, after the second review round, the suite (324 then) ran green
+in the author tree, and after the first review fixes (commit a8650c4 and the docs commit after it) the suite (318
+then) ran green there too. The fresh-clone and Docker checks that follow predate all three. The tests added that day
 after the review cover the dismissal of model issues on rule-B-backed sentences (`tests/test_critic_dismissal.py`),
 `.env` and `ZETARIS_REST_URL` (`tests/test_config_env.py`), a 404 that reads its body first (a Windows reset seen in
 a clean-clone suite run), `run_start.deadline_at` and the traceback scrub without a home directory
@@ -919,11 +977,18 @@ are records of live runs and are not re-run offline.
   their basis and never reconciled into one figure.
 - **Zetaris paths not exercised live**: the `direct` API style and the paginated `start/page/close` route (no query
   exceeds 1,000 rows); `CACHE TABLE` is a session cache.
-- **Zetaris coverage.** Sample mode, the one documented command, always runs on SQLite. q20-q22 and the
-  `chain_facts` view were added after the live Zetaris session: the three queries have no Zetaris recording, and
-  the Zetaris definition of `chain_facts` (`conv()` over the RPC hex) has not run on an instance. Both committed
-  example 03 live traces predate them. The 24 Oct Nightshift runs did not use Zetaris either: it was stopped
-  (the machine was short of memory), so each ran the same SQL on SQLite after `recovery{zetaris_unreachable}`.
+- **Zetaris coverage.** Sample mode, the one documented command, always runs on SQLite.
+  - q20-q22 and the `chain_facts` view were added after the Zetaris session of 22 Oct, so both committed example 03
+    traces of 22 Oct predate them. The runs of 24 Oct (22:36-22:42 UTC, `examples/live-trace-zetaris-nightshift/`)
+    are the first on record that ran them on Zetaris, but they have no recorded result set, so
+    `tests/test_sql_dual_backend.py` does not compare them with SQLite (q20 and q21 ran there over the committed
+    catalog snapshot and gave the rows SQLite gives; no test holds that).
+  - The 24 Oct Nightshift runs of 16:00-18:55 UTC did not use Zetaris: it was stopped (the machine was short of
+    memory), so each ran the same SQL on SQLite after `recovery{zetaris_unreachable}`.
+  - In the six later runs on Zetaris, the driver ran with a 2 GB heap, and it ran out once in those runs, during
+    the `CACHE TABLE` of the first Bazaar page (example 02, no query affected). The driver's log shows the same once
+    on 22 Oct, and right after the restart the same heap cached the 32 MB catalog snapshot, so the cause was not
+    isolated. Neither a retry nor a larger heap has been tried.
 - **NVIDIA through Nightshift only.** The app calls no NVIDIA endpoint itself and holds no NVIDIA key: the hosted
   Nemotron is reached by Nightshift with the key configured in Nightshift, and the local Nemotron Nano runs in
   Nightshift's llama-server on the RTX 5080 Laptop GPU (`examples/live-trace-nightshift/machine.txt`). On a

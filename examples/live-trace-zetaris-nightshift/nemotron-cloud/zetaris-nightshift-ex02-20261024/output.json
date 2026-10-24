@@ -1,0 +1,1773 @@
+{
+  "run_id": "zetaris-nightshift-ex02-20261024",
+  "status": "ok",
+  "output": {
+    "mounts": {
+      "mode": "live",
+      "fetcher": "live+fixture-fallback",
+      "executor": "zetaris",
+      "generator": "nightshift:nvidia/nemotron-3.5-lightning-30b-a3b",
+      "fixtures_captured_at": "2026-10-22T00:05:00Z",
+      "zetaris_version": "2.4.3.1",
+      "zetaris_source": "captured"
+    },
+    "question": "Who sells on the CDP Bazaar and how concentrated are the paid calls? What share of listed endpoints saw any call in the last 30 days?",
+    "plan": {
+      "playbook": "catalog_concentration",
+      "query_ids": [
+        "q08_catalog_size",
+        "q09_catalog_top_hosts_by_calls",
+        "q10_catalog_active_share",
+        "q11_catalog_payto_concentration",
+        "q19_trust_ecosystem_stats",
+        "q20_catalog_unique_payers_max",
+        "q21_catalog_top_hosts_by_listings"
+      ],
+      "sources": [
+        "cdp_catalog_snapshot",
+        "cdp_bazaar",
+        "x402_trust"
+      ],
+      "planner_source": "generator",
+      "metrics": [
+        "catalog_resources",
+        "catalog_hosts",
+        "catalog_distinct_payto",
+        "catalog_calls_30d_sum",
+        "catalog_active_share",
+        "top_host_calls_share",
+        "top10_hosts_calls_share",
+        "top_hosts_by_listings",
+        "top_payto_calls_share",
+        "unique_payers_per_endpoint_max",
+        "trust_ecosystem_stats"
+      ],
+      "hypotheses": [
+        "A small number of hosts generate the majority of paid calls on the CDP Bazaar.",
+        "The share of listed endpoints with zero activity in the last 30 days is greater than 50%.",
+        "Top hosts by call volume have disproportionately more listings than average hosts.",
+        "A single wallet or facilitator controls a significant fraction of all payTo addresses.",
+        "The concentration of calls across hosts follows a power-law distribution."
+      ],
+      "hmem_memory_ids": [
+        "mem-seed-005",
+        "mem-28",
+        "mem-43",
+        "mem-52",
+        "mem-20"
+      ]
+    },
+    "verdict": {
+      "label": "concentrated",
+      "confidence": 0.9,
+      "why": [
+        "c07"
+      ]
+    },
+    "answer": "Paid calls are concentrated in a few hosts (verdict concentrated) based on [c07]. 28462 unique resources form the CDP Bazaar catalog snapshot [c01] 2680 distinct hosts serve those resources [c02] 1785 distinct payTo wallets receive payments [c03] 824796 total 30-day calls across the snapshot [c04] 99.6% of listed endpoints saw at least one call in the last 30 days [c05] In the 30-day window, 99.6% of listed endpoints received at least one call. Paid-call concentration is extreme: one host (www.ax1.vc) and one payTo wallet each generate roughly 29.5% of all 30-day calls, and the top ten hosts together account for 73.3% of calls. The top host www.ax1.vc accounts for 243580 of 824796 30-day calls (29.5 %) [c06]. The top ten hosts account for 604248 of 824796 30-day calls (73.3 %) [c07]. Hosts with the most listings in the snapshot: saylorinnovations.com=1568, agentshelf.syntexa.ch=1236, dns.intel.rallylive.ca=694, agent402.tools=613 [c08]. The top payTo wallet 0x7284d41b5b852f2bd4c99bdf95043d84452d299c receives 243601 of 824796 30-day calls (29.5 %) [c09]. The largest per-endpoint 30-day unique-payer counter is 2708 (not deduplicable across endpoints) [c10]. x402-trust reports endpoints_listed=301727, endpoints_active=227830, settlements_30d=2559694, distinct_payers_30d=31592 [c11]. Where sources disagree [k01] on ecosystem_size: cdp_catalog_snapshot: 28462 (unique resources in the compact snapshot (deduplicated by resource)); cdp_bazaar: 28472 (pagination.total reported live by the discovery API at capture (moves by the minute)); x402_trust: endpointsListed=301727, endpointsActive=227830 (x402-trust index across its own sources, 30-day probe window, delisted endpoints counted in listed). The Bazaar snapshot is a dated capture of one index deduplicated by resource; the API total moves by the minute; x402-trust indexes a different and larger set with its own 30-day probe window and counts delisted endpoints [c01] [c11]. Caveat [basis_mismatch]: Bazaar counters and receipts use different windows and bases [mem-seed-007]; applies to [c04] [c05] [c06] [c07] [c09]. Caveat [snapshot_dated]: the catalog snapshot is a dated capture and the live total moves by the minute [mem-seed-006]; applies to [c01] [c02] [c03] [c04] [c05] [c06] [c07] [c08] [c09] [c10]. Caveat [third_party_aggregate]: x402-trust figures are third-party aggregates with their own window and index [mem-seed-004]; applies to [c11]. Caveat [unique_payers_not_dedupable]: per-endpoint unique-payer counters cannot be deduplicated across endpoints [mem-seed-001]; applies to [c10].",
+    "claims": [
+      {
+        "id": "c01",
+        "metric": "catalog_resources",
+        "subject": "catalog:cdp-bazaar",
+        "statement": "The Bazaar catalog snapshot holds 28462 unique resources.",
+        "value": 28462,
+        "unit": "count",
+        "period": "all_time",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources?limit=1000&offset=N",
+            "sha256": "e1b0040a2265596ab5871523a197f4620b75819b1cdbef269aefb9b61100f3b8",
+            "captured_at": "2026-10-22T00:10:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/cdp-discovery-catalog-compact.json.gz"
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://zetaris-nightshift-ex02-20261024#18",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://zetaris-nightshift-ex02-20261024#25",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": "q08_catalog_size",
+          "sql_sha256": "569da229828063c1a87e6d09232c96af4067899ae9aeacb76a80f06d522a5167",
+          "backend": "zetaris",
+          "reducer": "reducers.catalog_resources",
+          "rows": 1,
+          "fields": [
+            "resource"
+          ],
+          "sources": [
+            "cdp_catalog_snapshot"
+          ],
+          "log_seq": 18
+        },
+        "coverage": {
+          "items_seen": 28462,
+          "total_reported": 28472,
+          "share": 0.9996,
+          "basis": "compact snapshot 2026-10-22"
+        },
+        "caveats": [
+          "snapshot_dated"
+        ],
+        "caveat_memory_ids": {
+          "snapshot_dated": "mem-seed-006"
+        },
+        "conflict_ids": [
+          "k01"
+        ],
+        "confidence": 0.9,
+        "status": "accepted",
+        "cross_checked": true,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      },
+      {
+        "id": "c02",
+        "metric": "catalog_hosts",
+        "subject": "catalog:cdp-bazaar",
+        "statement": "Those resources are served by 2680 distinct hosts.",
+        "value": 2680,
+        "unit": "count",
+        "period": "all_time",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources?limit=1000&offset=N",
+            "sha256": "e1b0040a2265596ab5871523a197f4620b75819b1cdbef269aefb9b61100f3b8",
+            "captured_at": "2026-10-22T00:10:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/cdp-discovery-catalog-compact.json.gz"
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://zetaris-nightshift-ex02-20261024#18",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://zetaris-nightshift-ex02-20261024#26",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": "q08_catalog_size",
+          "sql_sha256": "569da229828063c1a87e6d09232c96af4067899ae9aeacb76a80f06d522a5167",
+          "backend": "zetaris",
+          "reducer": "reducers.catalog_hosts",
+          "rows": 1,
+          "fields": [
+            "resource"
+          ],
+          "sources": [
+            "cdp_catalog_snapshot"
+          ],
+          "log_seq": 18
+        },
+        "coverage": {
+          "items_seen": 28462,
+          "total_reported": 28472,
+          "share": 0.9996,
+          "basis": "compact snapshot 2026-10-22"
+        },
+        "caveats": [
+          "snapshot_dated"
+        ],
+        "caveat_memory_ids": {
+          "snapshot_dated": "mem-seed-006"
+        },
+        "conflict_ids": [],
+        "confidence": 0.9,
+        "status": "accepted",
+        "cross_checked": true,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      },
+      {
+        "id": "c03",
+        "metric": "catalog_distinct_payto",
+        "subject": "catalog:cdp-bazaar",
+        "statement": "1785 distinct payTo wallets receive the payments.",
+        "value": 1785,
+        "unit": "count",
+        "period": "all_time",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources?limit=1000&offset=N",
+            "sha256": "e1b0040a2265596ab5871523a197f4620b75819b1cdbef269aefb9b61100f3b8",
+            "captured_at": "2026-10-22T00:10:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/cdp-discovery-catalog-compact.json.gz"
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://zetaris-nightshift-ex02-20261024#18",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://zetaris-nightshift-ex02-20261024#27",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": "q08_catalog_size",
+          "sql_sha256": "569da229828063c1a87e6d09232c96af4067899ae9aeacb76a80f06d522a5167",
+          "backend": "zetaris",
+          "reducer": "reducers.catalog_distinct_payto",
+          "rows": 1,
+          "fields": [
+            "payTo"
+          ],
+          "sources": [
+            "cdp_catalog_snapshot"
+          ],
+          "log_seq": 18
+        },
+        "coverage": {
+          "items_seen": 28462,
+          "total_reported": 28472,
+          "share": 0.9996,
+          "basis": "compact snapshot 2026-10-22"
+        },
+        "caveats": [
+          "snapshot_dated"
+        ],
+        "caveat_memory_ids": {
+          "snapshot_dated": "mem-seed-006"
+        },
+        "conflict_ids": [],
+        "confidence": 0.9,
+        "status": "accepted",
+        "cross_checked": true,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      },
+      {
+        "id": "c04",
+        "metric": "catalog_calls_30d_sum",
+        "subject": "catalog:cdp-bazaar",
+        "statement": "The 30-day call counters sum to 824796 across the snapshot.",
+        "value": 824796,
+        "unit": "count",
+        "period": "2026-09-24..2026-10-24",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources?limit=1000&offset=N",
+            "sha256": "e1b0040a2265596ab5871523a197f4620b75819b1cdbef269aefb9b61100f3b8",
+            "captured_at": "2026-10-22T00:10:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/cdp-discovery-catalog-compact.json.gz"
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://zetaris-nightshift-ex02-20261024#18",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://zetaris-nightshift-ex02-20261024#28",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": "q08_catalog_size",
+          "sql_sha256": "569da229828063c1a87e6d09232c96af4067899ae9aeacb76a80f06d522a5167",
+          "backend": "zetaris",
+          "reducer": "reducers.catalog_calls_30d_sum",
+          "rows": 1,
+          "fields": [
+            "l30DaysTotalCalls"
+          ],
+          "sources": [
+            "cdp_catalog_snapshot"
+          ],
+          "log_seq": 18
+        },
+        "coverage": {
+          "items_seen": 28462,
+          "total_reported": 28472,
+          "share": 0.9996,
+          "basis": "compact snapshot 2026-10-22"
+        },
+        "caveats": [
+          "snapshot_dated",
+          "basis_mismatch"
+        ],
+        "caveat_memory_ids": {
+          "snapshot_dated": "mem-seed-006",
+          "basis_mismatch": "mem-seed-007"
+        },
+        "conflict_ids": [],
+        "confidence": 0.9,
+        "status": "accepted",
+        "cross_checked": true,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "C6",
+            "verdict": "accept",
+            "reason": "memory mem-215 contradicted by c04; marked wrong",
+            "memory_ids": [
+              "mem-215"
+            ]
+          },
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      },
+      {
+        "id": "c05",
+        "metric": "catalog_active_share",
+        "subject": "catalog:cdp-bazaar",
+        "statement": "28347 of 28462 resources saw at least one call in the 30-day window (99.6 %).",
+        "value": {
+          "numerator": 28347,
+          "denominator": 28462,
+          "share": 0.995959524980676
+        },
+        "unit": "share",
+        "period": "2026-09-24..2026-10-24",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources?limit=1000&offset=N",
+            "sha256": "e1b0040a2265596ab5871523a197f4620b75819b1cdbef269aefb9b61100f3b8",
+            "captured_at": "2026-10-22T00:10:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/cdp-discovery-catalog-compact.json.gz"
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://zetaris-nightshift-ex02-20261024#20",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://zetaris-nightshift-ex02-20261024#29",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": "q10_catalog_active_share",
+          "sql_sha256": "f2dc2b1af77fe1805a34ec55981ab9060f7b97dd1ba8c282662712e7c7e3da75",
+          "backend": "zetaris",
+          "reducer": "reducers.catalog_active_share",
+          "rows": 1,
+          "fields": [
+            "l30DaysTotalCalls"
+          ],
+          "sources": [
+            "cdp_catalog_snapshot"
+          ],
+          "log_seq": 20
+        },
+        "coverage": {
+          "items_seen": 28462,
+          "total_reported": 28472,
+          "share": 0.9996,
+          "basis": "compact snapshot 2026-10-22"
+        },
+        "caveats": [
+          "snapshot_dated",
+          "basis_mismatch"
+        ],
+        "caveat_memory_ids": {
+          "snapshot_dated": "mem-seed-006",
+          "basis_mismatch": "mem-seed-007"
+        },
+        "conflict_ids": [],
+        "confidence": 0.9,
+        "status": "accepted",
+        "cross_checked": true,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      },
+      {
+        "id": "c06",
+        "metric": "top_host_calls_share",
+        "subject": "catalog:cdp-bazaar",
+        "statement": "The top host www.ax1.vc accounts for 243580 of 824796 30-day calls (29.5 %).",
+        "value": {
+          "numerator": 243580,
+          "denominator": 824796,
+          "share": 0.2953215098036363,
+          "host": "www.ax1.vc"
+        },
+        "unit": "share",
+        "period": "2026-09-24..2026-10-24",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources?limit=1000&offset=N",
+            "sha256": "e1b0040a2265596ab5871523a197f4620b75819b1cdbef269aefb9b61100f3b8",
+            "captured_at": "2026-10-22T00:10:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/cdp-discovery-catalog-compact.json.gz"
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://zetaris-nightshift-ex02-20261024#19",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://zetaris-nightshift-ex02-20261024#30",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": "q09_catalog_top_hosts_by_calls",
+          "sql_sha256": "cd7605046bb600b836fb626ccd4c9d8495eb3eb3cbe422d969ec80e0d585e070",
+          "backend": "zetaris",
+          "reducer": "reducers.top_host_calls_share",
+          "rows": 10,
+          "fields": [
+            "l30DaysTotalCalls"
+          ],
+          "sources": [
+            "cdp_catalog_snapshot"
+          ],
+          "log_seq": 19
+        },
+        "coverage": {
+          "items_seen": 28462,
+          "total_reported": 28472,
+          "share": 0.9996,
+          "basis": "compact snapshot 2026-10-22"
+        },
+        "caveats": [
+          "snapshot_dated",
+          "basis_mismatch"
+        ],
+        "caveat_memory_ids": {
+          "snapshot_dated": "mem-seed-006",
+          "basis_mismatch": "mem-seed-007"
+        },
+        "conflict_ids": [],
+        "confidence": 0.9,
+        "status": "accepted",
+        "cross_checked": true,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "C6",
+            "verdict": "accept",
+            "reason": "memory mem-217 contradicted by c06; marked wrong",
+            "memory_ids": [
+              "mem-217"
+            ]
+          },
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      },
+      {
+        "id": "c07",
+        "metric": "top10_hosts_calls_share",
+        "subject": "catalog:cdp-bazaar",
+        "statement": "The top ten hosts account for 604248 of 824796 30-day calls (73.3 %).",
+        "value": {
+          "numerator": 604248,
+          "denominator": 824796,
+          "share": 0.7326029709164448
+        },
+        "unit": "share",
+        "period": "2026-09-24..2026-10-24",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources?limit=1000&offset=N",
+            "sha256": "e1b0040a2265596ab5871523a197f4620b75819b1cdbef269aefb9b61100f3b8",
+            "captured_at": "2026-10-22T00:10:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/cdp-discovery-catalog-compact.json.gz"
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://zetaris-nightshift-ex02-20261024#19",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://zetaris-nightshift-ex02-20261024#31",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": "q09_catalog_top_hosts_by_calls",
+          "sql_sha256": "cd7605046bb600b836fb626ccd4c9d8495eb3eb3cbe422d969ec80e0d585e070",
+          "backend": "zetaris",
+          "reducer": "reducers.top10_hosts_calls_share",
+          "rows": 10,
+          "fields": [
+            "l30DaysTotalCalls"
+          ],
+          "sources": [
+            "cdp_catalog_snapshot"
+          ],
+          "log_seq": 19
+        },
+        "coverage": {
+          "items_seen": 28462,
+          "total_reported": 28472,
+          "share": 0.9996,
+          "basis": "compact snapshot 2026-10-22"
+        },
+        "caveats": [
+          "snapshot_dated",
+          "basis_mismatch"
+        ],
+        "caveat_memory_ids": {
+          "snapshot_dated": "mem-seed-006",
+          "basis_mismatch": "mem-seed-007"
+        },
+        "conflict_ids": [],
+        "confidence": 0.9,
+        "status": "accepted",
+        "cross_checked": true,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      },
+      {
+        "id": "c08",
+        "metric": "top_hosts_by_listings",
+        "subject": "catalog:cdp-bazaar",
+        "statement": "Hosts with the most listings in the snapshot: saylorinnovations.com=1568, agentshelf.syntexa.ch=1236, dns.intel.rallylive.ca=694, agent402.tools=613.",
+        "value": "saylorinnovations.com=1568, agentshelf.syntexa.ch=1236, dns.intel.rallylive.ca=694, agent402.tools=613",
+        "unit": "text",
+        "period": "all_time",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources?limit=1000&offset=N",
+            "sha256": "e1b0040a2265596ab5871523a197f4620b75819b1cdbef269aefb9b61100f3b8",
+            "captured_at": "2026-10-22T00:10:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/cdp-discovery-catalog-compact.json.gz"
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://zetaris-nightshift-ex02-20261024#24",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://zetaris-nightshift-ex02-20261024#32",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": "q21_catalog_top_hosts_by_listings",
+          "sql_sha256": "84906723659a4585daf4c53647ec1b0c748f530ecb4f217d9abff33046c5bbac",
+          "backend": "zetaris",
+          "reducer": "reducers.top_hosts_by_listings",
+          "rows": 4,
+          "fields": [
+            "resource"
+          ],
+          "sources": [
+            "cdp_catalog_snapshot"
+          ],
+          "log_seq": 24
+        },
+        "coverage": {
+          "items_seen": 28462,
+          "total_reported": 28472,
+          "share": 0.9996,
+          "basis": "compact snapshot 2026-10-22"
+        },
+        "caveats": [
+          "snapshot_dated"
+        ],
+        "caveat_memory_ids": {
+          "snapshot_dated": "mem-seed-006"
+        },
+        "conflict_ids": [],
+        "confidence": 0.9,
+        "status": "accepted",
+        "cross_checked": true,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      },
+      {
+        "id": "c09",
+        "metric": "top_payto_calls_share",
+        "subject": "catalog:cdp-bazaar",
+        "statement": "The top payTo wallet 0x7284d41b5b852f2bd4c99bdf95043d84452d299c receives 243601 of 824796 30-day calls (29.5 %).",
+        "value": {
+          "numerator": 243601,
+          "denominator": 824796,
+          "share": 0.2953469706448625,
+          "pay_to": "0x7284d41b5b852f2bd4c99bdf95043d84452d299c"
+        },
+        "unit": "share",
+        "period": "2026-09-24..2026-10-24",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources?limit=1000&offset=N",
+            "sha256": "e1b0040a2265596ab5871523a197f4620b75819b1cdbef269aefb9b61100f3b8",
+            "captured_at": "2026-10-22T00:10:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/cdp-discovery-catalog-compact.json.gz"
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://zetaris-nightshift-ex02-20261024#21",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://zetaris-nightshift-ex02-20261024#33",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": "q11_catalog_payto_concentration",
+          "sql_sha256": "2307816ca37cd94acefcaaf34ffef71f0ccf465c3af3181aa592c840a34a5dfc",
+          "backend": "zetaris",
+          "reducer": "reducers.top_payto_calls_share",
+          "rows": 10,
+          "fields": [
+            "l30DaysTotalCalls",
+            "payTo"
+          ],
+          "sources": [
+            "cdp_catalog_snapshot"
+          ],
+          "log_seq": 21
+        },
+        "coverage": {
+          "items_seen": 28462,
+          "total_reported": 28472,
+          "share": 0.9996,
+          "basis": "compact snapshot 2026-10-22"
+        },
+        "caveats": [
+          "snapshot_dated",
+          "basis_mismatch"
+        ],
+        "caveat_memory_ids": {
+          "snapshot_dated": "mem-seed-006",
+          "basis_mismatch": "mem-seed-007"
+        },
+        "conflict_ids": [],
+        "confidence": 0.9,
+        "status": "accepted",
+        "cross_checked": true,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "C6",
+            "verdict": "accept",
+            "reason": "memory mem-220 contradicted by c09; marked wrong",
+            "memory_ids": [
+              "mem-220"
+            ]
+          },
+          {
+            "round": 1,
+            "rule": "C6",
+            "verdict": "accept",
+            "reason": "memory mem-173 contradicted by c09; marked wrong",
+            "memory_ids": [
+              "mem-173"
+            ]
+          },
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      },
+      {
+        "id": "c10",
+        "metric": "unique_payers_per_endpoint_max",
+        "subject": "catalog:cdp-bazaar",
+        "statement": "The largest per-endpoint 30-day unique-payer counter is 2708 (not deduplicable across endpoints).",
+        "value": 2708,
+        "unit": "count",
+        "period": "2026-09-24..2026-10-24",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources?limit=1000&offset=N",
+            "sha256": "e1b0040a2265596ab5871523a197f4620b75819b1cdbef269aefb9b61100f3b8",
+            "captured_at": "2026-10-22T00:10:00Z",
+            "replayed": true,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": "fixtures/raw/cdp-discovery-catalog-compact.json.gz"
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://zetaris-nightshift-ex02-20261024#23",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://zetaris-nightshift-ex02-20261024#34",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": "q20_catalog_unique_payers_max",
+          "sql_sha256": "d37a5473afae5bea1086ca1c424fb031364f335629dfc13ec0553433ae033110",
+          "backend": "zetaris",
+          "reducer": "reducers.unique_payers_per_endpoint_max",
+          "rows": 1,
+          "fields": [
+            "l30DaysUniquePayers"
+          ],
+          "sources": [
+            "cdp_catalog_snapshot"
+          ],
+          "log_seq": 23
+        },
+        "coverage": {
+          "items_seen": 28462,
+          "total_reported": 28472,
+          "share": 0.9996,
+          "basis": "compact snapshot 2026-10-22"
+        },
+        "caveats": [
+          "unique_payers_not_dedupable",
+          "snapshot_dated"
+        ],
+        "caveat_memory_ids": {
+          "unique_payers_not_dedupable": "mem-seed-001",
+          "snapshot_dated": "mem-seed-006"
+        },
+        "conflict_ids": [],
+        "confidence": 0.9,
+        "status": "accepted",
+        "cross_checked": true,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "C6",
+            "verdict": "accept",
+            "reason": "memory mem-221 contradicted by c10; marked wrong",
+            "memory_ids": [
+              "mem-221"
+            ]
+          },
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      },
+      {
+        "id": "c11",
+        "metric": "trust_ecosystem_stats",
+        "subject": "registry:name:x402-trust",
+        "statement": "x402-trust reports endpoints_listed=301727, endpoints_active=227830, settlements_30d=2559694, distinct_payers_30d=31592.",
+        "value": {
+          "endpoints_listed": 301727,
+          "endpoints_active": 227830,
+          "settlements_30d": 2559694,
+          "distinct_payers_30d": 31592
+        },
+        "unit": "text",
+        "period": "2026-09-24..2026-10-24",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://x402-trust.com/v1/facilitators",
+            "sha256": "19d33f49d0241eb68bc32b8f63012bdb2f182f0207c612aae6b4ffa656c89935",
+            "captured_at": "2026-10-24T22:38:01.962Z",
+            "replayed": false,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "url",
+            "ref": "https://x402-trust.com/trust/leaderboard?limit=25&offset=0",
+            "sha256": "9d988c8cfcd2654b2f6f4bc536921f85184c6e4b65754716b0a3eacc83bdfd8d",
+            "captured_at": "2026-10-24T22:38:02.319Z",
+            "replayed": false,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "url",
+            "ref": "https://x402-trust.com/trust/stats",
+            "sha256": "35e7b56a15d7fdbd9b0dfc65aa3dce182c056a61692aa5f2243a1a92977ac08a",
+            "captured_at": "2026-10-24T22:38:02.664Z",
+            "replayed": false,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://zetaris-nightshift-ex02-20261024#22",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://zetaris-nightshift-ex02-20261024#35",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": "q19_trust_ecosystem_stats",
+          "sql_sha256": "4035f80e1f998facefdc19de0bf5564f7e720ed650410d3e4b503503f15bc8bc",
+          "backend": "zetaris",
+          "reducer": "reducers.trust_ecosystem_stats",
+          "rows": 1,
+          "fields": [
+            "endpointsListed",
+            "endpointsActive",
+            "settlements30d"
+          ],
+          "sources": [
+            "x402_trust"
+          ],
+          "log_seq": 22
+        },
+        "coverage": null,
+        "caveats": [
+          "third_party_aggregate"
+        ],
+        "caveat_memory_ids": {
+          "third_party_aggregate": "mem-seed-004"
+        },
+        "conflict_ids": [
+          "k01"
+        ],
+        "confidence": 0.9,
+        "status": "accepted",
+        "cross_checked": true,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      }
+    ],
+    "rejected_claims": [],
+    "conflicts": [
+      {
+        "id": "k01",
+        "predicate": "ecosystem_size",
+        "subject": "catalog:cdp-bazaar",
+        "values": [
+          {
+            "source": "cdp_catalog_snapshot",
+            "value": 28462,
+            "url": "https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources?limit=1000&offset=N",
+            "basis": "unique resources in the compact snapshot (deduplicated by resource)",
+            "captured_at": "2026-10-22T00:10:00Z"
+          },
+          {
+            "source": "cdp_bazaar",
+            "value": 28472,
+            "url": "https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources?limit=1000&offset=0",
+            "basis": "pagination.total reported live by the discovery API at capture (moves by the minute)",
+            "captured_at": "2026-10-24T22:38:01.036Z"
+          },
+          {
+            "source": "x402_trust",
+            "value": {
+              "endpointsListed": 301727,
+              "endpointsActive": 227830
+            },
+            "url": "https://x402-trust.com/trust/stats",
+            "basis": "x402-trust index across its own sources, 30-day probe window, delisted endpoints counted in listed",
+            "captured_at": "2026-10-24T22:38:02.664Z"
+          }
+        ],
+        "explanation": "The Bazaar snapshot is a dated capture of one index deduplicated by resource; the API total moves by the minute; x402-trust indexes a different and larger set with its own 30-day probe window and counts delisted endpoints.",
+        "status": "explained",
+        "claim_ids": [
+          "c01",
+          "c11"
+        ]
+      }
+    ],
+    "unavailable": [],
+    "sources": [
+      {
+        "name": "cdp_catalog_snapshot",
+        "family": "cdp_catalog_snapshot",
+        "url": "https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources?limit=1000&offset=N",
+        "status": "ok",
+        "http": 200,
+        "sha256": "e1b0040a2265596ab5871523a197f4620b75819b1cdbef269aefb9b61100f3b8",
+        "captured_at": "2026-10-22T00:10:00Z",
+        "replayed": true,
+        "stale": false,
+        "error": null,
+        "fixture_file": "fixtures/raw/cdp-discovery-catalog-compact.json.gz",
+        "request_key": "SNAPSHOT cdp-discovery-catalog-compact"
+      },
+      {
+        "name": "cdp_page_0",
+        "family": "cdp_bazaar",
+        "url": "https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources?limit=1000&offset=0",
+        "status": "ok",
+        "http": 200,
+        "sha256": "8b80ad387facb30fd89c8ef88e22c8fad7313d35894262b76534ae03cdd2e957",
+        "captured_at": "2026-10-24T22:38:01.036Z",
+        "replayed": false,
+        "stale": false,
+        "error": null,
+        "fixture_file": null,
+        "request_key": "GET https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources?limit=1000&offset=0"
+      },
+      {
+        "name": "trust_facilitators",
+        "family": "x402_trust",
+        "url": "https://x402-trust.com/v1/facilitators",
+        "status": "ok",
+        "http": 200,
+        "sha256": "19d33f49d0241eb68bc32b8f63012bdb2f182f0207c612aae6b4ffa656c89935",
+        "captured_at": "2026-10-24T22:38:01.962Z",
+        "replayed": false,
+        "stale": false,
+        "error": null,
+        "fixture_file": null,
+        "request_key": "GET https://x402-trust.com/v1/facilitators"
+      },
+      {
+        "name": "trust_leaderboard",
+        "family": "x402_trust",
+        "url": "https://x402-trust.com/trust/leaderboard?limit=25&offset=0",
+        "status": "ok",
+        "http": 200,
+        "sha256": "9d988c8cfcd2654b2f6f4bc536921f85184c6e4b65754716b0a3eacc83bdfd8d",
+        "captured_at": "2026-10-24T22:38:02.319Z",
+        "replayed": false,
+        "stale": false,
+        "error": null,
+        "fixture_file": null,
+        "request_key": "GET https://x402-trust.com/trust/leaderboard?limit=25&offset=0"
+      },
+      {
+        "name": "trust_stats",
+        "family": "x402_trust",
+        "url": "https://x402-trust.com/trust/stats",
+        "status": "ok",
+        "http": 200,
+        "sha256": "35e7b56a15d7fdbd9b0dfc65aa3dce182c056a61692aa5f2243a1a92977ac08a",
+        "captured_at": "2026-10-24T22:38:02.664Z",
+        "replayed": false,
+        "stale": false,
+        "error": null,
+        "fixture_file": null,
+        "request_key": "GET https://x402-trust.com/trust/stats"
+      }
+    ],
+    "verifications": [],
+    "world": {
+      "first_pass": {
+        "runId": "run_dc7590f207d2",
+        "processed": 5,
+        "skippedUnchanged": 0,
+        "eventsAppended": 29767,
+        "changed": true
+      },
+      "second_pass": {
+        "runId": "run_dc7590f207d2",
+        "processed": 0,
+        "skippedUnchanged": 5,
+        "eventsAppended": 0,
+        "changed": false
+      },
+      "quarantined": 0,
+      "claims_asserted": 11,
+      "counts": {
+        "entities": 4276,
+        "contexts": 3,
+        "relationships": 6789,
+        "facts": 16502
+      }
+    },
+    "memory": {
+      "retrieved": [
+        {
+          "memory_id": "mem-seed-005",
+          "actor": "planner",
+          "score": 0.3907
+        },
+        {
+          "memory_id": "mem-28",
+          "actor": "planner",
+          "score": 0.3718
+        },
+        {
+          "memory_id": "mem-43",
+          "actor": "planner",
+          "score": 0.3718
+        },
+        {
+          "memory_id": "mem-52",
+          "actor": "planner",
+          "score": 0.3718
+        },
+        {
+          "memory_id": "mem-20",
+          "actor": "planner",
+          "score": 0.3637
+        },
+        {
+          "memory_id": "mem-seed-005",
+          "actor": "writer",
+          "score": 0.3984
+        },
+        {
+          "memory_id": "mem-seed-003",
+          "actor": "writer",
+          "score": 0.3529
+        },
+        {
+          "memory_id": "mem-18",
+          "actor": "critic",
+          "score": 0.7333
+        },
+        {
+          "memory_id": "mem-118",
+          "actor": "critic",
+          "score": 0.6947
+        },
+        {
+          "memory_id": "mem-165",
+          "actor": "critic",
+          "score": 0.6561
+        },
+        {
+          "memory_id": "mem-119",
+          "actor": "critic",
+          "score": 0.5674
+        },
+        {
+          "memory_id": "mem-19",
+          "actor": "critic",
+          "score": 0.5608
+        },
+        {
+          "memory_id": "mem-166",
+          "actor": "critic",
+          "score": 0.5539
+        },
+        {
+          "memory_id": "mem-20",
+          "actor": "critic",
+          "score": 0.6803
+        },
+        {
+          "memory_id": "mem-120",
+          "actor": "critic",
+          "score": 0.6438
+        },
+        {
+          "memory_id": "mem-167",
+          "actor": "critic",
+          "score": 0.608
+        },
+        {
+          "memory_id": "mem-215",
+          "actor": "critic",
+          "score": 0.4598
+        },
+        {
+          "memory_id": "mem-seed-006",
+          "actor": "critic",
+          "score": 0.3704
+        },
+        {
+          "memory_id": "mem-217",
+          "actor": "critic",
+          "score": 0.4295
+        },
+        {
+          "memory_id": "mem-24",
+          "actor": "critic",
+          "score": 0.4808
+        },
+        {
+          "memory_id": "mem-124",
+          "actor": "critic",
+          "score": 0.4555
+        },
+        {
+          "memory_id": "mem-171",
+          "actor": "critic",
+          "score": 0.4302
+        },
+        {
+          "memory_id": "mem-219",
+          "actor": "critic",
+          "score": 0.5413
+        },
+        {
+          "memory_id": "mem-172",
+          "actor": "critic",
+          "score": 0.521
+        },
+        {
+          "memory_id": "mem-125",
+          "actor": "critic",
+          "score": 0.5007
+        },
+        {
+          "memory_id": "mem-220",
+          "actor": "critic",
+          "score": 0.5588
+        },
+        {
+          "memory_id": "mem-173",
+          "actor": "critic",
+          "score": 0.4191
+        },
+        {
+          "memory_id": "mem-20",
+          "actor": "critic",
+          "score": 0.3823
+        },
+        {
+          "memory_id": "mem-221",
+          "actor": "critic",
+          "score": 0.4318
+        },
+        {
+          "memory_id": "mem-seed-001",
+          "actor": "critic",
+          "score": 0.4156
+        },
+        {
+          "memory_id": "mem-seed-004",
+          "actor": "critic",
+          "score": 0.389
+        },
+        {
+          "memory_id": "mem-seed-004",
+          "actor": "critic",
+          "score": 0.439
+        }
+      ],
+      "cited": [
+        "mem-seed-001",
+        "mem-seed-004",
+        "mem-seed-006",
+        "mem-seed-007"
+      ],
+      "feedback": [
+        {
+          "memory_id": "mem-118",
+          "kind": "helpful",
+          "reason": "remembered value 28462.0 matches c01"
+        },
+        {
+          "memory_id": "mem-119",
+          "kind": "helpful",
+          "reason": "remembered value 2680.0 matches c02"
+        },
+        {
+          "memory_id": "mem-120",
+          "kind": "helpful",
+          "reason": "remembered value 1785.0 matches c03"
+        },
+        {
+          "memory_id": "mem-124",
+          "kind": "helpful",
+          "reason": "remembered value 604248.0 matches c07"
+        },
+        {
+          "memory_id": "mem-125",
+          "kind": "not_helpful",
+          "reason": "retrieved for c08 but not cited"
+        },
+        {
+          "memory_id": "mem-165",
+          "kind": "helpful",
+          "reason": "remembered value 28462.0 matches c01"
+        },
+        {
+          "memory_id": "mem-166",
+          "kind": "helpful",
+          "reason": "remembered value 2680.0 matches c02"
+        },
+        {
+          "memory_id": "mem-167",
+          "kind": "helpful",
+          "reason": "remembered value 1785.0 matches c03"
+        },
+        {
+          "memory_id": "mem-171",
+          "kind": "helpful",
+          "reason": "remembered value 604248.0 matches c07"
+        },
+        {
+          "memory_id": "mem-172",
+          "kind": "not_helpful",
+          "reason": "retrieved for c08 but not cited"
+        },
+        {
+          "memory_id": "mem-173",
+          "kind": "wrong",
+          "reason": "remembered value 0.0 differs by more than 5 % from c09 (243601.0)"
+        },
+        {
+          "memory_id": "mem-18",
+          "kind": "helpful",
+          "reason": "remembered value 28462.0 matches c01"
+        },
+        {
+          "memory_id": "mem-19",
+          "kind": "helpful",
+          "reason": "remembered value 2680.0 matches c02"
+        },
+        {
+          "memory_id": "mem-20",
+          "kind": "helpful",
+          "reason": "remembered value 1785.0 matches c03"
+        },
+        {
+          "memory_id": "mem-215",
+          "kind": "wrong",
+          "reason": "remembered value 30.0 differs by more than 5 % from c04 (824796.0)"
+        },
+        {
+          "memory_id": "mem-217",
+          "kind": "wrong",
+          "reason": "remembered value 1.0 differs by more than 5 % from c06 (243580.0)"
+        },
+        {
+          "memory_id": "mem-219",
+          "kind": "not_helpful",
+          "reason": "retrieved for c08 but not cited"
+        },
+        {
+          "memory_id": "mem-220",
+          "kind": "wrong",
+          "reason": "remembered value 0.0 differs by more than 5 % from c09 (243601.0)"
+        },
+        {
+          "memory_id": "mem-221",
+          "kind": "wrong",
+          "reason": "remembered value 30.0 differs by more than 5 % from c10 (2708.0)"
+        },
+        {
+          "memory_id": "mem-24",
+          "kind": "helpful",
+          "reason": "remembered value 604248.0 matches c07"
+        },
+        {
+          "memory_id": "mem-28",
+          "kind": "not_helpful",
+          "reason": "retrieved for planner but not cited"
+        },
+        {
+          "memory_id": "mem-43",
+          "kind": "not_helpful",
+          "reason": "retrieved for planner but not cited"
+        },
+        {
+          "memory_id": "mem-52",
+          "kind": "not_helpful",
+          "reason": "retrieved for planner but not cited"
+        },
+        {
+          "memory_id": "mem-seed-001",
+          "kind": "helpful",
+          "reason": "caveat unique_payers_not_dedupable required and attached to c10"
+        },
+        {
+          "memory_id": "mem-seed-003",
+          "kind": "not_helpful",
+          "reason": "retrieved for writer but not cited"
+        },
+        {
+          "memory_id": "mem-seed-004",
+          "kind": "helpful",
+          "reason": "caveat third_party_aggregate required and attached to c11"
+        },
+        {
+          "memory_id": "mem-seed-005",
+          "kind": "not_helpful",
+          "reason": "retrieved for planner but not cited"
+        },
+        {
+          "memory_id": "mem-seed-006",
+          "kind": "helpful",
+          "reason": "caveat snapshot_dated required and attached to c01"
+        },
+        {
+          "memory_id": "mem-seed-007",
+          "kind": "helpful",
+          "reason": "caveat basis_mismatch required and attached to c04"
+        }
+      ],
+      "mined": 10
+    },
+    "agents": [
+      {
+        "role": "planner",
+        "generator_backed": true,
+        "generator_used": "nightshift:nvidia/nemotron-3.5-lightning-30b-a3b",
+        "attempts": 1,
+        "status": "ok",
+        "notes": [],
+        "generator_calls": [
+          {
+            "prompt_id": "planner",
+            "provider": "meterless",
+            "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "route": "Nemotron 3.5 Lightning 30B A3B",
+            "route_kind": "cloud",
+            "receipt_id": "rcpt_req_rtq7j8ik",
+            "recorded": false,
+            "log_seq": 5
+          }
+        ]
+      },
+      {
+        "role": "collector",
+        "generator_backed": false,
+        "generator_used": null,
+        "attempts": 1,
+        "status": "ok",
+        "notes": [
+          "5 ok, 0 stale fixture fallback(s), 0 fixture miss(es), 0 unavailable, 0 deferred to the verifier"
+        ]
+      },
+      {
+        "role": "keeper",
+        "generator_backed": false,
+        "generator_used": null,
+        "attempts": 3,
+        "status": "ok",
+        "notes": [
+          "chain facts asserted: 0",
+          "claims asserted as agent facts: 11",
+          "ingested 5 observations, 29767 events appended",
+          "second pass: {'runId': 'run_dc7590f207d2', 'processed': 0, 'skippedUnchanged': 5, 'eventsAppended': 0, 'changed': False}"
+        ]
+      },
+      {
+        "role": "verifier",
+        "generator_backed": false,
+        "generator_used": null,
+        "attempts": 1,
+        "status": "ok",
+        "notes": [
+          "no receipts observation in this plan: no settlement to sample, no RPC call made"
+        ]
+      },
+      {
+        "role": "analyst",
+        "generator_backed": false,
+        "generator_used": null,
+        "attempts": 1,
+        "status": "ok",
+        "notes": []
+      },
+      {
+        "role": "writer",
+        "generator_backed": true,
+        "generator_used": "nightshift:nvidia/nemotron-3.5-lightning-30b-a3b",
+        "attempts": 2,
+        "status": "ok",
+        "notes": [],
+        "generator_calls": [
+          {
+            "prompt_id": "writer-r1",
+            "provider": "meterless",
+            "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "route": "Nemotron 3.5 Lightning 30B A3B",
+            "route_kind": "cloud",
+            "receipt_id": "rcpt_req_ujkssqd7",
+            "recorded": false,
+            "log_seq": 40
+          },
+          {
+            "prompt_id": "writer-r2",
+            "provider": "meterless",
+            "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "route": "Nemotron 3.5 Lightning 30B A3B",
+            "route_kind": "cloud",
+            "receipt_id": "rcpt_req_3hpmlkfk",
+            "recorded": false,
+            "log_seq": 90
+          }
+        ]
+      },
+      {
+        "role": "critic",
+        "generator_backed": true,
+        "generator_used": "nightshift:nvidia/nemotron-3.5-lightning-30b-a3b",
+        "attempts": 2,
+        "status": "ok",
+        "notes": [],
+        "generator_calls": [
+          {
+            "prompt_id": "critic-r1",
+            "provider": "meterless",
+            "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "route": "Nemotron 3.5 Lightning 30B A3B",
+            "route_kind": "cloud",
+            "receipt_id": "rcpt_req_xc3qhxuz",
+            "recorded": false,
+            "log_seq": 78
+          },
+          {
+            "prompt_id": "critic-r2",
+            "provider": "meterless",
+            "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "route": "Nemotron 3.5 Lightning 30B A3B",
+            "route_kind": "cloud",
+            "receipt_id": "rcpt_req_b2fpw8cl",
+            "recorded": false,
+            "log_seq": 113
+          }
+        ]
+      }
+    ],
+    "critique_rounds": 2,
+    "report_path": "logs/zetaris-nightshift-ex02-20261024/report.md",
+    "log_files": [
+      "fetch.jsonl",
+      "generator.jsonl",
+      "hmem.trace.jsonl",
+      "run.jsonl",
+      "sql.jsonl",
+      "world.audit.jsonl",
+      "world.events.jsonl",
+      "world.observations.jsonl",
+      "zetaris.jsonl"
+    ]
+  }
+}

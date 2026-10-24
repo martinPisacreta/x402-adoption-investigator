@@ -1,0 +1,1771 @@
+{
+  "run_id": "zetaris-nightshift-ex05-20261024",
+  "status": "ok",
+  "output": {
+    "mounts": {
+      "mode": "live",
+      "fetcher": "live+fixture-fallback",
+      "executor": "zetaris",
+      "generator": "nightshift:nvidia/nemotron-3.5-lightning-30b-a3b",
+      "fixtures_captured_at": "2026-10-22T00:05:00Z",
+      "zetaris_version": "2.4.3.1",
+      "zetaris_source": "captured"
+    },
+    "question": "What do we know about the payer 0x097e3F339D0b023605e12A6B81E2d6Cb7571475a: what it bought from tienda.textokit.store, and can the settlement be verified on Base?",
+    "plan": {
+      "playbook": "payer_dossier",
+      "query_ids": [
+        "q16_settlements_vs_receipts",
+        "q17_payer_dossier",
+        "q06_bazaar_host_listings",
+        "q22_payer_chain_facts"
+      ],
+      "sources": [
+        "receipts",
+        "cdp_search",
+        "base_rpc"
+      ],
+      "planner_source": "generator",
+      "metrics": [
+        "bazaar_listings_for_host",
+        "settlements_verified",
+        "payer_sales_total",
+        "payer_usdc_atomic",
+        "payer_window",
+        "payer_services",
+        "verified_tx",
+        "usdc_balance_atomic",
+        "tx_count"
+      ],
+      "hypotheses": [
+        "The wallet purchased a single-item order from tienda.textokit.store with a fixed-price USDC payment.",
+        "The settlement transaction was sent from an x402 facilitator contract to the tienda.textokit.store contract.",
+        "The receipt for this transaction is indexed in the Base receipts store and can be queried by tx hash.",
+        "The wallet's USDC balance was sufficient to cover the atomic USDC transfer at settlement time.",
+        "The transaction nonce matches the wallet's current nonce on the Base chain."
+      ],
+      "hmem_memory_ids": [
+        "mem-seed-005",
+        "mem-49",
+        "mem-58",
+        "mem-77",
+        "mem-129"
+      ]
+    },
+    "verdict": {
+      "label": "adoption_thin",
+      "confidence": 0.9,
+      "why": [
+        "c03",
+        "c07"
+      ]
+    },
+    "answer": "The evidence shows thin adoption (verdict adoption_thin) based on [c03], [c07]. 17 listings for tienda.textokit.store [c01] 5 sampled settlement(s) verified on Base against the receipts, with caveat [payer_from_transfer_log] [c02] 1 purchase(s) by 0x097e3f339d0b023605e12a6b81e2d6cb7571475a, with caveat [self_reported_receipts] [c03] Those purchases total 1000 atomic USDC (0.001 USDC), with caveats [self_reported_receipts, basis_mismatch] [c04] The purchases span 2026-10-20T04:51:24.352Z..2026-10-20T04:51:24.352Z [c05]. They cover 1 distinct service(s) [c06]. 1 settlement(s) of this payer verified on Base [c07]. USDC balance at capture: 1043148 atomic (1.043148 USDC) [c08]. Transaction count (nonce) at capture: 24 [c09]. Caveat [basis_mismatch]: Bazaar counters and receipts use different windows and bases [mem-seed-007]; applies to [c02] [c03] [c04] [c05] [c06] [c07]. Caveat [search_limit_20]: the Bazaar search is capped at twenty results, so its count is a floor [mem-seed-002]; applies to [c01].",
+    "claims": [
+      {
+        "id": "c01",
+        "metric": "bazaar_listings_for_host",
+        "subject": "seller:host:tienda.textokit.store",
+        "statement": "The CDP Bazaar search returns 17 listings for tienda.textokit.store.",
+        "value": 17,
+        "unit": "count",
+        "period": "all_time",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?urlSubstring=tienda.textokit.store&limit=20",
+            "sha256": "68fecfd00c614f6438061d0de17576715a30e05e39657d9fd5b4259ba05cbb66",
+            "captured_at": "2026-10-24T22:40:46.419Z",
+            "replayed": false,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://zetaris-nightshift-ex05-20261024#37",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://zetaris-nightshift-ex05-20261024#39",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": "q06_bazaar_host_listings",
+          "sql_sha256": "db6f09d947dbc3619936f1df6808125f6edb184ad20eac06fe5ad5d41556df40",
+          "backend": "zetaris",
+          "reducer": "reducers.bazaar_listings_for_host",
+          "rows": 1,
+          "fields": [
+            "resource",
+            "payTo"
+          ],
+          "sources": [
+            "cdp_search"
+          ],
+          "log_seq": 37
+        },
+        "coverage": {
+          "items_seen": 17,
+          "total_reported": null,
+          "share": null,
+          "basis": "search capped at 20"
+        },
+        "caveats": [
+          "search_limit_20"
+        ],
+        "caveat_memory_ids": {
+          "search_limit_20": "mem-seed-002"
+        },
+        "conflict_ids": [],
+        "confidence": 0.9,
+        "status": "accepted",
+        "cross_checked": true,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      },
+      {
+        "id": "c02",
+        "metric": "settlements_verified",
+        "subject": "seller:host:tienda.textokit.store",
+        "statement": "5 sampled settlement(s) verified on Base against the receipts.",
+        "value": 5,
+        "unit": "count",
+        "period": "all_time",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://tienda.textokit.store/receipts.json",
+            "sha256": "74e0dc9b9efff51e507f52b65783e63f35bf9e6e160468f2e545158b912daf1d",
+            "captured_at": "2026-10-24T22:40:46.063Z",
+            "replayed": false,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "url",
+            "ref": "https://mainnet.base.org",
+            "sha256": "395c4282d446999297cdcba9e50c3df13687008bc4eecc206a5d616be7f6d227",
+            "captured_at": "2026-10-24T22:40:46.697Z",
+            "replayed": false,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "tx",
+            "ref": "https://basescan.org/tx/0x62c01526c5beb13cad96634ec80e837e576df496905f1bac8019c6ffa3e358c3",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": true,
+            "fixture_file": null
+          },
+          {
+            "kind": "tx",
+            "ref": "https://basescan.org/tx/0xf93149b946d87295924977c2d46f76f163b4d93354bc3fa7aa1f5c04e392736d",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": true,
+            "fixture_file": null
+          },
+          {
+            "kind": "tx",
+            "ref": "https://basescan.org/tx/0x8d2ccd6a3e04a769ecc680f298999dd082a0a2eba936f00a96c0e4ec5902b934",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": true,
+            "fixture_file": null
+          },
+          {
+            "kind": "tx",
+            "ref": "https://basescan.org/tx/0x58ddb2e77e574ddda75fd74df6f3dbf94e2795e22c36f8a01a506c544ff4ada3",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": true,
+            "fixture_file": null
+          },
+          {
+            "kind": "tx",
+            "ref": "https://basescan.org/tx/0x3ca4f2791f4f851a574f4abd7cb949e1b05fb00dadeb77b83fb3d0e36a608fb2",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": true,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://zetaris-nightshift-ex05-20261024#35",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://zetaris-nightshift-ex05-20261024#40",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": "q16_settlements_vs_receipts",
+          "sql_sha256": "82a4f8cbe2abce1bb339803cda230200231eeae43845ed91fc3c6e2261ef3815",
+          "backend": "zetaris",
+          "reducer": "reducers.settlements_verified",
+          "rows": 5,
+          "fields": [
+            "transaction",
+            "payer",
+            "amountAtomic"
+          ],
+          "sources": [
+            "receipts",
+            "base_rpc"
+          ],
+          "log_seq": 35
+        },
+        "coverage": null,
+        "caveats": [
+          "payer_from_transfer_log",
+          "self_reported_receipts",
+          "basis_mismatch"
+        ],
+        "caveat_memory_ids": {
+          "payer_from_transfer_log": "mem-seed-005",
+          "self_reported_receipts": "mem-seed-003",
+          "basis_mismatch": "mem-seed-007"
+        },
+        "conflict_ids": [],
+        "confidence": 0.9,
+        "status": "accepted",
+        "cross_checked": true,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      },
+      {
+        "id": "c03",
+        "metric": "payer_sales_total",
+        "subject": "wallet:base:0x097e3f339d0b023605e12a6b81e2d6cb7571475a",
+        "statement": "The receipts list 1 purchase(s) by 0x097e3f339d0b023605e12a6b81e2d6cb7571475a.",
+        "value": 1,
+        "unit": "count",
+        "period": "all_time",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://tienda.textokit.store/receipts.json",
+            "sha256": "74e0dc9b9efff51e507f52b65783e63f35bf9e6e160468f2e545158b912daf1d",
+            "captured_at": "2026-10-24T22:40:46.063Z",
+            "replayed": false,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://zetaris-nightshift-ex05-20261024#36",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://zetaris-nightshift-ex05-20261024#41",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": "q17_payer_dossier",
+          "sql_sha256": "0bb4552dd849664972041ca1e145310e73735ce8b22ca8513d8319b67699b1e6",
+          "backend": "zetaris",
+          "reducer": "reducers.payer_sales_total",
+          "rows": 1,
+          "fields": [
+            "payer"
+          ],
+          "sources": [
+            "receipts"
+          ],
+          "log_seq": 36
+        },
+        "coverage": null,
+        "caveats": [
+          "self_reported_receipts",
+          "basis_mismatch"
+        ],
+        "caveat_memory_ids": {
+          "self_reported_receipts": "mem-seed-003",
+          "basis_mismatch": "mem-seed-007"
+        },
+        "conflict_ids": [],
+        "confidence": 0.9,
+        "status": "accepted",
+        "cross_checked": true,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      },
+      {
+        "id": "c04",
+        "metric": "payer_usdc_atomic",
+        "subject": "wallet:base:0x097e3f339d0b023605e12a6b81e2d6cb7571475a",
+        "statement": "Those purchases total 1000 atomic USDC (0.001 USDC).",
+        "value": 1000,
+        "unit": "atomic_usdc",
+        "period": "all_time",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://tienda.textokit.store/receipts.json",
+            "sha256": "74e0dc9b9efff51e507f52b65783e63f35bf9e6e160468f2e545158b912daf1d",
+            "captured_at": "2026-10-24T22:40:46.063Z",
+            "replayed": false,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://zetaris-nightshift-ex05-20261024#36",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://zetaris-nightshift-ex05-20261024#42",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": "q17_payer_dossier",
+          "sql_sha256": "0bb4552dd849664972041ca1e145310e73735ce8b22ca8513d8319b67699b1e6",
+          "backend": "zetaris",
+          "reducer": "reducers.payer_usdc_atomic",
+          "rows": 1,
+          "fields": [
+            "payer",
+            "amountAtomic"
+          ],
+          "sources": [
+            "receipts"
+          ],
+          "log_seq": 36
+        },
+        "coverage": null,
+        "caveats": [
+          "self_reported_receipts",
+          "basis_mismatch"
+        ],
+        "caveat_memory_ids": {
+          "self_reported_receipts": "mem-seed-003",
+          "basis_mismatch": "mem-seed-007"
+        },
+        "conflict_ids": [],
+        "confidence": 0.9,
+        "status": "accepted",
+        "cross_checked": true,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      },
+      {
+        "id": "c05",
+        "metric": "payer_window",
+        "subject": "wallet:base:0x097e3f339d0b023605e12a6b81e2d6cb7571475a",
+        "statement": "The purchases span 2026-10-20T04:51:24.352Z..2026-10-20T04:51:24.352Z.",
+        "value": "2026-10-20T04:51:24.352Z..2026-10-20T04:51:24.352Z",
+        "unit": "iso8601",
+        "period": "all_time",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://tienda.textokit.store/receipts.json",
+            "sha256": "74e0dc9b9efff51e507f52b65783e63f35bf9e6e160468f2e545158b912daf1d",
+            "captured_at": "2026-10-24T22:40:46.063Z",
+            "replayed": false,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://zetaris-nightshift-ex05-20261024#36",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://zetaris-nightshift-ex05-20261024#43",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": "q17_payer_dossier",
+          "sql_sha256": "0bb4552dd849664972041ca1e145310e73735ce8b22ca8513d8319b67699b1e6",
+          "backend": "zetaris",
+          "reducer": "reducers.payer_window",
+          "rows": 1,
+          "fields": [
+            "payer",
+            "at"
+          ],
+          "sources": [
+            "receipts"
+          ],
+          "log_seq": 36
+        },
+        "coverage": null,
+        "caveats": [
+          "self_reported_receipts",
+          "basis_mismatch"
+        ],
+        "caveat_memory_ids": {
+          "self_reported_receipts": "mem-seed-003",
+          "basis_mismatch": "mem-seed-007"
+        },
+        "conflict_ids": [],
+        "confidence": 0.9,
+        "status": "accepted",
+        "cross_checked": true,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      },
+      {
+        "id": "c06",
+        "metric": "payer_services",
+        "subject": "wallet:base:0x097e3f339d0b023605e12a6b81e2d6cb7571475a",
+        "statement": "They cover 1 distinct service(s).",
+        "value": 1,
+        "unit": "count",
+        "period": "all_time",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://tienda.textokit.store/receipts.json",
+            "sha256": "74e0dc9b9efff51e507f52b65783e63f35bf9e6e160468f2e545158b912daf1d",
+            "captured_at": "2026-10-24T22:40:46.063Z",
+            "replayed": false,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://zetaris-nightshift-ex05-20261024#36",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://zetaris-nightshift-ex05-20261024#44",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": "q17_payer_dossier",
+          "sql_sha256": "0bb4552dd849664972041ca1e145310e73735ce8b22ca8513d8319b67699b1e6",
+          "backend": "zetaris",
+          "reducer": "reducers.payer_services",
+          "rows": 1,
+          "fields": [
+            "payer",
+            "service"
+          ],
+          "sources": [
+            "receipts"
+          ],
+          "log_seq": 36
+        },
+        "coverage": null,
+        "caveats": [
+          "self_reported_receipts",
+          "basis_mismatch"
+        ],
+        "caveat_memory_ids": {
+          "self_reported_receipts": "mem-seed-003",
+          "basis_mismatch": "mem-seed-007"
+        },
+        "conflict_ids": [],
+        "confidence": 0.9,
+        "status": "accepted",
+        "cross_checked": true,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      },
+      {
+        "id": "c07",
+        "metric": "verified_tx",
+        "subject": "wallet:base:0x097e3f339d0b023605e12a6b81e2d6cb7571475a",
+        "statement": "1 settlement(s) of this payer verified on Base.",
+        "value": 1,
+        "unit": "count",
+        "period": "all_time",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://tienda.textokit.store/receipts.json",
+            "sha256": "74e0dc9b9efff51e507f52b65783e63f35bf9e6e160468f2e545158b912daf1d",
+            "captured_at": "2026-10-24T22:40:46.063Z",
+            "replayed": false,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "url",
+            "ref": "https://mainnet.base.org",
+            "sha256": "395c4282d446999297cdcba9e50c3df13687008bc4eecc206a5d616be7f6d227",
+            "captured_at": "2026-10-24T22:40:46.697Z",
+            "replayed": false,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "tx",
+            "ref": "https://basescan.org/tx/0x62c01526c5beb13cad96634ec80e837e576df496905f1bac8019c6ffa3e358c3",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": true,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://zetaris-nightshift-ex05-20261024#35",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://zetaris-nightshift-ex05-20261024#45",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": "q16_settlements_vs_receipts",
+          "sql_sha256": "82a4f8cbe2abce1bb339803cda230200231eeae43845ed91fc3c6e2261ef3815",
+          "backend": "zetaris",
+          "reducer": "reducers.verified_tx",
+          "rows": 5,
+          "fields": [
+            "transaction"
+          ],
+          "sources": [
+            "receipts",
+            "base_rpc"
+          ],
+          "log_seq": 35
+        },
+        "coverage": null,
+        "caveats": [
+          "payer_from_transfer_log",
+          "self_reported_receipts",
+          "basis_mismatch"
+        ],
+        "caveat_memory_ids": {
+          "payer_from_transfer_log": "mem-seed-005",
+          "self_reported_receipts": "mem-seed-003",
+          "basis_mismatch": "mem-seed-007"
+        },
+        "conflict_ids": [],
+        "confidence": 0.9,
+        "status": "accepted",
+        "cross_checked": true,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      },
+      {
+        "id": "c08",
+        "metric": "usdc_balance_atomic",
+        "subject": "wallet:base:0x097e3f339d0b023605e12a6b81e2d6cb7571475a",
+        "statement": "USDC balance at capture: 1043148 atomic (1.043148 USDC).",
+        "value": 1043148,
+        "unit": "atomic_usdc",
+        "period": "all_time",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://mainnet.base.org",
+            "sha256": "395c4282d446999297cdcba9e50c3df13687008bc4eecc206a5d616be7f6d227",
+            "captured_at": "2026-10-24T22:40:46.697Z",
+            "replayed": false,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "tx",
+            "ref": "https://basescan.org/tx/0x62c01526c5beb13cad96634ec80e837e576df496905f1bac8019c6ffa3e358c3",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": true,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://zetaris-nightshift-ex05-20261024#38",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://zetaris-nightshift-ex05-20261024#46",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": "q22_payer_chain_facts",
+          "sql_sha256": "6f24ed6d9dc3bb3c997eb9c8eb9762cdeb9031d7a1e1277aec70eba8f411f75b",
+          "backend": "zetaris",
+          "reducer": "reducers.usdc_balance_atomic",
+          "rows": 2,
+          "fields": [
+            "balanceOf"
+          ],
+          "sources": [
+            "base_rpc"
+          ],
+          "log_seq": 38
+        },
+        "coverage": null,
+        "caveats": [
+          "payer_from_transfer_log"
+        ],
+        "caveat_memory_ids": {
+          "payer_from_transfer_log": "mem-seed-005"
+        },
+        "conflict_ids": [],
+        "confidence": 0.9,
+        "status": "accepted",
+        "cross_checked": true,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      },
+      {
+        "id": "c09",
+        "metric": "tx_count",
+        "subject": "wallet:base:0x097e3f339d0b023605e12a6b81e2d6cb7571475a",
+        "statement": "Transaction count (nonce) at capture: 24.",
+        "value": 24,
+        "unit": "count",
+        "period": "all_time",
+        "evidence": [
+          {
+            "kind": "url",
+            "ref": "https://mainnet.base.org",
+            "sha256": "395c4282d446999297cdcba9e50c3df13687008bc4eecc206a5d616be7f6d227",
+            "captured_at": "2026-10-24T22:40:46.697Z",
+            "replayed": false,
+            "stale": false,
+            "http": 200,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "tx",
+            "ref": "https://basescan.org/tx/0x62c01526c5beb13cad96634ec80e837e576df496905f1bac8019c6ffa3e358c3",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": true,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://zetaris-nightshift-ex05-20261024#38",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          },
+          {
+            "kind": "log_line",
+            "ref": "log://zetaris-nightshift-ex05-20261024#47",
+            "sha256": null,
+            "captured_at": null,
+            "replayed": false,
+            "stale": false,
+            "http": null,
+            "verified": null,
+            "fixture_file": null
+          }
+        ],
+        "derivation": {
+          "agent": "analyst",
+          "query_id": "q22_payer_chain_facts",
+          "sql_sha256": "6f24ed6d9dc3bb3c997eb9c8eb9762cdeb9031d7a1e1277aec70eba8f411f75b",
+          "backend": "zetaris",
+          "reducer": "reducers.tx_count",
+          "rows": 2,
+          "fields": [
+            "eth_getTransactionCount"
+          ],
+          "sources": [
+            "base_rpc"
+          ],
+          "log_seq": 38
+        },
+        "coverage": null,
+        "caveats": [
+          "payer_from_transfer_log"
+        ],
+        "caveat_memory_ids": {
+          "payer_from_transfer_log": "mem-seed-005"
+        },
+        "conflict_ids": [],
+        "confidence": 0.9,
+        "status": "accepted",
+        "cross_checked": true,
+        "critique": [
+          {
+            "round": 1,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          },
+          {
+            "round": 2,
+            "rule": "A",
+            "verdict": "accept",
+            "reason": "C1-C7 passed",
+            "memory_ids": []
+          }
+        ]
+      }
+    ],
+    "rejected_claims": [],
+    "conflicts": [],
+    "unavailable": [],
+    "sources": [
+      {
+        "name": "store_receipts",
+        "family": "receipts",
+        "url": "https://tienda.textokit.store/receipts.json",
+        "status": "ok",
+        "http": 200,
+        "sha256": "74e0dc9b9efff51e507f52b65783e63f35bf9e6e160468f2e545158b912daf1d",
+        "captured_at": "2026-10-24T22:40:46.063Z",
+        "replayed": false,
+        "stale": false,
+        "error": null,
+        "fixture_file": null,
+        "request_key": "GET https://tienda.textokit.store/receipts.json"
+      },
+      {
+        "name": "cdp_search_host",
+        "family": "cdp_search",
+        "url": "https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?urlSubstring=tienda.textokit.store&limit=20",
+        "status": "ok",
+        "http": 200,
+        "sha256": "68fecfd00c614f6438061d0de17576715a30e05e39657d9fd5b4259ba05cbb66",
+        "captured_at": "2026-10-24T22:40:46.419Z",
+        "replayed": false,
+        "stale": false,
+        "error": null,
+        "fixture_file": null,
+        "request_key": "GET https://api.cdp.coinbase.com/platform/v2/x402/discovery/search?limit=20&urlSubstring=tienda.textokit.store"
+      },
+      {
+        "name": "rpc_chain_id",
+        "family": "base_rpc",
+        "url": "https://mainnet.base.org",
+        "status": "ok",
+        "http": 200,
+        "sha256": "395c4282d446999297cdcba9e50c3df13687008bc4eecc206a5d616be7f6d227",
+        "captured_at": "2026-10-24T22:40:46.697Z",
+        "replayed": false,
+        "stale": false,
+        "error": null,
+        "fixture_file": null,
+        "request_key": "RPC eth_chainId 4f53cda18c2baa0c"
+      },
+      {
+        "name": "rpc_receipt_0x62c01526c5beb13cad96634ec80e837e576df496905f1bac8019c6ffa3e358c3",
+        "family": "base_rpc",
+        "url": "https://mainnet.base.org",
+        "status": "ok",
+        "http": 200,
+        "sha256": "f7d915c990742d978d599a83c54530e59c88b2747bdfae9a9072482a363b080e",
+        "captured_at": "2026-10-24T22:40:46.966Z",
+        "replayed": false,
+        "stale": false,
+        "error": null,
+        "fixture_file": null,
+        "request_key": "RPC eth_getTransactionReceipt 54fa30d4aadcf1af"
+      },
+      {
+        "name": "rpc_tx_0x62c01526c5beb13cad96634ec80e837e576df496905f1bac8019c6ffa3e358c3",
+        "family": "base_rpc",
+        "url": "https://mainnet.base.org",
+        "status": "ok",
+        "http": 200,
+        "sha256": "2520d7e76b833774e1ff5c5e5af853e7320fc8b02599bc7ad0cce2c59ee76454",
+        "captured_at": "2026-10-24T22:40:47.222Z",
+        "replayed": false,
+        "stale": false,
+        "error": null,
+        "fixture_file": null,
+        "request_key": "RPC eth_getTransactionByHash 54fa30d4aadcf1af"
+      },
+      {
+        "name": "rpc_receipt_0xf93149b946d87295924977c2d46f76f163b4d93354bc3fa7aa1f5c04e392736d",
+        "family": "base_rpc",
+        "url": "https://mainnet.base.org",
+        "status": "ok",
+        "http": 200,
+        "sha256": "d36a4f103efcf153777fc07746d6bda63b49aa355a78a768735fe777fa44cd21",
+        "captured_at": "2026-10-24T22:40:47.497Z",
+        "replayed": false,
+        "stale": false,
+        "error": null,
+        "fixture_file": null,
+        "request_key": "RPC eth_getTransactionReceipt 1ac5cde41097b26c"
+      },
+      {
+        "name": "rpc_tx_0xf93149b946d87295924977c2d46f76f163b4d93354bc3fa7aa1f5c04e392736d",
+        "family": "base_rpc",
+        "url": "https://mainnet.base.org",
+        "status": "ok",
+        "http": 200,
+        "sha256": "cc5bc01ffca31e75dbfb84ccfc71c0a374e568833050a2a561d3ad7995223db2",
+        "captured_at": "2026-10-24T22:40:47.890Z",
+        "replayed": false,
+        "stale": false,
+        "error": null,
+        "fixture_file": null,
+        "request_key": "RPC eth_getTransactionByHash 1ac5cde41097b26c"
+      },
+      {
+        "name": "rpc_receipt_0x8d2ccd6a3e04a769ecc680f298999dd082a0a2eba936f00a96c0e4ec5902b934",
+        "family": "base_rpc",
+        "url": "https://mainnet.base.org",
+        "status": "ok",
+        "http": 200,
+        "sha256": "1d2b99fbb3a422bb67bf0744eb082ae82949b3ba826f40113bcb8bbb607a8d5d",
+        "captured_at": "2026-10-24T22:40:48.206Z",
+        "replayed": false,
+        "stale": false,
+        "error": null,
+        "fixture_file": null,
+        "request_key": "RPC eth_getTransactionReceipt 5e4b61b489e2cf47"
+      },
+      {
+        "name": "rpc_tx_0x8d2ccd6a3e04a769ecc680f298999dd082a0a2eba936f00a96c0e4ec5902b934",
+        "family": "base_rpc",
+        "url": "https://mainnet.base.org",
+        "status": "ok",
+        "http": 200,
+        "sha256": "6f3e6075106dcecbc538513848b3c82dc6b0cc8dd0e21bb31eb4c650059f70bb",
+        "captured_at": "2026-10-24T22:40:48.463Z",
+        "replayed": false,
+        "stale": false,
+        "error": null,
+        "fixture_file": null,
+        "request_key": "RPC eth_getTransactionByHash 5e4b61b489e2cf47"
+      },
+      {
+        "name": "rpc_receipt_0x58ddb2e77e574ddda75fd74df6f3dbf94e2795e22c36f8a01a506c544ff4ada3",
+        "family": "base_rpc",
+        "url": "https://mainnet.base.org",
+        "status": "ok",
+        "http": 200,
+        "sha256": "cde0cae88882e8d60c65c530ad57322282a8e771be1d4ef02367a11b30183102",
+        "captured_at": "2026-10-24T22:40:48.702Z",
+        "replayed": false,
+        "stale": false,
+        "error": null,
+        "fixture_file": null,
+        "request_key": "RPC eth_getTransactionReceipt 4abbe9fcb6a985ee"
+      },
+      {
+        "name": "rpc_tx_0x58ddb2e77e574ddda75fd74df6f3dbf94e2795e22c36f8a01a506c544ff4ada3",
+        "family": "base_rpc",
+        "url": "https://mainnet.base.org",
+        "status": "ok",
+        "http": 200,
+        "sha256": "11848e6ca24fce61c8dc84411d8b38926ec7c8234a8b0e041ba7644d4b5b256a",
+        "captured_at": "2026-10-24T22:40:48.957Z",
+        "replayed": false,
+        "stale": false,
+        "error": null,
+        "fixture_file": null,
+        "request_key": "RPC eth_getTransactionByHash 4abbe9fcb6a985ee"
+      },
+      {
+        "name": "rpc_receipt_0x3ca4f2791f4f851a574f4abd7cb949e1b05fb00dadeb77b83fb3d0e36a608fb2",
+        "family": "base_rpc",
+        "url": "https://mainnet.base.org",
+        "status": "ok",
+        "http": 200,
+        "sha256": "e8f130b3d3fd4f12ae3a731b1b2e4f19410546bb18310498ff0e01f0c8179a9e",
+        "captured_at": "2026-10-24T22:40:49.208Z",
+        "replayed": false,
+        "stale": false,
+        "error": null,
+        "fixture_file": null,
+        "request_key": "RPC eth_getTransactionReceipt 02dd57d3607fdcef"
+      },
+      {
+        "name": "rpc_tx_0x3ca4f2791f4f851a574f4abd7cb949e1b05fb00dadeb77b83fb3d0e36a608fb2",
+        "family": "base_rpc",
+        "url": "https://mainnet.base.org",
+        "status": "ok",
+        "http": 200,
+        "sha256": "c249333b833598382da6651e767f623fdb2f06fe97673643ad59d85c250280e8",
+        "captured_at": "2026-10-24T22:40:49.482Z",
+        "replayed": false,
+        "stale": false,
+        "error": null,
+        "fixture_file": null,
+        "request_key": "RPC eth_getTransactionByHash 02dd57d3607fdcef"
+      },
+      {
+        "name": "rpc_balance_0x097e3f339d0b023605e12a6b81e2d6cb7571475a",
+        "family": "base_rpc",
+        "url": "https://mainnet.base.org",
+        "status": "ok",
+        "http": 200,
+        "sha256": "ba169e6f3e2e234cb1292a1abee2fbbd33dcde6bb635f7b9e260aba451c53d7f",
+        "captured_at": "2026-10-24T22:40:49.758Z",
+        "replayed": false,
+        "stale": false,
+        "error": null,
+        "fixture_file": null,
+        "request_key": "RPC eth_call db248b8bcb7ad3bb"
+      },
+      {
+        "name": "rpc_nonce_0x097e3f339d0b023605e12a6b81e2d6cb7571475a",
+        "family": "base_rpc",
+        "url": "https://mainnet.base.org",
+        "status": "ok",
+        "http": 200,
+        "sha256": "95ec6500f934798fa0e8287777132dd23c55849cc947010f53d6585c164999b1",
+        "captured_at": "2026-10-24T22:40:50.023Z",
+        "replayed": false,
+        "stale": false,
+        "error": null,
+        "fixture_file": null,
+        "request_key": "RPC eth_getTransactionCount 0c40644bd8fdd8d1"
+      }
+    ],
+    "verifications": [
+      {
+        "tx": "0x62c01526c5beb13cad96634ec80e837e576df496905f1bac8019c6ffa3e358c3",
+        "status": "verified",
+        "payer": "0x097e3f339d0b023605e12a6b81e2d6cb7571475a",
+        "seller": "0x6b5af9924f4cd35643c11a9fd1c983f77261a6e1",
+        "amount_atomic": 1000,
+        "block": 52841269,
+        "block_time": "2026-10-20T04:51:25.000Z",
+        "facilitator_from": "0x8f5cb67b49555e614892b7233cfddebfb746e531",
+        "basescan_url": "https://basescan.org/tx/0x62c01526c5beb13cad96634ec80e837e576df496905f1bac8019c6ffa3e358c3",
+        "decoded_from": "Transfer log",
+        "receipt_match": true,
+        "reason": null
+      },
+      {
+        "tx": "0xf93149b946d87295924977c2d46f76f163b4d93354bc3fa7aa1f5c04e392736d",
+        "status": "verified",
+        "payer": "0xec2abd3eda89bed90124736e317e847d5fb6d034",
+        "seller": "0x6b5af9924f4cd35643c11a9fd1c983f77261a6e1",
+        "amount_atomic": 5000,
+        "block": 53030579,
+        "block_time": "2026-10-24T14:01:45.000Z",
+        "facilitator_from": "0x625d8a65134079f8faaac39a7947c73d93c6ac39",
+        "basescan_url": "https://basescan.org/tx/0xf93149b946d87295924977c2d46f76f163b4d93354bc3fa7aa1f5c04e392736d",
+        "decoded_from": "Transfer log",
+        "receipt_match": true,
+        "reason": null
+      },
+      {
+        "tx": "0x8d2ccd6a3e04a769ecc680f298999dd082a0a2eba936f00a96c0e4ec5902b934",
+        "status": "verified",
+        "payer": "0x7722dfae6bbed2fd02dc07455c2f5bf14be25e4a",
+        "seller": "0x6b5af9924f4cd35643c11a9fd1c983f77261a6e1",
+        "amount_atomic": 1000,
+        "block": 53002133,
+        "block_time": "2026-10-23T22:13:33.000Z",
+        "facilitator_from": "0x14fda13953fc30428938e6bf950d036e77214e52",
+        "basescan_url": "https://basescan.org/tx/0x8d2ccd6a3e04a769ecc680f298999dd082a0a2eba936f00a96c0e4ec5902b934",
+        "decoded_from": "Transfer log",
+        "receipt_match": true,
+        "reason": null
+      },
+      {
+        "tx": "0x58ddb2e77e574ddda75fd74df6f3dbf94e2795e22c36f8a01a506c544ff4ada3",
+        "status": "verified",
+        "payer": "0xa1d1c0cf717402ff3651aa4873ccf96410b01978",
+        "seller": "0x6b5af9924f4cd35643c11a9fd1c983f77261a6e1",
+        "amount_atomic": 1000,
+        "block": 52914075,
+        "block_time": "2026-10-21T21:18:17.000Z",
+        "facilitator_from": "0x4c934c63c786157fefd990945b25ea60a0fb0205",
+        "basescan_url": "https://basescan.org/tx/0x58ddb2e77e574ddda75fd74df6f3dbf94e2795e22c36f8a01a506c544ff4ada3",
+        "decoded_from": "Transfer log",
+        "receipt_match": true,
+        "reason": null
+      },
+      {
+        "tx": "0x3ca4f2791f4f851a574f4abd7cb949e1b05fb00dadeb77b83fb3d0e36a608fb2",
+        "status": "verified",
+        "payer": "0xc9c7b38c0942914fc8ea12063bc92dcd3b581670",
+        "seller": "0x6b5af9924f4cd35643c11a9fd1c983f77261a6e1",
+        "amount_atomic": 1000,
+        "block": 52860464,
+        "block_time": "2026-10-20T15:31:15.000Z",
+        "facilitator_from": "0x93f6601151ccb08f333ab4b1cccfb1e188c0be44",
+        "basescan_url": "https://basescan.org/tx/0x3ca4f2791f4f851a574f4abd7cb949e1b05fb00dadeb77b83fb3d0e36a608fb2",
+        "decoded_from": "Transfer log",
+        "receipt_match": true,
+        "reason": null
+      }
+    ],
+    "world": {
+      "first_pass": {
+        "runId": "run_af5f68fd9bd3",
+        "processed": 2,
+        "skippedUnchanged": 0,
+        "eventsAppended": 378,
+        "changed": true
+      },
+      "second_pass": {
+        "runId": "run_af5f68fd9bd3",
+        "processed": 0,
+        "skippedUnchanged": 2,
+        "eventsAppended": 0,
+        "changed": false
+      },
+      "quarantined": 0,
+      "claims_asserted": 9,
+      "counts": {
+        "entities": 31,
+        "contexts": 9,
+        "relationships": 156,
+        "facts": 71
+      }
+    },
+    "memory": {
+      "retrieved": [
+        {
+          "memory_id": "mem-seed-005",
+          "actor": "planner",
+          "score": 0.3907
+        },
+        {
+          "memory_id": "mem-49",
+          "actor": "planner",
+          "score": 0.3701
+        },
+        {
+          "memory_id": "mem-58",
+          "actor": "planner",
+          "score": 0.3701
+        },
+        {
+          "memory_id": "mem-77",
+          "actor": "planner",
+          "score": 0.3701
+        },
+        {
+          "memory_id": "mem-129",
+          "actor": "planner",
+          "score": 0.3676
+        },
+        {
+          "memory_id": "mem-seed-005",
+          "actor": "writer",
+          "score": 0.4098
+        },
+        {
+          "memory_id": "mem-49",
+          "actor": "writer",
+          "score": 0.3822
+        },
+        {
+          "memory_id": "mem-58",
+          "actor": "writer",
+          "score": 0.3822
+        },
+        {
+          "memory_id": "mem-77",
+          "actor": "writer",
+          "score": 0.3822
+        },
+        {
+          "memory_id": "mem-28",
+          "actor": "critic",
+          "score": 0.7429
+        },
+        {
+          "memory_id": "mem-43",
+          "actor": "critic",
+          "score": 0.7429
+        },
+        {
+          "memory_id": "mem-52",
+          "actor": "critic",
+          "score": 0.7429
+        },
+        {
+          "memory_id": "mem-129",
+          "actor": "critic",
+          "score": 0.6925
+        },
+        {
+          "memory_id": "mem-138",
+          "actor": "critic",
+          "score": 0.6925
+        },
+        {
+          "memory_id": "mem-147",
+          "actor": "critic",
+          "score": 0.6925
+        },
+        {
+          "memory_id": "mem-29",
+          "actor": "critic",
+          "score": 0.6041
+        },
+        {
+          "memory_id": "mem-45",
+          "actor": "critic",
+          "score": 0.6041
+        },
+        {
+          "memory_id": "mem-54",
+          "actor": "critic",
+          "score": 0.6041
+        },
+        {
+          "memory_id": "mem-30",
+          "actor": "critic",
+          "score": 0.6845
+        },
+        {
+          "memory_id": "mem-46",
+          "actor": "critic",
+          "score": 0.6845
+        },
+        {
+          "memory_id": "mem-55",
+          "actor": "critic",
+          "score": 0.6845
+        },
+        {
+          "memory_id": "mem-293",
+          "actor": "critic",
+          "score": 0.377
+        },
+        {
+          "memory_id": "mem-244",
+          "actor": "critic",
+          "score": 0.3629
+        },
+        {
+          "memory_id": "mem-32",
+          "actor": "critic",
+          "score": 0.4907
+        },
+        {
+          "memory_id": "mem-48",
+          "actor": "critic",
+          "score": 0.4907
+        },
+        {
+          "memory_id": "mem-57",
+          "actor": "critic",
+          "score": 0.4907
+        },
+        {
+          "memory_id": "mem-49",
+          "actor": "critic",
+          "score": 0.6535
+        },
+        {
+          "memory_id": "mem-58",
+          "actor": "critic",
+          "score": 0.6535
+        },
+        {
+          "memory_id": "mem-77",
+          "actor": "critic",
+          "score": 0.6535
+        },
+        {
+          "memory_id": "mem-50",
+          "actor": "critic",
+          "score": 0.6972
+        },
+        {
+          "memory_id": "mem-59",
+          "actor": "critic",
+          "score": 0.6972
+        },
+        {
+          "memory_id": "mem-78",
+          "actor": "critic",
+          "score": 0.6972
+        },
+        {
+          "memory_id": "mem-51",
+          "actor": "critic",
+          "score": 0.5629
+        },
+        {
+          "memory_id": "mem-60",
+          "actor": "critic",
+          "score": 0.5629
+        },
+        {
+          "memory_id": "mem-79",
+          "actor": "critic",
+          "score": 0.5629
+        }
+      ],
+      "cited": [
+        "mem-seed-002",
+        "mem-seed-003",
+        "mem-seed-005",
+        "mem-seed-007"
+      ],
+      "feedback": [
+        {
+          "memory_id": "mem-129",
+          "kind": "helpful",
+          "reason": "remembered value 5.0 matches c02"
+        },
+        {
+          "memory_id": "mem-138",
+          "kind": "helpful",
+          "reason": "remembered value 5.0 matches c02"
+        },
+        {
+          "memory_id": "mem-147",
+          "kind": "helpful",
+          "reason": "remembered value 5.0 matches c02"
+        },
+        {
+          "memory_id": "mem-244",
+          "kind": "not_helpful",
+          "reason": "retrieved for c05 but not cited"
+        },
+        {
+          "memory_id": "mem-28",
+          "kind": "helpful",
+          "reason": "remembered value 17.0 matches c01"
+        },
+        {
+          "memory_id": "mem-29",
+          "kind": "helpful",
+          "reason": "remembered value 1.0 matches c03"
+        },
+        {
+          "memory_id": "mem-293",
+          "kind": "not_helpful",
+          "reason": "retrieved for c05 but not cited"
+        },
+        {
+          "memory_id": "mem-30",
+          "kind": "helpful",
+          "reason": "remembered value 1000.0 matches c04"
+        },
+        {
+          "memory_id": "mem-32",
+          "kind": "helpful",
+          "reason": "remembered value 1.0 matches c06"
+        },
+        {
+          "memory_id": "mem-43",
+          "kind": "helpful",
+          "reason": "remembered value 17.0 matches c01"
+        },
+        {
+          "memory_id": "mem-45",
+          "kind": "helpful",
+          "reason": "remembered value 1.0 matches c03"
+        },
+        {
+          "memory_id": "mem-46",
+          "kind": "helpful",
+          "reason": "remembered value 1000.0 matches c04"
+        },
+        {
+          "memory_id": "mem-48",
+          "kind": "helpful",
+          "reason": "remembered value 1.0 matches c06"
+        },
+        {
+          "memory_id": "mem-49",
+          "kind": "helpful",
+          "reason": "remembered value 1.0 matches c07"
+        },
+        {
+          "memory_id": "mem-50",
+          "kind": "helpful",
+          "reason": "remembered value 1043148.0 matches c08"
+        },
+        {
+          "memory_id": "mem-51",
+          "kind": "helpful",
+          "reason": "remembered value 24.0 matches c09"
+        },
+        {
+          "memory_id": "mem-52",
+          "kind": "helpful",
+          "reason": "remembered value 17.0 matches c01"
+        },
+        {
+          "memory_id": "mem-54",
+          "kind": "helpful",
+          "reason": "remembered value 1.0 matches c03"
+        },
+        {
+          "memory_id": "mem-55",
+          "kind": "helpful",
+          "reason": "remembered value 1000.0 matches c04"
+        },
+        {
+          "memory_id": "mem-57",
+          "kind": "helpful",
+          "reason": "remembered value 1.0 matches c06"
+        },
+        {
+          "memory_id": "mem-58",
+          "kind": "helpful",
+          "reason": "remembered value 1.0 matches c07"
+        },
+        {
+          "memory_id": "mem-59",
+          "kind": "helpful",
+          "reason": "remembered value 1043148.0 matches c08"
+        },
+        {
+          "memory_id": "mem-60",
+          "kind": "helpful",
+          "reason": "remembered value 24.0 matches c09"
+        },
+        {
+          "memory_id": "mem-77",
+          "kind": "helpful",
+          "reason": "remembered value 1.0 matches c07"
+        },
+        {
+          "memory_id": "mem-78",
+          "kind": "helpful",
+          "reason": "remembered value 1043148.0 matches c08"
+        },
+        {
+          "memory_id": "mem-79",
+          "kind": "helpful",
+          "reason": "remembered value 24.0 matches c09"
+        },
+        {
+          "memory_id": "mem-seed-002",
+          "kind": "helpful",
+          "reason": "caveat search_limit_20 required and attached to c01"
+        },
+        {
+          "memory_id": "mem-seed-003",
+          "kind": "helpful",
+          "reason": "caveat self_reported_receipts required and attached to c02"
+        },
+        {
+          "memory_id": "mem-seed-005",
+          "kind": "helpful",
+          "reason": "caveat payer_from_transfer_log required and attached to c02"
+        },
+        {
+          "memory_id": "mem-seed-007",
+          "kind": "helpful",
+          "reason": "caveat basis_mismatch required and attached to c02"
+        }
+      ],
+      "mined": 9
+    },
+    "agents": [
+      {
+        "role": "planner",
+        "generator_backed": true,
+        "generator_used": "nightshift:nvidia/nemotron-3.5-lightning-30b-a3b",
+        "attempts": 1,
+        "status": "ok",
+        "notes": [],
+        "generator_calls": [
+          {
+            "prompt_id": "planner",
+            "provider": "meterless",
+            "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "route": "Nemotron 3.5 Lightning 30B A3B",
+            "route_kind": "cloud",
+            "receipt_id": "rcpt_req_q9w8s0zt",
+            "recorded": false,
+            "log_seq": 5
+          }
+        ]
+      },
+      {
+        "role": "collector",
+        "generator_backed": false,
+        "generator_used": null,
+        "attempts": 1,
+        "status": "ok",
+        "notes": [
+          "2 ok, 0 stale fixture fallback(s), 0 fixture miss(es), 0 unavailable, 1 deferred to the verifier",
+          "deferred: base_rpc_batch"
+        ]
+      },
+      {
+        "role": "keeper",
+        "generator_backed": false,
+        "generator_used": null,
+        "attempts": 3,
+        "status": "ok",
+        "notes": [
+          "chain facts asserted: 7",
+          "claims asserted as agent facts: 9",
+          "ingested 2 observations, 378 events appended",
+          "second pass: {'runId': 'run_af5f68fd9bd3', 'processed': 0, 'skippedUnchanged': 2, 'eventsAppended': 0, 'changed': False}"
+        ]
+      },
+      {
+        "role": "verifier",
+        "generator_backed": false,
+        "generator_used": null,
+        "attempts": 1,
+        "status": "ok",
+        "notes": [
+          "5 tx sampled (sales of focus.wallet first, then most recent external sale per distinct payer, capped at max_tx_verifications): 5 verified, 0 failed, 0 unverifiable (none); chain facts: 7; cross-checks: 2; settlements export: yes"
+        ]
+      },
+      {
+        "role": "analyst",
+        "generator_backed": false,
+        "generator_used": null,
+        "attempts": 1,
+        "status": "ok",
+        "notes": []
+      },
+      {
+        "role": "writer",
+        "generator_backed": true,
+        "generator_used": "nightshift:nvidia/nemotron-3.5-lightning-30b-a3b",
+        "attempts": 2,
+        "status": "ok",
+        "notes": [],
+        "generator_calls": [
+          {
+            "prompt_id": "writer-r1",
+            "provider": "meterless",
+            "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "route": "Nemotron 3.5 Lightning 30B A3B",
+            "route_kind": "cloud",
+            "receipt_id": "rcpt_req_szndljtv",
+            "recorded": false,
+            "log_seq": 51
+          },
+          {
+            "prompt_id": "writer-r2",
+            "provider": "meterless",
+            "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "route": "Nemotron 3.5 Lightning 30B A3B",
+            "route_kind": "cloud",
+            "receipt_id": "rcpt_req_2sqq6kth",
+            "recorded": false,
+            "log_seq": 91
+          }
+        ]
+      },
+      {
+        "role": "critic",
+        "generator_backed": true,
+        "generator_used": "nightshift:nvidia/nemotron-3.5-lightning-30b-a3b",
+        "attempts": 2,
+        "status": "ok",
+        "notes": [],
+        "generator_calls": [
+          {
+            "prompt_id": "critic-r1",
+            "provider": "meterless",
+            "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "route": "Nemotron 3.5 Lightning 30B A3B",
+            "route_kind": "cloud",
+            "receipt_id": "rcpt_req_991ywwmq",
+            "recorded": false,
+            "log_seq": 80
+          },
+          {
+            "prompt_id": "critic-r2",
+            "provider": "meterless",
+            "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "route": "Nemotron 3.5 Lightning 30B A3B",
+            "route_kind": "cloud",
+            "receipt_id": "rcpt_req_bgmad4z9",
+            "recorded": false,
+            "log_seq": 109
+          }
+        ]
+      }
+    ],
+    "critique_rounds": 2,
+    "report_path": "logs/zetaris-nightshift-ex05-20261024/report.md",
+    "log_files": [
+      "fetch.jsonl",
+      "generator.jsonl",
+      "hmem.trace.jsonl",
+      "run.jsonl",
+      "sql.jsonl",
+      "world.audit.jsonl",
+      "world.events.jsonl",
+      "world.observations.jsonl",
+      "zetaris.jsonl"
+    ]
+  }
+}

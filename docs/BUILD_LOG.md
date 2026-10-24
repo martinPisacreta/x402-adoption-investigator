@@ -565,3 +565,112 @@ Entries are added here only for work actually done after 2026-10-22.
   changed) and `slides/s14.png` re-rendered; the other PNGs were left as committed (they re-render visually the
   same). `demo.mp4` needs no rebuild: its narration covers slides 1-13, not 14.
 - **Tests:** `python -m unittest discover -s tests`: 324 tests, OK.
+
+### 2026-10-24 (22:35-23:10 UTC) — Claude Code: Zetaris and Nightshift in one run
+
+- **Tool:** Claude Code (Claude Opus 5.5). No code of the investigator changed; new evidence, a test module, docs.
+- **Runs:** Zetaris started again as the Docker Compose project `zetaris`: postgres, api and ui started at
+  22:35:40-22:36:22 UTC, and the driver logged its start at 22:35:49 with a 2 GB heap (`-Xmx2g`).
+  - From the repository root:
+    `METERLESS_MODEL=nvidia/nemotron-3.5-lightning-30b-a3b python run.py --mode live --require-zetaris
+    --require-generator --input examples/exN.json --run-id zetaris-nightshift-ex0N-20261024` (N = 1..5);
+  - then the same with `METERLESS_MODEL=local-runtime/nvidia-nvidia-nemotron-nano-9b-v2-q4-k-m`, `examples/ex1.json`
+    and `--run-id zetaris-nightshift-local-ex01-20261024`.
+
+  All six exited 0 with status `ok`, executor `zetaris` and generator `nightshift:<model>`, between 22:36:45 and
+  22:42:02 UTC. Every claim has `derivation.backend: "zetaris"` (76 in all), every request was answered by the pinned
+  Nemotron (30), and there was no Zetaris or generator fallback. These are the first runs on record that ran q20,
+  q21, q22 and the `chain_facts` view on a Zetaris instance.
+- **One failure, found afterwards:** in example 02, `CACHE TABLE X402_B4B1827B.bazaar_page0` returned HTTP 400
+  ("Connection reset", 16,686 ms). The driver's log shows `java.lang.OutOfMemoryError: Java heap space` in the stage
+  of that in-memory table, at 22:38:15-22:38:26 UTC. Docker restarted the driver (`restarts 1`, started again at
+  22:38:27.848Z), and the run went on: it cached the catalog snapshot and answered its seven queries on the
+  restarted driver. No query of that run reads the Bazaar page, so the run logged no recovery and its status is
+  `ok`. The failure shows only in `zetaris.jsonl` and in the driver log.
+- **Evidence:** `examples/live-trace-zetaris-nightshift/`.
+  - The six run folders: the file set of the complete folders of `live-trace-nightshift/`, 108 files, copied with
+    `cp`, sha256-equal to `logs/<run_id>/`, no CR byte. They were checked first for absolute paths, `Bearer` /
+    `nvapi-` / `idToken` / `password` / `authorization`, and the `.env.local` values (none found).
+  - `machine.txt`, captured at 22:52:48Z: `docker compose ls` and `docker ps` of the `zetaris` project,
+    `docker inspect` start times and restarts, the driver's heap flags and its filtered log around the restart,
+    `ns status --json` (1.2.3) and `nvidia-smi`. The user-profile prefix is shown as `<USERPROFILE>`.
+  - A README with the commands, one table row per run, how to check it and what it does not prove.
+- **Nightshift ledger:** `scripts/nightshift_ledger.py` over the six runs against the live
+  `<stateDir>/receipts.jsonl`: 30 of 30 found, all signatures valid, every winner the pinned model. That file was the
+  only one read in the state directory.
+  - The excerpt was regenerated with the earlier command plus the six folders at the end. Its first 127 lines are
+    byte-identical to the committed excerpt and 30 lines follow, 157 in all, each a byte-for-byte line of the live
+    ledger.
+  - Over everything the repository cites: 183 references, 157 distinct, all valid.
+- **Docs:** README (At a glance, Pitch, Sponsor technology, Nightshift, Live mode, Zetaris integration, Tests,
+  Limitations), `docs/ZETARIS.md` (sections 3, 5 and 6), `docs/METERLESS.md`, `docs/DEMO_SCRIPT.md`,
+  `INTEGRATION_NOTES.md`, `metadata.json`, `examples/README.md`, `examples/live-trace/README.md`,
+  `examples/live-trace-nightshift/README.md` and the ledger README. None of them says any more that no run combines
+  Zetaris and a model, or that q20-q22 never ran on Zetaris.
+- **Deck:** slide 10's card "Not yet on Zetaris" became "Zetaris and Nemotron in one run". Slide 14's future
+  enhancement "Zetaris and Nightshift in one run" became "A bigger Zetaris heap", and its ledger sentence says 157
+  receipts.
+  - Before the edit, `slides/s14.png` re-rendered byte-identical with the Chrome command of the 22 Oct entry.
+  - After it, `slides/s10.png` and `slides/s14.png` were re-rendered and `deck.pdf` re-printed: 14 pages, and only
+    the text of pages 10 and 14 changed.
+  - `demo.mp4` was not rebuilt, because the video shows neither slide.
+- **Tests:** 330, of which 6 are new: `tests/test_live_trace_zetaris_nightshift.py` 5 and `tests/test_nightshift_ledger.py`
+  1. `python -m unittest discover -s tests`: 330 tests, OK, 0 skips, 153 s, in the author tree (Python 3.11.9).
+- **Not done:** no recorded Zetaris result sets for q20-q22 (`fixtures/zetaris/`); no run with a larger driver
+  heap; still no live run from the container; nothing committed or pushed in this step.
+
+### 2026-10-24 (23:30 UTC) — Claude Code: fixes from the review of the runs on Zetaris and Nightshift
+
+- **Tool:** Claude Code (Claude Opus 5.5). Wording, a second capture in `machine.txt` and four slides; no code of the
+  investigator, no run folder, no ledger line and no committed output changed.
+- **Checked against the logs and corrected:**
+  - Example 02's catalog is the committed snapshot (`replayed: true`; its export's sha256, `fb53b73f...`, is the one
+    sample mode builds and the q08-q11 recordings name), so q20 and q21 ran there on the fixture bytes, and their
+    rows, and those of q08-q11, equal the SQLite rows of `examples/02-catalog-concentration/sql.jsonl`. Only q22 ran
+    on live data (chain facts). `fixtures/zetaris/README.md`, the folder README, `docs/ZETARIS.md`, README,
+    `metadata.json` and the comment in `tests/test_sql_dual_backend.py` say so; no test holds that comparison.
+  - The driver's out-of-heap: the same container's log has one more, on 2026-10-22 at 02:08-02:09 UTC, while
+    caching a first Bazaar page (stage 463, a session whose log is not committed), and the same kind of table cached
+    in 4.969 s at 01:54 and 5.573 s at 03:16 that day, every start with `-Xmx2g`. On 24 Oct the driver that failed
+    had served example 01 first, and the restarted one cached the 32 MB catalog in 5,099 ms. The docs no longer call
+    the page "the limit": the cause is not isolated. Slide 14's card became "Why the Zetaris heap ran out".
+  - `chain_facts` was built (HTTP 200) in five of the six runs, first in example 01 at 22:37 UTC; q22 read it in
+    examples 03-05. "For the first time" became "the first runs on record" (no committed run or `logs/` folder
+    has them on Zetaris before, and the driver's log names `chain_facts` first at 22:37:08 on 24 Oct).
+  - A Zetaris table that no query reads can fail with no recovery, no `partial` and no `E_ZETARIS_REQUIRED`
+    (example 02): said in the folder README (what the flags cover), the fallback matrix of `docs/ZETARIS.md` (a new
+    row), the live-mode table and the Sponsor technology text of README, `metadata.json` `runtime.live_mode` and
+    `INTEGRATION_NOTES.md`. `sql.jsonl`'s `tables` lists the run's registered tables without their status
+    (`tables_summary()`), so example 02's lines still name `bazaar_page0`; said in the folder README,
+    `docs/ZETARIS.md`, `docs/DEMO_SCRIPT.md` and slide 10.
+  - Smaller ones: postgres runs `postgres:16-alpine`, not a `hackathon` image; `zetaris.jsonl` holds no HTTP
+    header, credential or `idToken`, but the artifact server's path token is in its URLs; conflict sentences were
+    added only in the runs with conflicts (also corrected in `examples/live-trace-nightshift/README.md`, where the
+    same sentence predated these runs); example 01 differs from its 17:27 UTC run in c16 (63 to 64); "every status
+    here is `partial`" in `examples/live-trace-nightshift/README.md` now names the live runs with a `result` line
+    (`prompt-v1-ex01/` is a sample replay, status `ok`); `docs/DEMO_SCRIPT.md` and that README list
+    `live-ex03-20261022/` among the runs on Zetaris; the header of `docs/ZETARIS.md` names sections 3, 5 and 6; the
+    H-MEM inject lines of the six runs (14) and the replies of those runs that reached their token budget are in
+    README and `metadata.json`; the key `not_yet_verified_on_zetaris` of `metadata.json` became
+    `not_recorded_on_zetaris`.
+- **`machine.txt` of the folder:** a second capture at 23:35:47Z, with the commands inline: the driver container's
+  creation (2026-10-21T21:53:00Z), its heap flags and filtered log of 21 Oct 21:50 to 22 Oct 03:20 UTC, the
+  in-memory tables of example 02 around the restart, the count (0) and first line of `chain_facts` mentions, and
+  Nightshift's side of the local run: the daemon's last start and `lane nemotron placed full on CUDA0` (the same
+  lines as at 17:34 UTC, none after them) and the lane's last five timing lines, whose eval token counts (182,
+  411, 2, 379, 2) are the `output_tokens` of the local run's five `generate` events.
+- **Deck:** slide 9 (hosted: 11 live runs, 5 on Zetaris, 57 requests; local: 2 runs, 1 on Zetaris, 10 requests;
+  Zetaris was stopped for the 18:55 run), slide 10 (the REST tables of the 22 Oct traces and of the six runs of
+  24 Oct; `sql.jsonl` holds the run's tables; `--require-zetaris` acts on a fallback a query uses), slide 13 (57
+  and 10 requests in 13 runs, six of them on Zetaris; 330 tests) and slide 14. Rendered with the Chrome commands
+  of the 22 Oct entry plus a scratch `--user-data-dir`; before the edit, `slides/s10.png` and `slides/s14.png`
+  re-rendered byte-identical with it. After it, `slides/s09.png`, `s10.png`, `s13.png` and `s14.png` were
+  re-rendered and `deck.pdf` re-printed: 14 pages, and only the text of pages 9, 10, 13 and 14 changed.
+  `metadata.json` `tests.count_in_repo_deck` is 330. `demo.mp4` was not rebuilt; the slide 13 it shows is the
+  earlier one (324 tests, as its narration says).
+- **Tests:** 330, none added. `python -m unittest discover -s tests`: 330 tests, OK, 0 skips, 158 s, in the author
+  tree (Python 3.11.9). The first run after the edits had one failure, `tests/test_metadata.py`: the new note about
+  the video quoted the old test count in README; it was reworded.
+- **Not done:** q20-q22 are still not recorded with `scripts/record_zetaris_results.py --from-fixtures`;
+  `tables_summary()` still drops the table status and a failed table still logs no `recovery` (a code change for
+  later; the run folders stay unedited copies); no retry and no larger heap; nothing committed or pushed.

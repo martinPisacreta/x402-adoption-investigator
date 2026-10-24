@@ -1,0 +1,109 @@
+# Machine facts captured on 2026-10-24T22:52:48Z, after the six Zetaris + Nightshift runs of 22:36-22:42 UTC (commands and their output; the user-profile prefix of paths is shown as <USERPROFILE>, CRLF line ends written as LF, other edits noted per command)
+
+$ docker compose ls
+NAME                STATUS              CONFIG FILES
+zetaris             running(4)          <USERPROFILE>\zetaris\zetaris-platform\docker-compose.yml
+
+$ docker ps --filter label=com.docker.compose.project=zetaris --format 'table {{.Names}}\t{{.Image}}\t{{.Status}}'
+NAMES                IMAGE                                                                                                              STATUS
+zetaris-ui-1         zetarishackathon.azurecr.io/zetaris-new-ui:2.4.3-v2.4.3.1-hackathon.88e49b0db015979a2d071d2d68a6865d38a39f15       Up 16 minutes (healthy)
+zetaris-api-1        zetarishackathon.azurecr.io/zetaris-ndp-api:2.4.3-v2.4.3.1-hackathon.a2848d8a41fa21673a0d719deb41b675412710fe      Up 16 minutes (healthy)
+zetaris-driver-1     zetarishackathon.azurecr.io/zetaris-ndp-driver:2.4.3-v2.4.3.1-hackathon.cb88df0b255aba5a9a9eda96483fc877cc82df80   Up 14 minutes (healthy)
+zetaris-postgres-1   postgres:16-alpine                                                                                                 Up 17 minutes (healthy)
+
+$ docker inspect --format '{{.Name}} started {{.State.StartedAt}} restarts {{.RestartCount}} restart_policy {{.HostConfig.RestartPolicy.Name}}' zetaris-postgres-1 zetaris-api-1 zetaris-ui-1 zetaris-driver-1
+/zetaris-postgres-1 started 2026-10-24T22:35:40.552563537Z restarts 0 restart_policy unless-stopped
+/zetaris-api-1 started 2026-10-24T22:36:06.969483477Z restarts 0 restart_policy unless-stopped
+/zetaris-ui-1 started 2026-10-24T22:36:22.722512191Z restarts 0 restart_policy unless-stopped
+/zetaris-driver-1 started 2026-10-24T22:38:27.848394315Z restarts 1 restart_policy unless-stopped
+
+$ docker logs --since 2026-10-24T22:30:00Z --until 2026-10-24T22:44:00Z zetaris-driver-1 2>&1 | grep "^Spark Command" | grep -o -E "\-Xmx[0-9]+[gGmM]|spark\.(driver|executor)\.memory=[^ ]+"   (the heap settings of each start of the Zetaris driver in that window: only these flags of its java command line are kept)
+-Xmx2g
+spark.executor.memory=1g
+spark.driver.memory=2g
+-Xmx2g
+spark.executor.memory=1g
+spark.driver.memory=2g
+
+$ docker logs --since 2026-10-24T22:30:00Z --until 2026-10-24T22:44:00Z zetaris-driver-1 2>&1 | grep -E "Starting LightningHiveServer2|ResultStage 107|OutOfMemoryError|SparkContext is stopping" | grep -v "^Spark Command" | cut -c1-200   (the driver starts in that window and the stage that ran out of heap during zetaris-nightshift-ex02-20261024; the java command lines are left out, see the command above; lines cut at 200 characters)
+26/10/24 22:35:49 INFO LightningHiveServer2$: Starting LightningHiveServer2...
+26/10/24 22:38:15 INFO DAGScheduler: Final stage: ResultStage 107 (run at AccessController.java:712)
+26/10/24 22:38:15 INFO DAGScheduler: Submitting ResultStage 107 (In-memory table X402_B4B1827B.bazaar_page0 MapPartitionsRDD[495] at run at AccessController.java:712), which has no missing parents
+26/10/24 22:38:16 INFO DAGScheduler: Submitting 1 missing tasks from ResultStage 107 (In-memory table X402_B4B1827B.bazaar_page0 MapPartitionsRDD[495] at run at AccessController.java:712) (first 15 ta
+java.lang.OutOfMemoryError: Java heap space
+java.lang.OutOfMemoryError: Java heap space
+java.lang.OutOfMemoryError: Java heap space
+26/10/24 22:38:26 WARN TaskSetManager: Lost task 0.0 in stage 107.0 (TID 78) (7c0563da2dcc executor driver): java.lang.OutOfMemoryError: Java heap space
+26/10/24 22:38:26 INFO TaskSchedulerImpl: Killing all running tasks in stage 107: Stage cancelled: Job aborted due to stage failure: Task 0 in stage 107.0 failed 1 times, most recent failure: Lost tas
+26/10/24 22:38:26 INFO DAGScheduler: ResultStage 107 (run at AccessController.java:712) failed in 11.291 s due to Job aborted due to stage failure: Task 0 in stage 107.0 failed 1 times, most recent fa
+26/10/24 22:38:26 INFO SparkContext: SparkContext is stopping with exitCode 0.
+26/10/24 22:38:29 INFO LightningHiveServer2$: Starting LightningHiveServer2...
+
+$ ns status --json   (official Nightshift CLI, <USERPROFILE>/AppData/Local/Nightshift/cli/ns.cmd; fields kept: data.engine_reachable, data.version, data.version_source)
+{"engine_reachable": true, "version": "1.2.3", "version_source": "GET /admin/status (control socket)"}
+
+$ nvidia-smi --query-gpu=name,driver_version,memory.total --format=csv
+name, driver_version, memory.total [MiB]
+NVIDIA GeForce RTX 5080 Laptop GPU, 617.42, 16303 MiB
+
+# Added at 2026-10-24T23:35:47Z, after a review of this folder (same conventions as above, and the local app-data prefix shown as <LOCALAPPDATA>): the driver's log of 22 Oct, the in-memory tables of zetaris-nightshift-ex02-20261024 around the restart, the first mention of chain_facts, and the Nightshift lane that answered zetaris-nightshift-local-ex01-20261024
+
+$ docker inspect --format '{{.Name}} created {{.Created}}' zetaris-driver-1   (the driver container, whose log the commands below read)
+/zetaris-driver-1 created 2026-10-21T21:53:00.056046583Z
+
+$ docker logs --since 2026-10-21T21:50:00Z --until 2026-10-22T03:20:00Z zetaris-driver-1 2>&1 | grep "^Spark Command" | grep -o -E "\-Xmx[0-9]+[gGmM]|spark\.(driver|executor)\.memory=[^ ]+"   (the heap settings of each start of the driver in that window: only these flags of its java command line are kept)
+-Xmx2g
+spark.executor.memory=1g
+spark.driver.memory=2g
+-Xmx2g
+spark.executor.memory=1g
+spark.driver.memory=2g
+
+$ docker logs --since 2026-10-21T21:50:00Z --until 2026-10-22T03:20:00Z zetaris-driver-1 2>&1 | grep -E "Starting LightningHiveServer2|Submitting ResultStage [0-9]+ \(In-memory table X402_[0-9A-F]+\.bazaar_page0|ResultStage (233|463|473) \(run at AccessController.java:712\) (finished|failed)|OutOfMemoryError|SparkContext is stopping" | grep -v "^Spark Command" | cut -c1-200   (the driver starts in that window, every CACHE TABLE of a first Bazaar page and how its stage ended; the three stage numbers were read from the Submitting lines first; X402_E7ACB33C is the database of the recording session of fixtures/zetaris/, and the other two belong to sessions whose logs are not committed; lines cut at 200 characters)
+26/10/21 21:53:08 INFO LightningHiveServer2$: Starting LightningHiveServer2...
+26/10/22 01:54:51 INFO DAGScheduler: Submitting ResultStage 233 (In-memory table X402_E7ACB33C.bazaar_page0 MapPartitionsRDD[978] at run at AccessController.java:712), which has no missing parents
+26/10/22 01:54:56 INFO DAGScheduler: ResultStage 233 (run at AccessController.java:712) finished in 4.969 s
+26/10/22 02:08:49 INFO DAGScheduler: Submitting ResultStage 463 (In-memory table X402_5E9C5F9C.bazaar_page0 MapPartitionsRDD[1935] at run at AccessController.java:712), which has no missing parents
+java.lang.OutOfMemoryError: Java heap space
+java.lang.RuntimeException: java.lang.OutOfMemoryError: Java heap space
+Caused by: java.lang.OutOfMemoryError: Java heap space
+java.lang.OutOfMemoryError: Java heap space
+java.lang.OutOfMemoryError: Java heap space
+26/10/22 02:09:24 WARN TaskSetManager: Lost task 0.0 in stage 463.0 (TID 338) (7c0563da2dcc executor driver): java.lang.OutOfMemoryError: Java heap space
+26/10/22 02:09:24 INFO TaskSchedulerImpl: Killing all running tasks in stage 463: Stage cancelled: Job aborted due to stage failure: Task 0 in stage 463.0 failed 1 times, most recent failure: Lost tas
+26/10/22 02:09:24 INFO DAGScheduler: ResultStage 463 (run at AccessController.java:712) failed in 34.472 s due to Job aborted due to stage failure: Task 0 in stage 463.0 failed 1 times, most recent fa
+26/10/22 02:09:24 INFO SparkContext: SparkContext is stopping with exitCode 0.
+26/10/22 02:09:30 INFO LightningHiveServer2$: Starting LightningHiveServer2...
+26/10/22 03:16:45 INFO DAGScheduler: Submitting ResultStage 473 (In-memory table X402_8394DBD3.bazaar_page0 MapPartitionsRDD[2142] at run at AccessController.java:712), which has no missing parents
+26/10/22 03:16:50 INFO DAGScheduler: ResultStage 473 (run at AccessController.java:712) finished in 5.573 s
+
+$ docker logs --since 2026-10-24T22:30:00Z --until 2026-10-24T22:44:00Z zetaris-driver-1 2>&1 | grep -E "Starting LightningHiveServer2|Submitting ResultStage [0-9]+ \(In-memory table X402_B4B1827B\." | grep -v "^Spark Command" | cut -c1-200   (the in-memory tables of zetaris-nightshift-ex02-20261024: the Bazaar page on the driver started at 22:35:49, which had served zetaris-nightshift-ex01-20261024 first, then the catalog snapshot and the x402-trust stats on the restarted one; lines cut at 200 characters)
+26/10/24 22:35:49 INFO LightningHiveServer2$: Starting LightningHiveServer2...
+26/10/24 22:38:15 INFO DAGScheduler: Submitting ResultStage 107 (In-memory table X402_B4B1827B.bazaar_page0 MapPartitionsRDD[495] at run at AccessController.java:712), which has no missing parents
+26/10/24 22:38:29 INFO LightningHiveServer2$: Starting LightningHiveServer2...
+26/10/24 22:38:52 INFO DAGScheduler: Submitting ResultStage 2 (In-memory table X402_B4B1827B.catalog_snapshot MapPartitionsRDD[27] at run at AccessController.java:712), which has no missing parents
+26/10/24 22:38:55 INFO DAGScheduler: Submitting ResultStage 8 (In-memory table X402_B4B1827B.trust_stats_raw MapPartitionsRDD[63] at run at AccessController.java:712), which has no missing parents
+
+$ docker logs --until 2026-10-24T00:00:00Z zetaris-driver-1 2>&1 | grep -c "chain_facts"   (mentions of chain_facts in the driver's log before 24 Oct)
+0
+
+$ docker logs zetaris-driver-1 2>&1 | grep -m 1 "chain_facts" | cut -c1-200   (the first one; x402_fbda9b17 is zetaris-nightshift-ex01-20261024)
+26/10/24 22:37:08 INFO LightningExternalCatalog: tableExists : x402_fbda9b17.chain_facts_raw : true
+
+$ grep -n -E "starting|gpu: cuda lanes|lane nemotron placed" <LOCALAPPDATA>/ai.meterless.runtime/logs/meterlessd.log | tail -n 3; wc -l < <LOCALAPPDATA>/ai.meterless.runtime/logs/meterlessd.log   (the daemon's last start, its GPU and where it placed the Nemotron lane, with line numbers, then the log's line count: the same three lines as in ../live-trace-nightshift/machine.txt, captured at 17:34:10Z, and no start or placement line after them)
+80:meterlessd: gpu: cuda lanes on discrete VRAM: CUDA0 NVIDIA GeForce RTX 5080 Laptop GPU (16275 MB)
+84:meterlessd 1.2.3 starting (llama.cpp ref: 08659901c43b51de735740f1cf61bb82fbe0c4e4; windows Windows 11 25H2 · NVIDIA GeForce RTX 5080 Laptop GPU · 32175 MB RAM · backend cuda · capacity 14973 MB · floor windows-curve-v1)
+88:meterlessd: lane nemotron placed full on CUDA0 - 9523 MB device, 308 MB host (100% of layer weights on GPU)
+114
+
+$ grep -E "print_timing.*(prompt eval time|       eval time)" <LOCALAPPDATA>/ai.meterless.runtime/logs/lane-nemotron.log | tail -n 10 | cut -c1-140   (llama-server of that lane, its last five requests: the eval token counts 182, 411, 2, 379 and 2 are the output_tokens of the five generate events of zetaris-nightshift-local-ex01-20261024, and each prompt count is that event's input_tokens minus 4; lines cut at 140 characters)
+343.13.951.881 I slot print_timing: id  0 | task 4794 | prompt eval time =     581.43 ms /   769 tokens (    0.76 ms per token,  1322.60 tok
+343.13.951.888 I slot print_timing: id  0 | task 4794 |        eval time =    2924.62 ms /   182 tokens (   16.07 ms per token,    62.23 tok
+343.40.676.540 I slot print_timing: id  0 | task 4979 | prompt eval time =    1686.62 ms /  3428 tokens (    0.49 ms per token,  2032.46 tok
+343.40.676.548 I slot print_timing: id  0 | task 4979 |        eval time =    6464.35 ms /   411 tokens (   15.73 ms per token,    63.58 tok
+343.42.496.747 I slot print_timing: id  0 | task 5394 | prompt eval time =    1258.87 ms /  3007 tokens (    0.42 ms per token,  2388.66 tok
+343.42.496.757 I slot print_timing: id  0 | task 5394 |        eval time =      18.57 ms /     2 tokens (    9.28 ms per token,   107.72 tok
+343.50.530.474 I slot print_timing: id  0 | task 5400 | prompt eval time =    1970.05 ms /  4908 tokens (    0.40 ms per token,  2491.30 tok
+343.50.530.484 I slot print_timing: id  0 | task 5400 |        eval time =    6006.85 ms /   379 tokens (   15.85 ms per token,    63.09 tok
+343.51.847.132 I slot print_timing: id  0 | task 5784 | prompt eval time =    1241.47 ms /  2977 tokens (    0.42 ms per token,  2397.96 tok
+343.51.847.142 I slot print_timing: id  0 | task 5784 |        eval time =      17.43 ms /     2 tokens (    8.71 ms per token,   114.74 tok

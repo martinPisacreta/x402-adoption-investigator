@@ -33,7 +33,7 @@ from .config import RunConfig, parse_request
 from .contracts import AgentResult, Budget, Claim, Conflict, Mounts, Observation, Plan, RunInput, to_json
 from .errors import InvestigatorError
 from .eventlog import EventLog
-from .generator import build_generator
+from .generator import build_generator, recorded_transcripts_folder
 from .guard import NetworkDisabledError, install_network_guard
 from .sources.fetcher import build_fetcher, fixture_fetcher_for
 from .sources.manifest import Manifest, load_manifest
@@ -293,6 +293,12 @@ def build_context(run_id: str, inp: RunInput, config: RunConfig, echo_stdout: bo
     if config.mode == "live" and generator.name == "null":
         ctx.fallback_used = True
         ctx.recover("runner", "generator_fallback", "no generator configured; rules and templates only", to="null")
+    if config.is_sample() and generator.name == "null" and recorded_transcripts_folder(config, example_name) is None:
+        # Recorded answers are found by the example's run_id (or --example); say so instead of mounting null silently.
+        where = (f"fixtures/transcripts/{example_name}/ has none" if example_name else
+                 f"run_id {run_id} is no example's; pass --example <folder> to replay an example's")
+        ctx.recover("runner", "generator_fallback", f"no recorded transcripts ({where}); rules and templates only",
+                    to="null")
     ctx.hmem_dir = init_hmem_dir(config, run_dir)
     mount_engines(ctx)
     return ctx

@@ -17,8 +17,13 @@ What goes in, all from this repository:
     build checks it is the committed run.jsonl of
     examples/live-trace-nightshift/nemotron-cloud/live-video-ex01-20261024/. Then live-capture-local.json, the
     grep over the committed log of the local-lane run (nemotron-local-ex01-20261024), checked against that log.
+    Between the two, ledger-capture.json: the stdout of scripts/nightshift_ledger.py over that live run, which read
+    Nightshift's own signed receipt ledger (<stateDir>/receipts.jsonl) and verified the five receipts; the build
+    checks the script is the one captured (sha256), that the lines are the run's five receipts and that each equals
+    what the script computes from the committed excerpt examples/live-trace-nightshift/nightshift-ledger/.
     The Nightshift part of the video shows them paced to the narration of deck slide 9 (whose image is not shown):
-    generate lines in full, other long lines cut to their first row with an ellipsis, as its subtitle says.
+    generate and ledger lines in full, other long lines cut to their first row with an ellipsis, as its subtitle
+    says. The two runs and the ledger check show their real arrival times; the local grep shows none.
   - docs/pitch/video/zetaris-capture.json, the grep of the run_start and sql events of the committed 22 Oct live
     log on Zetaris (examples/live-trace/live-ex01-20261022/run.jsonl), checked against it; shown with the narration
     of deck slide 10, whose image is not shown.
@@ -52,6 +57,9 @@ LIVE_RUN_CAPTURE = PITCH / "video" / "live-capture-run.json"
 LIVE_LOCAL_CAPTURE = PITCH / "video" / "live-capture-local.json"
 LIVE_RUN_DIR = LIVE_DIR / "nemotron-cloud" / "live-video-ex01-20261024"
 ZETARIS_CAPTURE = PITCH / "video" / "zetaris-capture.json"
+LEDGER_CAPTURE = PITCH / "video" / "ledger-capture.json"
+LEDGER_SCRIPT = REPO / "scripts" / "nightshift_ledger.py"
+LEDGER_EXCERPT = LIVE_DIR / "nightshift-ledger" / "receipts.jsonl"
 
 # A wide motion search lets x264 follow the terminal scroll; with the default range that segment alone is ~14 MB.
 # Video order. The recorded run follows slide 7 (the same rejection, condensed) and the viewer opened on that
@@ -402,7 +410,7 @@ def terminal_clip(ffmpeg, cap, words, lead, duration, work, out):
 
 # ---------------------------------------------------------------- live run through Nightshift, Zetaris log
 
-LOG_SPANS = re.compile(r'"(?:agent|routed_model|kind|receipt_id|executor|generator|query_id|reason)":"[^"]*"')
+LOG_SPANS = re.compile(r'"(?:agent|routed_model|kind|receipt_id|executor|generator|query_id|reason|app|winner|ed25519)":"[^"]*"')
 
 
 def load_live_captures():
@@ -421,7 +429,34 @@ def load_live_captures():
     if local["rc"] != 0 or not got or got != generate[:len(got)]:
         sys.exit(f"{LIVE_LOCAL_CAPTURE.name}: captured lines are not the generate events of {log}")
     local["log"] = log
-    return run_cap, local
+    ledger = load_ledger_capture()
+    return run_cap, ledger, local
+
+
+def load_ledger_capture():
+    """The stdout of scripts/nightshift_ledger.py over the live run: one line per receipt from Nightshift's own signed
+    ledger, then a summary. Checked: the script is the captured one, the receipts are the run's, in order, and each
+    line equals what the script computes from the committed ledger excerpt (so the excerpt is what the live ledger
+    held)."""
+    import hashlib
+    cap = json.loads(LEDGER_CAPTURE.read_text(encoding="utf-8"))
+    if cap["rc"] != 0 or hashlib.sha256(LEDGER_SCRIPT.read_bytes()).hexdigest() != cap["meta"]["script_sha256"]:
+        sys.exit(f"{LEDGER_CAPTURE.name}: failed run, or scripts/nightshift_ledger.py changed since the capture")
+    sys.path.insert(0, str(LEDGER_SCRIPT.parent))
+    import nightshift_ledger
+    requests = nightshift_ledger.run_requests(LIVE_RUN_DIR)
+    excerpt = nightshift_ledger.read_ledger(LEDGER_EXCERPT, {r["receipt_id"] for r in requests})
+    expected = []
+    for r in requests:
+        envelope = excerpt[r["receipt_id"]][1]
+        line = nightshift_ledger.ledger_line(r, envelope, nightshift_ledger.verify_envelope(envelope))
+        expected.append(nightshift_ledger.compact(line))
+    got = [r["line"] for r in cap["lines"]]
+    summary = json.loads(got[-1])
+    n = len(requests)
+    if got[:-1] != expected or summary["signatures_valid"] != n or summary["winner_is_run_routed_model"] != n:
+        sys.exit(f"{LEDGER_CAPTURE.name}: the ledger lines are not the run's receipts as the committed excerpt has them")
+    return cap
 
 
 def load_zetaris_capture():
@@ -439,6 +474,12 @@ def load_zetaris_capture():
 def event_caption(line):
     """A short pointer to one event, built only from that line's own fields."""
     ev = json.loads(line)
+    if "issued_at" in ev:       # a line of scripts/nightshift_ledger.py: Nightshift's receipt, not a run event
+        return (f"Nightshift ledger · {ev['receipt_id']} · issued {ev['issued_at'][11:23]} · app {ev['app']} · "
+                f"winner {ev['winner']} · {ev['kind']} · ed25519 {ev['ed25519']}")
+    if "signatures_valid" in ev:
+        return (f"Nightshift ledger: {ev['found_in_nightshift_ledger']} of {ev['requests']} receipts found, "
+                f"{ev['signatures_valid']} signatures valid, {ev['winner_is_run_routed_model']} routed to the run's model")
     p, t = ev["payload"], ev["type"]
     if t == "generate":
         r = p["routing"]
@@ -592,34 +633,41 @@ def log_clip(ffmpeg, term, anchors, highlights, note, note_at, duration, work, o
 
 
 def live_clip(ffmpeg, caps, words, lead, duration, work, out):
-    run_cap, local = caps
+    run_cap, ledger, local = caps
     env = " ".join(f"{k}={v}" for k, v in run_cap.get("env", {}).items())
     items = [("prompt", f"$ {env} " + " ".join(run_cap["cmd"]), None)]
     items += [("line", r["line"], r["t"]) for r in run_cap["lines"]]
+    ledger_prompt = len(items)
+    items.append(("prompt", "$ " + " ".join(ledger["cmd"]), None))
+    items += [("line", r["line"], r["t"]) for r in ledger["lines"]]
+    ledger_lines = list(range(ledger_prompt + 1, len(items)))
+    local_prompt = len(items)
     items.append(("prompt", "$ " + local["cmdline"], None))
     items += [("line", r["line"], None) for r in local["lines"]]
     gen = [n for n, (k, text, _) in enumerate(items) if k == "line" and '"type":"generate"' in text]
-    local_prompt = len(run_cap["lines"]) + 1
-    result = local_prompt - 1
+    result = ledger_prompt - 1
     assert json.loads(items[result][1])["type"] == "result" and len(gen) == 6, (gen, result)
+    assert len(ledger_lines) == 6, ledger_lines
     first = json.loads(run_cap["lines"][1]["line"])
     title = (f"Live run through Meterless Nightshift  ·  example 01  ·  {first['at'][:10]} {first['at'][11:16]} UTC  ·  "
              f"model pinned: {run_cap['env']['METERLESS_MODEL']}")
     sub = (f"Its stdout as it streamed (left: arrival time after launch; the run took {run_cap['total_s']:.1f} s), replayed in "
-           f"order and paced to the narration; long lines show their first row (…), generate lines in full. Zetaris was "
-           f"stopped (seq 1, zetaris_unreachable): SQL on SQLite. Last: grep over the committed log of the local-lane run.")
-    term = LogTerm(items, title, sub, whole=gen, timed=True)
+           f"order and paced to the narration; long lines show their first row (…). Zetaris was stopped (seq 1): SQL on "
+           f"SQLite. Then the five receipts in Nightshift's own signed ledger; last, grep over the committed local-lane log.")
+    term = LogTerm(items, title, sub, whole=gen + ledger_lines, timed=True)
     wt = functools.partial(word_time, words)
     anchors = [(gen[0], lead + wt("planner")), (gen[1], lead + wt("writer")), (gen[2], lead + wt("critic")),
                (gen[3], lead + wt("second")), (gen[4], lead + wt("again")), (result, lead + wt("sqlite")),
-               (local_prompt, lead + wt("last")), (gen[5], lead + wt("nano"))]
+               (ledger_prompt, lead + wt("ledger")), (ledger_lines[-2], lead + wt("valid") - 0.4),
+               (ledger_lines[-1], lead + wt("valid") + 0.2), (local_prompt, lead + wt("last")), (gen[5], lead + wt("nano"))]
     routes = [json.loads(items[n][1])["payload"]["routing"] for n in gen]
     cloud = sorted({r["routed_model"] for r in routes if r["winning_route"]["kind"] == "cloud"})
     localm = sorted({r["routed_model"] for r in routes if r["winning_route"]["kind"] == "local"})
     assert len(cloud) == 1 and len(localm) == 1, (cloud, localm)
-    note = (f"live run: 5 requests, every routed_model {cloud[0]} (kind cloud); "
+    note = (f"live run: 5 requests, every routed_model {cloud[0]} (kind cloud), all 5 in Nightshift's signed ledger; "
             f"committed local run: routed_model {localm[0]} (kind local)")
-    return log_clip(ffmpeg, term, anchors, gen + [result], note, lead + words[-1]["s"] + 0.6, duration, work, out,
+    highlights = gen[:5] + [result, ledger_lines[0], ledger_lines[-1], gen[5]]
+    return log_clip(ffmpeg, term, anchors, highlights, note, lead + words[-1]["s"] + 0.6, duration, work, out,
                     "live")
 
 
@@ -742,7 +790,8 @@ def main():
     cap["note_end"] = (f"The {cap['sep']} events and the envelope are byte-identical to the committed "
                        "examples/04-payer-dossier-unverifiable/run.jsonl and output.json." if same else "")
     live_caps = load_live_captures()
-    print("live capture equals", LIVE_RUN_DIR.relative_to(REPO), "run.jsonl; local grep of", live_caps[1]["log"])
+    print("live capture equals", LIVE_RUN_DIR.relative_to(REPO), "run.jsonl; ledger check matches the committed excerpt;"
+          " local grep of", live_caps[2]["log"])
     zet_cap = load_zetaris_capture()
     print("zetaris capture: run_start and sql events of", zet_cap["log"])
 

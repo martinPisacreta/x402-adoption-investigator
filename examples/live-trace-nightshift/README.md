@@ -16,8 +16,9 @@ Critic second-opinion request went to the local Nightshift runtime, which handed
 Nothing here is edited by hand: the run folders are unedited copies of files of `logs/<run_id>/` (which files, see
 Files), and `machine.txt` is command output with the redactions and filters it states inline.
 
-Also here: `nemotron-cloud/live-video-ex01-20261024/`, the run recorded for the demo video (below), and `docker/`, one
-Nightshift request made from a container (its own README).
+Also here: `nemotron-cloud/live-video-ex01-20261024/`, the run recorded for the demo video (below), `docker/`, one
+Nightshift request made from a container (its own README), and `nightshift-ledger/`, the lines of Nightshift's own
+Ed25519-signed receipt ledger for every receipt this repository cites (127, all signatures valid; its own README).
 
 ## What ran
 
@@ -78,6 +79,10 @@ Both Nemotron models think before they answer, and the thinking most likely coun
 ones `generator.jsonl` and `transcripts/`) show it. The cloud ones (17:13-17:16 UTC) came before the cloud runs and
 decided the default; the local one (17:37 UTC) was made after the local run (17:31 UTC), to confirm the same failure
 on that route:
+
+The prompt and `max_tokens` columns of the three failed smokes come from the commands as they were run: those logs
+recorded only the error (no `generate` event, no transcript). `scripts/nightshift_smoke.py` now writes both into
+`run_start.smoke_request`.
 
 | run id | route | prompt, `max_tokens` | thinking control | result |
 |---|---|---|---|---|

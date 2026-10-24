@@ -26,7 +26,10 @@ What the files show:
   (`base_url: http://host.docker.internal:8088/v1`, `found_by: NIGHTSHIFT_BASE_URL`, `timeout_s: 90.0`,
   `token_source: NIGHTSHIFT_TOKEN_FILE`, a variable name, never the token). seq 3: the `generate` event, `routing.routed_model:
   nvidia/nemotron-3.5-lightning-30b-a3b`, `winning_route.kind: cloud`, receipt `rcpt_req_6ujsjy37`, 2,103 ms, 474
-  input and 180 output tokens; the reply parsed as the JSON object the Planner needs.
+  input and 180 output tokens; the reply parsed as a JSON object (the smoke checks no more than that). It proposed
+  playbook `payer_dossier`, which the Planner would not adopt for this seller-audit question: the router's only
+  candidate without a wallet in focus is `seller_profile`, the plan of the sample run on the same prompt
+  (`examples/01-seller-audit-textokit/run.jsonl` seq 6).
 - `generator.jsonl`: the same call with its parameters (max_tokens 400, temperature 0, the thinking switch
   `reasoning_effort: none` plus the `/no_think` system turn).
 - `transcripts/`: the exact prompt and the reply.

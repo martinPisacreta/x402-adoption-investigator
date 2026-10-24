@@ -1,0 +1,42 @@
+{
+ "cmd": [
+  "python",
+  "scripts/nightshift_ledger.py",
+  "examples/live-trace-nightshift/nemotron-cloud/live-video-ex01-20261024"
+ ],
+ "meta": {
+  "script_sha256": "d98a53dcf8e72659b29e5d0684a532330cfd4df070bf1d2043888ab621c6da57",
+  "ledger": "Nightshift's own <stateDir>/receipts.jsonl on the demo machine, read at capture time"
+ },
+ "started_utc": "2026-10-24T20:09:32+00:00",
+ "rc": 0,
+ "total_s": 0.1102,
+ "stderr": "",
+ "lines": [
+  {
+   "t": 0.0936,
+   "line": "{\"receipt_id\":\"rcpt_req_t1f1teb8\",\"issued_at\":\"2026-10-24T18:55:20.456Z\",\"app\":\"x402-adoption-investigator\",\"status\":\"ok\",\"winner\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"kind\":\"cloud\",\"provider\":\"nvidia\",\"egress\":\"nvidia\",\"tokens_in\":777,\"tokens_out\":166,\"latency_ms\":1955,\"signer\":\"meterlessd\",\"ed25519\":\"valid\",\"run\":{\"seq\":6,\"agent\":\"planner\",\"prompt_id\":\"planner\",\"same_model\":true}}"
+  },
+  {
+   "t": 0.096,
+   "line": "{\"receipt_id\":\"rcpt_req_c0jovllr\",\"issued_at\":\"2026-10-24T18:55:35.933Z\",\"app\":\"x402-adoption-investigator\",\"status\":\"ok\",\"winner\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"kind\":\"cloud\",\"provider\":\"nvidia\",\"egress\":\"nvidia\",\"tokens_in\":3436,\"tokens_out\":466,\"latency_ms\":5990,\"signer\":\"meterlessd\",\"ed25519\":\"valid\",\"run\":{\"seq\":83,\"agent\":\"writer\",\"prompt_id\":\"writer-r1\",\"same_model\":true}}"
+  },
+  {
+   "t": 0.0984,
+   "line": "{\"receipt_id\":\"rcpt_req_pl9z663t\",\"issued_at\":\"2026-10-24T18:55:40.503Z\",\"app\":\"x402-adoption-investigator\",\"status\":\"ok\",\"winner\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"kind\":\"cloud\",\"provider\":\"nvidia\",\"egress\":\"nvidia\",\"tokens_in\":3080,\"tokens_out\":500,\"latency_ms\":4236,\"signer\":\"meterlessd\",\"ed25519\":\"valid\",\"run\":{\"seq\":131,\"agent\":\"critic\",\"prompt_id\":\"critic-r1\",\"same_model\":true}}"
+  },
+  {
+   "t": 0.1008,
+   "line": "{\"receipt_id\":\"rcpt_req_v4ma9ufl\",\"issued_at\":\"2026-10-24T18:55:53.395Z\",\"app\":\"x402-adoption-investigator\",\"status\":\"ok\",\"winner\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"kind\":\"cloud\",\"provider\":\"nvidia\",\"egress\":\"nvidia\",\"tokens_in\":5941,\"tokens_out\":700,\"latency_ms\":12867,\"signer\":\"meterlessd\",\"ed25519\":\"valid\",\"run\":{\"seq\":142,\"agent\":\"writer\",\"prompt_id\":\"writer-r2\",\"same_model\":true}}"
+  },
+  {
+   "t": 0.1033,
+   "line": "{\"receipt_id\":\"rcpt_req_y94ho7dr\",\"issued_at\":\"2026-10-24T18:55:58.139Z\",\"app\":\"x402-adoption-investigator\",\"status\":\"ok\",\"winner\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"kind\":\"cloud\",\"provider\":\"nvidia\",\"egress\":\"nvidia\",\"tokens_in\":3312,\"tokens_out\":500,\"latency_ms\":4714,\"signer\":\"meterlessd\",\"ed25519\":\"valid\",\"run\":{\"seq\":174,\"agent\":\"critic\",\"prompt_id\":\"critic-r2\",\"same_model\":true}}"
+  },
+  {
+   "t": 0.1034,
+   "line": "{\"requests\":5,\"found_in_nightshift_ledger\":5,\"signatures_valid\":5,\"winner_is_run_routed_model\":5,\"routed_models\":[\"nvidia/nemotron-3.5-lightning-30b-a3b\"]}"
+  }
+ ],
+ "python": "python = the capturing interpreter, Python 3.11.9"
+}

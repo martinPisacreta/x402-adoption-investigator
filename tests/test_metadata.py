@@ -3,7 +3,7 @@
 - every repository path it names exists;
 - the test count it states is the number of tests unittest discovers in tests/ (this module included);
 - README.md quotes that same count, and the deck source quotes the count recorded for it
-  (tests.count_in_submitted_deck): the deck is re-rendered only when the pitch changes (2026-10-22, 2026-10-24), so
+  (tests.count_in_repo_deck): the deck is re-rendered only when the pitch changes (2026-10-22, 2026-10-24), so
   the suite may have grown since, and metadata.json says by how much instead of the deck drifting.
 """
 from __future__ import annotations
@@ -54,7 +54,7 @@ class MetadataManifest(unittest.TestCase):
 
     def test_readme_quotes_the_count_and_the_deck_the_submitted_one(self) -> None:
         expected = {"README.md": self.meta["tests"]["count"],
-                    "docs/pitch/deck.html": self.meta["tests"]["count_in_submitted_deck"]}
+                    "docs/pitch/deck.html": self.meta["tests"]["count_in_repo_deck"]}
         self.assertLessEqual(expected["docs/pitch/deck.html"], expected["README.md"])
         for rel, count in expected.items():
             quoted = {int(n) for n in QUOTED_COUNT_RE.findall((REPO_ROOT / rel).read_text(encoding="utf-8"))}

@@ -524,6 +524,14 @@ def nightshift_unavailable_reason(probe: Optional[NightshiftProbe], explicit: bo
 # Mounting
 # ----------------------------------------------------------------------------------------------------------
 
+def recorded_transcripts_folder(config: RunConfig, example_name: Optional[str]) -> Optional[Path]:
+    """fixtures/transcripts/<example>/ when it holds at least one transcript, else None (sample mode then mounts null)."""
+    if not example_name:
+        return None
+    folder = config.transcripts_dir / example_name
+    return folder if folder.is_dir() and any(folder.glob("*.json")) else None
+
+
 def build_generator(config: RunConfig, example_name: Optional[str] = None, *, opener: Optional[Any] = None) -> Generator:
     """Mount the generator for this run.
 
@@ -533,11 +541,8 @@ def build_generator(config: RunConfig, example_name: Optional[str] = None, *, op
     generator other than Nightshift carries `nightshift_unavailable` (the reason), which the runner logs as
     recovery{nightshift_unavailable}. `opener` is the urlopen-compatible transport (tests)."""
     if config.is_sample():
-        if example_name:
-            folder = config.transcripts_dir / example_name
-            if folder.is_dir() and any(folder.glob("*.json")):
-                return RecordedGenerator(folder)
-        return NullGenerator()
+        folder = recorded_transcripts_folder(config, example_name)
+        return RecordedGenerator(folder) if folder else NullGenerator()
     env = config.env
     explicit = bool(env.nightshift_base_url)
     token, token_source = resolve_nightshift_token(env)

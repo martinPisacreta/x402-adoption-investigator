@@ -1,0 +1,53 @@
+{
+  "prompt_id": "writer-r1",
+  "prompt_sha256": "5e86cf45810a8bcf662becc1f3abdad32aa36d0fbd824e9c06f6744dff1d5d31",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "recorded_at": "2026-10-24T22:39:07.546Z",
+  "response": "- 28462 unique resources are in the Bazaar catalog snapshot [c01].\n- 2680 distinct hosts serve those resources [c02].\n- 1785 distinct payTo wallets receive payments [c03].\n- 824796 calls were counted in the 30-day window [c04].\n- 28347 of 28462 resources saw at least one call in the last 30 days (99.6 %) [c05].\n- The top host www.ax1.vc accounts for 243580 of 824796 30-day calls (29.5 %) [c06].\n- The top ten hosts account for 604248 of 824796 30-day calls (73.3 %) [c07].\n- The top payTo wallet 0x7284d41b5b852f2bd4c99bdf95043d84452d299c receives 243601 of 824796 30-day calls (29.5 %) [c09].\n\nWhere sources disagree k01: the Bazaar snapshot reports 28462 unique resources, while the live discovery API reports 28472, and x402-trust indexes a larger set of 301727 listed endpoints with its own 30-day probe window, counting delisted endpoints in its listed total.\n\nThe paid-call concentration on the CDP Bazaar is extreme: one host (www.ax1.vc) and one payTo wallet each generate roughly 29.5 % of all 30-day calls, and the top ten hosts together account for 73.3 % of calls. Approximately 99.6 % of listed endpoints received at least one call in the last 30 days, meaning near-universal activity but with payment flows heavily concentrated among a small number of hosts and wallets.",
+  "usage": {
+    "prompt_tokens": 2288,
+    "completion_tokens": 461,
+    "total_tokens": 2749
+  },
+  "provider": "meterless",
+  "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_ujkssqd7",
+    "decision_id": "req_ujkssqd7",
+    "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "winning_route": {
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "label": "Nemotron 3.5 Lightning 30B A3B",
+      "provider": "nvidia",
+      "kind": "cloud",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "final_synthesis",
+        "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+        "ms": 5383
+      }
+    ],
+    "latency_ms": 5383,
+    "usage": {
+      "input_tokens": 2288,
+      "output_tokens": 461,
+      "total_tokens": 2749
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "cloud-ok",
+    "wall_ms": 5422
+  },
+  "request": {
+    "max_tokens": 700,
+    "call_options": {
+      "reasoning_effort": "none",
+      "system_turn": "/no_think"
+    }
+  }
+}

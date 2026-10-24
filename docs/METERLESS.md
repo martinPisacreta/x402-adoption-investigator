@@ -36,7 +36,8 @@ collector -> keeper(ingest pass 1) -> verifier -> keeper(chain facts) -> analyst
   when a generator is mounted, their prompts carry the `[MEMORY CONTEXT]` reinjection block, logged before each call
   as a `memory` event `op: "inject"` (prompt and block sha256, the prompt's being the `prompt_sha256` of the
   `generate` event that follows; 9 such lines in the committed examples 02, 03 and 05, which replay Nemotron answers
-  recorded through Nightshift, and 17 in the seven Nemotron live runs of `examples/live-trace-nightshift/`;
+  recorded through Nightshift, 17 in the seven Nemotron live runs of `examples/live-trace-nightshift/` and 14 in the
+  six of `examples/live-trace-zetaris-nightshift/`;
   `tests/test_generator_hmem.py` checks the block inside the prompts actually sent with an in-process
   OpenAI-compatible double), the Analyst and the Critic's C3
   gate read the same deterministic `policy_memories(fields, sources, metrics)` index (the Analyst attaches the
@@ -187,7 +188,9 @@ Nightshift, not in the app), and also Nemotron Nano 9B v2 as Nightshift's local 
 reinjection block reaches its prompts exactly as described above (the `memory` inject lines of those runs precede
 the `generate` events with the same prompt sha256). README section "Meterless Nightshift (primary AI
 provider)" lists what is implemented, what ran (37 Nemotron requests in seven live runs on 2026-10-24, 32 hosted and 5 local,
-`examples/live-trace-nightshift/`; 25 recorded Nemotron answers replayed by the committed examples,
+`examples/live-trace-nightshift/`, whose SQL ran on SQLite; 30 more in six live runs of 22:36-22:42 UTC that day,
+25 hosted and 5 local, with Zetaris as the SQL executor and status `ok`, `examples/live-trace-zetaris-nightshift/`;
+25 recorded Nemotron answers replayed by the committed examples,
 `fixtures/transcripts/`; the earlier six Llama runs, 32 requests, and the 25 recordings of the first replay set in
 `examples/live-trace-nightshift/llama-3.2-3b/`) and what is not claimed; tests in `tests/test_nightshift.py`. Every
 receipt those logs cite is in the committed excerpt of Nightshift's Ed25519-signed ledger, each signature valid under

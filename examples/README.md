@@ -42,6 +42,10 @@ Lightning SQL, live Base JSON-RPC), labelled live so they can be diffed against 
 Nightshift (receipt per request; Zetaris was stopped, so SQLite): `nemotron-cloud/` on NVIDIA Nemotron 3.5 Lightning
 30B A3B, NVIDIA's hosted API, `nemotron-local/` on Nemotron Nano 9B v2 on the local GPU, and `llama-3.2-3b/` the
 first runs, on a local Llama 3.2 3B lane; see its README.
+`live-trace-zetaris-nightshift/` holds the six live runs of 2026-10-24, 22:36-22:42 UTC, that used both in the same
+run: every analytics query on Zetaris 2.4.3.1 and every generator request through Nightshift to Nemotron. Five of
+them are hosted (`nemotron-cloud/`, examples 01-05) and one is local (`nemotron-local/`, example 01). All six have
+status `ok`, the only committed live runs that do; see its README.
 
 The generator-backed roles of the five examples replay recorded Meterless Nightshift answers
 (`../fixtures/transcripts/<example>/`, recorded on the exact sample-mode prompts with

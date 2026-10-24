@@ -1,0 +1,53 @@
+{
+  "prompt_id": "writer-r2",
+  "prompt_sha256": "9e5aefb263c1f5dea528ee53bf684db79f4b1c4797595f861544c238f1d7a361",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "recorded_at": "2026-10-24T22:40:33.203Z",
+  "response": "- 17 listings for tienda.textokit.store [c01]\n- 5 settlement(s) verified on Base against receipts, with caveats: payer_from_transfer_log, self_reported_receipts, basis_mismatch [c02]\n- 1 purchase(s) by 0xa1d1c0cf717402ff3651aa4873ccf96410b01978, with caveats: self_reported_receipts, basis_mismatch [c03]\n- Purchases total 1000 atomic USDC (0.001 USDC), with caveats: self_reported_receipts, basis_mismatch [c04]\n- Purchases span 2026-10-21T21:18:17.136Z..2026-10-21T21:18:17.136Z, with caveats: self_reported_receipts, basis_mismatch [c05]\n- 1 distinct service(s) covered, with caveats: self_reported_receipts, basis_mismatch [c06]\n- 1 settlement(s) of this payer verified on Base, with caveats: payer_from_transfer_log, self_reported_receipts, basis_mismatch [c07]\n- USDC balance at capture: 168.575488 USDC (168575488 atomic), with caveat: payer_from_transfer_log [c08]\n- Transaction count (nonce) at capture: 0, with caveat: payer_from_transfer_log [c09]\n\nWhere sources disagree [c01-c09]: No conflicts are listed in the claims table; all accepted claims are consistent without dispute.\n\nThe payer 0xa1d1c0cf717402ff3651aa4873ccf96410b01978 made a single purchase of 1 distinct service from tienda.textokit.store, paying 1000 atomic USDC (0.001 USDC) at 2026-10-21T21:18:17.136Z. One settlement for this payer has been verified on Base against the receipts, and the USDC balance at capture was 168.575488 USDC with a transaction count of 0.",
+  "usage": {
+    "prompt_tokens": 2690,
+    "completion_tokens": 554,
+    "total_tokens": 3244
+  },
+  "provider": "meterless",
+  "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_jttdhusb",
+    "decision_id": "req_jttdhusb",
+    "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "winning_route": {
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "label": "Nemotron 3.5 Lightning 30B A3B",
+      "provider": "nvidia",
+      "kind": "cloud",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "final_synthesis",
+        "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+        "ms": 5633
+      }
+    ],
+    "latency_ms": 5633,
+    "usage": {
+      "input_tokens": 2690,
+      "output_tokens": 554,
+      "total_tokens": 3244
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "cloud-ok",
+    "wall_ms": 5656
+  },
+  "request": {
+    "max_tokens": 700,
+    "call_options": {
+      "reasoning_effort": "none",
+      "system_turn": "/no_think"
+    }
+  }
+}

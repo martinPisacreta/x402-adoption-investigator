@@ -1,0 +1,53 @@
+{
+  "prompt_id": "critic-r1",
+  "prompt_sha256": "77cb9d496e7aafff8b6c7cd416657aa675fae15760b520d6ce1416bf381c5d6a",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "recorded_at": "2026-10-24T22:39:51.590Z",
+  "response": "[\n  {\n    \"sentence_index\": 1,\n    \"reason\": \"Value 1 not derivable from c03's count of 1 purchase by that payer\",\n    \"claim_id\": \"c03\"\n  },\n  {\n    \"sentence_index\": 2,\n    \"reason\": \"Value 1000 atomic USDC not derivable from c03's count of 1 purchase\",\n    \"claim_id\": \"c03\"\n  },\n  {\n    \"sentence_index\": 3,\n    \"reason\": \"Timestamp not derivable from c05's span of identical start/end times\",\n    \"claim_id\": \"c05\"\n  },\n  {\n    \"sentence_index\": 4,\n    \"reason\": \"Value 1 distinct service not derivable from c06's count of 1\",\n    \"claim_id\": \"c06\"\n  }\n]",
+  "usage": {
+    "prompt_tokens": 1447,
+    "completion_tokens": 193,
+    "total_tokens": 1640
+  },
+  "provider": "meterless",
+  "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_d2l7d1pq",
+    "decision_id": "req_d2l7d1pq",
+    "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "winning_route": {
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "label": "Nemotron 3.5 Lightning 30B A3B",
+      "provider": "nvidia",
+      "kind": "cloud",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "final_synthesis",
+        "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+        "ms": 1816
+      }
+    ],
+    "latency_ms": 1816,
+    "usage": {
+      "input_tokens": 1447,
+      "output_tokens": 193,
+      "total_tokens": 1640
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "cloud-ok",
+    "wall_ms": 1844
+  },
+  "request": {
+    "max_tokens": 500,
+    "call_options": {
+      "reasoning_effort": "none",
+      "system_turn": "/no_think"
+    }
+  }
+}

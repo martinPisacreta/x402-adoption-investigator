@@ -21,7 +21,12 @@ repository, so a stale recording is caught. Re-record after changing a query, a 
 
 Not recorded yet: q20_catalog_unique_payers_max, q21_catalog_top_hosts_by_listings and q22_payer_chain_facts (with
 the `chain_facts` view) were added on 2026-10-22 after the recording session, so that every registry metric has an
-SQL half; no Zetaris login was available afterwards. They run on SQLite in every sample run and every claim compares
+SQL half, and no recording of them has been made since. On 2026-10-24 they ran on Zetaris inside the live runs of
+`examples/live-trace-zetaris-nightshift/`. q20 and q21 ran in its example 02 over the committed catalog snapshot
+(replayed, with the export sha256 these recordings name for it, `fb53b73f...`), and their Zetaris rows there equal
+the SQLite rows of `examples/02-catalog-concentration/sql.jsonl`; q22 ran over that day's live chain facts (its
+examples 03-05). None of this is a recording in this folder's format, and no test compares it. They run on SQLite in
+every sample run and every claim compares
 them with its reducer, and `tests/test_sql_dual_backend.py` names them in `NOT_YET_RECORDED`, so a missing recording
 of any other query still fails. The command above records them as well.
 

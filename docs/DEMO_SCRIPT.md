@@ -68,9 +68,16 @@ on a machine without that Nightshift).
 python run.py --mode live --require-zetaris --input examples/ex1.json
 ```
 Needs the local Zetaris instance and its login in `.env.local` or `.env`. Point at `zetaris.jsonl` (login, DDL,
-views, run-query, cleanup), `sql.jsonl` (executor `zetaris`, `tables[]` with source URLs) and `claim` lines with
-`backend: zetaris`. The committed run on Zetaris is `examples/live-trace/live-ex01-20261022/` (22 Oct, before
-Nightshift was connected, so generator `null`); no committed run has Zetaris and Nightshift together.
+views, run-query, cleanup), `sql.jsonl` (executor `zetaris`, and in `tables[]` every table the run registered, with
+its source URL) and `claim` lines with
+`backend: zetaris`. The committed runs on Zetaris are of two kinds:
+
+- `examples/live-trace/live-ex01-20261022/` and `examples/live-trace/live-ex03-20261022/` (22 Oct, before Nightshift
+  was connected, so generator `null`; the second with `--require-zetaris`, 7 of its 9 claims on Zetaris);
+- the six runs of `examples/live-trace-zetaris-nightshift/` (24 Oct, 22:36-22:42 UTC), with Zetaris and Nightshift
+  together and status `ok`. They were made with this command plus `--require-generator` and
+  `METERLESS_MODEL=nvidia/nemotron-3.5-lightning-30b-a3b` (or the local Nano's id). That folder's README has the
+  exact commands, and its `machine.txt` the Zetaris containers and heap.
 
 ## The lines, by seq
 

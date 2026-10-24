@@ -1,0 +1,53 @@
+{
+  "prompt_id": "critic-r1",
+  "prompt_sha256": "28763d703c320846250cd40372fd0ca4128e1918e740ce275036d1a1c17df638",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "recorded_at": "2026-10-24T22:40:27.537Z",
+  "response": "[\n  {\n    \"sentence_index\": 0,\n    \"reason\": \"Value 17 not derivable from c01 without caveat search_limit_20\",\n    \"claim_id\": \"c01\"\n  },\n  {\n    \"sentence_index\": 1,\n    \"reason\": \"Value 1 not derivable from c03 without caveats self_reported_receipts, basis_mismatch\",\n    \"claim_id\": \"c03\"\n  },\n  {\n    \"sentence_index\": 2,\n    \"reason\": \"Value 1 not derivable from c06 without caveats self_reported_receipts, basis_mismatch\",\n    \"claim_id\": \"c06\"\n  },\n  {\n    \"sentence_index\": 3,\n    \"reason\": \"Value 1 not derivable from c07 without caveats payer_from_transfer_log, self_reported_receipts, basis_mismatch\",\n    \"claim_id\": \"c07\"\n  },\n  {\n    \"sentence_index\": 4,\n    \"reason\": \"Value 1000 not derivable from c04 without caveats self_reported_receipts, basis_mismatch\",\n    \"claim_id\": \"c04\"\n  },\n  {\n    \"sentence_index\": 5,\n    \"reason\": \"Timestamp 2026-10-21T21:18:17.136Z not derivable from c05 without caveats self_reported_receipts, basis_mismatch\",\n    \"claim_id\": \"c05\"\n  },\n  {\n    \"sentence_index\": 6,\n    \"reason\": \"Full sentence 6 combines unsupported elements from c01-c05; no single claim supports the complete statement\",\n    \"claim_id\": \"null\"\n  },\n  {\n    \"sentence_index\": 7,\n    \"reason\": \"Full sentence 7 combines unsupported elements from c06-c08; no single claim supports the complete statement\",\n    \"claim_id\": \"null\"\n  },\n  {\n    \"sentence_index\": 8,\n    \"reason\": \"Full sentence 8 references verified_tx and transfer log not present in accepted claims; unsupported\",\n    \"claim_id\": \"null\"\n  }\n]",
+  "usage": {
+    "prompt_tokens": 1589,
+    "completion_tokens": 493,
+    "total_tokens": 2082
+  },
+  "provider": "meterless",
+  "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_m49og1xf",
+    "decision_id": "req_m49og1xf",
+    "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "winning_route": {
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "label": "Nemotron 3.5 Lightning 30B A3B",
+      "provider": "nvidia",
+      "kind": "cloud",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "final_synthesis",
+        "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+        "ms": 5390
+      }
+    ],
+    "latency_ms": 5390,
+    "usage": {
+      "input_tokens": 1589,
+      "output_tokens": 493,
+      "total_tokens": 2082
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "cloud-ok",
+    "wall_ms": 5437
+  },
+  "request": {
+    "max_tokens": 500,
+    "call_options": {
+      "reasoning_effort": "none",
+      "system_turn": "/no_think"
+    }
+  }
+}

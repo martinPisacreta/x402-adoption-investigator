@@ -525,3 +525,24 @@ What changed for other modules:
 - `run.py`: `--serve` reads an unused request body before answering 404 (and 413), then closes the connection.
 - `docker-compose.yml`: a second service, `investigator-live` (profile `live`), for live runs from a container.
 
+
+## Zetaris and Nightshift in one run (2026-10-24, 22:36-22:42 UTC, evidence only)
+
+No code changed. With Zetaris started again (Docker Compose project `zetaris`, driver heap 2 GB), the five example
+inputs ran live with `--require-zetaris --require-generator`, on the hosted Nemotron, and example 01 again on the
+local Nemotron Nano. The run folders, copied unedited, are in `examples/live-trace-zetaris-nightshift/`. All six
+have status `ok`, executor `zetaris`, generator `nightshift:<model>` and every claim on Zetaris, and their 30
+receipts are appended to the ledger excerpt (157 lines). These are the first runs on record that ran q20-q22 and
+the `chain_facts` view on Zetaris.
+
+In example 02, the `CACHE TABLE` of the first Bazaar page ran the driver out of heap, and Docker restarted the
+driver. No query of that run reads that table, so the run logged no recovery. `ZetarisExecutor._register_table`
+records a failed table without a `recovery` event (unless the driver never reached the artifact server), and only a
+query that then falls back logs one. `--require-zetaris` acts only in `_fallback_query` (and when Zetaris is
+unreachable), so it does not fire for such a table either. `tables_summary()` keeps only `name` and `source_url`, so
+`sql.jsonl` lists the failed table on every line with no status. Keeping that status, and logging a `recovery` for a
+failed table, is left for a later code change; the committed run folders are copies of their logs and stay as they
+are.
+
+Tests: `tests/test_live_trace_zetaris_nightshift.py` (new, 5) and one more in `tests/test_nightshift_ledger.py`;
+330 in all.

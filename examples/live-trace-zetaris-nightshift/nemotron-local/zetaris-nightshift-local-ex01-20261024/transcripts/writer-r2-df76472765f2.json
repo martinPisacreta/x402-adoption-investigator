@@ -1,0 +1,53 @@
+{
+  "prompt_id": "writer-r2",
+  "prompt_sha256": "df76472765f2c09b9b82fe8cf4f686edb0a615ade4bf4327bd870de9c90d5ca4",
+  "model": "local-runtime/nvidia-nvidia-nemotron-nano-9b-v2-q4-k-m",
+  "recorded_at": "2026-10-24T22:41:59.872Z",
+  "response": "- The adoption of tienda.textokit.store shows 80 settled sales in receipts [c01], with 70% (56) self-settled [c07].  \n- External sales total 24 transactions [c04], paid by 5 distinct wallets [c06], including one major payer responsible for 83.3% of these [c09].  \n- Self-settlement dominates, with only 30% of sales involving external wallets [c07].  \n- Registries disagree on the number of endpoints or listings for tienda.textokit.store, reporting between 17 and 36 [c18].  \n- Self-reported receipts lack verification, as only 5 settlements were independently confirmed [c19].  \n\nWhere sources disagree, the conflict k01 highlights discrepancies in endpoint counts for tienda.textokit.store, ranging from 17 to 36 due to differing methodologies like Bazaar search limits or tool catalogs [c18]. Conflict k02 also shows a mismatch between receipt-based external sales (24) and Bazaar call counters (64), likely due to differing time windows and inclusion of self-payments [c13].  \n\nThe self_settled_mostly verdict (confidence 0.90) reflects that most transactions are self-settled, though this relies on self-reported receipts [c01-c09], which may not fully capture external activity. The lack of independent verification for most receipts [c19] and registry conflicts [c18] raises questions about the accuracy of adoption metrics. While external sales are documented, their low volume and single dominant payer suggest limited broader adoption, though registry inconsistencies complicate definitive conclusions.\n",
+  "usage": {
+    "prompt_tokens": 4912,
+    "completion_tokens": 379,
+    "total_tokens": 5291
+  },
+  "provider": "meterless",
+  "requested_model": "local-runtime/nvidia-nvidia-nemotron-nano-9b-v2-q4-k-m",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_emboosui",
+    "decision_id": "req_emboosui",
+    "requested_model": "local-runtime/nvidia-nvidia-nemotron-nano-9b-v2-q4-k-m",
+    "routed_model": "local-runtime/nvidia-nvidia-nemotron-nano-9b-v2-q4-k-m",
+    "winning_route": {
+      "model": "local-runtime/nvidia-nvidia-nemotron-nano-9b-v2-q4-k-m",
+      "label": "nvidia_NVIDIA-Nemotron-Nano-9B-v2-Q4_K_M · Runtime",
+      "provider": "local-runtime",
+      "kind": "local",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "final_synthesis",
+        "model": "local-runtime/nvidia-nvidia-nemotron-nano-9b-v2-q4-k-m",
+        "ms": 8005
+      }
+    ],
+    "latency_ms": 8005,
+    "usage": {
+      "input_tokens": 4912,
+      "output_tokens": 379,
+      "total_tokens": 5291
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "local-only",
+    "wall_ms": 8031
+  },
+  "request": {
+    "max_tokens": 700,
+    "call_options": {
+      "reasoning_effort": "none",
+      "system_turn": "/no_think"
+    }
+  }
+}

@@ -18,7 +18,13 @@ Files), and `machine.txt` is command output with the redactions and filters it s
 
 Also here: `nemotron-cloud/live-video-ex01-20261024/`, the run recorded for the demo video (below), `docker/`, one
 Nightshift request made from a container (its own README), and `nightshift-ledger/`, the lines of Nightshift's own
-Ed25519-signed receipt ledger for every receipt this repository cites (127, all signatures valid; its own README).
+Ed25519-signed receipt ledger for every receipt this repository cites (157 since the six runs on Zetaris of
+`../live-trace-zetaris-nightshift/` were added, all signatures valid; its own README).
+
+These live runs ran their SQL on SQLite, because Zetaris was stopped (below), so every live run here that wrote a
+`result` line is `partial` (`nemotron-cloud/prompt-v1-ex01/` is a sample-mode replay, status `ok`, and the smoke
+requests write no `result` line). The same pipeline with Zetaris running, both Nemotron routes, and status `ok` is
+`../live-trace-zetaris-nightshift/`: six runs of 22:36-22:42 UTC the same day.
 
 ## What ran
 
@@ -133,8 +139,8 @@ change.
   caveat codes in brackets (rule C3, every claim, both rounds) and some numbers or citations do not map (rule B).
   After round 2 the flagged sentences are cut (`recovery{narrative_trimmed}`: 2, 6, 8, 8 and 6 sentences in the
   cloud runs, 2 in the local one) and the code-owned sentences a draft lacks are added from the claims
-  (`recovery{narrative_completed}`: conflicts and caveats in every run; the verdict sentence in the five cloud runs,
-  while the local draft stated it). The drafts are in `transcripts/`.
+  (`recovery{narrative_completed}`: caveats in every run, conflict sentences in the runs that have conflicts, examples
+  01 and 02 and the local 01; the verdict sentence in the five cloud runs, while the local draft stated it). The drafts are in `transcripts/`.
 - **What the model never decides.** Claims, values, rejections and the verdict come from the rules and are the same
   with any model or none: the cloud and local ex01 runs give `self_settled_mostly` with 19 claims; ex04 is
   `adoption_thin` with 9 claims here because its settlement is verified live, while the offline replay
@@ -177,8 +183,12 @@ Zetaris was stopped on purpose (the machine was short of memory: about 4 GB free
 not committed). Every run starts with
 `recovery{zetaris_unreachable}` at seq 1 ("connection refused"; `zetaris.jsonl` of the three complete folders shows
 the failed login) and runs the whole SQL on SQLite (`mounts.executor: "sqlite"`, `derivation.backend:
-"sqlite-fallback"` on every claim), which is why every status is `partial`. The live trace computed on Zetaris Lightning SQL is `../live-trace/live-ex01-20261022/` (2026-10-22,
-before Nightshift was installed, generator `null`).
+"sqlite-fallback"` on every claim), which is why every status is `partial`. The live traces computed on Zetaris Lightning SQL are these:
+
+- `../live-trace/live-ex01-20261022/` and `../live-trace/live-ex03-20261022/` (2026-10-22, before Nightshift was
+  installed, generator `null`; the second with `--require-zetaris`, 7 of its 9 claims on Zetaris);
+- the six runs of `../live-trace-zetaris-nightshift/` (2026-10-24, 22:36-22:42 UTC, after Zetaris was started
+  again, with the same two Nemotron routes as here; every query on Zetaris, status `ok`).
 
 ## Relation to the sample-mode replays
 

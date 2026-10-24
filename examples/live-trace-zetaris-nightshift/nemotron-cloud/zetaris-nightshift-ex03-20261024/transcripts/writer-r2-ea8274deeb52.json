@@ -1,0 +1,53 @@
+{
+  "prompt_id": "writer-r2",
+  "prompt_sha256": "ea8274deeb524c081051b10e90270a06968b526fee0c2b2e3467459b74a4c730",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "recorded_at": "2026-10-24T22:39:56.125Z",
+  "response": "- 17 listings for tienda.textokit.store found via CDP Bazaar search [c01]\n- 5 settlement(s) verified on Base against receipts [c02]\n- 1 purchase(s) by 0x097e3f339d0b023605e12a6b81e2d6cb7571475a listed in receipts [c03]\n- Purchases total 1000 atomic USDC (0.001 USDC) [c04]\n- Purchases span 1 distinct service(s) [c06]\n\nWhere sources disagree c01: the search limit of 20 caps the listing count, so 17 may not represent all available items.\nWhere sources disagree c02: the 5 verified settlements rely on self-reported receipts and may have basis mismatches with transfer logs.\nWhere sources disagree c03: receipts are self-reported and show a basis mismatch, affecting the reliability of the purchase count.\nWhere sources disagree c04: the 1000 atomic USDC total is self-reported and subject to a basis mismatch with the transfer log.\nWhere sources disagree c05: the settlement timestamp has identical start and end times, making the exact moment indeterminate.\nWhere sources disagree c06: the count of 1 distinct service is self-reported and may not capture all service types.\n\nThe payer 0x097e3f339d0b023605e12a6b81e2d6cb7571475a made 1 purchase at tienda.textokit.store, paying 1000 atomic USDC (0.001 USDC) for 1 distinct service. The 5 verified settlements on Base were confirmed against self-reported receipts, though each carries the caveats of self-reporting and basis mismatch. The purchase timestamp is recorded as 2026-10-20T04:51:24.352Z, but the span of identical start and end times means the exact moment cannot be pinpointed beyond that value. USDC balance at capture was 1.043148 USDC, and the transaction nonce was 24. Settlement verification on Base is possible for this payer, as 1 settlement has been verified there, but the verification depends on the receipts and transfer log matching, which is complicated by the self-reported and basis-mismatch caveats.",
+  "usage": {
+    "prompt_tokens": 2407,
+    "completion_tokens": 543,
+    "total_tokens": 2950
+  },
+  "provider": "meterless",
+  "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_qarcsk4q",
+    "decision_id": "req_qarcsk4q",
+    "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "winning_route": {
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "label": "Nemotron 3.5 Lightning 30B A3B",
+      "provider": "nvidia",
+      "kind": "cloud",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "final_synthesis",
+        "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+        "ms": 4500
+      }
+    ],
+    "latency_ms": 4500,
+    "usage": {
+      "input_tokens": 2407,
+      "output_tokens": 543,
+      "total_tokens": 2950
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "cloud-ok",
+    "wall_ms": 4531
+  },
+  "request": {
+    "max_tokens": 700,
+    "call_options": {
+      "reasoning_effort": "none",
+      "system_turn": "/no_think"
+    }
+  }
+}

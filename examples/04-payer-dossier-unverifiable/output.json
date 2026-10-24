@@ -52,7 +52,7 @@
       "confidence": 0.0,
       "why": []
     },
-    "answer": "There is not enough accepted evidence to answer (verdict insufficient_evidence). 17 listings found for tienda.textokit.store [c01] 1 purchase recorded by 0xa1d1c0cf717402ff3651aa4873ccf96410b01978 in receipts [c03] 1000 atomic USDC (0.001 USDC) total across that purchase [c04] Purchase occurred at 2026-10-21T21:18:17.136Z [c05] 1 distinct service covered by the purchase [c06] Only 1 sampled settlement was checked against receipts [c02], and the receipts confirm 1 purchase of 1000 atomic USDC (0.001 USDC) for 1 distinct service at a single timestamp [c03-c06]. Caveat [payer_from_transfer_log]: payer and seller were read from the Transfer log, not from tx.from [mem-seed-005]; applies to [c02]. Caveat [search_limit_20]: the Bazaar search is capped at twenty results, so its count is a floor [mem-seed-002]; applies to [c01]. Caveat [self_reported_receipts]: receipts are self-reported by the seller [mem-seed-003]; applies to [c02] [c03] [c04] [c05] [c06]. Unavailable: usdc_balance_atomic (chain fact usdc_balance_atomic not produced: the Base RPC read rpc_balance_0xa1d1c0cf717402ff3651aa4873ccf96410b01978 was fixture_miss). Unavailable: tx_count (chain fact tx_count not produced: the Base RPC read rpc_nonce_0xa1d1c0cf717402ff3651aa4873ccf96410b01978 was fixture_miss). Rejected by the Critic and left out of this answer: verified_tx (rule C1); the reasons are in rejected_claims[] and in the critique lines of the run log. Sample mode: this answer replays committed fixtures captured 2026-10-22T00:05:00Z; no network, no model calls.",
+    "answer": "There is not enough accepted evidence to answer (verdict insufficient_evidence). 17 listings for tienda.textokit.store [c01] 1 purchase by 0xa1d1c0cf717402ff3651aa4873ccf96410b01978 [c03] 1 distinct service purchased [c06] Where sources disagree [c01] The CDP Bazaar search for tienda.textokit.store is limited to 20 results, and 17 listings were returned. The settlement for this payer involves 1 sampled verification on Base against receipts [c02], but full settlement verification on Base is not available for this payer. Those purchases total 1000 atomic USDC (0.001 USDC) [c04]. The purchases span 2026-10-21T21:18:17.136Z..2026-10-21T21:18:17.136Z [c05]. Caveat [payer_from_transfer_log]: payer and seller were read from the Transfer log, not from tx.from [mem-seed-005]; applies to [c02]. Caveat [search_limit_20]: the Bazaar search is capped at twenty results, so its count is a floor [mem-seed-002]; applies to [c01]. Caveat [self_reported_receipts]: receipts are self-reported by the seller [mem-seed-003]; applies to [c02] [c03] [c04] [c05] [c06]. Unavailable: usdc_balance_atomic (chain fact usdc_balance_atomic not produced: the Base RPC read rpc_balance_0xa1d1c0cf717402ff3651aa4873ccf96410b01978 was fixture_miss). Unavailable: tx_count (chain fact tx_count not produced: the Base RPC read rpc_nonce_0xa1d1c0cf717402ff3651aa4873ccf96410b01978 was fixture_miss). Rejected by the Critic and left out of this answer: verified_tx (rule C1); the reasons are in rejected_claims[] and in the critique lines of the run log. Sample mode: this answer replays committed fixtures captured 2026-10-22T00:05:00Z; no network, no model calls.",
     "claims": [
       {
         "id": "c01",
@@ -763,7 +763,7 @@
         "status": "fixture_miss",
         "http": null,
         "sha256": null,
-        "captured_at": "2026-10-22T00:05:00.031Z",
+        "captured_at": "2026-10-22T00:05:00.030Z",
         "replayed": true,
         "stale": false,
         "error": "no fixture for this request key",
@@ -777,7 +777,7 @@
         "status": "fixture_miss",
         "http": null,
         "sha256": null,
-        "captured_at": "2026-10-22T00:05:00.036Z",
+        "captured_at": "2026-10-22T00:05:00.035Z",
         "replayed": true,
         "stale": false,
         "error": "no fixture for this request key",
@@ -791,7 +791,7 @@
         "status": "fixture_miss",
         "http": null,
         "sha256": null,
-        "captured_at": "2026-10-22T00:05:00.041Z",
+        "captured_at": "2026-10-22T00:05:00.040Z",
         "replayed": true,
         "stale": false,
         "error": "no fixture for this request key",
@@ -833,7 +833,7 @@
         "status": "fixture_miss",
         "http": null,
         "sha256": null,
-        "captured_at": "2026-10-22T00:05:00.050Z",
+        "captured_at": "2026-10-22T00:05:00.049Z",
         "replayed": true,
         "stale": false,
         "error": "no fixture for this request key",
@@ -847,7 +847,7 @@
         "status": "fixture_miss",
         "http": null,
         "sha256": null,
-        "captured_at": "2026-10-22T00:05:00.053Z",
+        "captured_at": "2026-10-22T00:05:00.052Z",
         "replayed": true,
         "stale": false,
         "error": "no fixture for this request key",
@@ -1068,7 +1068,7 @@
             "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
             "route": "Nemotron 3.5 Lightning 30B A3B",
             "route_kind": "cloud",
-            "receipt_id": "rcpt_req_1myx34qe",
+            "receipt_id": "rcpt_req_r0mflbwz",
             "recorded": true,
             "log_seq": 81
           }
@@ -1100,7 +1100,7 @@
             "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
             "route": "Nemotron 3.5 Lightning 30B A3B",
             "route_kind": "cloud",
-            "receipt_id": "rcpt_req_k4unl6gy",
+            "receipt_id": "rcpt_req_r9ury79j",
             "recorded": true,
             "log_seq": 99
           }

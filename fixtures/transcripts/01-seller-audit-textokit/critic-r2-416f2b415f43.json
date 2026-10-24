@@ -1,0 +1,54 @@
+{
+  "prompt_id": "critic-r2",
+  "prompt_sha256": "416f2b415f437755b36bc6dfcff6d51651575e86f273814823d3983b5cd3caa8",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "recorded_at": "2026-10-24T18:43:24.791Z",
+  "response": "[\n  {\n    \"sentence_index\": 5,\n    \"reason\": \"Conflict stated without its id: k01 referenced but not listed in accepted claims structure\",\n    \"claim_id\": \"null\"\n  },\n  {\n    \"sentence_index\": 5,\n    \"reason\": \"Causal explanation not contained in claims: counts differ because CDP Bazaar is capped at twenty results and lists one row per resource\",\n    \"claim_id\": \"null\"\n  },\n  {\n    \"sentence_index\": 5,\n    \"reason\": \"Causal explanation not contained in claims: the store's openapi.json declares paid operations, Agent402 counts tools including free ones\",\n    \"claim_id\": \"null\"\n  },\n  {\n    \"sentence_index\": 5,\n    \"reason\": \"Causal explanation not contained in claims: vet402 counts every observed endpoint including /api/maintenance-helper and /api/preparar-solicitud\",\n    \"claim_id\": \"null\"\n  },\n  {\n    \"sentence_index\": 5,\n    \"reason\": \"Causal explanation not contained in claims: x402-trust search matches across its own index\",\n    \"claim_id\": \"null\"\n  }\n]",
+  "usage": {
+    "prompt_tokens": 3200,
+    "completion_tokens": 262,
+    "total_tokens": 3462
+  },
+  "provider": "meterless",
+  "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_xqy5uvhi",
+    "decision_id": "req_xqy5uvhi",
+    "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "winning_route": {
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "label": "Nemotron 3.5 Lightning 30B A3B",
+      "provider": "nvidia",
+      "kind": "cloud",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "final_synthesis",
+        "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+        "ms": 2717
+      }
+    ],
+    "latency_ms": 2717,
+    "usage": {
+      "input_tokens": 3200,
+      "output_tokens": 262,
+      "total_tokens": 3462
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "cloud-ok",
+    "wall_ms": 2734
+  },
+  "prompt_context": "sample mode on the committed fixtures",
+  "request": {
+    "max_tokens": 500,
+    "call_options": {
+      "reasoning_effort": "none",
+      "system_turn": "/no_think"
+    }
+  }
+}

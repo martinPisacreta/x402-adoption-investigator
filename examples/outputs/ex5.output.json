@@ -57,7 +57,7 @@
         "c07"
       ]
     },
-    "answer": "The evidence shows thin adoption (verdict adoption_thin) based on [c03], [c07]. 1 purchase by 0x097e3f339d0b023605e12a6b81e2d6cb7571475a at tienda.textokit.store [c03] 1000 atomic USDC (0.001 USDC) total for that purchase [c04] 1 distinct service(s) covered by the purchase [c06] Purchase timestamp: 2026-10-20T04:51:24.352Z [c05] 1 settlement(s) verified on Base against the receipts [c02] The CDP Bazaar search returns 17 listings for tienda.textokit.store [c01]. 1 settlement(s) of this payer verified on Base [c07]. USDC balance at capture: 1043148 atomic (1.043148 USDC) [c08]. Transaction count (nonce) at capture: 24 [c09]. Caveat [payer_from_transfer_log]: payer and seller were read from the Transfer log, not from tx.from [mem-seed-005]; applies to [c02] [c07] [c08] [c09]. Caveat [search_limit_20]: the Bazaar search is capped at twenty results, so its count is a floor [mem-seed-002]; applies to [c01]. Caveat [self_reported_receipts]: receipts are self-reported by the seller [mem-seed-003]; applies to [c02] [c03] [c04] [c05] [c06] [c07]. Sample mode: this answer replays committed fixtures captured 2026-10-22T00:05:00Z; no network, no model calls.",
+    "answer": "The evidence shows thin adoption (verdict adoption_thin) based on [c03], [c07]. The settlement for this transaction has been verified on Base against the self-reported receipts, confirming the on-chain activity matches the off-chain record. The CDP Bazaar search returns 17 listings for tienda.textokit.store [c01]. 1 sampled settlement(s) verified on Base against the receipts [c02]. The receipts list 1 purchase(s) by 0x097e3f339d0b023605e12a6b81e2d6cb7571475a [c03]. Those purchases total 1000 atomic USDC (0.001 USDC) [c04]. The purchases span 2026-10-20T04:51:24.352Z..2026-10-20T04:51:24.352Z [c05]. They cover 1 distinct service(s) [c06]. 1 settlement(s) of this payer verified on Base [c07]. USDC balance at capture: 1043148 atomic (1.043148 USDC) [c08]. Transaction count (nonce) at capture: 24 [c09]. Caveat [payer_from_transfer_log]: payer and seller were read from the Transfer log, not from tx.from [mem-seed-005]; applies to [c02] [c07] [c08] [c09]. Caveat [search_limit_20]: the Bazaar search is capped at twenty results, so its count is a floor [mem-seed-002]; applies to [c01]. Caveat [self_reported_receipts]: receipts are self-reported by the seller [mem-seed-003]; applies to [c02] [c03] [c04] [c05] [c06] [c07]. Sample mode: this answer replays committed fixtures captured 2026-10-22T00:05:00Z; no network, no model calls.",
     "claims": [
       {
         "id": "c01",
@@ -998,7 +998,7 @@
         "status": "fixture_miss",
         "http": null,
         "sha256": null,
-        "captured_at": "2026-10-22T00:05:01.042Z",
+        "captured_at": "2026-10-22T00:05:01.041Z",
         "replayed": true,
         "stale": false,
         "error": "no fixture for this request key",
@@ -1012,7 +1012,7 @@
         "status": "fixture_miss",
         "http": null,
         "sha256": null,
-        "captured_at": "2026-10-22T00:05:01.047Z",
+        "captured_at": "2026-10-22T00:05:01.046Z",
         "replayed": true,
         "stale": false,
         "error": "no fixture for this request key",
@@ -1026,7 +1026,7 @@
         "status": "fixture_miss",
         "http": null,
         "sha256": null,
-        "captured_at": "2026-10-22T00:05:01.052Z",
+        "captured_at": "2026-10-22T00:05:01.051Z",
         "replayed": true,
         "stale": false,
         "error": "no fixture for this request key",
@@ -1295,7 +1295,7 @@
             "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
             "route": "Nemotron 3.5 Lightning 30B A3B",
             "route_kind": "cloud",
-            "receipt_id": "rcpt_req_jqnz00by",
+            "receipt_id": "rcpt_req_9h6jtdsg",
             "recorded": true,
             "log_seq": 83
           }
@@ -1327,7 +1327,7 @@
             "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
             "route": "Nemotron 3.5 Lightning 30B A3B",
             "route_kind": "cloud",
-            "receipt_id": "rcpt_req_piowwy1l",
+            "receipt_id": "rcpt_req_6y20e4zs",
             "recorded": true,
             "log_seq": 103
           }

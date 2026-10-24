@@ -531,6 +531,41 @@ def second_opinion(ctx: "RunContext", answer: Answer, claims: list[Claim], round
     return issues
 
 
+def sentences_rule_b_backs(answer: Answer, claims: list[Claim], conflicts: list[Conflict],
+                           narrative_map: dict[str, Any], b_issues: list[dict[str, Any]]) -> dict[int, list[str]]:
+    """Sentence index -> the cited claim ids, for each sentence whose numbers rule B fully backs: it cites at least
+    one accepted claim and nothing else, it has at least one number besides dates, every number is a value of a
+    claim the same sentence cites (or of a conflict it cites, or the verdict confidence), and pass B raised nothing
+    on it. The model second opinion's issues on such a sentence are dismissed (logged, never acted on): they are
+    the "not derivable from cNN" kind the hosted Nemotron raised on correct sentences. The check reads numbers and
+    citations only, so a wrong word beside a backed number is not caught by it."""
+    live = {c.id: c for c in claims if c.status != "rejected"}
+    flagged = {i["target"] for i in b_issues if isinstance(i.get("target"), int)}
+    by_sentence: dict[int, list[dict[str, Any]]] = {}
+    for token in narrative_map.get("tokens", []):
+        by_sentence.setdefault(int(token.get("sentence_index", -1)), []).append(token)
+    backed: dict[int, list[str]] = {}
+    for index, sentence in enumerate(answer.sentences):
+        cited = list(dict.fromkeys(CITATION_RE.findall(sentence)))
+        if index in flagged or not cited or any(cid not in live for cid in cited):
+            continue
+        numbers = [t for t in by_sentence.get(index, []) if t.get("kind") != "date"]
+        if not numbers or any(t.get("kind") is None for t in numbers):
+            continue
+        allowed, _, _ = build_token_domain([live[cid] for cid in cited], [], None)
+        cited_conflicts = set(CONFLICT_CITE_RE.findall(sentence))
+        if all(normalized_token(t["token"]) in allowed or t.get("kind") == "verdict"
+               or (t.get("kind") == "conflict_value" and t.get("claim_id") in cited_conflicts) for t in numbers):
+            backed[index] = cited
+    return backed
+
+
+def normalized_token(token: str) -> str:
+    """The normalized form tokenize_numbers gives one logged token (e.g. "1,234" -> "1234", "12.5 %" -> "12.5")."""
+    found = tokenize_numbers(token)
+    return found[0]["normalized"] if found else token
+
+
 # ---------------------------------------------------------------------------------------------------------
 # Entry
 # ---------------------------------------------------------------------------------------------------------
@@ -666,12 +701,22 @@ def run_critic(ctx: "RunContext", answer: Answer, claims: list[Claim], verificat
 
     if ctx.generator is not None and ctx.generator.name != "null":
         llm_issues = second_opinion(ctx, answer, claims, round_no)
+        backed = sentences_rule_b_backs(answer, claims, conflicts, narrative_map, b_issues)
+        kept: list[dict[str, Any]] = []
         for issue in llm_issues:
+            if issue["target"] in backed:
+                # Rule B maps every number of this sentence to a claim it cites: the issue is logged, not acted on.
+                ctx.log.emit("critique", "critic", {"round": round_no, "rule": "LLM", "target": issue["target"],
+                                                    "verdict": "dismissed", "reason": issue["reason"], "memory_ids": [],
+                                                    "dismissed_by": "B", "claim_ids": backed[issue["target"]]})
+                continue
+            kept.append(issue)
             ctx.log.emit("critique", "critic", {"round": round_no, "rule": "LLM", "target": issue["target"],
                                                 "verdict": "revise", "reason": issue["reason"], "memory_ids": []})
-        if not llm_issues:
-            ctx.log.emit("critique", "critic", {"round": round_no, "rule": "LLM", "verdict": "accept", "count": 0})
-        result.issues.extend(llm_issues)
+        if not kept:
+            ctx.log.emit("critique", "critic", {"round": round_no, "rule": "LLM", "verdict": "accept", "count": 0,
+                                                **({"dismissed": len(llm_issues)} if llm_issues else {})})
+        result.issues.extend(kept)
 
     result.revise = any(i["verdict"] in ("revise", "reject") for i in result.issues) or bool(result.rejected_ids)
     merged = ctx.scratch.setdefault("memory_feedback", {})

@@ -1,0 +1,54 @@
+{
+  "prompt_id": "writer-r2",
+  "prompt_sha256": "f1d7ae8e63f3af5c4e8978ef3f3a5c317ebfea8c6d26e1d7b031d57df3f66c26",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "recorded_at": "2026-10-24T18:43:51.377Z",
+  "response": "- tienda.textokit.store had 17 listings [c01, search_limit_20]\n- 1 purchase recorded for payer 0x097e3f339d0b023605e12a6b81e2d6cb7571475a [c03, self_reported_receipts]\n- That purchase totaled 1000 atomic USDC (0.001 USDC) [c04, self_reported_receipts]\n- The purchase occurred at 2026-10-20T04:51:24.352Z [c05, self_reported_receipts]\n- 1 distinct service was covered [c06, self_reported_receipts]\n\nWhere sources disagree [c02-c07]: the claims c02 and c07 both reference settlement verification on Base, but c02 cites the payer_from_transfer_log caveat while c07 includes both payer_from_transfer_log and self_reported_receipts, creating a discrepancy in the verification basis.\n\nThe settlement for this payer was verified on Base against the receipts [c07, payer_from_transfer_log, self_reported_receipts]. USDC balance at capture was 1043148 atomic (1.043148 USDC) [c08, payer_from_transfer_log], and the transaction count (nonce) at capture was 24 [c09, payer_from_transfer_log].",
+  "usage": {
+    "prompt_tokens": 2270,
+    "completion_tokens": 340,
+    "total_tokens": 2610
+  },
+  "provider": "meterless",
+  "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_z3zvjjr2",
+    "decision_id": "req_z3zvjjr2",
+    "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "winning_route": {
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "label": "Nemotron 3.5 Lightning 30B A3B",
+      "provider": "nvidia",
+      "kind": "cloud",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "final_synthesis",
+        "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+        "ms": 4652
+      }
+    ],
+    "latency_ms": 4652,
+    "usage": {
+      "input_tokens": 2270,
+      "output_tokens": 340,
+      "total_tokens": 2610
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "cloud-ok",
+    "wall_ms": 4672
+  },
+  "prompt_context": "sample mode on the committed fixtures",
+  "request": {
+    "max_tokens": 700,
+    "call_options": {
+      "reasoning_effort": "none",
+      "system_turn": "/no_think"
+    }
+  }
+}

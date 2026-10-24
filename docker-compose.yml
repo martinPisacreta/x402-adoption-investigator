@@ -1,10 +1,17 @@
-# docker compose run --rm investigator --sample --input examples/01-seller-audit-textokit/input.json   # offline replay
-# docker compose run --rm investigator --mode live --input examples/ex1.json                             # live (needs .env.local)
-# Live mode reads secrets from .env.local (gitignored, optional); without --mode the default `auto` is live only
-# when that file sets a Nightshift variable (METERLESS_BASE_URL, METERLESS_RUNTIME_TOKEN, ...), OPENAI_API_KEY or
-# ZETARIS_PASSWORD. Nightshift on the host is http://host.docker.internal:8088/v1 from inside the container (the
-# host's token file is not visible there: set METERLESS_RUNTIME_TOKEN). The Zetaris driver container reaches the
-# artifact server on this machine through host.docker.internal.
+# Offline replay (no network needed, no env file, no keys):
+#   docker compose run --rm investigator --sample --input examples/01-seller-audit-textokit/input.json
+# Live run from the container, reaching Nightshift (and Zetaris, when it runs) on the host:
+#   docker compose --profile live run --rm --service-ports -e METERLESS_MODEL=nvidia/nemotron-3.5-lightning-30b-a3b \
+#       investigator-live --input examples/ex1.json
+# Inside a container 127.0.0.1 / localhost is the container itself, so the live service overrides the base URLs
+# with host.docker.internal (mapped to the host gateway below); these `environment` values win over .env.local.
+# The Nightshift token is not copied into any env file: the runtime's own proxy-token file is mounted read-only
+# (NIGHTSHIFT_PROXY_TOKEN_FILE, default %LOCALAPPDATA%\ai.meterless.runtime\proxy-token on Windows; on macOS or
+# Linux set it to <stateDir>/proxy-token). Zetaris: the driver container fetches the run's exports from the artifact
+# server, which here runs inside this container on the fixed port 18765, published to the host so that
+# host.docker.internal:18765 reaches it (`--service-ports`). Status: the Nightshift path from a container is shown by
+# examples/live-trace-nightshift/docker/ (one smoke request); a full live run with Zetaris from the container has
+# not been run (README, Limitations).
 services:
   investigator:
     build: .
@@ -16,3 +23,29 @@ services:
     volumes:
       - ./logs:/app/logs
     # HTTP mode: docker compose run --rm -p 8080:8080 investigator --serve 8080 --host 0.0.0.0
+  investigator-live:
+    profiles: ["live"]
+    build: .
+    command: ["--mode", "live", "--input", "examples/ex1.json"]
+    env_file:
+      - path: .env.local
+        required: false
+    environment:
+      NIGHTSHIFT_BASE_URL: http://host.docker.internal:8088/v1
+      METERLESS_BASE_URL: http://host.docker.internal:8088/v1
+      NIGHTSHIFT_TOKEN_FILE: /run/secrets/proxy-token
+      ZETARIS_BASE_URL: http://host.docker.internal:3000
+      ARTIFACT_SERVER_HOST: host.docker.internal
+      ARTIFACT_SERVER_PORT: "18765"
+    ports:
+      - "18765:18765"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./logs:/app/logs
+      - type: bind
+        source: ${NIGHTSHIFT_PROXY_TOKEN_FILE:-${LOCALAPPDATA:-.}/ai.meterless.runtime/proxy-token}
+        target: /run/secrets/proxy-token
+        read_only: true
+        bind:
+          create_host_path: false

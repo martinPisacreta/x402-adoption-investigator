@@ -1,13 +1,13 @@
 """Generator protocol implementations (SPEC.md section 3 and 7.4 rule 5). Owner: B4.
 
 Exactly three roles are generator-backed (Planner, Writer, Critic second opinion); every other agent is tool-only.
-- NightshiftGenerator: Meterless Nightshift, the PRIMARY provider in live mode. The Meterless Runtime (0.90.0; run
-  against Nightshift 1.2.3 on 2026-10-24) is an OpenAI-compatible provider (id `meterless`, default
+- NightshiftGenerator: Meterless Nightshift, the PRIMARY provider in live mode. The Meterless Runtime (its provider
+  contract, run against Nightshift 1.2.3 on 2026-10-24) is an OpenAI-compatible provider (id `meterless`, default
   http://127.0.0.1:8088/v1). Bearer token, first found: NIGHTSHIFT_TOKEN, METERLESS_RUNTIME_TOKEN, METERLESS_TOKEN;
   the file NIGHTSHIFT_TOKEN_FILE; <stateDir>/proxy-token, stateDir = METERLESS_STATE_DIR or the OS default the
   official ns CLI uses (config.meterless_state_dir). `meterless-app: x402-adoption-investigator` on every request
   and `meterless-scope: user` on chat requests, routing mode NIGHTSHIFT_MODEL / METERLESS_MODEL (default
-  meterless/auto), 180 s timeout (cold model loads take minutes). detect_nightshift() decides its status from GET
+  meterless/auto), 90 s timeout per request (both Nemotron routes answered in under 12 s on 2026-10-24). detect_nightshift() decides its status from GET
   /v1/models (401/403 unauthorized, 200 with meterless/* ids online, anything else offline) at NIGHTSHIFT_BASE_URL
   / METERLESS_BASE_URL, or by Auto Detect over ports 8088, 8090, 8787 and 11434 on 127.0.0.1, localhost and [::1].
   The `meterless` compute receipt of each answer (meterless.compute_receipt.v1) is reduced by meterless_receipt()
@@ -25,7 +25,8 @@ mode -> recorded | null with no network call and no detection; live mode -> nigh
 a live run that does not mount Nightshift logs recovery{nightshift_unavailable} with the probe's reason.
 
 generate(ctx, ...) is the single entry point the agents use: it enforces budget.max_generator_calls, uses
-temperature 0 and the generator's timeout (60 s, Nightshift 180 s, never past the run's deadline), saves every
+temperature 0 and the generator's timeout (60 s, Nightshift 90 s, never closer than GENERATOR_RESERVE_S to the
+run's deadline), saves every
 transcript under logs/<run_id>/transcripts/ (and, with --record-transcripts, under fixtures/transcripts/<example>/),
 logs one `generate` event in run.jsonl and the matching generator.jsonl side line (same seq) naming the provider,
 the requested model (routing mode) and the model that answered, with the prompt and response sha256 (never the key
@@ -61,11 +62,14 @@ if TYPE_CHECKING:
 GENERATOR_TEMPERATURE = 0.0
 GENERATOR_TIMEOUT_S = 60.0
 MIN_SECONDS_LEFT_FOR_GENERATOR = 20
+GENERATOR_RESERVE_S = 10          # a call's timeout ends this long before the deadline: the fallback and finalize still run
 
 NIGHTSHIFT_PROVIDER_ID = "meterless"
 NIGHTSHIFT_APP_ID = "x402-adoption-investigator"          # meterless-app header: stable lowercase app id
 NIGHTSHIFT_DEFAULT_BASE_URL = "http://127.0.0.1:8088/v1"
-NIGHTSHIFT_TIMEOUT_S = 180.0                               # chat calls: a cold model load can take minutes
+# Chat calls. The receipts of 24 Oct show 1.3-11.5 s per answer on both Nemotron routes; 90 s is the top of the
+# guides' 30-90 s range and lets a hung request take at most half of a 180 s run.
+NIGHTSHIFT_TIMEOUT_S = 90.0
 NIGHTSHIFT_PROBE_TIMEOUT_S = 3.0                           # one GET /v1/models during detection
 NIGHTSHIFT_DETECT_PORTS: tuple[int, ...] = (8088, 8090, 8787, 11434)
 NIGHTSHIFT_DETECT_HOSTS: tuple[str, ...] = ("127.0.0.1", "localhost", "[::1]")
@@ -217,7 +221,7 @@ class NightshiftGenerator(OpenAIGenerator):
 
     Same chat-completions call as OpenAIGenerator plus `meterless-app` (every request) and `meterless-scope: user`
     (chat requests); the model id is a routing mode (meterless/auto by default) or a concrete model id that pins the
-    route (nvidia/nemotron-3.5-lightning-30b-a3b), the timeout 180 s. `reasoning_effort` (NIGHTSHIFT_REASONING_EFFORT,
+    route (nvidia/nemotron-3.5-lightning-30b-a3b), the timeout 90 s. `reasoning_effort` (NIGHTSHIFT_REASONING_EFFORT,
     default none) adds the call options of nightshift_call_options. The token is the runtime's proxy-token: sent as
     the Bearer value, never logged. `mount_info` (no token) is what run_start logs."""
 
@@ -617,8 +621,10 @@ def generate(ctx: "RunContext", agent: str, prompt_id: str, prompt: str, *, max_
         return None
     ctx.counters["generator_attempts"] = ctx.counters.get("generator_attempts", 0) + 1
     log_injection(ctx, agent, prompt_id, prompt, reinjection, list(memory_ids or []), attempt)
-    # The generator's own timeout (Nightshift 180 s), never past the run's deadline (at least 20 s are left here).
-    timeout = min(float(getattr(generator, "timeout_s", GENERATOR_TIMEOUT_S)), ctx.time_left_ms() / 1000)
+    # The generator's own timeout (Nightshift 90 s), ending at least GENERATOR_RESERVE_S before the deadline so the
+    # fallback and finalize still have time (at least MIN_SECONDS_LEFT_FOR_GENERATOR are left here).
+    timeout = min(float(getattr(generator, "timeout_s", GENERATOR_TIMEOUT_S)),
+                  ctx.time_left_ms() / 1000 - GENERATOR_RESERVE_S)
     route = {"generator": generator.name, "provider": getattr(generator, "provider", generator.name),
              "requested_model": getattr(generator, "model", None)}
     try:

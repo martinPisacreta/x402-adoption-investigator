@@ -5,14 +5,14 @@ claims do not contain, a conflict stated without its id, a caveat silently dropp
 claim's value and cites that claim's id is supported: leave it out. Never list a supported statement.
 
 Answer:
-0: tienda.textokit.store had 17 listings [c01]
-1: 1 purchase recorded for payer 0x097e3f339d0b023605e12a6b81e2d6cb7571475a [c03]
-2: That purchase was 1000 atomic USDC (0.001 USDC) [c04]
-3: The purchase occurred at 2026-10-20T04:51:24.352Z [c05]
-4: 1 distinct service was covered [c06]
-5: - 1 settlement(s) verified on Base against the receipts [c02] - USDC balance at capture was 1043148 atomic (1.043148 USDC) [c08] - Transaction count (nonce) at capture was 24 [c09] Where sources disagree [c07]: the claim that 1 settlement(s) of this payer was verified on Base overlaps with the self-reported receipts verification in c02, creating a dual verification context.
-6: The payer 0x097e3f339d0b023605e12a6b81e2d6cb7571475a made a single purchase of 1000 atomic USDC (0.001 USDC) for 1 distinct service at tienda.textokit.store.
-7: The settlement has been verified on Base against the self-reported receipts, confirming that the payment settled on Base and the receipt data is consistent with the transfer log.
+0: tienda.textokit.store had 17 listings [c01, search_limit_20]
+1: 1 purchase recorded for payer 0x097e3f339d0b023605e12a6b81e2d6cb7571475a [c03, self_reported_receipts]
+2: That purchase totaled 1000 atomic USDC (0.001 USDC) [c04, self_reported_receipts]
+3: The purchase occurred at 2026-10-20T04:51:24.352Z [c05, self_reported_receipts]
+4: 1 distinct service was covered [c06, self_reported_receipts]
+5: Where sources disagree [c02-c07]: the claims c02 and c07 both reference settlement verification on Base, but c02 cites the payer_from_transfer_log caveat while c07 includes both payer_from_transfer_log and self_reported_receipts, creating a discrepancy in the verification basis.
+6: The settlement for this payer was verified on Base against the receipts [c07, payer_from_transfer_log, self_reported_receipts].
+7: USDC balance at capture was 1043148 atomic (1.043148 USDC) [c08, payer_from_transfer_log], and the transaction count (nonce) at capture was 24 [c09, payer_from_transfer_log].
 8: Sample mode: this answer replays committed fixtures captured 2026-10-22T00:05:00Z; no network, no model calls.
 
 Accepted claims (id, statement, value, unit, caveats, conflict_ids):

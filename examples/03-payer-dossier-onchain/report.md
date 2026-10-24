@@ -16,7 +16,7 @@ Sources: receipts, cdp_search, base_rpc.
 Queries: q16_settlements_vs_receipts, q17_payer_dossier, q06_bazaar_host_listings, q22_payer_chain_facts.  
 Memories retrieved by the Planner: mem-seed-005.
 
-Hypotheses:
+Hypotheses (written by the Planner, source recorded-generator; untested: no rule checks them against the claims below, and they are not findings):
 - The wallet purchased a single item from tienda.textokit.store with a fixed-price x402 transaction.
 - The settlement transaction was sent from the x402 facilitator contract to the store's payment address.
 - The receipt for the purchase is logged in the Transfer event of the settlement tx hash.
@@ -29,7 +29,7 @@ Hypotheses:
 
 ## Answer
 
-The evidence shows thin adoption (verdict adoption_thin) based on [c03], [c07]. tienda.textokit.store had 17 listings [c01] 1 purchase recorded for payer 0x097e3f339d0b023605e12a6b81e2d6cb7571475a [c03] That purchase was 1000 atomic USDC (0.001 USDC) [c04] The purchase occurred at 2026-10-20T04:51:24.352Z [c05] 1 distinct service was covered [c06] 1 sampled settlement(s) verified on Base against the receipts [c02]. 1 settlement(s) of this payer verified on Base [c07]. USDC balance at capture: 1043148 atomic (1.043148 USDC) [c08]. Transaction count (nonce) at capture: 24 [c09]. Caveat [payer_from_transfer_log]: payer and seller were read from the Transfer log, not from tx.from [mem-seed-005]; applies to [c02] [c07] [c08] [c09]. Caveat [search_limit_20]: the Bazaar search is capped at twenty results, so its count is a floor [mem-seed-002]; applies to [c01]. Caveat [self_reported_receipts]: receipts are self-reported by the seller [mem-seed-003]; applies to [c02] [c03] [c04] [c05] [c06] [c07]. Sample mode: this answer replays committed fixtures captured 2026-10-22T00:05:00Z; no network, no model calls.
+The evidence shows thin adoption (verdict adoption_thin) based on [c03], [c07]. 1 purchase recorded for payer 0x097e3f339d0b023605e12a6b81e2d6cb7571475a [c03, self_reported_receipts] That purchase totaled 1000 atomic USDC (0.001 USDC) [c04, self_reported_receipts] The purchase occurred at 2026-10-20T04:51:24.352Z [c05, self_reported_receipts] 1 distinct service was covered [c06, self_reported_receipts] The settlement for this payer was verified on Base against the receipts [c07, payer_from_transfer_log, self_reported_receipts]. USDC balance at capture was 1043148 atomic (1.043148 USDC) [c08, payer_from_transfer_log], and the transaction count (nonce) at capture was 24 [c09, payer_from_transfer_log]. The CDP Bazaar search returns 17 listings for tienda.textokit.store [c01]. 1 sampled settlement(s) verified on Base against the receipts [c02]. The receipts list 1 purchase(s) by 0x097e3f339d0b023605e12a6b81e2d6cb7571475a [c03]. Those purchases total 1000 atomic USDC (0.001 USDC) [c04]. The purchases span 2026-10-20T04:51:24.352Z..2026-10-20T04:51:24.352Z [c05]. They cover 1 distinct service(s) [c06]. 1 settlement(s) of this payer verified on Base [c07]. USDC balance at capture: 1043148 atomic (1.043148 USDC) [c08]. Transaction count (nonce) at capture: 24 [c09]. Caveat [payer_from_transfer_log]: payer and seller were read from the Transfer log, not from tx.from [mem-seed-005]; applies to [c02] [c07] [c08] [c09]. Caveat [search_limit_20]: the Bazaar search is capped at twenty results, so its count is a floor [mem-seed-002]; applies to [c01]. Caveat [self_reported_receipts]: receipts are self-reported by the seller [mem-seed-003]; applies to [c02] [c03] [c04] [c05] [c06] [c07]. Sample mode: this answer replays committed fixtures captured 2026-10-22T00:05:00Z; no network, no model calls.
 
 ## Claims (accepted)
 
@@ -138,7 +138,7 @@ Which model handled each generator request (`generate` events in run.jsonl; Nigh
 | planner | planner | meterless | nvidia/nemotron-3.5-lightning-30b-a3b | nvidia/nemotron-3.5-lightning-30b-a3b | Nemotron 3.5 Lightning 30B A3B (cloud) | rcpt_req_qhspoqtk | True | log://ex03-payer-dossier#6 |
 | writer | writer-r1 | meterless | nvidia/nemotron-3.5-lightning-30b-a3b | nvidia/nemotron-3.5-lightning-30b-a3b | Nemotron 3.5 Lightning 30B A3B (cloud) | rcpt_req_m86eju9f | True | log://ex03-payer-dossier#49 |
 | critic | critic-r1 | meterless | nvidia/nemotron-3.5-lightning-30b-a3b | nvidia/nemotron-3.5-lightning-30b-a3b | Nemotron 3.5 Lightning 30B A3B (cloud) | rcpt_req_n666z3cm | True | log://ex03-payer-dossier#71 |
-| writer | writer-r2 | meterless | nvidia/nemotron-3.5-lightning-30b-a3b | nvidia/nemotron-3.5-lightning-30b-a3b | Nemotron 3.5 Lightning 30B A3B (cloud) | rcpt_req_lzzau1uo | True | log://ex03-payer-dossier#77 |
-| critic | critic-r2 | meterless | nvidia/nemotron-3.5-lightning-30b-a3b | nvidia/nemotron-3.5-lightning-30b-a3b | Nemotron 3.5 Lightning 30B A3B (cloud) | rcpt_req_v7sch8b1 | True | log://ex03-payer-dossier#97 |
+| writer | writer-r2 | meterless | nvidia/nemotron-3.5-lightning-30b-a3b | nvidia/nemotron-3.5-lightning-30b-a3b | Nemotron 3.5 Lightning 30B A3B (cloud) | rcpt_req_z3zvjjr2 | True | log://ex03-payer-dossier#77 |
+| critic | critic-r2 | meterless | nvidia/nemotron-3.5-lightning-30b-a3b | nvidia/nemotron-3.5-lightning-30b-a3b | Nemotron 3.5 Lightning 30B A3B (cloud) | rcpt_req_bdkngprd | True | log://ex03-payer-dossier#97 |
 
 Critique rounds: 2. Log files: fetch.jsonl, generator.jsonl, hmem.trace.jsonl, run.jsonl, sql.jsonl, world.audit.jsonl, world.events.jsonl, world.observations.jsonl.

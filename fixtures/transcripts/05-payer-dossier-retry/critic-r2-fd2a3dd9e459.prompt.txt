@@ -5,13 +5,17 @@ claims do not contain, a conflict stated without its id, a caveat silently dropp
 claim's value and cites that claim's id is supported: leave it out. Never list a supported statement.
 
 Answer:
-0: 1 purchase by 0x097e3f339d0b023605e12a6b81e2d6cb7571475a at tienda.textokit.store [c03]
-1: 1000 atomic USDC (0.001 USDC) total for that purchase [c04]
-2: 1 distinct service(s) covered by the purchase [c06]
-3: Purchase timestamp: 2026-10-20T04:51:24.352Z [c05]
-4: 1 settlement(s) verified on Base against the receipts [c02]
-5: Where sources disagree [c07] and [c08]: c07 reports 1 settlement verified on Base using the payer from the transfer log and self-reported receipts, while c08 reports the USDC balance at capture as 1043148 atomic (1.043148 USDC) also from the payer from the transfer log. adoption_thin (confidence 0.90)
-6: Sample mode: this answer replays committed fixtures captured 2026-10-22T00:05:00Z; no network, no model calls.
+0: 17 listings for tienda.textokit.store found via CDP Bazaar search [c01, search_limit_20]
+1: 1 purchase recorded for payer 0x097e3f339d0b023605e12a6b81e2d6cb7571475a [c03, self_reported_receipts]
+2: 1 purchase totaling 1000 atomic USDC (0.001 USDC) [c04, self_reported_receipts]
+3: 1 distinct service covered by the purchase [c06, self_reported_receipts]
+4: 1 settlement verified on Base against receipts [c02, payer_from_transfer_log, self_reported_receipts]
+5: Where sources disagree c01: the search limit of 20 caps the listing count at 17, so the true number may be higher.
+6: Where sources disagree c03-c06: all receipts are self-reported, which may affect completeness and accuracy.
+7: Where sources disagree c02-c07: the settlement verification relies on the payer being identified from the transfer log and self-reported receipts, introducing dependency on source accuracy.
+8: The payer 0x097e3f339d0b023605e12a6b81e2d6cb7571475a made 1 purchase at tienda.textokit.store worth 1000 atomic USDC (0.001 USDC) for 1 distinct service on 2026-10-20T04:51:24.352Z.
+9: The settlement for this transaction has been verified on Base against the self-reported receipts, confirming the on-chain activity matches the off-chain record.
+10: Sample mode: this answer replays committed fixtures captured 2026-10-22T00:05:00Z; no network, no model calls.
 
 Accepted claims (id, statement, value, unit, caveats, conflict_ids):
 [

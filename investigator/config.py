@@ -1,12 +1,14 @@
 """Env + CLI -> RunConfig (SPEC.md sections 4.1 and 4.2).
 
-- load_env_local() reads KEY=VALUE lines from .env.local without printing values (names only are reported).
+- load_env_local() reads KEY=VALUE lines from one env file without printing values (names only are reported);
+  load_env_files() reads .env.local and then .env, so a name .env.local sets wins over .env (and the shell over both).
+- ZETARIS_REST_URL (the name the hackathon guides suggest) is an alias of ZETARIS_BASE_URL, which wins when both are set.
 - resolve_mode() implements the mode rule: `sample` if SAMPLE_MODE=1 or none of OPENAI_API_KEY,
   ZETARIS_PASSWORD and the Nightshift variables (NIGHTSHIFT_BASE_URL / METERLESS_BASE_URL, NIGHTSHIFT_TOKEN /
   METERLESS_RUNTIME_TOKEN / METERLESS_TOKEN, NIGHTSHIFT_TOKEN_FILE) is set; else `live`. Mode resolution never probes
   the network (Nightshift Auto Detect runs only once the mode is live, in generator.build_generator), and the
   runtime's own <stateDir>/proxy-token file never makes a run live by itself. `--mode sample` reads no credential
-  and no .env.local; the only variable it honours is LOG_DIR (where the run folders go; --out wins over it).
+  and no env file (.env.local, .env); the only variable it honours is LOG_DIR (where the run folders go; --out wins over it).
 - Nightshift aliases: the hackathon guides name METERLESS_BASE_URL, METERLESS_RUNTIME_TOKEN and METERLESS_MODEL, the
   official `ns` CLI METERLESS_TOKEN and METERLESS_STATE_DIR; each NIGHTSHIFT_* name wins over its aliases.
   NIGHTSHIFT_REASONING_EFFORT / METERLESS_REASONING_EFFORT (default `none`) is the thinking switch of every Nightshift
@@ -45,6 +47,9 @@ NIGHTSHIFT_BASE_URL_VARS: tuple[str, ...] = ("NIGHTSHIFT_BASE_URL", "METERLESS_B
 NIGHTSHIFT_TOKEN_VARS: tuple[str, ...] = ("NIGHTSHIFT_TOKEN", "METERLESS_RUNTIME_TOKEN", "METERLESS_TOKEN")
 NIGHTSHIFT_MODEL_VARS: tuple[str, ...] = ("NIGHTSHIFT_MODEL", "METERLESS_MODEL")
 NIGHTSHIFT_REASONING_VARS: tuple[str, ...] = ("NIGHTSHIFT_REASONING_EFFORT", "METERLESS_REASONING_EFFORT")
+ZETARIS_BASE_URL_VARS: tuple[str, ...] = ("ZETARIS_BASE_URL", "ZETARIS_REST_URL")
+# Env files read outside sample mode, in this order; a name set by an earlier file (or the shell) is not overwritten.
+ENV_FILES: tuple[str, ...] = (".env.local", ".env")
 # Thinking off by default: the three generator-backed roles answer in JSON or short prose within 400-700 tokens, and
 # with thinking on both Nemotron routes spent the Critic's 500-token budget thinking and answered nothing (HTTP 502
 # empty_response, 2026-10-24, examples/live-trace-nightshift/nemotron-*/smoke/). "default" sends no thinking control.
@@ -83,7 +88,7 @@ class Env:
     sample_mode_flag: bool = False
     hmem_dir: Path = REPO_ROOT / "memory" / "state"
     log_dir: Path = REPO_ROOT / "logs"
-    loaded_from_env_local: list[str] = field(default_factory=list)   # variable NAMES only
+    loaded_from_env_local: list[str] = field(default_factory=list)   # variable NAMES only (.env.local, then .env)
 
     def has_generator(self) -> bool:
         """An OpenAI-compatible key is configured (the fallback generator)."""
@@ -119,6 +124,16 @@ def load_env_local(path: Optional[Path] = None, override: bool = False) -> list[
             continue
         os.environ[key] = value
         names.append(key)
+    return names
+
+
+def load_env_files(root: Optional[Path] = None) -> list[str]:
+    """Load ENV_FILES from `root` (the repository root by default): .env.local first, then .env. Existing variables
+    win, so the shell beats .env.local and .env.local beats .env. Returns the names loaded (never the values)."""
+    base = Path(root) if root else REPO_ROOT
+    names: list[str] = []
+    for name in ENV_FILES:
+        names += load_env_local(base / name)
     return names
 
 
@@ -170,6 +185,7 @@ def read_env(environ: Optional[dict[str, str]] = None) -> Env:
     routing_mode, _ = first_set(env, NIGHTSHIFT_MODEL_VARS)
     reasoning_effort, _ = first_set(env, NIGHTSHIFT_REASONING_VARS)
     state_dir, state_dir_var = meterless_state_dir(env)
+    zetaris_url, _ = first_set(env, ZETARIS_BASE_URL_VARS)
     return Env(
         nightshift_base_url=base_url,
         nightshift_base_url_var=base_url_var,
@@ -184,7 +200,7 @@ def read_env(environ: Optional[dict[str, str]] = None) -> Env:
         openai_api_key=get("OPENAI_API_KEY"),
         openai_base_url=get("OPENAI_BASE_URL", "https://api.openai.com/v1"),
         model=get("MODEL", "gpt-4.1-mini"),
-        zetaris_base_url=(get("ZETARIS_BASE_URL", "http://localhost:3000") or "").rstrip("/"),
+        zetaris_base_url=(zetaris_url or "http://localhost:3000").strip().rstrip("/"),
         zetaris_username=get("ZETARIS_USERNAME"),
         zetaris_password=get("ZETARIS_PASSWORD"),
         zetaris_org_id=get("ZETARIS_ORG_ID"),
@@ -267,7 +283,7 @@ class RunConfig:
 
 def build_config(args: Optional[argparse.Namespace] = None, environ: Optional[dict[str, str]] = None,
                  load_dotenv: bool = True) -> RunConfig:
-    """CLI namespace (run.py) + environment -> RunConfig. `--mode sample` reads no credential and no .env.local:
+    """CLI namespace (run.py) + environment -> RunConfig. `--mode sample` reads no credential and no env file:
     the only environment variable it honours is LOG_DIR (default logs/), and --out wins over it."""
     ns = args or argparse.Namespace()
     requested: RequestedMode = getattr(ns, "mode", None) or "auto"
@@ -277,7 +293,7 @@ def build_config(args: Optional[argparse.Namespace] = None, environ: Optional[di
         log_dir = (os.environ if environ is None else environ).get("LOG_DIR")
         env = Env(sample_mode_flag=True, log_dir=Path(log_dir) if log_dir else REPO_ROOT / "logs")
     else:
-        loaded = load_env_local() if (load_dotenv and environ is None) else []
+        loaded = load_env_files() if (load_dotenv and environ is None) else []
         env = read_env(environ)
         env.loaded_from_env_local = loaded
     mode = resolve_mode(requested, env)

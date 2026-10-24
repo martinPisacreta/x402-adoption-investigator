@@ -102,19 +102,29 @@ def build_server(port: int, config: RunConfig, host: str = "127.0.0.1") -> HTTPS
             else:
                 self._send(404, {"error": {"code": "E_INPUT", "message": "use POST /run"}})
 
+        def _drain(self, length: int) -> None:
+            """Read and discard up to DRAIN_LIMIT_BYTES of an unread body, then close the connection: on Windows a
+            socket closed with unread bytes sends a reset, and the client would see ConnectionAbortedError instead
+            of the status sent before it."""
+            remaining = min(max(length, 0), DRAIN_LIMIT_BYTES)
+            while remaining > 0:
+                chunk = self.rfile.read(min(65536, remaining))
+                if not chunk:
+                    break
+                remaining -= len(chunk)
+            self.close_connection = True
+
         def do_POST(self) -> None:  # noqa: N802
+            try:
+                length = int(self.headers.get("Content-Length") or 0)
+            except ValueError:
+                length = 0
             if self.path != "/run":
+                self._drain(length)        # the body is not used, but it is read so the client sees the 404
                 self._send(404, {"error": {"code": "E_INPUT", "message": "use POST /run"}})
                 return
-            length = int(self.headers.get("Content-Length") or 0)
             if length > MAX_REQUEST_BYTES:
-                remaining = min(length, DRAIN_LIMIT_BYTES)      # drain so the client sees the 413, not a reset
-                while remaining > 0:
-                    chunk = self.rfile.read(min(65536, remaining))
-                    if not chunk:
-                        break
-                    remaining -= len(chunk)
-                self.close_connection = True
+                self._drain(length)        # drain so the client sees the 413, not a reset
                 self._send(413, {"run_id": "invalid-input", "status": "error", "error": {
                     "code": "E_INPUT", "stage": "input", "message": f"body of {length} bytes exceeds {MAX_REQUEST_BYTES}",
                     "retryable": False, "details": {}}})

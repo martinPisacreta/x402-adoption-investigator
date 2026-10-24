@@ -1,0 +1,346 @@
+You are the Writer of the x402 Adoption Investigator. You phrase an answer from ACCEPTED claims only.
+Rules that the Critic enforces mechanically:
+1. Every sentence that contains a number must cite the claim id in brackets, e.g. "... 21 sales [c03]".
+2. Never write a number that is not a claim value, a share of one, or its numerator/denominator.
+3. Mention every conflict listed below in a sentence that starts with "Where sources disagree" and cites its id.
+4. Keep the caveat codes attached to the claims you use (write them in plain words and keep the code in brackets).
+5. The verdict label is fixed: self_settled_mostly (confidence 0.90). Phrase it; do not change it.
+6. At most 5 summary bullets: pick the claims that answer the question, never list every claim. Then at most two
+   short narrative paragraphs. The whole answer stays under 300 words. English. No speculation beyond the claims.
+
+Question:
+How real is the adoption of tienda.textokit.store? Who pays, how much, do they come back, and why do registries disagree about it?
+
+Claims (JSON table: id, statement, value, unit, caveats, conflict_ids):
+[
+ {
+  "id": "c01",
+  "statement": "The receipts of tienda.textokit.store list 80 settled sales in total.",
+  "value": 80,
+  "unit": "count",
+  "caveats": [
+   "self_reported_receipts",
+   "basis_mismatch"
+  ],
+  "conflict_ids": [],
+  "formatted": {}
+ },
+ {
+  "id": "c02",
+  "statement": "56 of those sales were paid from the seller's own wallets.",
+  "value": 56,
+  "unit": "count",
+  "caveats": [
+   "self_reported_receipts",
+   "basis_mismatch"
+  ],
+  "conflict_ids": [],
+  "formatted": {}
+ },
+ {
+  "id": "c03",
+  "statement": "3 distinct own wallets settled those self-payments.",
+  "value": 3,
+  "unit": "count",
+  "caveats": [
+   "self_reported_receipts",
+   "basis_mismatch"
+  ],
+  "conflict_ids": [],
+  "formatted": {}
+ },
+ {
+  "id": "c04",
+  "statement": "24 sales were paid by external wallets.",
+  "value": 24,
+  "unit": "count",
+  "caveats": [
+   "self_reported_receipts",
+   "basis_mismatch"
+  ],
+  "conflict_ids": [],
+  "formatted": {}
+ },
+ {
+  "id": "c05",
+  "statement": "External sales total 55000 atomic USDC (0.055 USDC).",
+  "value": 55000,
+  "unit": "atomic_usdc",
+  "caveats": [
+   "self_reported_receipts",
+   "basis_mismatch"
+  ],
+  "conflict_ids": [],
+  "formatted": {
+   "usdc": "0.055"
+  }
+ },
+ {
+  "id": "c06",
+  "statement": "5 distinct external payers appear in the receipts.",
+  "value": 5,
+  "unit": "count",
+  "caveats": [
+   "self_reported_receipts",
+   "basis_mismatch"
+  ],
+  "conflict_ids": [],
+  "formatted": {}
+ },
+ {
+  "id": "c07",
+  "statement": "Self-settlement share: 56 of 80 sales (70.0 %).",
+  "value": {
+   "numerator": 56,
+   "denominator": 80,
+   "share": 0.7
+  },
+  "unit": "share",
+  "caveats": [
+   "self_reported_receipts",
+   "basis_mismatch"
+  ],
+  "conflict_ids": [],
+  "formatted": {
+   "percent": "70.0"
+  }
+ },
+ {
+  "id": "c08",
+  "statement": "1 external payer(s) bought more than once.",
+  "value": 1,
+  "unit": "count",
+  "caveats": [
+   "self_reported_receipts",
+   "basis_mismatch"
+  ],
+  "conflict_ids": [],
+  "formatted": {}
+ },
+ {
+  "id": "c09",
+  "statement": "The top external payer 0xec2abd3eda89bed90124736e317e847d5fb6d034 made 20 of 24 external sales (83.3 %).",
+  "value": {
+   "numerator": 20,
+   "denominator": 24,
+   "share": 0.8333333333333334,
+   "payer": "0xec2abd3eda89bed90124736e317e847d5fb6d034"
+  },
+  "unit": "share",
+  "caveats": [
+   "self_reported_receipts",
+   "basis_mismatch"
+  ],
+  "conflict_ids": [],
+  "formatted": {
+   "percent": "83.3"
+  }
+ },
+ {
+  "id": "c10",
+  "statement": "External sales span 2026-10-20T04:51:24.352Z..2026-10-24T14:01:45.472Z.",
+  "value": "2026-10-20T04:51:24.352Z..2026-10-24T14:01:45.472Z",
+  "unit": "iso8601",
+  "caveats": [
+   "self_reported_receipts",
+   "basis_mismatch"
+  ],
+  "conflict_ids": [],
+  "formatted": {}
+ },
+ {
+  "id": "c11",
+  "statement": "External sales by service: cuit-ar=4, normativa-ar=4, x402-ping=2, bcra-indicadores=1, cartas-ar=1, comparar-textos=1, crypto-prices=1, dev-utils=1, direcciones-ar=1, dolar-ar=1, fx-rates=1, polymarket-markets=1, source-bounded-summary=1, translate-es=1, url-text=1, web-read=1, x402-adoption=1.",
+  "value": "cuit-ar=4, normativa-ar=4, x402-ping=2, bcra-indicadores=1, cartas-ar=1, comparar-textos=1, crypto-prices=1, dev-utils=1, direcciones-ar=1, dolar-ar=1, fx-rates=1, polymarket-markets=1, source-bounded-summary=1, translate-es=1, url-text=1, web-read=1, x402-adoption=1",
+  "unit": "text",
+  "caveats": [
+   "self_reported_receipts",
+   "basis_mismatch"
+  ],
+  "conflict_ids": [],
+  "formatted": {}
+ },
+ {
+  "id": "c12",
+  "statement": "External sales per day: 2026-10-20=20, 2026-10-21=1, 2026-10-23=1, 2026-10-24=2.",
+  "value": "2026-10-20=20, 2026-10-21=1, 2026-10-23=1, 2026-10-24=2",
+  "unit": "text",
+  "caveats": [
+   "self_reported_receipts",
+   "basis_mismatch"
+  ],
+  "conflict_ids": [],
+  "formatted": {}
+ },
+ {
+  "id": "c13",
+  "statement": "External sales settled inside the 30-day window ending 2026-10-24: 24.",
+  "value": 24,
+  "unit": "count",
+  "caveats": [
+   "self_reported_receipts",
+   "basis_mismatch"
+  ],
+  "conflict_ids": [
+   "k02"
+  ],
+  "formatted": {}
+ },
+ {
+  "id": "c14",
+  "statement": "The CDP Bazaar search returns 17 listings for tienda.textokit.store.",
+  "value": 17,
+  "unit": "count",
+  "caveats": [
+   "search_limit_20"
+  ],
+  "conflict_ids": [
+   "k01"
+  ],
+  "formatted": {}
+ },
+ {
+  "id": "c15",
+  "statement": "Those listings pay to 1 distinct wallet(s).",
+  "value": 1,
+  "unit": "count",
+  "caveats": [
+   "search_limit_20"
+  ],
+  "conflict_ids": [],
+  "formatted": {}
+ },
+ {
+  "id": "c16",
+  "statement": "Bazaar 30-day call counters summed over the listings of tienda.textokit.store: 64.",
+  "value": 64,
+  "unit": "count",
+  "caveats": [
+   "search_limit_20",
+   "basis_mismatch"
+  ],
+  "conflict_ids": [
+   "k02"
+  ],
+  "formatted": {}
+ },
+ {
+  "id": "c17",
+  "statement": "17 Bazaar listings pay to the wallet the receipts name as seller.",
+  "value": 17,
+  "unit": "count",
+  "caveats": [
+   "search_limit_20",
+   "self_reported_receipts",
+   "basis_mismatch"
+  ],
+  "conflict_ids": [],
+  "formatted": {}
+ },
+ {
+  "id": "c18",
+  "statement": "Registries disagree on the endpoint count for tienda.textokit.store: cdp_search=17, store_openapi=17, agent402_paid=17, agent402_tools=34, vet402=19, x402_trust_search=36.",
+  "value": {
+   "cdp_search": 17,
+   "store_openapi": 17,
+   "agent402_paid": 17,
+   "agent402_tools": 34,
+   "vet402": 19,
+   "x402_trust_search": 36
+  },
+  "unit": "text",
+  "caveats": [
+   "search_limit_20",
+   "third_party_aggregate"
+  ],
+  "conflict_ids": [
+   "k01"
+  ],
+  "formatted": {}
+ },
+ {
+  "id": "c19",
+  "statement": "5 sampled settlement(s) verified on Base against the receipts.",
+  "value": 5,
+  "unit": "count",
+  "caveats": [
+   "payer_from_transfer_log",
+   "self_reported_receipts",
+   "basis_mismatch"
+  ],
+  "conflict_ids": [],
+  "formatted": {}
+ }
+]
+
+Conflicts (id, predicate, values with basis, explanation):
+[
+ {
+  "id": "k01",
+  "predicate": "endpoint_count_for_host",
+  "values": [
+   {
+    "source": "cdp_search",
+    "value": 17,
+    "basis": "CDP Bazaar discovery search, one row per listed resource, capped at twenty results"
+   },
+   {
+    "source": "store_openapi",
+    "value": 17,
+    "basis": "paid operations declared by the store's own openapi.json (x-payment-info)"
+   },
+   {
+    "source": "agent402",
+    "value": {
+     "paidToolCount": 17,
+     "toolCount": 34
+    },
+    "basis": "tools crawled by Agent402 from the store manifest; paidToolCount is the comparable figure"
+   },
+   {
+    "source": "vet402",
+    "value": 19,
+    "basis": "endpoints vet402 has observed for the host with catalog_status listed"
+   },
+   {
+    "source": "x402_trust",
+    "value": 36,
+    "basis": "matches reported by the x402-trust keyword search across its own index (listed and delisted)"
+   }
+  ],
+  "explanation": "Bazaar search is capped at twenty results and lists one row per resource; the store openapi declares paid operations; Agent402 counts tools including free ones (paidToolCount is the comparable figure); vet402 counts every endpoint it has observed for the host with catalog_status listed, which can include routes the store no longer declares; x402-trust search counts matches across its own index. In this capture vet402 lists /api/maintenance-helper and /api/preparar-solicitud, which the store openapi does not declare as paid operations; that accounts for the whole difference between the vet402 and openapi counts."
+ },
+ {
+  "id": "k02",
+  "predicate": "calls_30d_for_host",
+  "values": [
+   {
+    "source": "cdp_search",
+    "value": 64,
+    "basis": "l30DaysTotalCalls summed over the host's Bazaar listings (per-endpoint 30-day counters, search capped at twenty)"
+   },
+   {
+    "source": "receipts",
+    "value": 80,
+    "basis": "all receipts rows settled since 2026-09-24 (own-wallet rows included)"
+   },
+   {
+    "source": "receipts",
+    "value": 24,
+    "basis": "external receipts rows settled since 2026-09-24"
+   }
+  ],
+  "explanation": "Bazaar l30DaysTotalCalls is a per-endpoint 30-day counter maintained by the facilitator and includes the seller's own calls; receipts are the seller's own settlement log. Different windows and bases: compare only with the basis stated."
+ }
+]
+
+Unavailable metrics (say so, do not guess them):
+(none)
+
+Memory (H-MEM reinjection; cite memory ids you rely on as [mem-...]):
+(no memory retrieved)
+
+Critic issues from the previous round (fix every one):
+(none)
+
+Write the answer now: first the bullets (one per line, starting with "- "), then the narrative paragraphs.

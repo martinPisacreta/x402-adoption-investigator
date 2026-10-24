@@ -1,0 +1,53 @@
+{
+  "prompt_id": "critic-r1",
+  "prompt_sha256": "c57ccc34be5f1982eb895ac9babffbc9738e404603cba8f6720dcc4f74f04cb0",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "recorded_at": "2026-10-24T18:55:40.516Z",
+  "response": "[\n  {\n    \"sentence_index\": 1,\n    \"reason\": \"Derives 56 from c01 and c02, but c01 and c02 are self-reported receipts with basis_mismatch caveats; the arithmetic is not a standalone claim.\",\n    \"claim_id\": \"null\"\n  },\n  {\n    \"sentence_index\": 2,\n    \"reason\": \"Derives 24 from c01 and c04; c04 is self-reported with basis_mismatch; the count is not an independent claim.\",\n    \"claim_id\": \"null\"\n  },\n  {\n    \"sentence_index\": 3,\n    \"reason\": \"Derives 55000 from c05; c05 is self-reported with basis_mismatch; the absolute value is not an independent claim.\",\n    \"claim_id\": \"null\"\n  },\n  {\n    \"sentence_index\": 4,\n    \"reason\": \"Derives 5 from c06; c06 is self-reported with basis_mismatch; the count is not an independent claim.\",\n    \"claim_id\": \"null\"\n  },\n  {\n    \"sentence_index\": 5,\n    \"reason\": \"Derives 83.3% and 20/24 from c09; c09 is self-reported with basis_mismatch; the share and counts are not independent claims.\",\n    \"claim_id\": \"null\"\n  },\n  {\n    \"sentence_index\": 5,\n    \"reason\": \"Derives 5-day range from c10; c10 is self-reported with basis_mismatch; the date range is not an independent claim.\",\n    \"claim_id\": \"null\"\n  },\n  {\n    \"sentence_index\": 5,\n    \"reason\": \"Derives service distribution from c11; c11 is self-reported with basis_mismatch; the distribution is not an independent claim.\",\n    \"claim_id\": \"null\"\n  },\n  {\n    \"sentence_index\": 5,\n    \"reason\": \"Derives 30-day settlement claim from c13; c13 references k02 conflict and is self-reported; the claim is not independent.\",\n    \"claim_id\": \"null\"\n  },\n  {\n    \"sentence_index\": 5,\n    \"reason\": \"Der",
+  "usage": {
+    "prompt_tokens": 3080,
+    "completion_tokens": 500,
+    "total_tokens": 3580
+  },
+  "provider": "meterless",
+  "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_pl9z663t",
+    "decision_id": "req_pl9z663t",
+    "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "winning_route": {
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "label": "Nemotron 3.5 Lightning 30B A3B",
+      "provider": "nvidia",
+      "kind": "cloud",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "final_synthesis",
+        "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+        "ms": 4236
+      }
+    ],
+    "latency_ms": 4236,
+    "usage": {
+      "input_tokens": 3080,
+      "output_tokens": 500,
+      "total_tokens": 3580
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "cloud-ok",
+    "wall_ms": 4266
+  },
+  "request": {
+    "max_tokens": 500,
+    "call_options": {
+      "reasoning_effort": "none",
+      "system_turn": "/no_think"
+    }
+  }
+}

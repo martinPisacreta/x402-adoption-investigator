@@ -70,8 +70,9 @@ every status is `partial`. The live trace computed on Zetaris Lightning SQL is
   "rules"`). Ex02-05: the reply was used (`planner_source: "generator"`); in ex03-05 only after it was brought inside
   the schema's limits, logged as `recovery{generator_reply_repaired}` (ex03 and ex04: the same hypothesis five
   times, kept once; ex05: four extra metric ids that are not in the registry dropped).
-- **Critic second opinion.** 7 of the 10 replies of the five final runs stopped at the 500-token limit in the
-  middle of the JSON array; their complete items are kept (`recovery{generator_reply_repaired}`, "N complete
+- **Critic second opinion.** 7 of the 10 replies of the five final runs were unterminated JSON arrays (5 of them
+  stopped at the 500-token limit, the critic-r2 replies of ex02 and ex04 at 270 and 221 tokens); their complete items
+  are kept (`recovery{generator_reply_repaired}`, "N complete
   item(s) were kept"), and they flag many sentences of the draft. The second opinion can only add issues.
 - **Writer.** The drafts cite claims but leave out caveat codes and conflict ids, so the rule-based Critic sends
   them back (rules C3 and C7 on the narrative, B where a number or citation does not map). After round 2 the flagged sentences are

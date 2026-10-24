@@ -7,7 +7,7 @@ Exactly three roles are generator-backed (Planner, Writer, Critic second opinion
   the file NIGHTSHIFT_TOKEN_FILE; <stateDir>/proxy-token, stateDir = METERLESS_STATE_DIR or the OS default the
   official ns CLI uses (config.meterless_state_dir). `meterless-app: x402-adoption-investigator` on every request
   and `meterless-scope: user` on chat requests, routing mode NIGHTSHIFT_MODEL / METERLESS_MODEL (default
-  meterless/auto), 90 s timeout per request (both Nemotron routes answered in under 12 s on 2026-10-24). detect_nightshift() decides its status from GET
+  meterless/auto), 90 s timeout per request (both Nemotron routes answered in under 13 s on 2026-10-24). detect_nightshift() decides its status from GET
   /v1/models (401/403 unauthorized, 200 with meterless/* ids online, anything else offline) at NIGHTSHIFT_BASE_URL
   / METERLESS_BASE_URL, or by Auto Detect over ports 8088, 8090, 8787 and 11434 on 127.0.0.1, localhost and [::1].
   The `meterless` compute receipt of each answer (meterless.compute_receipt.v1) is reduced by meterless_receipt()
@@ -67,7 +67,7 @@ GENERATOR_RESERVE_S = 10          # a call's timeout ends this long before the d
 NIGHTSHIFT_PROVIDER_ID = "meterless"
 NIGHTSHIFT_APP_ID = "x402-adoption-investigator"          # meterless-app header: stable lowercase app id
 NIGHTSHIFT_DEFAULT_BASE_URL = "http://127.0.0.1:8088/v1"
-# Chat calls. The receipts of 24 Oct show 1.3-11.5 s per answer on both Nemotron routes; 90 s is the top of the
+# Chat calls. The receipts of 24 Oct show 1.3-12.9 s per answer on both Nemotron routes; 90 s is the top of the
 # guides' 30-90 s range and lets a hung request take at most half of a 180 s run.
 NIGHTSHIFT_TIMEOUT_S = 90.0
 NIGHTSHIFT_PROBE_TIMEOUT_S = 3.0                           # one GET /v1/models during detection

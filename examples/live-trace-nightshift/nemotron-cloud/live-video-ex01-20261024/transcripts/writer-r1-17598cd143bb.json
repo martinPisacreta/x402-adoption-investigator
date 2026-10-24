@@ -1,0 +1,53 @@
+{
+  "prompt_id": "writer-r1",
+  "prompt_sha256": "17598cd143bbf82d657e08bc5e598c83b3ea08aa287843ab6dd7d092523a24f6",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "recorded_at": "2026-10-24T18:55:35.950Z",
+  "response": "- tienda.textokit.store lists 80 settled sales [c01].\n- 56 of those sales were self-payments from 3 distinct wallets [c02] [c03].\n- 24 sales were paid by external wallets [c04].\n- External sales totaled 55000 atomic USDC (0.055 USDC) [c05].\n- 5 distinct external payers appear in the receipts [c06].\n- 1 external payer made 20 of the 24 external sales (83.3 %) [c09].\n- External sales occurred over 5 days from 2026-10-20 to 2026-10-24 [c10].\n- External sales were distributed across 15 services, with cuit-ar and normativa-ar each contributing 4 sales [c11].\n- 24 external sales settled within the 30-day window ending 2026-10-24 [c13].\n- 17 Bazaar listings pay to the wallet named as seller in the receipts [c17].\n\nWhere sources disagree [k01]: the endpoint count for tienda.textokit.store varies across registries, with cdp_search reporting 17, store_openapi 17, agent402_paid 17, agent402_tools 34, vet402 19, and x402_trust_search 36; the discrepancy arises because vet402 counts observed endpoints including routes the store openapi does not declare as paid, and agent402_tools includes free tools beyond the paidToolCount of 17.\n\nWhere sources disagree [k02]: calls_30d_for_host figures differ, with cdp_search reporting 64 total calls (including seller's own), receipts reporting 80 total settled receipts (own-wallet rows included), and receipts reporting 24 external receipts; the bazaar counter includes the seller's own calls while the receipts log tracks settlements, and the comparison window and basis differ across sources.",
+  "usage": {
+    "prompt_tokens": 3436,
+    "completion_tokens": 466,
+    "total_tokens": 3902
+  },
+  "provider": "meterless",
+  "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_c0jovllr",
+    "decision_id": "req_c0jovllr",
+    "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "winning_route": {
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "label": "Nemotron 3.5 Lightning 30B A3B",
+      "provider": "nvidia",
+      "kind": "cloud",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "final_synthesis",
+        "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+        "ms": 5990
+      }
+    ],
+    "latency_ms": 5990,
+    "usage": {
+      "input_tokens": 3436,
+      "output_tokens": 466,
+      "total_tokens": 3902
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "cloud-ok",
+    "wall_ms": 6031
+  },
+  "request": {
+    "max_tokens": 700,
+    "call_options": {
+      "reasoning_effort": "none",
+      "system_turn": "/no_think"
+    }
+  }
+}

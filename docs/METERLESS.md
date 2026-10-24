@@ -190,8 +190,9 @@ provider)" lists what is implemented, what ran (37 Nemotron requests in seven li
 `examples/live-trace-nightshift/`; 25 recorded Nemotron answers replayed by the committed examples,
 `fixtures/transcripts/`; the earlier six Llama runs, 32 requests, and the 25 recordings of the first replay set in
 `examples/live-trace-nightshift/llama-3.2-3b/`) and what is not claimed; tests in `tests/test_nightshift.py`. Every
-receipt those logs cite is also in Nightshift's own Ed25519-signed ledger (`scripts/nightshift_ledger.py`, committed
-excerpt `examples/live-trace-nightshift/nightshift-ledger/`, `tests/test_nightshift_ledger.py`).
+receipt those logs cite is in the committed excerpt of Nightshift's Ed25519-signed ledger, each signature valid under
+the public key the lines carry (`scripts/nightshift_ledger.py`, excerpt `examples/live-trace-nightshift/nightshift-ledger/`,
+`tests/test_nightshift_ledger.py`): that proves the lines are unchanged since signing, not which machine signed them.
 
 ## Licensing
 

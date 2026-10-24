@@ -1,3 +1,8 @@
+# Integration notes
+
+Hand-off notes between the builders of this repository, kept as they were written, oldest first; the
+"Superseded" sections and the 2026-10-24 sections say what changed later. README.md is the current description of
+the system and of the sponsor technology (its "Sponsor technology" section; machine-readable in metadata.json).
 
 ## B1 collector / sources / chain client (2026-10-22)
 
@@ -486,3 +491,16 @@ for logs that show where a Nemotron model did the work. What changed for other m
 - Evidence: `examples/live-trace-nightshift/` (README, `machine.txt`): five hosted-Nemotron live runs (27 requests,
   `kind: cloud`), one local Nemotron Nano run (5 requests, `kind: local`, lane placed on CUDA0), the smoke requests
   that decided the thinking switch, Zetaris stopped so SQLite. 308 tests.
+
+## Sponsor technology explanation (2026-10-24, documentation only)
+
+No code changed. README "Sponsor technology" now covers each sponsor the way the HackOS requirements ask: Zetaris
+as the data layer (the 22 Oct live seller audit on Zetaris Lightning SQL; the 24 Oct Nightshift runs on SQLite
+because Zetaris was stopped), the two Meterless engines with what each does, the feature it powers and its tests,
+how the app connects to Nightshift (Auto Detect, token file, `METERLESS_*` names, headers, Docker through
+`host.docker.internal`, fallback chain, receipts in the traces), where NVIDIA Nemotron shows in the logs on each
+route, and a "What was unique" list. The same facts are in `metadata.json` (`sponsor_tech`, new keys `feature`,
+`test_result`, `in_traces`, `docker`, `where_in_logs`, `key_location`, `what_was_unique`). Stale lines fixed:
+`docs/METERLESS.md` and the metadata checklist no longer say that no committed run had a model (the committed
+examples and the Nemotron live runs carry `memory` inject lines linked to their `generate` events), and the
+archived Llama README names the `derivation.backend` the runs logged (`sqlite-fallback`).

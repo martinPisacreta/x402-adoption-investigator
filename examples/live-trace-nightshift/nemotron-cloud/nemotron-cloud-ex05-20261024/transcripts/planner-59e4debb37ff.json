@@ -1,0 +1,53 @@
+{
+  "prompt_id": "planner",
+  "prompt_sha256": "59e4debb37ffcb1638dfa78f4c579a3e8c8b84f6fcaec3947f06e00ee39b6fbb",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "recorded_at": "2026-10-24T17:30:31.418Z",
+  "response": "{\"playbook\": \"payer_dossier\", \"hypotheses\": [\"The payer purchased a single item from tienda.textokit.store and the receipt is on Base\", \"The settlement tx.from is the x402 facilitator and the actual payer is 0x097e3f339d0b023605e12a6b81e2d6cb7571475a\", \"The receipt contains the item price in USDC atomic units that can be cross-checked against the payer's wallet balance\", \"The transaction can be verified on Base using the verified_tx metric and the Transfer log source\", \"The payer has exactly 1 verified settlement on Base against tienda.textokit.store receipts\"]}, \"extra_metrics\": [\"verified_tx\", \"payer_sales_total\", \"payer_usdc_atomic\", \"settlements_verified\", \"tx_count\"]}",
+  "usage": {
+    "prompt_tokens": 825,
+    "completion_tokens": 198,
+    "total_tokens": 1023
+  },
+  "provider": "meterless",
+  "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_ux64zdry",
+    "decision_id": "req_ux64zdry",
+    "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "winning_route": {
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "label": "Nemotron 3.5 Lightning 30B A3B",
+      "provider": "nvidia",
+      "kind": "cloud",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "final_synthesis",
+        "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+        "ms": 2916
+      }
+    ],
+    "latency_ms": 2916,
+    "usage": {
+      "input_tokens": 825,
+      "output_tokens": 198,
+      "total_tokens": 1023
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "cloud-ok",
+    "wall_ms": 2953
+  },
+  "request": {
+    "max_tokens": 400,
+    "call_options": {
+      "reasoning_effort": "none",
+      "system_turn": "/no_think"
+    }
+  }
+}

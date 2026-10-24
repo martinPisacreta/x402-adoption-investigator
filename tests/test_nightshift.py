@@ -20,6 +20,11 @@ The tests pin the contract the adapter implements:
   METERLESS_MODEL are aliases of NIGHTSHIFT_BASE_URL and NIGHTSHIFT_MODEL (the NIGHTSHIFT_* name wins);
 - the `meterless` compute receipt of an answer (shape of Nightshift 1.2.3, fake_receipt below) becomes `routing` on
   the generate event, generator.jsonl, the transcript and output.agents[].generator_calls, without its prompt preview;
+- the thinking switch NIGHTSHIFT_REASONING_EFFORT / METERLESS_REASONING_EFFORT (ThinkingSwitch): by default every
+  Nightshift chat body carries `reasoning_effort: "none"` and a `/no_think` system turn before the unchanged prompt,
+  `default` sends neither, an effort level sends only `reasoning_effort`, an unknown value sends nothing and says so,
+  the OpenAI fallback never gets them, and each call logs them (generator.jsonl `call_options`, run_start
+  generator_mount, the transcript `request`);
 - the reply shapes the 3B lane produced on 2026-10-24 (SmallModelReplies: a Planner JSON over the schema's list
   limits, a Critic array cut off at the token limit, a Writer draft without caveat codes or conflict ids) are
   repaired or completed visibly (recovery generator_reply_repaired / narrative_completed), never approved: the
@@ -50,7 +55,7 @@ from investigator.agents import planner as planner_mod  # noqa: E402
 from investigator.config import Env, RunConfig, build_config, meterless_state_dir, parse_request, read_env  # noqa: E402
 from investigator.errors import InvestigatorError  # noqa: E402
 from investigator.schemas import load_schema, validate  # noqa: E402
-from test_generator_hmem import FakeChatCompletions  # noqa: E402
+from test_generator_hmem import FakeChatCompletions, user_prompt  # noqa: E402
 
 TOKEN = "nightshift-test-token-not-a-secret"
 OPENAI_KEY = "openai-test-key-not-a-secret"
@@ -118,7 +123,7 @@ class FakeRuntime(FakeChatCompletions):
         payload = json.loads(super().__call__(request, timeout).read().decode("utf-8"))
         payload["model"] = BACKEND_MODEL
         if self.receipts:
-            prompt = json.loads(request.data.decode("utf-8"))["messages"][0]["content"]
+            prompt = user_prompt(json.loads(request.data.decode("utf-8")))
             payload["meterless"] = fake_receipt(len(self.chats()), prompt)
         return io.BytesIO(json.dumps(payload).encode("utf-8"))
 
@@ -389,6 +394,70 @@ class ChatRequests(unittest.TestCase):
         with self.assertRaises(gen.GeneratorError) as caught:
             nightshift.complete("planner", "x", max_tokens=8, temperature=0.0, timeout=1.0)
         self.assertNotIn(TOKEN, str(caught.exception))
+
+
+class ThinkingSwitch(unittest.TestCase):
+    """NIGHTSHIFT_REASONING_EFFORT (alias METERLESS_REASONING_EFFORT): the thinking controls of each chat body."""
+
+    BASE = "http://127.0.0.1:8088/v1"
+    PROMPT = "You are the second-opinion Critic. Reply [] if fine."
+    NO_THINK = {"reasoning_effort": "none", "system_turn": "/no_think"}
+
+    def body_for(self, **kwargs: Any) -> dict[str, Any]:
+        fake = FakeRuntime({self.BASE: "online"})
+        nightshift = gen.NightshiftGenerator(TOKEN, self.BASE, opener=fake, **kwargs)
+        nightshift.complete("critic-r1", self.PROMPT, max_tokens=500, temperature=0.0, timeout=1.0)
+        return fake.requests[0]["body"]
+
+    def test_by_default_thinking_is_off_and_the_prompt_is_unchanged(self) -> None:
+        body = self.body_for()
+        self.assertEqual(body["reasoning_effort"], "none")
+        self.assertEqual(body["messages"], [{"role": "system", "content": "/no_think"},
+                                            {"role": "user", "content": self.PROMPT}])
+        self.assertEqual((body["max_tokens"], body["temperature"]), (500, 0.0))
+        nightshift = gen.NightshiftGenerator(TOKEN, self.BASE)
+        self.assertEqual(nightshift.call_options, self.NO_THINK)
+        self.assertEqual(nightshift.mount_info["call_options"], self.NO_THINK)
+        self.assertNotIn("call_options_note", nightshift.mount_info)
+
+    def test_default_sends_nothing_and_an_effort_level_sends_only_the_effort(self) -> None:
+        plain = self.body_for(reasoning_effort="default")
+        self.assertNotIn("reasoning_effort", plain)
+        self.assertEqual(plain["messages"], [{"role": "user", "content": self.PROMPT}])
+        low = self.body_for(reasoning_effort="low")
+        self.assertEqual(low["reasoning_effort"], "low")
+        self.assertEqual(low["messages"], [{"role": "user", "content": self.PROMPT}])
+
+    def test_an_unknown_value_is_never_sent_and_the_mount_says_so(self) -> None:
+        body = self.body_for(reasoning_effort="think-hard")
+        self.assertNotIn("reasoning_effort", body)
+        self.assertEqual(len(body["messages"]), 1)
+        nightshift = gen.NightshiftGenerator(TOKEN, self.BASE, reasoning_effort="think-hard")
+        self.assertEqual(nightshift.mount_info["call_options"], {})
+        self.assertIn("treated as default, nothing sent", nightshift.mount_info["call_options_note"])
+
+    def test_the_variables_set_it_and_the_nightshift_name_wins(self) -> None:
+        cases = [({}, "none"), ({"METERLESS_REASONING_EFFORT": "  "}, "none"),
+                 ({"METERLESS_REASONING_EFFORT": "Default"}, "default"),
+                 ({"NIGHTSHIFT_REASONING_EFFORT": "high", "METERLESS_REASONING_EFFORT": "none"}, "high")]
+        for environ, expected in cases:
+            self.assertEqual(read_env(environ).nightshift_reasoning_effort, expected, environ)
+        with tempfile.TemporaryDirectory() as tmp:
+            config = live_config({"NIGHTSHIFT_BASE_URL": self.BASE, "NIGHTSHIFT_TOKEN": TOKEN,
+                                  "METERLESS_MODEL": "nvidia/nemotron-3.5-lightning-30b-a3b",
+                                  "METERLESS_REASONING_EFFORT": "medium"}, Path(tmp))
+            mounted = gen.build_generator(config, opener=FakeRuntime({self.BASE: "online"}))
+        self.assertEqual(mounted.name, "nightshift:nvidia/nemotron-3.5-lightning-30b-a3b")
+        self.assertEqual(mounted.call_options, {"reasoning_effort": "medium"})
+
+    def test_the_openai_fallback_never_gets_the_switch(self) -> None:
+        fake = FakeChatCompletions()
+        openai = gen.OpenAIGenerator(OPENAI_KEY, "https://api.example.test/v1", "gpt-4.1-mini", opener=fake)
+        openai.complete("critic-r1", self.PROMPT, max_tokens=500, temperature=0.0, timeout=1.0)
+        body = fake.requests[0]["body"]
+        self.assertNotIn("reasoning_effort", body)
+        self.assertEqual(body["messages"], [{"role": "user", "content": self.PROMPT}])
+        self.assertEqual(openai.call_options, {})
 
 
 class ReceiptParsing(unittest.TestCase):
@@ -667,6 +736,22 @@ class TracedCalls(unittest.TestCase):
     def test_the_token_is_in_no_log_transcript_or_output(self) -> None:
         assert_no_secret(self, self.run_dir, TOKEN)
         self.assertNotIn(TOKEN, json.dumps(self.envelope))
+
+    def test_every_request_carries_and_logs_the_thinking_switch(self) -> None:
+        no_think = {"reasoning_effort": "none", "system_turn": "/no_think"}
+        for request in self.fake.requests:
+            self.assertEqual(request["body"]["reasoning_effort"], "none")
+            self.assertEqual(request["body"]["messages"][0], {"role": "system", "content": "/no_think"})
+            self.assertEqual(request["body"]["messages"][1]["role"], "user")
+        self.assertTrue(self.calls)
+        for line in self.calls:
+            self.assertEqual(line["call_options"], no_think)
+            transcript = json.loads((self.run_dir / line["transcript"]).read_text(encoding="utf-8"))
+            self.assertEqual(transcript["request"], {"max_tokens": line["max_tokens"], "call_options": no_think})
+            prompt = (self.run_dir / line["transcript"].replace(".json", ".prompt.txt")).read_text(encoding="utf-8")
+            self.assertEqual(gen.prompt_sha256(prompt), line["prompt_sha256"], "the prompt file is the user turn sent")
+        start = next(e for e in self.events if e["type"] == "run_start")
+        self.assertEqual(start["payload"]["generator_mount"]["call_options"], no_think)
 
     def test_recorded_replay_keeps_the_provider_and_model_of_the_original_call(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

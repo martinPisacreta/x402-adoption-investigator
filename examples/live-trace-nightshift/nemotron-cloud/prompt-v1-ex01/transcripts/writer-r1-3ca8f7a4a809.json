@@ -1,0 +1,54 @@
+{
+  "prompt_id": "writer-r1",
+  "prompt_sha256": "3ca8f7a4a809d8dd76b6b87dcb705272d2e9cc7759b7eb1be93f48ea9e927af7",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "recorded_at": "2026-10-24T17:15:09.362Z",
+  "response": "- tienda.textokit.store lists 77 settled sales [c01]\n- 56 of those sales were self-payments from 3 distinct wallets [c02] [c03]\n- 21 sales were paid by external wallets [c04]\n- external sales total 44000 atomic USDC (0.044 USDC) [c05]\n- 4 distinct external payers appear in the receipts [c06]\n- 1 external payer bought more than once [c08]\n- the top external payer 0xec2abd3eda89bed90124736e317e847d5fb6d034 made 18 of 21 external sales (85.7 %) [c09]\n- external sales span 2026-10-20T04:51:24.352Z..2026-10-21T21:18:17.136Z [c10]\n- external sales by service include cuit-ar=3, normativa-ar=2, x402-ping=2, and 12 other categories [c11]\n- external sales per day: 20 on 2026-10-20, 1 on 2026-10-21 [c12]\n- 21 external sales settled inside the 30-day window ending 2026-10-22 [c13]\n- CDP Bazaar search returns 17 listings for tienda.textokit.store [c14]\n- those 17 listings pay to 1 distinct wallet [c15]\n- Bazaar 30-day call counters summed over the listings: 60 [c16]\n- 17 Bazaar listings pay to the wallet the receipts name as seller [c17]\n- registries disagree on the endpoint count for tienda.textokit.store: cdp_search=17, store_openapi=17, agent402_paid=17, agent402_tools=34, vet402=19, x402_trust_search=36 [c18]\n- 1 sampled settlement verified on Base against the receipts [c19]\n\nWhere sources disagree [k01] endpoint_count_for_host: cdp_search reports 17, store_openapi reports 17, agent402_paid reports 17, agent402_tools reports 34 (including free tools), vet402 reports 19 (includes routes the store no longer declares as paid), and x402_trust_search reports 36 (matches across its own index); the difference between vet402 and openapi stems from vet402 observing /api/maintenance-helper and /api/preparar-solicitud which the store openapi does not declare as paid operations. Where sources disagree [k02] calls_30d_for_host: cdp_search reports 60 total calls (including seller's own), receipts report 77",
+  "usage": {
+    "prompt_tokens": 3253,
+    "completion_tokens": 700,
+    "total_tokens": 3953
+  },
+  "provider": "meterless",
+  "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_pnlk311c",
+    "decision_id": "req_pnlk311c",
+    "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "winning_route": {
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "label": "Nemotron 3.5 Lightning 30B A3B",
+      "provider": "nvidia",
+      "kind": "cloud",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "final_synthesis",
+        "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+        "ms": 7505
+      }
+    ],
+    "latency_ms": 7505,
+    "usage": {
+      "input_tokens": 3253,
+      "output_tokens": 700,
+      "total_tokens": 3953
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "cloud-ok",
+    "wall_ms": 7516
+  },
+  "prompt_context": "sample mode on the committed fixtures",
+  "request": {
+    "max_tokens": 700,
+    "call_options": {
+      "reasoning_effort": "none",
+      "system_turn": "/no_think"
+    }
+  }
+}

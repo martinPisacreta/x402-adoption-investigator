@@ -1,52 +1,54 @@
 {
   "prompt_id": "planner",
   "prompt_sha256": "22b9f21e7aa80dfae73b322dcd1370ca39035dda2500b74e1fa6343eb7f7e2c9",
-  "model": "local-runtime/llama-3.2-3b-instruct-q8",
-  "recorded_at": "2026-10-24T16:13:50.087Z",
-  "response": "{\"playbook\": \"payer_dossier\", \"hypotheses\": [\"The payer has a verified wallet on Base.\", \"The payer has a verified settlement on Base.\", \"The payer has a balanceOf of 0 on Base.\", \"The payer has a nonce of 0 on Base.\", \"The payer has no unverified transactions on Base.\"], \"extra_metrics\": [\"verified_tx\", \"usdc_balance_atomic\", \"tx_count\", \"payer_window\", \"payer_services\"]}",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "recorded_at": "2026-10-24T17:23:13.748Z",
+  "response": "{\"playbook\": \"payer_dossier\", \"hypotheses\": [\"The wallet purchased a specific item from tienda.textokit.store and the receipt is on Base\", \"The wallet's USDC balance was sufficient for the purchase amount\", \"The transaction hash can be retrieved via Base RPC to verify settlement\", \"The purchase occurred within the wallet's active payment window\", \"The transaction is verified and recorded in the CDP Bazaar settlement ledger\"], \"extra_metrics\": [\"settlements_verified\", \"payer_services\", \"verified_tx\", \"usdc_balance_atomic\", \"payer_window\"]}",
   "usage": {
-    "prompt_tokens": 1165,
-    "completion_tokens": 196,
-    "total_tokens": 1361
+    "prompt_tokens": 471,
+    "completion_tokens": 129,
+    "total_tokens": 600
   },
   "provider": "meterless",
-  "requested_model": "meterless/auto",
+  "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
   "routing": {
     "source": "meterless_receipt",
     "schema": "meterless.compute_receipt.v1",
-    "receipt_id": "rcpt_req_2dk6n6n9",
-    "decision_id": "req_2dk6n6n9",
-    "requested_model": "meterless/auto",
-    "routed_model": "local-runtime/llama-3.2-3b-instruct-q8",
+    "receipt_id": "rcpt_req_2vqth54b",
+    "decision_id": "req_2vqth54b",
+    "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
     "winning_route": {
-      "model": "local-runtime/llama-3.2-3b-instruct-q8",
-      "label": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
-      "provider": "local-runtime",
-      "kind": "local",
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "label": "Nemotron 3.5 Lightning 30B A3B",
+      "provider": "nvidia",
+      "kind": "cloud",
       "tier": "A"
     },
     "phases": [
       {
-        "phase": "planning",
-        "model": "local-runtime/llama-3.2-3b-instruct-q8",
-        "ms": 909
-      },
-      {
-        "phase": "code_patch",
-        "model": "local-runtime/llama-3.2-3b-instruct-q8",
-        "ms": 965
+        "phase": "final_synthesis",
+        "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+        "ms": 2557
       }
     ],
-    "latency_ms": 1874,
+    "latency_ms": 2557,
     "usage": {
-      "input_tokens": 1165,
-      "output_tokens": 196,
-      "total_tokens": 1361
+      "input_tokens": 471,
+      "output_tokens": 129,
+      "total_tokens": 600
     },
     "cache": "miss",
     "from_cache": false,
-    "privacy_path": "local-only",
-    "wall_ms": 2000
+    "privacy_path": "cloud-ok",
+    "wall_ms": 2578
   },
-  "prompt_context": "sample mode on the committed fixtures"
+  "prompt_context": "sample mode on the committed fixtures",
+  "request": {
+    "max_tokens": 400,
+    "call_options": {
+      "reasoning_effort": "none",
+      "system_turn": "/no_think"
+    }
+  }
 }

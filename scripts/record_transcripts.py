@@ -100,7 +100,7 @@ def record_on_fixtures(example: str, prune: bool) -> int:
             print(f"{example}: Nightshift is required to record: {why}", file=sys.stderr)
             return 1
         print(f"{example}: recording with {mounted.name} at {mounted.base_url} (token: "
-              f"{mounted.mount_info.get('token_source', 'none')})")
+              f"{mounted.mount_info.get('token_source', 'none')}; call options: {mounted.call_options or 'none'})")
         recorder: Optional[MissRecorder] = None
         for round_no in range(1, MAX_ROUNDS + 1):
             recorder = MissRecorder(target)
@@ -114,8 +114,10 @@ def record_on_fixtures(example: str, prune: bool) -> int:
             prompt_id, prompt, max_tokens = recorder.first_miss
             result = mounted.complete(prompt_id, prompt, max_tokens=max_tokens, temperature=GENERATOR_TEMPERATURE,
                                       timeout=mounted.timeout_s)
+            request = {"max_tokens": max_tokens,
+                       **({"call_options": dict(mounted.call_options)} if mounted.call_options else {})}
             path = save_transcript(target, prompt_id, prompt, result, now_iso(),
-                                   extra={"prompt_context": ON_FIXTURES_CONTEXT})
+                                   extra={"prompt_context": ON_FIXTURES_CONTEXT, "request": request})
             routing = result.routing or {}
             print(f"  {path.name}: {result.provider} {result.requested_model} -> {routing.get('routed_model') or result.model} "
                   f"receipt {routing.get('receipt_id', '-')} ({routing.get('latency_ms', '-')} ms)")

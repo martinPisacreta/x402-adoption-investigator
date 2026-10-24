@@ -38,15 +38,18 @@ byte-identical copies of the corresponding `output.json` / `report.md`. The fold
 
 `live-trace/<run_id>/` holds real runs of the same questions on the demo machine (live fetches, live Zetaris
 Lightning SQL, live Base JSON-RPC), labelled live so they can be diffed against the replays; see its README.
-`live-trace-nightshift/<run_id>/` holds the live runs of 2026-10-24 whose every generator request went through
-Meterless Nightshift (receipt per request; Zetaris was stopped, so SQLite); see its README.
+`live-trace-nightshift/` holds the live runs of 2026-10-24 whose every generator request went through Meterless
+Nightshift (receipt per request; Zetaris was stopped, so SQLite): `nemotron-cloud/` on NVIDIA Nemotron 3.5 Lightning
+30B A3B, NVIDIA's hosted API, `nemotron-local/` on Nemotron Nano 9B v2 on the local GPU, and `llama-3.2-3b/` the
+first runs, on a local Llama 3.2 3B lane; see its README.
 
 The generator-backed roles of the five examples replay recorded Meterless Nightshift answers
 (`../fixtures/transcripts/<example>/`, recorded on the exact sample-mode prompts with
 `scripts/record_transcripts.py <example> --on-fixtures --prune`): `mounts.generator` is `recorded`, each `generate`
 line in `run.jsonl` names the provider, the routing mode, the model that answered and the receipt id with
-`recorded: true`, and `report.md` lists them under "Model calls". The model (Llama 3.2 3B Q8, the one local lane) is
-small: its drafts leave caveat codes and conflict ids out, so every example takes two Critic rounds and ends with
+`recorded: true`, and `report.md` lists them under "Model calls". The model is NVIDIA Nemotron 3.5 Lightning 30B A3B
+on NVIDIA's hosted API, reached through Nightshift (`nvidia/nemotron-3.5-lightning-30b-a3b`, thinking off): its
+drafts leave caveat codes and conflict ids out, so every example takes two Critic rounds and ends with
 `recovery{narrative_trimmed}` and `recovery{narrative_completed}`; the claims, rejections and verdicts are the
 rules', identical to a rules-only run.
 

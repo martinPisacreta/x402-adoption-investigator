@@ -3,7 +3,7 @@
 **Status:** partial  
 **Mode:** sample (fetcher fixture, executor sqlite, generator recorded, fixtures captured 2026-10-22T00:05:00Z)
 
-> This run replayed committed fixtures captured 2026-10-22T00:05:00Z; no network, no model calls. The generator-backed roles replayed 5 recorded answer(s) from fixtures/transcripts/04-payer-dossier-unverifiable/ (provider meterless, model local-runtime/llama-3.2-3b-instruct-q8); each `generate` event says recorded: true.
+> This run replayed committed fixtures captured 2026-10-22T00:05:00Z; no network, no model calls. The generator-backed roles replayed 5 recorded answer(s) from fixtures/transcripts/04-payer-dossier-unverifiable/ (provider meterless, model nvidia/nemotron-3.5-lightning-30b-a3b); each `generate` event says recorded: true.
 
 ## Question
 
@@ -17,11 +17,11 @@ Queries: q16_settlements_vs_receipts, q17_payer_dossier, q06_bazaar_host_listing
 Memories retrieved by the Planner: none.
 
 Hypotheses:
-- The payer has a verified wallet on Base.
-- The payer has a verified settlement on Base.
-- The payer has a balanceOf of 0 on Base.
-- The payer has a nonce of 0 on Base.
-- The payer has no unverified transactions on Base.
+- The wallet purchased a specific item from tienda.textokit.store and the receipt is on Base
+- The wallet's USDC balance was sufficient for the purchase amount
+- The transaction hash can be retrieved via Base RPC to verify settlement
+- The purchase occurred within the wallet's active payment window
+- The transaction is verified and recorded in the CDP Bazaar settlement ledger
 
 ## Verdict
 
@@ -29,7 +29,7 @@ Hypotheses:
 
 ## Answer
 
-There is not enough accepted evidence to answer (verdict insufficient_evidence). The CDP Bazaar search returns 17 listings for tienda.textokit.store [c01]. 1 sampled settlement(s) verified on Base against the receipts [c02]. The receipts list 1 purchase(s) by 0xa1d1c0cf717402ff3651aa4873ccf96410b01978 [c03]. Those purchases total 1000 atomic USDC (0.001 USDC) [c04]. The purchases span 2026-10-21T21:18:17.136Z..2026-10-21T21:18:17.136Z [c05]. They cover 1 distinct service(s) [c06]. Caveat [payer_from_transfer_log]: payer and seller were read from the Transfer log, not from tx.from [mem-seed-005]; applies to [c02]. Caveat [search_limit_20]: the Bazaar search is capped at twenty results, so its count is a floor [mem-seed-002]; applies to [c01]. Caveat [self_reported_receipts]: receipts are self-reported by the seller [mem-seed-003]; applies to [c02] [c03] [c04] [c05] [c06]. Unavailable: usdc_balance_atomic (chain fact usdc_balance_atomic not produced: the Base RPC read rpc_balance_0xa1d1c0cf717402ff3651aa4873ccf96410b01978 was fixture_miss). Unavailable: tx_count (chain fact tx_count not produced: the Base RPC read rpc_nonce_0xa1d1c0cf717402ff3651aa4873ccf96410b01978 was fixture_miss). Rejected by the Critic and left out of this answer: verified_tx (rule C1); the reasons are in rejected_claims[] and in the critique lines of the run log. Sample mode: this answer replays committed fixtures captured 2026-10-22T00:05:00Z; no network, no model calls.
+There is not enough accepted evidence to answer (verdict insufficient_evidence). 17 listings found for tienda.textokit.store [c01] 1 purchase recorded by 0xa1d1c0cf717402ff3651aa4873ccf96410b01978 in receipts [c03] 1000 atomic USDC (0.001 USDC) total across that purchase [c04] Purchase occurred at 2026-10-21T21:18:17.136Z [c05] 1 distinct service covered by the purchase [c06] Only 1 sampled settlement was checked against receipts [c02], and the receipts confirm 1 purchase of 1000 atomic USDC (0.001 USDC) for 1 distinct service at a single timestamp [c03-c06]. Caveat [payer_from_transfer_log]: payer and seller were read from the Transfer log, not from tx.from [mem-seed-005]; applies to [c02]. Caveat [search_limit_20]: the Bazaar search is capped at twenty results, so its count is a floor [mem-seed-002]; applies to [c01]. Caveat [self_reported_receipts]: receipts are self-reported by the seller [mem-seed-003]; applies to [c02] [c03] [c04] [c05] [c06]. Unavailable: usdc_balance_atomic (chain fact usdc_balance_atomic not produced: the Base RPC read rpc_balance_0xa1d1c0cf717402ff3651aa4873ccf96410b01978 was fixture_miss). Unavailable: tx_count (chain fact tx_count not produced: the Base RPC read rpc_nonce_0xa1d1c0cf717402ff3651aa4873ccf96410b01978 was fixture_miss). Rejected by the Critic and left out of this answer: verified_tx (rule C1); the reasons are in rejected_claims[] and in the critique lines of the run log. Sample mode: this answer replays committed fixtures captured 2026-10-22T00:05:00Z; no network, no model calls.
 
 ## Claims (accepted)
 
@@ -131,10 +131,10 @@ Which model handled each generator request (`generate` events in run.jsonl; Nigh
 
 | role | prompt | provider | requested | model that answered | route | receipt | recorded | log |
 |---|---|---|---|---|---|---|---|---|
-| planner | planner | meterless | meterless/auto | local-runtime/llama-3.2-3b-instruct-q8 | Llama 3.2 3B Q8 Verifier (Runtime GGUF) (local) | rcpt_req_2dk6n6n9 | True | log://ex04-unverified#5 |
-| writer | writer-r1 | meterless | meterless/auto | local-runtime/llama-3.2-3b-instruct-q8 | Llama 3.2 3B Q8 Verifier (Runtime GGUF) (local) | rcpt_req_b5iln9vg | True | log://ex04-unverified#47 |
-| critic | critic-r1 | meterless | meterless/auto | local-runtime/llama-3.2-3b-instruct-q8 | Llama 3.2 3B Q8 Verifier (Runtime GGUF) (local) | rcpt_req_6p5663sh | True | log://ex04-unverified#72 |
-| writer | writer-r2 | meterless | meterless/auto | local-runtime/llama-3.2-3b-instruct-q8 | Llama 3.2 3B Q8 Verifier (Runtime GGUF) (local) | rcpt_req_o7nm123l | True | log://ex04-unverified#83 |
-| critic | critic-r2 | meterless | meterless/auto | local-runtime/llama-3.2-3b-instruct-q8 | Llama 3.2 3B Q8 Verifier (Runtime GGUF) (local) | rcpt_req_2nyv82lb | True | log://ex04-unverified#102 |
+| planner | planner | meterless | nvidia/nemotron-3.5-lightning-30b-a3b | nvidia/nemotron-3.5-lightning-30b-a3b | Nemotron 3.5 Lightning 30B A3B (cloud) | rcpt_req_2vqth54b | True | log://ex04-unverified#5 |
+| writer | writer-r1 | meterless | nvidia/nemotron-3.5-lightning-30b-a3b | nvidia/nemotron-3.5-lightning-30b-a3b | Nemotron 3.5 Lightning 30B A3B (cloud) | rcpt_req_b0gznzor | True | log://ex04-unverified#47 |
+| critic | critic-r1 | meterless | nvidia/nemotron-3.5-lightning-30b-a3b | nvidia/nemotron-3.5-lightning-30b-a3b | Nemotron 3.5 Lightning 30B A3B (cloud) | rcpt_req_b182ammv | True | log://ex04-unverified#70 |
+| writer | writer-r2 | meterless | nvidia/nemotron-3.5-lightning-30b-a3b | nvidia/nemotron-3.5-lightning-30b-a3b | Nemotron 3.5 Lightning 30B A3B (cloud) | rcpt_req_1myx34qe | True | log://ex04-unverified#81 |
+| critic | critic-r2 | meterless | nvidia/nemotron-3.5-lightning-30b-a3b | nvidia/nemotron-3.5-lightning-30b-a3b | Nemotron 3.5 Lightning 30B A3B (cloud) | rcpt_req_k4unl6gy | True | log://ex04-unverified#99 |
 
 Critique rounds: 2. Log files: fetch.jsonl, generator.jsonl, hmem.trace.jsonl, run.jsonl, sql.jsonl, world.audit.jsonl, world.events.jsonl, world.observations.jsonl.

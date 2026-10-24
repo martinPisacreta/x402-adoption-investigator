@@ -1,0 +1,53 @@
+{
+  "prompt_id": "critic-r2",
+  "prompt_sha256": "6dcd2f73e327693bf8e6016ea445feffb6bbef304b3fe6b745957e6e0635c896",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "recorded_at": "2026-10-24T17:30:19.433Z",
+  "response": "[\n  {\n    \"sentence_index\": 0,\n    \"reason\": \"Counts 4 receipts, but claim c03 states 1 purchase.\",\n    \"claim_id\": \"c03\"\n  },\n  {\n    \"sentence_index\": 1,\n    \"reason\": \"States 1000 atomic USDC total, but claim c04 specifies 1000 atomic USDC.\",\n    \"claim_id\": \"c04\"\n  },\n  {\n    \"sentence_index\": 2,\n    \"reason\": \"States 2026-10-21T21:18:17.136Z, matches claim c05 exactly.\",\n    \"claim_id\": \"c05\"\n  },\n  {\n    \"sentence_index\": 3,\n    \"reason\": \"States 1 distinct service, matches claim c06 exactly.\",\n    \"claim_id\": \"c06\"\n  },\n  {\n    \"sentence_index\": 4,\n    \"reason\": \"States 5 sampled settlements verified, matches claim c02 exactly.\",\n    \"claim_id\": \"c02\"\n  },\n  {\n    \"sentence_index\": 5,\n    \"reason\": \"Restates payer and purchase details from claims c03-c05 without adding unsupported elements.\",\n    \"claim_id\": null\n  },\n  {\n    \"sentence_index\": 6,\n    \"reason\": \"Claims receipts list the transaction but cannot fully corroborate on-chain settlement due to caveats. This is a causal interpretation not present in the accepted claims, which only list the caveats themselves (self_reported_receipts, basis_mismatch). The claims do not state that corroboration is impossible, only that caveats exist.\",\n    \"claim_id\": \"c02\"\n  },\n  {\n    \"sentence_index\": 7,\n    \"reason\": \"States payer identity is derived from a transfer log rather than direct match, and receipt basis does not align perfectly. While claims c02 and c07 mention caveat 'payer_from_transfer_log', they do not state that the identity is derived from a transfer log rather than a direct match, nor do they state the receipt basis does not align perfectly. These are causal explanations absent from the claim statements.\",\n    \"claim_id\": \"c02\"\n  }\n]",
+  "usage": {
+    "prompt_tokens": 1458,
+    "completion_tokens": 498,
+    "total_tokens": 1956
+  },
+  "provider": "meterless",
+  "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_frnojjiy",
+    "decision_id": "req_frnojjiy",
+    "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "winning_route": {
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "label": "Nemotron 3.5 Lightning 30B A3B",
+      "provider": "nvidia",
+      "kind": "cloud",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "final_synthesis",
+        "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+        "ms": 6118
+      }
+    ],
+    "latency_ms": 6118,
+    "usage": {
+      "input_tokens": 1458,
+      "output_tokens": 498,
+      "total_tokens": 1956
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "cloud-ok",
+    "wall_ms": 6141
+  },
+  "request": {
+    "max_tokens": 500,
+    "call_options": {
+      "reasoning_effort": "none",
+      "system_turn": "/no_think"
+    }
+  }
+}

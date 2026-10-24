@@ -1,0 +1,53 @@
+{
+  "prompt_id": "writer-r1",
+  "prompt_sha256": "f24485f7bfb21f19df9642964ae8b5bc1b3c9d64de92c6c6cc0907083b5d7b49",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "recorded_at": "2026-10-24T17:29:25.815Z",
+  "response": "- 17 listings found for tienda.textokit.store [c01]\n- 1 purchase recorded for payer 0x097e3f339d0b023605e12a6b81e2d6cb7571475a [c03]\n- 1 distinct service covered by the purchase [c06]\n- 1 settlement verified on Base for this payer [c07]\n- 1000 atomic USDC (0.001 USDC) total purchase value [c04]\n- Purchase timestamp: 2026-10-20T04:51:24.352Z [c05]\n- USDC balance at capture: 1.043148 USDC [c08]\n- Transaction count (nonce) at capture: 24 [c09]\n\nWhere sources disagree [c02]: The verified_tx metric reports 1 settlement(s) of this payer verified on Base, while the transfer log and receipts data indicate 5 sampled settlement(s) verified on Base against the receipts, reflecting a discrepancy in the basis of verification.\n\nWhere sources disagree [c03]: The receipts list 1 purchase(s) by 0x097e3f339d0b023605e12a6b81e2d6cb7571475a, yet the verified_tx metric and transfer log data suggest 5 sampled settlement(s) verified on Base against the receipts, indicating a mismatch in the reported purchase count.\n\nadoption_thin (confidence 0.90)",
+  "usage": {
+    "prompt_tokens": 1655,
+    "completion_tokens": 366,
+    "total_tokens": 2021
+  },
+  "provider": "meterless",
+  "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_jixi2h9b",
+    "decision_id": "req_jixi2h9b",
+    "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "winning_route": {
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "label": "Nemotron 3.5 Lightning 30B A3B",
+      "provider": "nvidia",
+      "kind": "cloud",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "final_synthesis",
+        "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+        "ms": 3967
+      }
+    ],
+    "latency_ms": 3967,
+    "usage": {
+      "input_tokens": 1655,
+      "output_tokens": 366,
+      "total_tokens": 2021
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "cloud-ok",
+    "wall_ms": 3985
+  },
+  "request": {
+    "max_tokens": 700,
+    "call_options": {
+      "reasoning_effort": "none",
+      "system_turn": "/no_think"
+    }
+  }
+}

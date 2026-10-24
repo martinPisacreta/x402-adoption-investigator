@@ -1,0 +1,53 @@
+{
+  "prompt_id": "planner",
+  "prompt_sha256": "a53b88ff9c49b49907cfb6f1823e0457b4f6c5e2a5a0cc083efe34f5e0c362db",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "recorded_at": "2026-10-24T17:29:55.532Z",
+  "response": "{\n  \"playbook\": \"payer_dossier\",\n  \"hypotheses\": [\n    \"The payer 0xA1d1C0cf717402ff3651aA4873CcF96410B01978 made a single purchase from tienda.textokit.store that settled on Base.\",\n    \"The settlement for the payer's purchase from tienda.textokit.store is included in the 5 sampled settlements verified on Base against receipts.\",\n    \"The payer's wallet address 0xA1d1C0cf717402ff3651aA4873CcF96410B01978 has a verified transaction count of 1 on Base.\",\n    \"The purchase from tienda.textokit.store by the payer 0xA1d1C0cf717402ff3651aA4873CcF96410B01978 involved an atomic USDC payment.\",\n    \"The seller tienda.textokit.store has 5 sampled settlements verified on Base, one of which corresponds to the payer 0xA1d1C0cf717402ff3651aA4873CcF96410B01978.\"\n  ],\n  \"extra_metrics\": [\n    \"verified_tx\",\n    \"settlements_verified\",\n    \"payer_services\",\n    \"payer_window\",\n    \"usdc_balance_atomic\"\n  ]\n}",
+  "usage": {
+    "prompt_tokens": 828,
+    "completion_tokens": 343,
+    "total_tokens": 1171
+  },
+  "provider": "meterless",
+  "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_rndytkid",
+    "decision_id": "req_rndytkid",
+    "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "winning_route": {
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "label": "Nemotron 3.5 Lightning 30B A3B",
+      "provider": "nvidia",
+      "kind": "cloud",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "final_synthesis",
+        "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+        "ms": 3694
+      }
+    ],
+    "latency_ms": 3694,
+    "usage": {
+      "input_tokens": 828,
+      "output_tokens": 343,
+      "total_tokens": 1171
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "cloud-ok",
+    "wall_ms": 3718
+  },
+  "request": {
+    "max_tokens": 400,
+    "call_options": {
+      "reasoning_effort": "none",
+      "system_turn": "/no_think"
+    }
+  }
+}

@@ -13,6 +13,9 @@ Exactly three roles are generator-backed (Planner, Writer, Critic second opinion
   The `meterless` compute receipt of each answer (meterless.compute_receipt.v1) is reduced by meterless_receipt()
   to the routing facts (receipt id, requested and routed model, winning route, phases, latency, tokens, cache) that
   the generate event, generator.jsonl and the transcript carry; the receipt's prompt preview is never copied.
+  The thinking switch NIGHTSHIFT_REASONING_EFFORT / METERLESS_REASONING_EFFORT (default `none`) becomes the
+  request's call options (nightshift_call_options): `reasoning_effort: "none"` plus a `/no_think` system turn, so a
+  reasoning model such as Nemotron answers inside the role's token budget instead of thinking it away.
 - OpenAIGenerator: OpenAI-compatible chat completions over urllib, the fallback when Nightshift is not online.
   Injected by env: OPENAI_API_KEY + OPENAI_BASE_URL + MODEL. Never the Codex/ChatGPT subscription.
 - RecordedGenerator: replays fixtures/transcripts/<example>/<prompt_id>-<prompt_sha12>.json (sample mode).
@@ -47,7 +50,8 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, Optional
 
 from . import USER_AGENT
-from .config import NIGHTSHIFT_DEFAULT_MODEL, Env, RunConfig
+from .config import (NIGHTSHIFT_DEFAULT_MODEL, NIGHTSHIFT_DEFAULT_REASONING_EFFORT, NIGHTSHIFT_REASONING_EFFORTS, Env,
+                     RunConfig)
 from .contracts import Generator, GeneratorResult
 from .errors import InvestigatorError
 
@@ -66,6 +70,7 @@ NIGHTSHIFT_PROBE_TIMEOUT_S = 3.0                           # one GET /v1/models 
 NIGHTSHIFT_DETECT_PORTS: tuple[int, ...] = (8088, 8090, 8787, 11434)
 NIGHTSHIFT_DETECT_HOSTS: tuple[str, ...] = ("127.0.0.1", "localhost", "[::1]")
 NIGHTSHIFT_PLACEHOLDER_TOKEN = "rt-local"                  # rejected by the runtime: never sent
+NO_THINK_SYSTEM_TURN = "/no_think"                         # the thinking switch the Nemotron Nano 9B v2 template reads
 NightshiftStatus = Literal["online", "unauthorized", "offline"]
 
 
@@ -129,6 +134,7 @@ class OpenAIGenerator:
         self.name = f"openai:{model}"
         self.user_agent = USER_AGENT
         self._opener = opener                    # urlopen-compatible transport; None = urllib.request.urlopen
+        self.call_options: dict[str, Any] = {}   # request fields beyond model/messages/temperature/max_tokens (logged)
 
     def _headers(self) -> dict[str, str]:
         """Headers of one chat request (the Bearer value is the key: never logged)."""
@@ -165,11 +171,15 @@ class OpenAIGenerator:
         except ValueError as exc:
             raise GeneratorError(f"response is not JSON: {exc}") from None
 
+    def _body(self, prompt: str, max_tokens: int, temperature: float) -> dict[str, Any]:
+        """The chat-completions body: the prompt as the one user turn."""
+        return {"model": self.model, "messages": [{"role": "user", "content": prompt}],
+                "temperature": temperature, "max_tokens": max_tokens}
+
     def complete(self, prompt_id: str, prompt: str, *, max_tokens: int, temperature: float,
                  timeout: float) -> Optional[GeneratorResult]:
         """POST {base_url}/chat/completions; returns the first choice's text with the usage block."""
-        body: dict[str, Any] = {"model": self.model, "messages": [{"role": "user", "content": prompt}],
-                                "temperature": temperature, "max_tokens": max_tokens}
+        body = self._body(prompt, max_tokens, temperature)
         started = time.monotonic()
         try:
             payload = self._post(body, timeout)
@@ -206,23 +216,40 @@ class NightshiftGenerator(OpenAIGenerator):
     """Meterless Nightshift (Meterless Runtime, OpenAI-compatible provider `meterless`): the primary generator.
 
     Same chat-completions call as OpenAIGenerator plus `meterless-app` (every request) and `meterless-scope: user`
-    (chat requests); the model id is a routing mode (meterless/auto by default), the timeout 180 s. The token is the
-    runtime's proxy-token: sent as the Bearer value, never logged. `mount_info` (no token) is what run_start logs."""
+    (chat requests); the model id is a routing mode (meterless/auto by default) or a concrete model id that pins the
+    route (nvidia/nemotron-3.5-lightning-30b-a3b), the timeout 180 s. `reasoning_effort` (NIGHTSHIFT_REASONING_EFFORT,
+    default none) adds the call options of nightshift_call_options. The token is the runtime's proxy-token: sent as
+    the Bearer value, never logged. `mount_info` (no token) is what run_start logs."""
 
     provider = NIGHTSHIFT_PROVIDER_ID
     timeout_s = NIGHTSHIFT_TIMEOUT_S
 
     def __init__(self, token: str, base_url: str = NIGHTSHIFT_DEFAULT_BASE_URL, model: str = NIGHTSHIFT_DEFAULT_MODEL,
                  opener: Optional[Any] = None, models: Optional[list[str]] = None, found_by: str = "",
-                 token_source: str = "") -> None:
+                 token_source: str = "", reasoning_effort: Optional[str] = NIGHTSHIFT_DEFAULT_REASONING_EFFORT) -> None:
         super().__init__(token, normalize_nightshift_url(base_url), model or NIGHTSHIFT_DEFAULT_MODEL, opener=opener)
         self.name = f"nightshift:{self.model}"
         self.models = list(models or [])
+        self.call_options, note = nightshift_call_options(reasoning_effort)
         self.mount_info: dict[str, Any] = {"provider": self.provider, "base_url": self.base_url,
                                            "routing_mode": self.model, "found_by": found_by or "configured",
-                                           "models": self.models, "timeout_s": self.timeout_s}
+                                           "models": self.models, "timeout_s": self.timeout_s,
+                                           "call_options": dict(self.call_options)}
+        if note:
+            self.mount_info["call_options_note"] = note
         if token_source:                     # where the token came from (variable names only, never the value)
             self.mount_info["token_source"] = token_source
+
+    def _body(self, prompt: str, max_tokens: int, temperature: float) -> dict[str, Any]:
+        """The OpenAI body plus the call options: the `/no_think` system turn before the prompt (the prompt stays
+        the one user turn, byte for byte) and `reasoning_effort`."""
+        body = super()._body(prompt, max_tokens, temperature)
+        system_turn = self.call_options.get("system_turn")
+        if system_turn:
+            body["messages"] = [{"role": "system", "content": system_turn}] + body["messages"]
+        if self.call_options.get("reasoning_effort"):
+            body["reasoning_effort"] = self.call_options["reasoning_effort"]
+        return body
 
     def _headers(self) -> dict[str, str]:
         headers = nightshift_headers(self._api_key)
@@ -231,6 +258,31 @@ class NightshiftGenerator(OpenAIGenerator):
 
     def _routing(self, payload: dict[str, Any], wall_ms: int) -> dict[str, Any]:
         return meterless_receipt(payload, wall_ms)
+
+
+def nightshift_call_options(reasoning_effort: Optional[str]) -> tuple[dict[str, Any], str]:
+    """(call options, note) of every Nightshift chat request for NIGHTSHIFT_REASONING_EFFORT (config.read_env).
+
+    - `none` (the default): `reasoning_effort: "none"` in the body, which Nightshift 1.2.3 turns into
+      chat_template_kwargs.enable_thinking=false for its NVIDIA-hosted Nemotron 3 / 3.5 rows (engine providers.js,
+      nvidiaThinkingBody), and a system turn `/no_think` before the prompt: the switch the chat template of the
+      local Nemotron Nano 9B v2 GGUF reads (it ignores enable_thinking) and deletes, so the rendered system turn is
+      empty. Checked on 2026-10-24 (examples/live-trace-nightshift/nemotron-*/smoke/): without them both Nemotron
+      routes thought through the Critic budget (500 tokens; the hosted one also 3000) and Nightshift answered HTTP 502
+      empty_response; with them every request of the Nemotron live runs was answered.
+    - minimal | low | medium | high | xhigh: `reasoning_effort` only (rows that take an effort, such as OpenAI's
+      Responses models; the NVIDIA adapter of Nightshift acts on `none` alone).
+    - `default`: nothing is added; each route keeps its own thinking setting (Nightshift Preferences > NVIDIA thinking).
+    Any other value is treated as `default` and the note says so (it is never sent)."""
+    value = (reasoning_effort or "").strip().lower() or NIGHTSHIFT_DEFAULT_REASONING_EFFORT
+    if value not in NIGHTSHIFT_REASONING_EFFORTS:
+        return {}, (f"NIGHTSHIFT_REASONING_EFFORT={value[:20]!r} is not one of {', '.join(NIGHTSHIFT_REASONING_EFFORTS)}: "
+                    "treated as default, nothing sent")
+    if value == "default":
+        return {}, ""
+    if value == "none":
+        return {"reasoning_effort": "none", "system_turn": NO_THINK_SYSTEM_TURN}, ""
+    return {"reasoning_effort": value}, ""
 
 
 RECEIPT_ROUTE_KEYS: tuple[str, ...] = ("model", "label", "provider", "kind", "tier")
@@ -492,7 +544,8 @@ def build_generator(config: RunConfig, example_name: Optional[str] = None, *, op
             found_by = env.nightshift_base_url_var if explicit else "auto_detect"
             return NightshiftGenerator(token or "", probe.base_url, env.nightshift_model, opener=opener,
                                        models=probe.models, found_by=found_by,
-                                       token_source=token_source if token else "none")
+                                       token_source=token_source if token else "none",
+                                       reasoning_effort=env.nightshift_reasoning_effort)
     fallback: Any
     if env.has_generator():
         fallback = OpenAIGenerator(env.openai_api_key or "", env.openai_base_url, env.model, opener=opener)
@@ -583,13 +636,17 @@ def generate(ctx: "RunContext", agent: str, prompt_id: str, prompt: str, *, max_
         ctx.recover(agent, "generator_fallback", f"{prompt_id}: {detail}", to="rules/template", **route)
         return None
     response_sha = hashlib.sha256(result.text.encode("utf-8")).hexdigest()
+    call_options = dict(getattr(generator, "call_options", None) or {}) if not result.recorded else {}
+    request = {"max_tokens": max_tokens, **({"call_options": call_options} if call_options else {})}
     folder = ctx.run_dir / "transcripts"
-    path = save_transcript(folder, prompt_id, prompt, result, ctx.clock.now_iso())
+    path = save_transcript(folder, prompt_id, prompt, result, ctx.clock.now_iso(),
+                           extra=None if result.recorded else {"request": request})
     if ctx.config.record_transcripts and not result.recorded:
         example = ctx.config.example_name or ctx.example_name
         if example:
             save_transcript(ctx.config.transcripts_dir / example, prompt_id, prompt, result, ctx.clock.now_iso(),
-                            extra={"recorded_in_run": ctx.run_id, "prompt_context": f"live run {ctx.run_id}"})
+                            extra={"recorded_in_run": ctx.run_id, "prompt_context": f"live run {ctx.run_id}",
+                                   "request": request})
     # Which provider and model handled this request: one run.jsonl `generate` event, and generator.jsonl repeats
     # its seq with the call's parameters and the transcript path. A Nightshift answer adds `routing`, the facts of
     # its compute receipt (receipt id, routed model, winning route, latency, tokens); a replay repeats the recorded
@@ -604,6 +661,8 @@ def generate(ctx: "RunContext", agent: str, prompt_id: str, prompt: str, *, max_
     line = {"seq": seq, "agent": agent, **event, "max_tokens": max_tokens, "temperature": GENERATOR_TEMPERATURE,
             "timeout_s": round(timeout, 3), "usage": result.usage,
             "transcript": str(path.relative_to(ctx.run_dir)).replace("\\", "/")}
+    if call_options:     # the thinking switch this request carried (NIGHTSHIFT_REASONING_EFFORT)
+        line["call_options"] = call_options
     ctx.log.side("generator", line)
     ctx.scratch.setdefault("generator_calls", []).append(line)
     return result

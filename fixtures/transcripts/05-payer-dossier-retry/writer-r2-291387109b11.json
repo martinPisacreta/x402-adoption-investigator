@@ -1,0 +1,54 @@
+{
+  "prompt_id": "writer-r2",
+  "prompt_sha256": "291387109b11114478dd58d4769c8536fce744acfdf6bb5a3ea1186e70b201b2",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "recorded_at": "2026-10-24T17:23:49.547Z",
+  "response": "- 1 purchase by 0x097e3f339d0b023605e12a6b81e2d6cb7571475a at tienda.textokit.store [c03]\n- 1000 atomic USDC (0.001 USDC) total for that purchase [c04]\n- 1 distinct service(s) covered by the purchase [c06]\n- Purchase timestamp: 2026-10-20T04:51:24.352Z [c05]\n- 1 settlement(s) verified on Base against the receipts [c02]\n\nWhere sources disagree [c07] and [c08]: c07 reports 1 settlement verified on Base using the payer from the transfer log and self-reported receipts, while c08 reports the USDC balance at capture as 1043148 atomic (1.043148 USDC) also from the payer from the transfer log. adoption_thin (confidence 0.90)",
+  "usage": {
+    "prompt_tokens": 2828,
+    "completion_tokens": 245,
+    "total_tokens": 3073
+  },
+  "provider": "meterless",
+  "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_jqnz00by",
+    "decision_id": "req_jqnz00by",
+    "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "winning_route": {
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "label": "Nemotron 3.5 Lightning 30B A3B",
+      "provider": "nvidia",
+      "kind": "cloud",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "final_synthesis",
+        "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+        "ms": 3339
+      }
+    ],
+    "latency_ms": 3339,
+    "usage": {
+      "input_tokens": 2828,
+      "output_tokens": 245,
+      "total_tokens": 3073
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "cloud-ok",
+    "wall_ms": 3359
+  },
+  "prompt_context": "sample mode on the committed fixtures",
+  "request": {
+    "max_tokens": 700,
+    "call_options": {
+      "reasoning_effort": "none",
+      "system_turn": "/no_think"
+    }
+  }
+}

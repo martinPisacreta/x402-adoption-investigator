@@ -1,0 +1,54 @@
+{
+  "prompt_id": "critic-r1",
+  "prompt_sha256": "29c50fbc68ba29bf992c3f899c91b91a33b44cb1ca633bba7294b36b977cbfec",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "recorded_at": "2026-10-24T17:23:24.062Z",
+  "response": "[\n  {\n    \"sentence_index\": 0,\n    \"reason\": \"Index 0 references claim c03, but statement is not a restatement of c03's value with id citation.\",\n    \"claim_id\": \"c03\"\n  },\n  {\n    \"sentence_index\": 1,\n    \"reason\": \"Index 1 references claim c04, but statement is not a restatement of c04's value with id citation.\",\n    \"claim_id\": \"c04\"\n  },\n  {\n    \"sentence_index\": 2,\n    \"reason\": \"Index 2 references claim c06, but statement is not a restatement of c06's value with id citation.\",\n    \"claim_id\": \"c06\"\n  },\n  {\n    \"sentence_index\": 3,\n    \"reason\": \"Index 3 references claim c05, but statement is not a restatement of c05's value with id citation.\",\n    \"claim_id\": \"c05\"\n  },\n  {\n    \"sentence_index\": 4,\n    \"reason\": \"Index 4 references claim c02, but statement is not a restatement of c02's value with id citation.\",\n    \"claim_id\": \"c02\"\n  },\n  {\n    \"sentence_index\": 5,\n    \"reason\": \"Index 5 references claim c07, but statement is not a restatement of c07's value with id citation.\",\n    \"claim_id\": \"c07\"\n  },\n  {\n    \"sentence_index\": 6,\n    \"reason\": \"Index 6 is a summary restatement of claims c03-c06, not a direct restatement of a single claim's value with id citation.\",\n    \"claim_id\": \"null\"\n  },\n  {\n    \"sentence_index\": 7,\n    \"reason\": \"Index 7 references claim c02, but statement is not a restatement of c02's value with id citation.\",\n    \"claim_id\": \"c02\"\n  },\n  {\n    \"sentence_index\": 8,\n    \"reason\": \"Index 8 is a meta statement about answer mode, not a restatement of a claim's value with id citation.\",\n    \"claim_id\": \"null\"\n  }\n]",
+  "usage": {
+    "prompt_tokens": 1140,
+    "completion_tokens": 489,
+    "total_tokens": 1629
+  },
+  "provider": "meterless",
+  "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_b182ammv",
+    "decision_id": "req_b182ammv",
+    "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "winning_route": {
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "label": "Nemotron 3.5 Lightning 30B A3B",
+      "provider": "nvidia",
+      "kind": "cloud",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "final_synthesis",
+        "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+        "ms": 5925
+      }
+    ],
+    "latency_ms": 5925,
+    "usage": {
+      "input_tokens": 1140,
+      "output_tokens": 489,
+      "total_tokens": 1629
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "cloud-ok",
+    "wall_ms": 5953
+  },
+  "prompt_context": "sample mode on the committed fixtures",
+  "request": {
+    "max_tokens": 500,
+    "call_options": {
+      "reasoning_effort": "none",
+      "system_turn": "/no_think"
+    }
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "prompt_id": "writer-r1",
+  "prompt_sha256": "f2db967c939a49bf9890f4120365199ea367e047e48bf6341faf05f6de4c9106",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "recorded_at": "2026-10-24T17:22:52.075Z",
+  "response": "- 1 purchase(s) by 0x097e3f339d0b023605e12a6b81e2d6cb7571475a at tienda.textokit.store [c03]\n- 1000 atomic USDC (0.001 USDC) total across that purchase [c04]\n- 1 distinct service(s) covered by the purchase [c06]\n- 1 settlement(s) verified on Base against the receipts [c02]\n- 17 listings for tienda.textokit.store returned by the CDP Bazaar search [c01]\n\nWhere sources disagree [c07]: the claim that 1 settlement(s) of this payer was verified on Base overlaps with the self-reported receipts verification in c02, creating a dual verification context.\n\nThe payer 0x097e3f339d0b023605e12a6b81e2d6cb7571475a made a single purchase of 1000 atomic USDC (0.001 USDC) for 1 distinct service at tienda.textokit.store. The settlement for this transaction has been verified on Base against the self-reported receipts, confirming that the payment settled on Base and the receipt data is consistent with the transfer log.",
+  "usage": {
+    "prompt_tokens": 1370,
+    "completion_tokens": 302,
+    "total_tokens": 1672
+  },
+  "provider": "meterless",
+  "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_m86eju9f",
+    "decision_id": "req_m86eju9f",
+    "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "winning_route": {
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "label": "Nemotron 3.5 Lightning 30B A3B",
+      "provider": "nvidia",
+      "kind": "cloud",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "final_synthesis",
+        "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+        "ms": 6153
+      }
+    ],
+    "latency_ms": 6153,
+    "usage": {
+      "input_tokens": 1370,
+      "output_tokens": 302,
+      "total_tokens": 1672
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "cloud-ok",
+    "wall_ms": 6172
+  },
+  "prompt_context": "sample mode on the committed fixtures",
+  "request": {
+    "max_tokens": 700,
+    "call_options": {
+      "reasoning_effort": "none",
+      "system_turn": "/no_think"
+    }
+  }
+}

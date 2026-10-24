@@ -3,7 +3,7 @@
 **Status:** ok  
 **Mode:** sample (fetcher fixture, executor sqlite, generator recorded, fixtures captured 2026-10-22T00:05:00Z)
 
-> This run replayed committed fixtures captured 2026-10-22T00:05:00Z; no network, no model calls. The generator-backed roles replayed 5 recorded answer(s) from fixtures/transcripts/03-payer-dossier-onchain/ (provider meterless, model local-runtime/llama-3.2-3b-instruct-q8); each `generate` event says recorded: true.
+> This run replayed committed fixtures captured 2026-10-22T00:05:00Z; no network, no model calls. The generator-backed roles replayed 5 recorded answer(s) from fixtures/transcripts/03-payer-dossier-onchain/ (provider meterless, model nvidia/nemotron-3.5-lightning-30b-a3b); each `generate` event says recorded: true.
 
 ## Question
 
@@ -17,11 +17,11 @@ Queries: q16_settlements_vs_receipts, q17_payer_dossier, q06_bazaar_host_listing
 Memories retrieved by the Planner: mem-seed-005.
 
 Hypotheses:
-- The payer has a verified wallet on Base.
-- The payer has a balance of USDC on Base.
-- The settlement can be verified on Base.
-- The settlement was made on tienda.textokit.store.
-- The payer has a settlement on Base.
+- The wallet purchased a single item from tienda.textokit.store with a fixed-price x402 transaction.
+- The settlement transaction was sent from the x402 facilitator contract to the store's payment address.
+- The receipt for the purchase is logged in the Transfer event of the settlement tx hash.
+- The buyer's USDC balance was reduced by the atomic amount at the moment of settlement.
+- The transaction can be verified on Base by checking the Transfer log for the seller's address.
 
 ## Verdict
 
@@ -29,7 +29,7 @@ Hypotheses:
 
 ## Answer
 
-The evidence shows thin adoption (verdict adoption_thin) based on [c03], [c07]. The CDP Bazaar search returns 17 listings for tienda.textokit.store [c01]. 1 sampled settlement(s) verified on Base against the receipts [c02]. The receipts list 1 purchase(s) by 0x097e3f339d0b023605e12a6b81e2d6cb7571475a [c03]. Those purchases total 1000 atomic USDC (0.001 USDC) [c04]. The purchases span 2026-10-20T04:51:24.352Z..2026-10-20T04:51:24.352Z [c05]. They cover 1 distinct service(s) [c06]. 1 settlement(s) of this payer verified on Base [c07]. USDC balance at capture: 1043148 atomic (1.043148 USDC) [c08]. Transaction count (nonce) at capture: 24 [c09]. Caveat [payer_from_transfer_log]: payer and seller were read from the Transfer log, not from tx.from [mem-seed-005]; applies to [c02] [c07] [c08] [c09]. Caveat [search_limit_20]: the Bazaar search is capped at twenty results, so its count is a floor [mem-seed-002]; applies to [c01]. Caveat [self_reported_receipts]: receipts are self-reported by the seller [mem-seed-003]; applies to [c02] [c03] [c04] [c05] [c06] [c07]. Sample mode: this answer replays committed fixtures captured 2026-10-22T00:05:00Z; no network, no model calls.
+The evidence shows thin adoption (verdict adoption_thin) based on [c03], [c07]. tienda.textokit.store had 17 listings [c01] 1 purchase recorded for payer 0x097e3f339d0b023605e12a6b81e2d6cb7571475a [c03] That purchase was 1000 atomic USDC (0.001 USDC) [c04] The purchase occurred at 2026-10-20T04:51:24.352Z [c05] 1 distinct service was covered [c06] 1 sampled settlement(s) verified on Base against the receipts [c02]. 1 settlement(s) of this payer verified on Base [c07]. USDC balance at capture: 1043148 atomic (1.043148 USDC) [c08]. Transaction count (nonce) at capture: 24 [c09]. Caveat [payer_from_transfer_log]: payer and seller were read from the Transfer log, not from tx.from [mem-seed-005]; applies to [c02] [c07] [c08] [c09]. Caveat [search_limit_20]: the Bazaar search is capped at twenty results, so its count is a floor [mem-seed-002]; applies to [c01]. Caveat [self_reported_receipts]: receipts are self-reported by the seller [mem-seed-003]; applies to [c02] [c03] [c04] [c05] [c06] [c07]. Sample mode: this answer replays committed fixtures captured 2026-10-22T00:05:00Z; no network, no model calls.
 
 ## Claims (accepted)
 
@@ -135,10 +135,10 @@ Which model handled each generator request (`generate` events in run.jsonl; Nigh
 
 | role | prompt | provider | requested | model that answered | route | receipt | recorded | log |
 |---|---|---|---|---|---|---|---|---|
-| planner | planner | meterless | meterless/auto | local-runtime/llama-3.2-3b-instruct-q8 | Llama 3.2 3B Q8 Verifier (Runtime GGUF) (local) | rcpt_req_uiq4t6rq | True | log://ex03-payer-dossier#6 |
-| writer | writer-r1 | meterless | meterless/auto | local-runtime/llama-3.2-3b-instruct-q8 | Llama 3.2 3B Q8 Verifier (Runtime GGUF) (local) | rcpt_req_0gy1sn3h | True | log://ex03-payer-dossier#49 |
-| critic | critic-r1 | meterless | meterless/auto | local-runtime/llama-3.2-3b-instruct-q8 | Llama 3.2 3B Q8 Verifier (Runtime GGUF) (local) | rcpt_req_g18z152a | True | log://ex03-payer-dossier#72 |
-| writer | writer-r2 | meterless | meterless/auto | local-runtime/llama-3.2-3b-instruct-q8 | Llama 3.2 3B Q8 Verifier (Runtime GGUF) (local) | rcpt_req_p4w8bgz4 | True | log://ex03-payer-dossier#86 |
-| critic | critic-r2 | meterless | meterless/auto | local-runtime/llama-3.2-3b-instruct-q8 | Llama 3.2 3B Q8 Verifier (Runtime GGUF) (local) | rcpt_req_9voy01q0 | True | log://ex03-payer-dossier#109 |
+| planner | planner | meterless | nvidia/nemotron-3.5-lightning-30b-a3b | nvidia/nemotron-3.5-lightning-30b-a3b | Nemotron 3.5 Lightning 30B A3B (cloud) | rcpt_req_qhspoqtk | True | log://ex03-payer-dossier#6 |
+| writer | writer-r1 | meterless | nvidia/nemotron-3.5-lightning-30b-a3b | nvidia/nemotron-3.5-lightning-30b-a3b | Nemotron 3.5 Lightning 30B A3B (cloud) | rcpt_req_m86eju9f | True | log://ex03-payer-dossier#49 |
+| critic | critic-r1 | meterless | nvidia/nemotron-3.5-lightning-30b-a3b | nvidia/nemotron-3.5-lightning-30b-a3b | Nemotron 3.5 Lightning 30B A3B (cloud) | rcpt_req_n666z3cm | True | log://ex03-payer-dossier#71 |
+| writer | writer-r2 | meterless | nvidia/nemotron-3.5-lightning-30b-a3b | nvidia/nemotron-3.5-lightning-30b-a3b | Nemotron 3.5 Lightning 30B A3B (cloud) | rcpt_req_lzzau1uo | True | log://ex03-payer-dossier#77 |
+| critic | critic-r2 | meterless | nvidia/nemotron-3.5-lightning-30b-a3b | nvidia/nemotron-3.5-lightning-30b-a3b | Nemotron 3.5 Lightning 30B A3B (cloud) | rcpt_req_v7sch8b1 | True | log://ex03-payer-dossier#97 |
 
 Critique rounds: 2. Log files: fetch.jsonl, generator.jsonl, hmem.trace.jsonl, run.jsonl, sql.jsonl, world.audit.jsonl, world.events.jsonl, world.observations.jsonl.

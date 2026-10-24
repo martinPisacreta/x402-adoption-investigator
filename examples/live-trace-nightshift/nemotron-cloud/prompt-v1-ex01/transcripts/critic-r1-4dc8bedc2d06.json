@@ -1,0 +1,54 @@
+{
+  "prompt_id": "critic-r1",
+  "prompt_sha256": "4dc8bedc2d06f68b2f4b0aa649c3c1bb7071003ca4b0efa2cba9b3542ddf92af",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "recorded_at": "2026-10-24T17:15:17.823Z",
+  "response": "[\n  {\n    \"sentence_index\": 0,\n    \"reason\": \"The statement 'tienda.textokit.store lists 77 settled sales' is not an accepted claim value; the accepted claim c01 states the receipts list 77 settled sales, but the answer sentence 0 is a raw listing, not a claim. The value 77 is derivable from c01, but the sentence itself is not a claim and lacks support as a standalone assertion in the required format.\",\n    \"claim_id\": \"c01\"\n  },\n  {\n    \"sentence_index\": 1,\n    \"reason\": \"The statement '56 of those sales were self-payments from 3 distinct wallets' combines c02 and c03. While c02 states 56 self-payments and c03 states 3 distinct wallets, the sentence as a single claim linking both is not a single accepted claim; it is a composite statement not explicitly supported as a unified value.\",\n    \"claim_id\": \"c02\"\n  },\n  {\n    \"sentence_index\": 2,\n    \"reason\": \"The statement '21 sales were paid by external wallets' is sentence 2 in the answer, but the accepted claim c04 states '21 sales were paid by external wallets'. However, sentence 2 is a raw listing without the claim structure; it is not a claim and is unsupported as a standalone sentence in the answer format.\",\n    \"claim_id\": \"c04\"\n  },\n  {\n    \"sentence_index\": 3,\n    \"reason\": \"The statement 'external sales total 44000 atomic USDC (0.044 USDC)' is sentence 3 in the answer. The accepted claim c05 states the same value with unit atomic_usdc, but sentence 3 is a raw listing, not a claim. The value is supported by c05, but the sentence itself is not a claim and is unsupported in the required format.\",\n    \"claim_id\": \"c05\"\n  },\n  {\n    \"sentence_index\": 4,\n    \"reason\": \"The statement '4 distinct external payers appear in the receipts' is sentence 4 in the answer. The accepted claim c06 states '4 distinct external payers appear in the receipts', but sentence ",
+  "usage": {
+    "prompt_tokens": 3162,
+    "completion_tokens": 500,
+    "total_tokens": 3662
+  },
+  "provider": "meterless",
+  "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_3p2c0xdo",
+    "decision_id": "req_3p2c0xdo",
+    "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "winning_route": {
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "label": "Nemotron 3.5 Lightning 30B A3B",
+      "provider": "nvidia",
+      "kind": "cloud",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "final_synthesis",
+        "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+        "ms": 8014
+      }
+    ],
+    "latency_ms": 8014,
+    "usage": {
+      "input_tokens": 3162,
+      "output_tokens": 500,
+      "total_tokens": 3662
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "cloud-ok",
+    "wall_ms": 8047
+  },
+  "prompt_context": "sample mode on the committed fixtures",
+  "request": {
+    "max_tokens": 500,
+    "call_options": {
+      "reasoning_effort": "none",
+      "system_turn": "/no_think"
+    }
+  }
+}

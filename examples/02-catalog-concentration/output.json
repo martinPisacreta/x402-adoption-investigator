@@ -11,7 +11,7 @@
       "zetaris_version": null,
       "zetaris_source": null
     },
-    "sample_mode_notice": "This run replayed committed fixtures captured 2026-10-22T00:05:00Z; no network, no model calls. The generator-backed roles replayed 5 recorded answer(s) from fixtures/transcripts/02-catalog-concentration/ (provider meterless, model local-runtime/llama-3.2-3b-instruct-q8); each `generate` event says recorded: true.",
+    "sample_mode_notice": "This run replayed committed fixtures captured 2026-10-22T00:05:00Z; no network, no model calls. The generator-backed roles replayed 5 recorded answer(s) from fixtures/transcripts/02-catalog-concentration/ (provider meterless, model nvidia/nemotron-3.5-lightning-30b-a3b); each `generate` event says recorded: true.",
     "question": "Who sells on the CDP Bazaar and how concentrated are the paid calls? What share of listed endpoints saw any call in the last 30 days?",
     "plan": {
       "playbook": "catalog_concentration",
@@ -44,11 +44,11 @@
         "trust_ecosystem_stats"
       ],
       "hypotheses": [
-        "The majority of sellers on the CDP Bazaar are individuals.",
-        "The top 10 hosts account for more than 50% of the paid calls.",
-        "More than 20% of listed endpoints saw a call in the last 30 days.",
-        "The majority of calls are made to the top 5 hosts.",
-        "The majority of sellers have a store openapi."
+        "A small number of hosts control the majority of paid calls on the CDP Bazaar",
+        "The concentration of paid calls is higher than the concentration of listed endpoints",
+        "Most listed endpoints have not seen any paid call activity in the last 30 days",
+        "Paid call volume follows a power-law distribution across hosts",
+        "Hosts with more listings do not necessarily receive proportionally more paid calls"
       ],
       "hmem_memory_ids": [
         "mem-seed-005"
@@ -61,7 +61,7 @@
         "c07"
       ]
     },
-    "answer": "Paid calls are concentrated in a few hosts (verdict concentrated) based on [c07]. The Bazaar catalog snapshot holds 28462 unique resources [c01]. Those resources are served by 2680 distinct hosts [c02]. 1785 distinct payTo wallets receive the payments [c03]. The 30-day call counters sum to 824796 across the snapshot [c04]. 28347 of 28462 resources saw at least one call in the 30-day window (99.6 %) [c05]. The top host www.ax1.vc accounts for 243580 of 824796 30-day calls (29.5 %) [c06]. The top ten hosts account for 604248 of 824796 30-day calls (73.3 %) [c07]. Hosts with the most listings in the snapshot: saylorinnovations.com=1568, agentshelf.syntexa.ch=1236, dns.intel.rallylive.ca=694, agent402.tools=613 [c08]. The top payTo wallet 0x7284d41b5b852f2bd4c99bdf95043d84452d299c receives 243601 of 824796 30-day calls (29.5 %) [c09]. The largest per-endpoint 30-day unique-payer counter is 2708 (not deduplicable across endpoints) [c10]. x402-trust reports endpoints_listed=286358, endpoints_active=210375, settlements_30d=2661042, distinct_payers_30d=32625 [c11]. Where sources disagree [k01] on ecosystem_size: cdp_catalog_snapshot: 28462 (unique resources in the compact snapshot (deduplicated by resource)); cdp_bazaar: 28472 (pagination.total reported live by the discovery API at capture (moves by the minute)); x402_trust: endpointsListed=286358, endpointsActive=210375 (x402-trust index across its own sources, 30-day probe window, delisted endpoints counted in listed). The Bazaar snapshot is a dated capture of one index deduplicated by resource; the API total moves by the minute; x402-trust indexes a different and larger set with its own 30-day probe window and counts delisted endpoints [c01] [c11]. Caveat [snapshot_dated]: the catalog snapshot is a dated capture and the live total moves by the minute [mem-seed-006]; applies to [c01] [c02] [c03] [c04] [c05] [c06] [c07] [c08] [c09] [c10]. Caveat [third_party_aggregate]: x402-trust figures are third-party aggregates with their own window and index [mem-seed-004]; applies to [c11]. Caveat [unique_payers_not_dedupable]: per-endpoint unique-payer counters cannot be deduplicated across endpoints [mem-seed-001]; applies to [c10]. Sample mode: this answer replays committed fixtures captured 2026-10-22T00:05:00Z; no network, no model calls.",
+    "answer": "Paid calls are concentrated in a few hosts (verdict concentrated) based on [c07]. 28462 unique resources are in the CDP Bazaar catalog snapshot [c01][snapshot_dated]. 2680 distinct hosts serve those resources [c02][snapshot_dated]. 1785 distinct payTo wallets receive payments [c03][snapshot_dated]. 99.6% of listed endpoints saw at least one call in the last 30 days [c05][snapshot_dated]. The top host www.ax1.vc accounts for 29.5% of all 30-day calls [c06][snapshot_dated]. The CDP Bazaar catalog snapshot shows extreme concentration: the top host www.ax1.vc generates 29.5% of all 30-day calls, and the top ten hosts together generate 73.3%. The 30-day call counters sum to 824796 across the snapshot [c04]. The top ten hosts account for 604248 of 824796 30-day calls (73.3 %) [c07]. Hosts with the most listings in the snapshot: saylorinnovations.com=1568, agentshelf.syntexa.ch=1236, dns.intel.rallylive.ca=694, agent402.tools=613 [c08]. The top payTo wallet 0x7284d41b5b852f2bd4c99bdf95043d84452d299c receives 243601 of 824796 30-day calls (29.5 %) [c09]. The largest per-endpoint 30-day unique-payer counter is 2708 (not deduplicable across endpoints) [c10]. x402-trust reports endpoints_listed=286358, endpoints_active=210375, settlements_30d=2661042, distinct_payers_30d=32625 [c11]. Where sources disagree [k01] on ecosystem_size: cdp_catalog_snapshot: 28462 (unique resources in the compact snapshot (deduplicated by resource)); cdp_bazaar: 28472 (pagination.total reported live by the discovery API at capture (moves by the minute)); x402_trust: endpointsListed=286358, endpointsActive=210375 (x402-trust index across its own sources, 30-day probe window, delisted endpoints counted in listed). The Bazaar snapshot is a dated capture of one index deduplicated by resource; the API total moves by the minute; x402-trust indexes a different and larger set with its own 30-day probe window and counts delisted endpoints [c01] [c11]. Caveat [third_party_aggregate]: x402-trust figures are third-party aggregates with their own window and index [mem-seed-004]; applies to [c11]. Caveat [unique_payers_not_dedupable]: per-endpoint unique-payer counters cannot be deduplicated across endpoints [mem-seed-001]; applies to [c10]. Sample mode: this answer replays committed fixtures captured 2026-10-22T00:05:00Z; no network, no model calls.",
     "claims": [
       {
         "id": "c01",
@@ -85,7 +85,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#21",
+            "ref": "log://ex02-catalog-concentration#20",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -96,7 +96,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#28",
+            "ref": "log://ex02-catalog-concentration#27",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -119,7 +119,7 @@
           "sources": [
             "cdp_catalog_snapshot"
           ],
-          "log_seq": 21
+          "log_seq": 20
         },
         "coverage": {
           "items_seen": 28462,
@@ -178,7 +178,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#21",
+            "ref": "log://ex02-catalog-concentration#20",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -189,7 +189,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#29",
+            "ref": "log://ex02-catalog-concentration#28",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -212,7 +212,7 @@
           "sources": [
             "cdp_catalog_snapshot"
           ],
-          "log_seq": 21
+          "log_seq": 20
         },
         "coverage": {
           "items_seen": 28462,
@@ -269,7 +269,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#21",
+            "ref": "log://ex02-catalog-concentration#20",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -280,7 +280,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#30",
+            "ref": "log://ex02-catalog-concentration#29",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -303,7 +303,7 @@
           "sources": [
             "cdp_catalog_snapshot"
           ],
-          "log_seq": 21
+          "log_seq": 20
         },
         "coverage": {
           "items_seen": 28462,
@@ -360,7 +360,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#21",
+            "ref": "log://ex02-catalog-concentration#20",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -371,7 +371,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#31",
+            "ref": "log://ex02-catalog-concentration#30",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -394,7 +394,7 @@
           "sources": [
             "cdp_catalog_snapshot"
           ],
-          "log_seq": 21
+          "log_seq": 20
         },
         "coverage": {
           "items_seen": 28462,
@@ -455,7 +455,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#23",
+            "ref": "log://ex02-catalog-concentration#22",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -466,7 +466,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#32",
+            "ref": "log://ex02-catalog-concentration#31",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -489,7 +489,7 @@
           "sources": [
             "cdp_catalog_snapshot"
           ],
-          "log_seq": 23
+          "log_seq": 22
         },
         "coverage": {
           "items_seen": 28462,
@@ -551,7 +551,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#22",
+            "ref": "log://ex02-catalog-concentration#21",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -562,7 +562,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#33",
+            "ref": "log://ex02-catalog-concentration#32",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -585,7 +585,7 @@
           "sources": [
             "cdp_catalog_snapshot"
           ],
-          "log_seq": 22
+          "log_seq": 21
         },
         "coverage": {
           "items_seen": 28462,
@@ -646,7 +646,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#22",
+            "ref": "log://ex02-catalog-concentration#21",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -657,7 +657,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#34",
+            "ref": "log://ex02-catalog-concentration#33",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -680,7 +680,7 @@
           "sources": [
             "cdp_catalog_snapshot"
           ],
-          "log_seq": 22
+          "log_seq": 21
         },
         "coverage": {
           "items_seen": 28462,
@@ -737,7 +737,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#27",
+            "ref": "log://ex02-catalog-concentration#26",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -748,7 +748,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#35",
+            "ref": "log://ex02-catalog-concentration#34",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -771,7 +771,7 @@
           "sources": [
             "cdp_catalog_snapshot"
           ],
-          "log_seq": 27
+          "log_seq": 26
         },
         "coverage": {
           "items_seen": 28462,
@@ -833,7 +833,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#24",
+            "ref": "log://ex02-catalog-concentration#23",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -844,7 +844,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#36",
+            "ref": "log://ex02-catalog-concentration#35",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -868,7 +868,7 @@
           "sources": [
             "cdp_catalog_snapshot"
           ],
-          "log_seq": 24
+          "log_seq": 23
         },
         "coverage": {
           "items_seen": 28462,
@@ -925,7 +925,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#26",
+            "ref": "log://ex02-catalog-concentration#25",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -936,7 +936,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#37",
+            "ref": "log://ex02-catalog-concentration#36",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -959,7 +959,7 @@
           "sources": [
             "cdp_catalog_snapshot"
           ],
-          "log_seq": 26
+          "log_seq": 25
         },
         "coverage": {
           "items_seen": 28462,
@@ -1045,7 +1045,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#25",
+            "ref": "log://ex02-catalog-concentration#24",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -1056,7 +1056,7 @@
           },
           {
             "kind": "log_line",
-            "ref": "log://ex02-catalog-concentration#38",
+            "ref": "log://ex02-catalog-concentration#37",
             "sha256": null,
             "captured_at": null,
             "replayed": false,
@@ -1081,7 +1081,7 @@
           "sources": [
             "x402_trust"
           ],
-          "log_seq": 25
+          "log_seq": 24
         },
         "coverage": null,
         "caveats": [
@@ -1340,18 +1340,16 @@
         "generator_used": "recorded",
         "attempts": 1,
         "status": "ok",
-        "notes": [
-          "generator proposed seller_profile; router keeps catalog_concentration"
-        ],
+        "notes": [],
         "generator_calls": [
           {
             "prompt_id": "planner",
             "provider": "meterless",
-            "requested_model": "meterless/auto",
-            "model": "local-runtime/llama-3.2-3b-instruct-q8",
-            "route": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
-            "route_kind": "local",
-            "receipt_id": "rcpt_req_m7l79xox",
+            "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "route": "Nemotron 3.5 Lightning 30B A3B",
+            "route_kind": "cloud",
+            "receipt_id": "rcpt_req_x9cw37vw",
             "recorded": true,
             "log_seq": 6
           }
@@ -1411,24 +1409,24 @@
           {
             "prompt_id": "writer-r1",
             "provider": "meterless",
-            "requested_model": "meterless/auto",
-            "model": "local-runtime/llama-3.2-3b-instruct-q8",
-            "route": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
-            "route_kind": "local",
-            "receipt_id": "rcpt_req_o93wx09x",
+            "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "route": "Nemotron 3.5 Lightning 30B A3B",
+            "route_kind": "cloud",
+            "receipt_id": "rcpt_req_mke2clvl",
             "recorded": true,
-            "log_seq": 43
+            "log_seq": 42
           },
           {
             "prompt_id": "writer-r2",
             "provider": "meterless",
-            "requested_model": "meterless/auto",
-            "model": "local-runtime/llama-3.2-3b-instruct-q8",
-            "route": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
-            "route_kind": "local",
-            "receipt_id": "rcpt_req_xxrzswnp",
+            "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "route": "Nemotron 3.5 Lightning 30B A3B",
+            "route_kind": "cloud",
+            "receipt_id": "rcpt_req_oqka0hy5",
             "recorded": true,
-            "log_seq": 79
+            "log_seq": 74
           }
         ]
       },
@@ -1443,24 +1441,24 @@
           {
             "prompt_id": "critic-r1",
             "provider": "meterless",
-            "requested_model": "meterless/auto",
-            "model": "local-runtime/llama-3.2-3b-instruct-q8",
-            "route": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
-            "route_kind": "local",
-            "receipt_id": "rcpt_req_wit08l7b",
+            "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "route": "Nemotron 3.5 Lightning 30B A3B",
+            "route_kind": "cloud",
+            "receipt_id": "rcpt_req_65847ph7",
             "recorded": true,
-            "log_seq": 70
+            "log_seq": 68
           },
           {
             "prompt_id": "critic-r2",
             "provider": "meterless",
-            "requested_model": "meterless/auto",
-            "model": "local-runtime/llama-3.2-3b-instruct-q8",
-            "route": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
-            "route_kind": "local",
-            "receipt_id": "rcpt_req_wjc6450o",
+            "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "route": "Nemotron 3.5 Lightning 30B A3B",
+            "route_kind": "cloud",
+            "receipt_id": "rcpt_req_9xvx4g1v",
             "recorded": true,
-            "log_seq": 102
+            "log_seq": 87
           }
         ]
       }

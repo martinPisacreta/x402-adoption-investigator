@@ -1,0 +1,53 @@
+{
+  "prompt_id": "critic-r2",
+  "prompt_sha256": "6da0a720f71ea59b95f2d16a08a1d39350cd329300aa7aaa9cd6c94ca612bd4e",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "recorded_at": "2026-10-24T17:29:03.454Z",
+  "response": "[\n  {\n    \"sentence_index\": 5,\n    \"reason\": \"Contains claim values not in accepted claims list\",\n    \"claim_id\": \"null\"\n  },\n  {\n    \"sentence_index\": 6,\n    \"reason\": \"Restates c01 and c02, supported\",\n    \"claim_id\": \"null\"\n  },\n  {\n    \"sentence_index\": 7,\n    \"reason\": \"Restates c05, supported\",\n    \"claim_id\": \"null\"\n  },\n  {\n    \"sentence_index\": 8,\n    \"reason\": \"Restates c06 and c07, supported\",\n    \"claim_id\": \"null\"\n  },\n  {\n    \"sentence_index\": 9,\n    \"reason\": \"Restates c09, supported\",\n    \"claim_id\": \"null\"\n  },\n  {\n    \"sentence_index\": 10,\n    \"reason\": \"Restates c10, supported\",\n    \"claim_id\": \"null\"\n  }\n]",
+  "usage": {
+    "prompt_tokens": 2401,
+    "completion_tokens": 217,
+    "total_tokens": 2618
+  },
+  "provider": "meterless",
+  "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_chzl5p7z",
+    "decision_id": "req_chzl5p7z",
+    "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "winning_route": {
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "label": "Nemotron 3.5 Lightning 30B A3B",
+      "provider": "nvidia",
+      "kind": "cloud",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "final_synthesis",
+        "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+        "ms": 3040
+      }
+    ],
+    "latency_ms": 3040,
+    "usage": {
+      "input_tokens": 2401,
+      "output_tokens": 217,
+      "total_tokens": 2618
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "cloud-ok",
+    "wall_ms": 3062
+  },
+  "request": {
+    "max_tokens": 500,
+    "call_options": {
+      "reasoning_effort": "none",
+      "system_turn": "/no_think"
+    }
+  }
+}

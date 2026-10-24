@@ -1,0 +1,53 @@
+{
+  "prompt_id": "planner",
+  "prompt_sha256": "c0e31ed66ab5ea1cb639dc7bd03d14d56d3a533925172252b53efc102b20486d",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "recorded_at": "2026-10-24T17:28:25.707Z",
+  "response": "{\"playbook\": \"catalog_concentration\", \"hypotheses\": [\"The top 10 hosts by call volume account for over 50% of all paid calls on the CDP Bazaar in the last 30 days\", \"A small number of hosts dominate the CDP Bazaar listings, with the top 5 hosts representing the majority of listed endpoints\", \"Paid calls are highly concentrated among a few active hosts, while most listed endpoints receive minimal or no activity in the last 30 days\", \"The active share of endpoints (those with calls in the last 30 days) is significantly lower than the total listed endpoint count\", \"Top hosts by listings also have disproportionately high call volumes compared to their listing count\"]}, \"extra_metrics\": [\"catalog_resources\", \"catalog_hosts\", \"catalog_distinct_payto\", \"catalog_calls_30d_sum\", \"catalog_active_share\"]}",
+  "usage": {
+    "prompt_tokens": 686,
+    "completion_tokens": 195,
+    "total_tokens": 881
+  },
+  "provider": "meterless",
+  "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_glwat7w9",
+    "decision_id": "req_glwat7w9",
+    "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "routed_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "winning_route": {
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "label": "Nemotron 3.5 Lightning 30B A3B",
+      "provider": "nvidia",
+      "kind": "cloud",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "final_synthesis",
+        "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+        "ms": 2688
+      }
+    ],
+    "latency_ms": 2688,
+    "usage": {
+      "input_tokens": 686,
+      "output_tokens": 195,
+      "total_tokens": 881
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "cloud-ok",
+    "wall_ms": 2703
+  },
+  "request": {
+    "max_tokens": 400,
+    "call_options": {
+      "reasoning_effort": "none",
+      "system_turn": "/no_think"
+    }
+  }
+}

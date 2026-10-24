@@ -11,7 +11,7 @@
       "zetaris_version": null,
       "zetaris_source": null
     },
-    "sample_mode_notice": "This run replayed committed fixtures captured 2026-10-22T00:05:00Z; no network, no model calls. The generator-backed roles replayed 5 recorded answer(s) from fixtures/transcripts/01-seller-audit-textokit/ (provider meterless, model local-runtime/llama-3.2-3b-instruct-q8); each `generate` event says recorded: true.",
+    "sample_mode_notice": "This run replayed committed fixtures captured 2026-10-22T00:05:00Z; no network, no model calls. The generator-backed roles replayed 5 recorded answer(s) from fixtures/transcripts/01-seller-audit-textokit/ (provider meterless, model nvidia/nemotron-3.5-lightning-30b-a3b); each `generate` event says recorded: true.",
     "question": "How real is the adoption of tienda.textokit.store? Who pays, how much, do they come back, and why do registries disagree about it?",
     "plan": {
       "playbook": "seller_profile",
@@ -62,11 +62,11 @@
         "settlements_verified"
       ],
       "hypotheses": [
-        "Tienda.textokit.store is a legitimate seller with a verified profile.",
-        "The majority of sales on Tienda.textokit.store are made through external wallets.",
-        "Tienda.textokit.store has a high repeat business rate among its customers.",
-        "The registry's disagreement on Tienda.textokit.store's legitimacy stems from inconsistent receipt data.",
-        "Tienda.textokit.store's sales are primarily driven by external services."
+        "The host tienda.textokit.store has no active x402 sellers, explaining registry disagreements.",
+        "Payers to tienda.textokit.store are likely bots or automated scripts rather than human users.",
+        "If sales exist, repeat external payers are rare, indicating low retention for the host.",
+        "Disagreements between registries stem from differing inclusion criteria for atomic USDC settlements.",
+        "The wallet associated with the host holds a disproportionate share of total sales volume."
       ],
       "hmem_memory_ids": []
     },
@@ -77,7 +77,7 @@
         "c07"
       ]
     },
-    "answer": "Most settlements are the seller paying itself (verdict self_settled_mostly) based on [c07]. The receipts of tienda.textokit.store list 77 settled sales in total [c01]. 56 of those sales were paid from the seller's own wallets [c02]. 3 distinct own wallets settled those self-payments [c03]. 21 sales were paid by external wallets [c04]. External sales total 44000 atomic USDC (0.044 USDC) [c05]. 4 distinct external payers appear in the receipts [c06]. Self-settlement share: 56 of 77 sales (72.7 %) [c07]. 1 external payer(s) bought more than once [c08]. The top external payer 0xec2abd3eda89bed90124736e317e847d5fb6d034 made 18 of 21 external sales (85.7 %) [c09]. External sales span 2026-10-20T04:51:24.352Z..2026-10-21T21:18:17.136Z [c10]. External sales by service: cuit-ar=3, normativa-ar=2, x402-ping=2, bcra-indicadores=1, cartas-ar=1, comparar-textos=1, crypto-prices=1, dev-utils=1, direcciones-ar=1, dolar-ar=1, fx-rates=1, polymarket-markets=1, source-bounded-summary=1, translate-es=1, url-text=1, web-read=1, x402-adoption=1 [c11]. External sales per day: 2026-10-20=20, 2026-10-21=1 [c12]. External sales settled inside the 30-day window ending 2026-10-22: 21 [c13]. The CDP Bazaar search returns 17 listings for tienda.textokit.store [c14]. Those listings pay to 1 distinct wallet(s) [c15]. Bazaar 30-day call counters summed over the listings of tienda.textokit.store: 60 [c16]. 17 Bazaar listings pay to the wallet the receipts name as seller [c17]. Registries disagree on the endpoint count for tienda.textokit.store: cdp_search=17, store_openapi=17, agent402_paid=17, agent402_tools=34, vet402=19, x402_trust_search=36 [c18]. 1 sampled settlement(s) verified on Base against the receipts [c19]. Where sources disagree [k01] on endpoint_count_for_host: cdp_search: 17 (CDP Bazaar discovery search, one row per listed resource, capped at twenty results); store_openapi: 17 (paid operations declared by the store's own openapi.json (x-payment-info)); agent402: paidToolCount=17, toolCount=34 (tools crawled by Agent402 from the store manifest; paidToolCount is the comparable figure); vet402: 19 (endpoints vet402 has observed for the host with catalog_status listed); x402_trust: 36 (matches reported by the x402-trust keyword search across its own index (listed and delisted)). Bazaar search is capped at twenty results and lists one row per resource; the store openapi declares paid operations; Agent402 counts tools including free ones (paidToolCount is the comparable figure); vet402 counts every endpoint it has observed for the host with catalog_status listed, which can include routes the store no longer declares; x402-trust search counts matches across its own index. In this capture vet402 lists /api/maintenance-helper and /api/preparar-solicitud, which the store openapi does not declare as paid operations; that accounts for the whole difference between the vet402 and openapi counts [c14] [c18]. Where sources disagree [k02] on calls_30d_for_host: cdp_search: 60 (l30DaysTotalCalls summed over the host's Bazaar listings (per-endpoint 30-day counters, search capped at twenty)); receipts: 77 (all receipts rows settled since 2026-09-22 (own-wallet rows included)); receipts: 21 (external receipts rows settled since 2026-09-22). Bazaar l30DaysTotalCalls is a per-endpoint 30-day counter maintained by the facilitator and includes the seller's own calls; receipts are the seller's own settlement log. Different windows and bases: compare only with the basis stated [c16] [c13]. Caveat [basis_mismatch]: Bazaar counters and receipts use different windows and bases [mem-seed-007]; applies to [c13] [c16]. Caveat [payer_from_transfer_log]: payer and seller were read from the Transfer log, not from tx.from [mem-seed-005]; applies to [c19]. Caveat [search_limit_20]: the Bazaar search is capped at twenty results, so its count is a floor [mem-seed-002]; applies to [c14] [c15] [c16] [c17] [c18]. Caveat [self_reported_receipts]: receipts are self-reported by the seller [mem-seed-003]; applies to [c01] [c02] [c03] [c04] [c05] [c06] [c07] [c08] [c09] [c10] [c11] [c12] [c13] [c17] [c19]. Caveat [third_party_aggregate]: x402-trust figures are third-party aggregates with their own window and index [mem-seed-004]; applies to [c18]. Sample mode: this answer replays committed fixtures captured 2026-10-22T00:05:00Z; no network, no model calls.",
+    "answer": "Most settlements are the seller paying itself (verdict self_settled_mostly) based on [c07]. 77 total settled sales [c01] [self_reported_receipts] 56 self-payments from 3 distinct wallets [c02] [c03] [self_reported_receipts] 21 external sales paid by 4 distinct external payers [c04] [c06] [self_reported_receipts] External sales total 44000 atomic USDC (0.044 USDC) [c05]. Self-settlement share: 56 of 77 sales (72.7 %) [c07]. 1 external payer(s) bought more than once [c08]. The top external payer 0xec2abd3eda89bed90124736e317e847d5fb6d034 made 18 of 21 external sales (85.7 %) [c09]. External sales span 2026-10-20T04:51:24.352Z..2026-10-21T21:18:17.136Z [c10]. External sales by service: cuit-ar=3, normativa-ar=2, x402-ping=2, bcra-indicadores=1, cartas-ar=1, comparar-textos=1, crypto-prices=1, dev-utils=1, direcciones-ar=1, dolar-ar=1, fx-rates=1, polymarket-markets=1, source-bounded-summary=1, translate-es=1, url-text=1, web-read=1, x402-adoption=1 [c11]. External sales per day: 2026-10-20=20, 2026-10-21=1 [c12]. External sales settled inside the 30-day window ending 2026-10-22: 21 [c13]. The CDP Bazaar search returns 17 listings for tienda.textokit.store [c14]. Those listings pay to 1 distinct wallet(s) [c15]. Bazaar 30-day call counters summed over the listings of tienda.textokit.store: 60 [c16]. 17 Bazaar listings pay to the wallet the receipts name as seller [c17]. Registries disagree on the endpoint count for tienda.textokit.store: cdp_search=17, store_openapi=17, agent402_paid=17, agent402_tools=34, vet402=19, x402_trust_search=36 [c18]. 1 sampled settlement(s) verified on Base against the receipts [c19]. Where sources disagree [k01] on endpoint_count_for_host: cdp_search: 17 (CDP Bazaar discovery search, one row per listed resource, capped at twenty results); store_openapi: 17 (paid operations declared by the store's own openapi.json (x-payment-info)); agent402: paidToolCount=17, toolCount=34 (tools crawled by Agent402 from the store manifest; paidToolCount is the comparable figure); vet402: 19 (endpoints vet402 has observed for the host with catalog_status listed); x402_trust: 36 (matches reported by the x402-trust keyword search across its own index (listed and delisted)). Bazaar search is capped at twenty results and lists one row per resource; the store openapi declares paid operations; Agent402 counts tools including free ones (paidToolCount is the comparable figure); vet402 counts every endpoint it has observed for the host with catalog_status listed, which can include routes the store no longer declares; x402-trust search counts matches across its own index. In this capture vet402 lists /api/maintenance-helper and /api/preparar-solicitud, which the store openapi does not declare as paid operations; that accounts for the whole difference between the vet402 and openapi counts [c14] [c18]. Where sources disagree [k02] on calls_30d_for_host: cdp_search: 60 (l30DaysTotalCalls summed over the host's Bazaar listings (per-endpoint 30-day counters, search capped at twenty)); receipts: 77 (all receipts rows settled since 2026-09-22 (own-wallet rows included)); receipts: 21 (external receipts rows settled since 2026-09-22). Bazaar l30DaysTotalCalls is a per-endpoint 30-day counter maintained by the facilitator and includes the seller's own calls; receipts are the seller's own settlement log. Different windows and bases: compare only with the basis stated [c16] [c13]. Caveat [basis_mismatch]: Bazaar counters and receipts use different windows and bases [mem-seed-007]; applies to [c13] [c16]. Caveat [payer_from_transfer_log]: payer and seller were read from the Transfer log, not from tx.from [mem-seed-005]; applies to [c19]. Caveat [search_limit_20]: the Bazaar search is capped at twenty results, so its count is a floor [mem-seed-002]; applies to [c14] [c15] [c16] [c17] [c18]. Caveat [third_party_aggregate]: x402-trust figures are third-party aggregates with their own window and index [mem-seed-004]; applies to [c18]. Sample mode: this answer replays committed fixtures captured 2026-10-22T00:05:00Z; no network, no model calls.",
     "claims": [
       {
         "id": "c01",
@@ -2388,16 +2388,18 @@
         "generator_used": "recorded",
         "attempts": 1,
         "status": "ok",
-        "notes": [],
+        "notes": [
+          "generator proposed payer_dossier; router keeps seller_profile"
+        ],
         "generator_calls": [
           {
             "prompt_id": "planner",
             "provider": "meterless",
-            "requested_model": "meterless/auto",
-            "model": "local-runtime/llama-3.2-3b-instruct-q8",
-            "route": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
-            "route_kind": "local",
-            "receipt_id": "rcpt_req_9b5cyzck",
+            "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "route": "Nemotron 3.5 Lightning 30B A3B",
+            "route_kind": "cloud",
+            "receipt_id": "rcpt_req_v4ul6h0r",
             "recorded": true,
             "log_seq": 5
           }
@@ -2460,24 +2462,24 @@
           {
             "prompt_id": "writer-r1",
             "provider": "meterless",
-            "requested_model": "meterless/auto",
-            "model": "local-runtime/llama-3.2-3b-instruct-q8",
-            "route": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
-            "route_kind": "local",
-            "receipt_id": "rcpt_req_h66ab8e2",
+            "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "route": "Nemotron 3.5 Lightning 30B A3B",
+            "route_kind": "cloud",
+            "receipt_id": "rcpt_req_kptyl67r",
             "recorded": true,
             "log_seq": 81
           },
           {
             "prompt_id": "writer-r2",
             "provider": "meterless",
-            "requested_model": "meterless/auto",
-            "model": "local-runtime/llama-3.2-3b-instruct-q8",
-            "route": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
-            "route_kind": "local",
-            "receipt_id": "rcpt_req_2mgvmos5",
+            "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "route": "Nemotron 3.5 Lightning 30B A3B",
+            "route_kind": "cloud",
+            "receipt_id": "rcpt_req_p6irdkll",
             "recorded": true,
-            "log_seq": 142
+            "log_seq": 131
           }
         ]
       },
@@ -2492,24 +2494,24 @@
           {
             "prompt_id": "critic-r1",
             "provider": "meterless",
-            "requested_model": "meterless/auto",
-            "model": "local-runtime/llama-3.2-3b-instruct-q8",
-            "route": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
-            "route_kind": "local",
-            "receipt_id": "rcpt_req_gt1apn34",
+            "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "route": "Nemotron 3.5 Lightning 30B A3B",
+            "route_kind": "cloud",
+            "receipt_id": "rcpt_req_br1j413t",
             "recorded": true,
-            "log_seq": 120
+            "log_seq": 118
           },
           {
             "prompt_id": "critic-r2",
             "provider": "meterless",
-            "requested_model": "meterless/auto",
-            "model": "local-runtime/llama-3.2-3b-instruct-q8",
-            "route": "Llama 3.2 3B Q8 Verifier (Runtime GGUF)",
-            "route_kind": "local",
-            "receipt_id": "rcpt_req_zpr6mfev",
+            "requested_model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "route": "Nemotron 3.5 Lightning 30B A3B",
+            "route_kind": "cloud",
+            "receipt_id": "rcpt_req_zzscx5q6",
             "recorded": true,
-            "log_seq": 174
+            "log_seq": 146
           }
         ]
       }

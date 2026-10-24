@@ -1,98 +1,168 @@
-# Live traces through Meterless Nightshift (2026-10-24)
+# Live traces through Meterless Nightshift with NVIDIA Nemotron (2026-10-24)
 
-Real runs of the five example inputs with Meterless Nightshift as the generator: every Planner, Writer and Critic
-second-opinion request went to the local Nightshift runtime and was answered by its one local lane. Nothing here is
-edited by hand; the files are copies of `logs/<run_id>/`.
+Real runs of the five example inputs with Meterless Nightshift 1.2.3 as the generator. Every Planner, Writer and
+Critic second-opinion request went to the local Nightshift runtime, which handed it to an NVIDIA Nemotron model:
+
+- **Primary, `nemotron-cloud/`: NVIDIA Nemotron 3.5 Lightning 30B A3B on NVIDIA's hosted API** (the API catalog of
+  build.nvidia.com, `https://integrate.api.nvidia.com/v1`), which Nightshift reaches with the NVIDIA API key entered
+  in Nightshift's Setup > Providers. The key lives only inside Nightshift: it is in no file, variable or log of this
+  repository, and the app never sees it. No GPU is needed for this route.
+- **Also shown, `nemotron-local/`: NVIDIA Nemotron Nano 9B v2** (Q4_K_M GGUF), the one local lane of the active
+  Nightshift fleet, every layer on the machine's NVIDIA GeForce RTX 5080 Laptop GPU.
+- **Earlier, `llama-3.2-3b/`: the first Nightshift run** of the same day (16:00-16:32 UTC), answered by a local
+  Llama 3.2 3B Q8 lane through `meterless/auto`; archived with its own README and `machine.txt`, and with the 25
+  transcripts the committed examples replayed until the fixture set was re-recorded with Nemotron.
+
+Nothing here is edited by hand: each run folder is a copy of `logs/<run_id>/`, and `machine.txt` is the output of
+the commands it lists.
 
 ## What ran
 
-| folder | input | started (run_start, UTC) | requests through Nightshift | status | Nightshift receipts (`generate` events, in order) |
+Commands (one per row; `METERLESS_MODEL` pins the route, so each `generate` event names the model that did the work;
+`meterless/auto` could pick either route):
+
+```
+METERLESS_MODEL=nvidia/nemotron-3.5-lightning-30b-a3b \
+  python run.py --mode live --require-generator --print-output --input examples/exN.json --run-id nemotron-cloud-ex0N-20261024
+METERLESS_MODEL=local-runtime/nvidia-nvidia-nemotron-nano-9b-v2-q4-k-m \
+  python run.py --mode live --require-generator --print-output --input examples/ex1.json --run-id nemotron-local-ex01-20261024
+```
+
+| folder | input | run_start (UTC) | requests | status | Nightshift receipts (`generate` events, in order) |
 |---|---|---|---|---|---|
-| `nightshift-ex01-20261024/` (complete) | `examples/ex1.json` | 2026-10-24T16:27:26Z | 6 (planner x2, writer-r1, critic-r1, writer-r2, critic-r2) | `partial` | rcpt_req_n6ld2jmx, rcpt_req_4xmsl6fh, rcpt_req_xcpf3ovw, rcpt_req_iw4bs9uh, rcpt_req_r9fhdfhq, rcpt_req_48hbujka |
-| `nightshift-ex02-20261024/` | `examples/ex2.json` | 2026-10-24T16:28:27Z | 5 | `partial` | rcpt_req_4gaykwhx, rcpt_req_nrbpm6lr, rcpt_req_huwcpnw4, rcpt_req_jj07sc7x, rcpt_req_ralueqme |
-| `nightshift-ex03-20261024/` | `examples/ex3.json` | 2026-10-24T16:29:10Z | 5 | `partial` | rcpt_req_o577nmtc, rcpt_req_k64qjc4n, rcpt_req_8y6d7q6y, rcpt_req_3cv27pey, rcpt_req_5bt6jleg |
-| `nightshift-ex04-20261024/` | `examples/ex4.json` | 2026-10-24T16:29:47Z | 5 | `partial` | rcpt_req_vnkqhem6, rcpt_req_8sewde79, rcpt_req_5hnikrg9, rcpt_req_z6021966, rcpt_req_60qs0f24 |
-| `nightshift-ex05-20261024/` | `examples/ex5.json` | 2026-10-24T16:30:21Z | 5 | `partial` | rcpt_req_fridkspg, rcpt_req_f5zq8jwm, rcpt_req_tghsvyux, rcpt_req_p154g99q, rcpt_req_q4bempy3 |
-| `live-ns-ex01-20261024/` (first attempt) | `examples/ex1.json` | 2026-10-24T16:00:44Z | 6 | `partial` | rcpt_req_wtqluy7w, rcpt_req_v3gwd5jz, rcpt_req_cw3zytok, rcpt_req_72fzddjl, rcpt_req_4vgv0g2y, rcpt_req_9tw1bunz |
+| `nemotron-cloud/nemotron-cloud-ex01-20261024/` (complete) | `examples/ex1.json` | 2026-10-24T17:27:20Z | 5 | `partial` | rcpt_req_ikp1bnwc, rcpt_req_14krm3ix, rcpt_req_7wahdjag, rcpt_req_qlxvvms9, rcpt_req_8d1qnkxs |
+| `nemotron-cloud/nemotron-cloud-ex02-20261024/` | `examples/ex2.json` | 2026-10-24T17:28:22Z | 6 (planner x2) | `partial` | rcpt_req_glwat7w9, rcpt_req_5vp0170x, rcpt_req_ga0ytyas, rcpt_req_91f5d49a, rcpt_req_apoazph4, rcpt_req_chzl5p7z |
+| `nemotron-cloud/nemotron-cloud-ex03-20261024/` | `examples/ex3.json` | 2026-10-24T17:29:15Z | 5 | `partial` | rcpt_req_cx7dp79o, rcpt_req_jixi2h9b, rcpt_req_macv9ww0, rcpt_req_f3glghah, rcpt_req_1cz4wbwv |
+| `nemotron-cloud/nemotron-cloud-ex04-20261024/` | `examples/ex4.json` | 2026-10-24T17:29:51Z | 5 | `partial` | rcpt_req_rndytkid, rcpt_req_2e5tkn76, rcpt_req_u4kee2r4, rcpt_req_a2qt0mtx, rcpt_req_frnojjiy |
+| `nemotron-cloud/nemotron-cloud-ex05-20261024/` | `examples/ex5.json` | 2026-10-24T17:30:28Z | 6 (planner x2) | `partial` | rcpt_req_ux64zdry, rcpt_req_bqatoqo7, rcpt_req_9i8bn59m, rcpt_req_qkqvqvj6, rcpt_req_8fvibwro, rcpt_req_zgfddbsp |
+| `nemotron-local/nemotron-local-ex01-20261024/` (complete) | `examples/ex1.json` | 2026-10-24T17:31:26Z | 5 | `partial` | rcpt_req_2j2p2eb0, rcpt_req_zyml4lfk, rcpt_req_70mpt2bw, rcpt_req_f3ake0ah, rcpt_req_vu51m066 |
 
-Command (one per row, `NN` and the example folder changing):
-
-```
-python run.py --mode live --require-generator --record-transcripts --example 01-seller-audit-textokit \
-  --input examples/ex1.json --run-id nightshift-ex01-20261024 --print-output
-```
-
-No Nightshift variable was set. Auto Detect found the runtime at `http://127.0.0.1:8088/v1` and the token was read
-from the runtime's own `<stateDir>/proxy-token` (`run_start.payload.generator_mount`: `found_by: auto_detect`,
-`token_source: <stateDir>/proxy-token (default stateDir)`, the 18 `meterless/*` routing modes `/v1/models` listed).
-The token is in no file here.
+No other Nightshift variable was set: Auto Detect found the runtime at `http://127.0.0.1:8088/v1` and the token was
+read from the runtime's own `<stateDir>/proxy-token` (`run_start.payload.generator_mount`: `found_by: auto_detect`,
+`token_source: <stateDir>/proxy-token (default stateDir)`). `NIGHTSHIFT_REASONING_EFFORT` was unset, so its default
+`none` applied: `generator_mount.call_options` and every `generator.jsonl` line say
+`{"reasoning_effort": "none", "system_turn": "/no_think"}` (next section). Each run took 28-44 s (`run_start` to
+`result`).
 
 ## Which model handled each request
 
-All 32 `generate` events of the six runs (`run.jsonl`, repeated with the call parameters in `generator.jsonl`) say
-`provider: meterless`, `requested_model: meterless/auto` and `model: local-runtime/llama-3.2-3b-instruct-q8`, and
-carry `routing`, the facts of the answer's Meterless compute receipt (`meterless.compute_receipt.v1`): `receipt_id`,
-`routed_model`, `winning_route` (`label: "Llama 3.2 3B Q8 Verifier (Runtime GGUF)"`, `provider: local-runtime`,
-`kind: local`, `tier: A`), the phases with the model of each, `latency_ms`, token usage, `cache: miss` and
-`privacy_path: local-only`. `output.json` lists the same calls per role (`agents[].generator_calls`) and `report.md`
-has a "Model calls" table. The receipt's prompt preview, cost and host telemetry are not copied.
+- **Cloud, 27 requests.** Every `generate` event of the five `nemotron-cloud-*` runs (`run.jsonl`, repeated with the
+  call parameters in `generator.jsonl`) says `provider: meterless`, `requested_model` and `model`
+  `nvidia/nemotron-3.5-lightning-30b-a3b`, and carries `routing`, the facts of the answer's Meterless compute
+  receipt: `routed_model: nvidia/nemotron-3.5-lightning-30b-a3b`, `winning_route` (`label: "Nemotron 3.5 Lightning
+  30B A3B"`, `provider: nvidia`, `kind: cloud`, `tier: A`), `privacy_path: cloud-ok`, `cache: miss`, the receipt's
+  `latency_ms` (1,434 to 11,548 ms per request) and token usage (56,937 input and 8,382 output tokens over the 27).
+- **Local, 5 requests.** The `nemotron-local-ex01-20261024` events say `routed_model:
+  local-runtime/nvidia-nvidia-nemotron-nano-9b-v2-q4-k-m`, `winning_route` (`label:
+  "nvidia_NVIDIA-Nemotron-Nano-9B-v2-Q4_K_M · Runtime"`, `provider: local-runtime`, `kind: local`),
+  `privacy_path: local-only`, latency 1,278 to 8,442 ms, 15,030 input and 958 output tokens. Where it ran is in
+  `machine.txt`: the daemon's line `lane nemotron placed full on CUDA0 - 9523 MB device, 308 MB host (100% of layer
+  weights on GPU)` on the RTX 5080 Laptop GPU, the lane's `-ngl 99`, the GGUF's sha256 (`be845282...`), and the
+  llama-server timing lines of the run's five requests, whose output tokens (182, 436, 2, 336, 2) are the receipts'.
+- `output.json` lists the same calls per role (`agents[].generator_calls`, with `route` and `route_kind`) and
+  `report.md` has a "Model calls" table. The receipt's prompt preview, cost and host telemetry are not copied.
 
-## The machine
+## Thinking off: why every request carries `reasoning_effort: "none"` and `/no_think`
 
-`machine.txt` holds the commands and their output, captured right after the runs: Windows 11, an NVIDIA GeForce RTX
-5080 Laptop GPU (driver 617.42), Meterless Nightshift 1.2.3 (`ns status`, the official CLI), and Nightshift's
-`llama-server.exe` listed by `nvidia-smi` as a compute process on that GPU with the CUDA backend loaded
-(`ggml-cuda.dll`, `nvcuda.dll`, `cudart64_12.dll`; it also loads the Vulkan backend). The active Nightshift fleet,
-named `quicktest` in the Nightshift app (the name is not in the logs), has one lane: Llama-3.2-3B-Instruct Q8_0 GGUF.
-No Nemotron model and no NVIDIA-hosted endpoint was used: none is configured in that Nightshift.
+Both Nemotron models think before they answer, and the thinking counts against `max_tokens` (Planner 400, Writer
+700, Critic 500). Five single requests made with `scripts/nightshift_smoke.py` (`nemotron-cloud/smoke/`,
+`nemotron-local/smoke/`: `run.jsonl`, and for the answered ones `generator.jsonl` and `transcripts/`) decided it:
+
+| run id | route | prompt, `max_tokens` | thinking control | result |
+|---|---|---|---|---|
+| `smoke-cloud-thinking-default-20261024` | cloud | example 01 critic-r1 (the archived Llama draft), 500 | none sent | `recovery{generator_fallback}`: HTTP 502 `nvidia/nemotron-3.5-lightning-30b-a3b_empty_response` |
+| `smoke-cloud-critic-thinking-3000-20261024` | cloud | example 01 critic-r1 of `prompt-v1-ex01/`, 3000 | none sent | the same HTTP 502 empty_response |
+| `smoke-local-thinking-default-20261024` | local | the local run's critic-r1, 500 | none sent | HTTP 502 `local-runtime/nvidia-nvidia-nemotron-nano-9b-v2-q4-k-m_empty_response` |
+| `smoke-cloud-thinking-none-20261024` | cloud | the first row's prompt, 500 | `none` | answered (rcpt_req_99wbhmtk): 500 output tokens, the array cut after 4 complete items, which flag supported sentences too |
+| `smoke-cloud-planner-20261024`, `smoke-cloud-writer-r1-20261024` | cloud | example 01 planner, 400; writer-r1, 700 | `none` | answered: the Planner in 170 tokens but with a stray quote (not a JSON object); the Writer hit 700 |
+
+The switch (`NIGHTSHIFT_REASONING_EFFORT`, alias `METERLESS_REASONING_EFFORT`, default `none`; `default` sends
+nothing) works per request on both routes, each in its own way (`machine.txt` shows the code and the template):
+
+- Hosted Nemotron 3.5: `reasoning_effort: "none"` in the body. Nightshift's proxy forwards it
+  (`proxy.js` line 733) and its NVIDIA adapter turns it into `chat_template_kwargs.enable_thinking=false`
+  (`providers.js` line 1288) for its Nemotron 3 / 3.5 rows.
+- Local Nemotron Nano 9B v2: its chat template overwrites any `enable_thinking` argument and turns thinking off only
+  when a system or user turn holds `/no_think` (then it opens the answer with `<think></think>`), so the request
+  starts with a system turn `/no_think`, which the template deletes from the rendered text. The prompt stays the one
+  user turn, byte for byte (its sha256 is the one logged).
+
+## The prompts were tightened for Nemotron (`nemotron-cloud/prompt-v1-ex01/`)
+
+With thinking off, the first fixture recording of example 01 (17:15 UTC, the prompts of f06bc36) filled every Writer
+and Critic budget: writer-r1 and writer-r2 700 of 700 output tokens, critic-r1 and critic-r2 500 of 500, both Critic
+arrays cut (4 and 5 complete items kept, `recovery{generator_reply_repaired}`). The drafts listed every claim as a
+bullet although the Writer prompt allowed five, and the Critic flagged supported sentences with long reasons ("The
+value is supported by c05, but the sentence itself is not a claim"). `prompt-v1-ex01/` keeps that replay
+(`output.json`, `report.md`, `run.jsonl`, `generator.jsonl`) and its five transcripts. Two prompts changed before
+the second recording (17:19 UTC)
+(`investigator/agents/prompts/`): the Critic lists ONLY unsupported statements, never a statement that restates a
+claim's value with its id, each reason in at most 15 words; the Writer picks at most 5 bullets, "never list every
+claim", then at most two short paragraphs, under 300 words. The budgets did not change. The Planner prompt did not
+change.
+
+## What the model's answers did
+
+- **Planner.** Its reply was the plan in all six runs (`plan.planner_source: "generator"`). In ex02 and ex05 the
+  first reply was not valid JSON ("response is not a JSON object": a stray `}` closed the object right after the
+  hypotheses list); the one re-ask is
+  logged as a `retry` line (agent `planner`) and its answer was used. No `planner_fallback`, no repair.
+- **Critic second opinion.** None of the 12 replies was cut: no `generator_reply_repaired` in any run; the longest
+  cloud reply was 498 of 500 tokens (ex04 critic-r2). The cloud Critic added 7/2, 2/6, 2/8, 11/8 and 10/6 issues
+  (rounds 1/2, ex01-ex05; `critique` lines with `rule: "LLM"`); several are wrong (they call a restated claim value
+  "not derivable from" another claim). The local Nano answered `[]` in both rounds (2 tokens each). The second
+  opinion can only add issues.
+- **Writer.** The drafts cite claim ids, but the rule-based Critic still sends them back: they do not carry the
+  caveat codes in brackets (rule C3, every claim, both rounds) and some numbers or citations do not map (rule B).
+  After round 2 the flagged sentences are cut (`recovery{narrative_trimmed}`: 2, 6, 8, 8 and 6 sentences in the
+  cloud runs, 2 in the local one) and the code-owned sentences a draft lacks are added from the claims
+  (`recovery{narrative_completed}`: conflicts and caveats in every run; the verdict sentence in the five cloud runs,
+  while the local draft stated it). The drafts are in `transcripts/`.
+- **What the model never decides.** Claims, values, rejections and the verdict come from the rules and are the same
+  with any model or none: the cloud and local ex01 runs give `self_settled_mostly` with 19 claims; ex04 is
+  `adoption_thin` with 9 claims here because its settlement is verified live, while the offline replay
+  (`../04-payer-dossier-unverifiable/`) cannot verify it and rejects `verified_tx`.
+
+## Compared with the Llama 3.2 3B run (`llama-3.2-3b/`)
+
+Same inputs, same budgets, Zetaris stopped in both; the Llama runs used the prompts before the tightening above.
+
+| | Llama 3.2 3B, local (`llama-3.2-3b/nightshift-ex0N-20261024/`) | Nemotron 3.5 Lightning, hosted (`nemotron-cloud/`) |
+|---|---|---|
+| Planner | ex01: invalid JSON twice, rules plan kept (`planner_fallback`); ex03-05 brought inside the schema (`generator_reply_repaired`) | used in 5 of 5; ex02 and ex05 after one re-ask |
+| Critic replies cut at 500 tokens | 7 of 10 | 0 of 10 |
+| Critic issues added (rounds 1/2, ex01-05) | 20/19, 11/10, 12/13, 13/8, 12/13 | 7/2, 2/6, 2/8, 11/8, 10/6 |
+| Sentences cut after round 2 | 10, 10, 13, 8, 13 | 2, 6, 8, 8, 6 |
+| Verdict sentence added by code | 5 of 5 | 5 of 5 |
+
+The hosted Nemotron follows the formats far better; it still drops caveat codes and conflict ids, so the final
+answers are still completed from the claims, and several of its Critic issues are wrong. Some of the difference is
+the prompt change, not the model: with the old prompts the same model filled every budget (`prompt-v1-ex01/`).
+The hosted endpoint is not deterministic at temperature 0: the same planner prompt gave valid JSON in the fixture
+recording and invalid JSON in `smoke-cloud-planner-20261024`, and examples 03 and 05, whose prompts are identical,
+got different writer-r1 replies.
 
 ## Zetaris fell back to SQLite
 
-Zetaris was stopped on purpose for these runs (the machine was short of memory). Every run starts with
-`recovery{zetaris_unreachable}` at seq 1 ("connection refused"; `zetaris.jsonl` of ex01 shows the failed login)
-and runs the whole SQL on SQLite (`mounts.executor: "sqlite"`, `derivation.backend: "sqlite"`), which is why
-every status is `partial`. The live trace computed on Zetaris Lightning SQL is
-`../live-trace/live-ex01-20261022/` (2026-10-22, before Nightshift was installed, generator `null`).
-
-## What the 3B model's answers did
-
-- **Planner.** Ex01 (both attempts): the reply listed hypotheses until the token limit, so its JSON never closed;
-  after the one re-ask the Planner kept the rules plan (`recovery{planner_fallback}`, `plan.planner_source:
-  "rules"`). Ex02-05: the reply was used (`planner_source: "generator"`); in ex03-05 only after it was brought inside
-  the schema's limits, logged as `recovery{generator_reply_repaired}` (ex03 and ex04: the same hypothesis five
-  times, kept once; ex05: four extra metric ids that are not in the registry dropped).
-- **Critic second opinion.** 7 of the 10 replies of the five final runs stopped at the 500-token limit in the
-  middle of the JSON array; their complete items are kept (`recovery{generator_reply_repaired}`, "N complete
-  item(s) were kept"), and they flag many sentences of the draft. The second opinion can only add issues.
-- **Writer.** The drafts cite claims but leave out caveat codes and conflict ids, so the rule-based Critic sends
-  them back (rules C3 and C7 on the narrative, B where a number or citation does not map). After round 2 the flagged sentences are
-  cut (`recovery{narrative_trimmed}`) and the code-owned sentences the answer lacks (conflicts, caveats, the verdict
-  sentence) are added from the claims (`recovery{narrative_completed}`). The final answers are therefore mostly
-  template sentences; the drafts are in `transcripts/`.
-- **What the model never decides.** Claims, values, rejections and the verdict come from the rules and are the
-  same with or without the model: ex04 is `adoption_thin` with 9 claims here because its settlement is verified
-  live, while the offline replay (`../04-payer-dossier-unverifiable/`) cannot verify it and rejects `verified_tx`.
-
-`live-ns-ex01-20261024/` is the first run, made before the reply handling above existed: the Planner fell back to
-rules and both Critic replies were discarded as "not a JSON array" (`recovery{generator_fallback}`). Its
-transcripts are the replies that made us add `salvage_json_list` and the Planner's `normalise_reply`
-(`investigator/generator.py`, `investigator/agents/planner.py`).
+Zetaris was stopped on purpose (the machine had about 4 GB of free memory). Every run starts with
+`recovery{zetaris_unreachable}` at seq 1 ("connection refused"; `zetaris.jsonl` of the two complete folders shows
+the failed login) and runs the whole SQL on SQLite (`mounts.executor: "sqlite"`), which is why every status is
+`partial`. The live trace computed on Zetaris Lightning SQL is `../live-trace/live-ex01-20261022/` (2026-10-22,
+before Nightshift was installed, generator `null`).
 
 ## Relation to the sample-mode replays
 
-The transcripts the committed examples replay (`../../fixtures/transcripts/<example>/`) are not these calls. A
-transcript is keyed by the sha256 of its exact prompt, and these prompts carry live data (fresh receipts, moved
-counters), so they never occur offline. The replay set was recorded the same day, 16:11-16:17 UTC, by
-`python scripts/record_transcripts.py <example> --on-fixtures --prune`: real Nightshift calls (same lane, receipts
-included) on the prompts that sample mode builds from the committed fixtures. `--record-transcripts` still copied
-these live transcripts into `fixtures/transcripts/` during the runs; `--prune` removed them there because no
-sample-mode prompt uses them, and this folder keeps them.
+The committed examples replay 25 other Nemotron answers (`../../fixtures/transcripts/<example>/`, recorded
+17:15-17:24 UTC with `METERLESS_MODEL=nvidia/nemotron-3.5-lightning-30b-a3b python scripts/record_transcripts.py
+<example> --on-fixtures --prune`; see that folder's README). A transcript is keyed by the sha256 of its exact
+prompt, and the live prompts here carry live data, so they never occur offline.
 
 ## Files
 
-`nightshift-ex01-20261024/`: `output.json`, `report.md`, `run.jsonl`, `generator.jsonl`, `sql.jsonl`,
-`hmem.trace.jsonl`, `fetch.jsonl`, `zetaris.jsonl` and `transcripts/` (each call's reply with its routing, and
-the exact prompt beside it). The other folders: `output.json`, `report.md`, `run.jsonl`, `generator.jsonl`,
+The complete folders (`nemotron-cloud-ex01-20261024/`, `nemotron-local-ex01-20261024/`): `output.json`,
+`report.md`, `run.jsonl`, `generator.jsonl`, `sql.jsonl`, `hmem.trace.jsonl`, `fetch.jsonl`, `zetaris.jsonl` and
+`transcripts/` (each call's reply with its routing and `request` {`max_tokens`, `call_options`}, and the exact
+prompt beside it). The other run folders: `output.json`, `report.md`, `run.jsonl`, `generator.jsonl`,
 `transcripts/`. The World Model event files, raw responses, exports and the SQLite file stay in `logs/`. Before
-these files were added they were checked for absolute paths, for `Bearer`, `idToken`, `password` and
+these files were added they were checked for absolute paths, for `Bearer`, `nvapi-`, `idToken`, `password` and
 `authorization` strings, and for any literal of 32 or more characters that is not hex or a path or identifier.

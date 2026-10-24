@@ -1,0 +1,53 @@
+{
+  "prompt_id": "planner",
+  "prompt_sha256": "be14e8121cf449aa59326256b368c8d60a51c595eb7fc7cbd914a8049bcc04b2",
+  "model": "local-runtime/nvidia-nvidia-nemotron-nano-9b-v2-q4-k-m",
+  "recorded_at": "2026-10-24T17:31:30.193Z",
+  "response": "```json\n{\n  \"playbook\": \"seller_profile\",\n  \"hypotheses\": [\n    \"The adoption of tienda.textokit.store is real and measurable through settled sales and CDP Bazaar listings.\",\n    \"Discrepancies in registry data may stem from inconsistent tracking of payments or settlement confirmations.\",\n    \"The payment behavior of buyers (who pays, how much) could explain variations in sales totals across registries.\",\n    \"Repeat buyers or returning customers might influence sales totals and registry inconsistencies.\",\n    \"Differences in registry reporting could be due to timing of data collection or scope of included transactions.\"\n  ],\n  \"extra_metrics\": [\n    \"sales_total\",\n    \"bazaar_listings_for_host\",\n    \"external_sales_total\",\n    \"repeat_external_payers\",\n    \"external_sales_30d\"\n  ]\n}\n```\n",
+  "usage": {
+    "prompt_tokens": 773,
+    "completion_tokens": 182,
+    "total_tokens": 955
+  },
+  "provider": "meterless",
+  "requested_model": "local-runtime/nvidia-nvidia-nemotron-nano-9b-v2-q4-k-m",
+  "routing": {
+    "source": "meterless_receipt",
+    "schema": "meterless.compute_receipt.v1",
+    "receipt_id": "rcpt_req_2j2p2eb0",
+    "decision_id": "req_2j2p2eb0",
+    "requested_model": "local-runtime/nvidia-nvidia-nemotron-nano-9b-v2-q4-k-m",
+    "routed_model": "local-runtime/nvidia-nvidia-nemotron-nano-9b-v2-q4-k-m",
+    "winning_route": {
+      "model": "local-runtime/nvidia-nvidia-nemotron-nano-9b-v2-q4-k-m",
+      "label": "nvidia_NVIDIA-Nemotron-Nano-9B-v2-Q4_K_M · Runtime",
+      "provider": "local-runtime",
+      "kind": "local",
+      "tier": "A"
+    },
+    "phases": [
+      {
+        "phase": "final_synthesis",
+        "model": "local-runtime/nvidia-nvidia-nemotron-nano-9b-v2-q4-k-m",
+        "ms": 3475
+      }
+    ],
+    "latency_ms": 3475,
+    "usage": {
+      "input_tokens": 773,
+      "output_tokens": 182,
+      "total_tokens": 955
+    },
+    "cache": "miss",
+    "from_cache": false,
+    "privacy_path": "local-only",
+    "wall_ms": 3500
+  },
+  "request": {
+    "max_tokens": 400,
+    "call_options": {
+      "reasoning_effort": "none",
+      "system_turn": "/no_think"
+    }
+  }
+}

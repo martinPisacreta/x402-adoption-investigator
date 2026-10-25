@@ -674,3 +674,11 @@ Entries are added here only for work actually done after 2026-10-22.
 - **Not done:** q20-q22 are still not recorded with `scripts/record_zetaris_results.py --from-fixtures`;
   `tables_summary()` still drops the table status and a failed table still logs no `recovery` (a code change for
   later; the run folders stay unedited copies); no retry and no larger heap; nothing committed or pushed.
+
+## 2026-10-25 — failed Zetaris tables are logged
+
+- **What:** `_register_table` logs `recovery` `zetaris_table_failed` for every table that cannot be built, and
+  `tables_summary()` keeps `status`/`reason` in `sql.jsonl`. Closes the follow-up noted on 24 Oct (example 02's
+  `CACHE TABLE` failure appeared only in `zetaris.jsonl`). Run status rules unchanged.
+- **Tests:** 331 (1 new in `tests/test_zetaris_executor.py`). `python -m unittest discover -s tests`: OK, 0 skips.
+

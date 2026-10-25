@@ -94,8 +94,17 @@ def backend_label(result: SqlResult) -> str:
 
 
 def tables_summary(tables: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """The {name, source_url} rows for sql.jsonl (extra keys dropped)."""
-    return [{"name": t.get("name"), "source_url": t.get("source_url")} for t in tables]
+    """The {name, source_url} rows for sql.jsonl, plus status and reason when the table carries them (a table
+    that could not be built on Zetaris is listed with status failed and its reason, not as if it were fine)."""
+    rows = []
+    for t in tables:
+        row = {"name": t.get("name"), "source_url": t.get("source_url")}
+        if t.get("status"):
+            row["status"] = t["status"]
+        if t.get("reason"):
+            row["reason"] = t["reason"]
+        rows.append(row)
+    return rows
 
 
 # ----------------------------------------------------------------------------------------------------------
@@ -353,6 +362,8 @@ class ZetarisExecutor:
             url, kind = self._url_for_table(logical, export_key, export_path)
         except ZetarisError as err:
             self.table_status[logical] = {"ok": False, "reason": err.message, "export": export_key}
+            self._recover("zetaris_table_failed", f"table {logical} could not be built on Zetaris: {err.message[:200]}",
+                          table=logical, export=export_key, to="sqlite")
             return False
         timeout = CATALOG_TIMEOUT_S if is_catalog else DDL_TIMEOUT_S
         before = len(self.server.requests) if self.server is not None else 0
@@ -380,6 +391,11 @@ class ZetarisExecutor:
             self.table_status[logical] = {"ok": False, "reason": reason, "export": export_key, "source_url": url}
             self.tables.append({"name": f"{ddl.database_name(self.run_id)}.{logical}", "source_url": url,
                                 "backend": "sqlite", "status": "failed", "reason": reason, "export": export_key})
+            # Logged even when no query reads this table, so a failed build never passes silently (example 02 of
+            # 24 Oct: the driver ran out of heap on CACHE TABLE of a Bazaar page that no query read, and only
+            # zetaris.jsonl showed it). Queries that do read it still log their own zetaris_query_fallback.
+            self._recover("zetaris_table_failed", f"table {logical} could not be built on Zetaris: {reason[:200]}",
+                          table=logical, export=export_key, to="sqlite")
             return False
         self.table_status[logical] = {"ok": True, "reason": None, "export": export_key, "source_url": url, "kind": kind}
         self.tables.append({"name": f"{ddl.database_name(self.run_id)}.{logical}", "source_url": url,

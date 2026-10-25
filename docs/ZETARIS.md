@@ -188,9 +188,11 @@ Real `zetaris.jsonl` lines (from the live probe; the seq is added by the EventLo
   `examples/live-trace-zetaris-nightshift/`). On 24 Oct the driver that failed had served example 01 first, and right
   after the restart the same heap cached the 32 MB catalog snapshot in 5,099 ms. Whether the page or the driver's
   accumulated state is the cause is not shown.
-  - A table that fails to cache only marks the views built on it as unavailable. A `recovery` line appears only when
-    a query then falls back, so `run.jsonl` does not show a failure no query depends on; `zetaris.jsonl` does.
-  - `sql.jsonl` does not show it either: its `tables` key lists every table the run registered, the same on every
-    line, not the tables each query read, and `tables_summary()` drops their status. Example 02's seven lines still
-    name `bazaar_page0`.
+  - In the six runs of 24 Oct, a table that failed to cache only marked the views built on it as unavailable; a
+    `recovery` line appeared only when a query then fell back, so `run.jsonl` of example 02 does not show the failure
+    (its `zetaris.jsonl` does), and `sql.jsonl` listed `bazaar_page0` on every line without its status.
+  - Since 25 Oct (code change after those runs) every table that cannot be built logs a `recovery` with reason
+    `zetaris_table_failed` (table, export, `to: sqlite`), even when no query reads it, and `sql.jsonl` keeps each
+    table's `status` and `reason`. It does not change the run status: only a query that falls back does that. The
+    committed run folders are copies of their logs and keep the old behaviour.
   - Neither a retry nor a larger heap has been tried.

@@ -169,7 +169,7 @@ elsewhere; every receipt names the model).
     (`examples/memory-ablation/`). Tests: 13/13 upstream vectors (`tests/test_hmem_conformance.py`),
     `tests/test_meterless_hmem.py`, `tests/test_generator_hmem.py`, `tests/test_critic.py`.
 
-  All 330 tests pass, 0 failures, 0 skips (`python -m unittest discover -s tests`).
+  All 331 tests pass, 0 failures, 0 skips (`python -m unittest discover -s tests`).
   [Details](#meterless-integration-h-mem--world-model).
 - **Meterless Nightshift (primary AI provider).** In live mode the Planner, the Writer and the Critic's second
   opinion send every request to Nightshift's Meterless Runtime first (`NightshiftGenerator` in
@@ -871,7 +871,7 @@ on 2026-10-22 between 00:02 and 00:08 UTC.
 ## Tests
 
 ```
-python -m unittest discover -s tests     # 330 tests, no third-party dependency
+python -m unittest discover -s tests     # 331 tests, no third-party dependency
 python -m pytest -q                      # same suite under pytest if installed
 ```
 
@@ -898,8 +898,9 @@ exists, its test count is the discovered one and README quotes it; the deck quot
 rendered, which `metadata.json` records as `tests.count_in_repo_deck`; the deck on the HackOS form, until it is
 replaced, says 225, `tests.count_in_hackos_deck`).
 
-On 2026-10-24, after the six runs on Zetaris and Nightshift were added, the 330 tests ran green in the author tree
-(Python 3.11.9), and again after the review of that folder. The 6 added then check that folder against its logs and README
+On 2026-10-25, after a failed Zetaris table started logging a `zetaris_table_failed` recovery, all 331 tests ran
+green in the author tree (Python 3.11.9). On 2026-10-24, after the six runs on Zetaris and Nightshift were added, the
+suite (330 then) ran green, and again after the review of that folder. The 6 added then check that folder against its logs and README
 (`tests/test_live_trace_zetaris_nightshift.py`, 5) and its 30 receipts in the ledger excerpt
 (`tests/test_nightshift_ledger.py`, 1). Before that, after the second review round, the suite (324 then) ran green
 in the author tree, and after the first review fixes (commit a8650c4 and the docs commit after it) the suite (318

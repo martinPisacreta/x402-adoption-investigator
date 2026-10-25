@@ -546,3 +546,16 @@ are.
 
 Tests: `tests/test_live_trace_zetaris_nightshift.py` (new, 5) and one more in `tests/test_nightshift_ledger.py`;
 330 in all.
+
+## 2026-10-25: a failed Zetaris table now logs a recovery
+
+The follow-up the 24 Oct review left open. `ZetarisExecutor._register_table` now logs a `recovery` with reason
+`zetaris_table_failed` (with `table`, `export`, `to: "sqlite"`) whenever a table cannot be built, including when
+no URL can be served for it, so a failure like example 02's `CACHE TABLE` of `bazaar_page0` shows in `run.jsonl`
+even if no query reads that table. `tables_summary()` keeps `status` and `reason`, so `sql.jsonl` no longer lists a
+failed table as if it were fine. The run status is unchanged by this event (only a query fallback, a rejected or
+unavailable claim, a deadline skip or a degraded agent makes a run `partial`), and `--require-zetaris` still acts on
+query fallbacks only. The committed run folders were produced before this change and stay as they are.
+
+Test: `tests/test_zetaris_executor.py::FallbackMatrix::test_failed_table_logs_recovery_and_keeps_its_status`; 331 in
+all.

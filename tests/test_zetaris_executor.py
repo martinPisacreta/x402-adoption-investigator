@@ -30,7 +30,7 @@ from investigator.zetaris.catalog import load_catalog  # noqa: E402
 from investigator.zetaris.client import (  # noqa: E402
     CONTAINERS_PATH, DATABASES_PATH, LOGIN_PATH, RUN_QUERY_PATH, ZetarisClient, ZetarisError, ZetarisUnreachable,
 )
-from investigator.zetaris.executor import SqliteExecutor, ZetarisExecutor, backend_label, build_executor  # noqa: E402
+from investigator.zetaris.executor import SqliteExecutor, ZetarisExecutor, backend_label, build_executor, tables_summary  # noqa: E402
 
 PASSWORD = "pw-secret-ZZ9"
 TOKEN = "tok-secret-JWT-abc"
@@ -250,6 +250,25 @@ class FallbackMatrix(unittest.TestCase):
         self.assertEqual(result.executor, "sqlite")
         self.assertTrue(result.fallback_reason.startswith("view_unavailable:sales("))
         self.assertEqual(result.rows[0][0], "0xpayer")
+        ex.cleanup()
+
+    def test_failed_table_logs_recovery_and_keeps_its_status(self) -> None:
+        ex = self._executor(fail_sql={"receipts_raw": (400, "Connection reset")})
+        recoveries: list[tuple[Any, ...]] = []
+        ex.on_recovery = lambda agent, reason, detail, **extra: recoveries.append((agent, reason, detail, extra))
+        ex.ensure_views(self.exports)
+        failed = [r for r in recoveries if r[1] == "zetaris_table_failed"]
+        self.assertEqual(len(failed), 1)
+        self.assertEqual(failed[0][3]["table"], "receipts_raw")
+        self.assertIn("Connection reset", failed[0][2])
+        self.assertEqual(ex.view_status["sales"]["backend"], "sqlite")
+        self.assertEqual(ex.view_status["bazaar_search"]["backend"], "zetaris")
+        rows = {r["name"].split(".")[-1]: r for r in tables_summary(ex.tables)}
+        self.assertEqual(rows["receipts_raw"]["status"], "failed")
+        self.assertIn("Connection reset", rows["receipts_raw"]["reason"])
+        others = [r for name, r in rows.items() if name != "receipts_raw"]
+        self.assertTrue(others)
+        self.assertTrue(all(r["status"] == "ok" and "reason" not in r for r in others))
         ex.cleanup()
 
     def test_require_zetaris_turns_query_fallback_into_error(self) -> None:

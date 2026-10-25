@@ -32,8 +32,8 @@ from investigator.zetaris.client import (  # noqa: E402
 )
 from investigator.zetaris.executor import SqliteExecutor, ZetarisExecutor, backend_label, build_executor, tables_summary  # noqa: E402
 
-PASSWORD = "pw-secret-ZZ9"
-TOKEN = "tok-secret-JWT-abc"
+PASSWORD = "pw-secret-ZZ9"  # ggignore: fake fixture for the scrubbing tests, not a credential
+TOKEN = "tok-secret-JWT-abc"  # ggignore: fake fixture, not a credential
 
 
 class FakeHttp(ZetarisClient):

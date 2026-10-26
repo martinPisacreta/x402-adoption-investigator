@@ -24,9 +24,10 @@ What goes in, all from this repository:
     The Nightshift part of the video shows them paced to the narration of deck slide 9 (whose image is not shown):
     generate and ledger lines in full, other long lines cut to their first row with an ellipsis, as its subtitle
     says. The two runs and the ledger check show their real arrival times; the local grep shows none.
-  - docs/pitch/video/zetaris-capture.json, the grep of the run_start and sql events of the committed 22 Oct live
-    log on Zetaris (examples/live-trace/live-ex01-20261022/run.jsonl), checked against it; shown with the narration
-    of deck slide 10, whose image is not shown.
+  - docs/pitch/video/zetaris-capture.json, the grep of the run_start, sql and generate events of the committed 24 Oct
+    live run with Zetaris and Nightshift together
+    (examples/live-trace-zetaris-nightshift/nemotron-cloud/zetaris-nightshift-ex01-20261024/run.jsonl), checked
+    against it; shown with the narration of deck slide 10, whose image is not shown.
 
 Steps (Windows; ffmpeg, ffprobe and Chrome installed; pymupdf is used only here, to draw the terminal frames):
   powershell -NoProfile -ExecutionPolicy Bypass -File docs/pitch/video/tts.ps1 -OutDir <work>/tts -Rate 2
@@ -460,13 +461,13 @@ def load_ledger_capture():
 
 
 def load_zetaris_capture():
-    """The grep of the committed 22 Oct live log on Zetaris: its run_start and sql events, checked against it."""
+    """The grep of the committed 24 Oct live log with Zetaris and Nightshift: run_start, sql and generate events."""
     cap = json.loads(ZETARIS_CAPTURE.read_text(encoding="utf-8"))
     log = cap["cmdline"].split()[-1]
     wanted = [l for l in (REPO / log).read_text(encoding="utf-8").splitlines()
-              if '"type":"run_start"' in l or '"type":"sql"' in l]
+              if '"type":"run_start"' in l or '"type":"sql"' in l or '"type":"generate"' in l]
     if cap["rc"] != 0 or [r["line"] for r in cap["lines"]] != wanted:
-        sys.exit(f"{ZETARIS_CAPTURE.name}: captured lines are not the run_start and sql events of {log}")
+        sys.exit(f"{ZETARIS_CAPTURE.name}: captured lines are not the run_start, sql and generate events of {log}")
     cap["log"] = log
     return cap
 
@@ -674,20 +675,26 @@ def live_clip(ffmpeg, caps, words, lead, duration, work, out):
 def zetaris_clip(ffmpeg, cap, words, lead, duration, work, out):
     items = [("prompt", "$ " + cap["cmdline"], None)] + [("line", r["line"], None) for r in cap["lines"]]
     sql = [n for n, (k, text, _) in enumerate(items) if '"type":"sql"' in text]
+    gen = [n for n, (k, text, _) in enumerate(items) if '"type":"generate"' in text]
     start = next(n for n, (k, text, _) in enumerate(items) if '"type":"run_start"' in text)
     executors = {json.loads(items[n][1])["payload"]["executor"] for n in sql}
     assert executors == {"zetaris"}, executors
+    after_sql = [n for n in gen if n > sql[-1]]
+    assert after_sql, "no generate event after the queries"
     ev = json.loads(items[start][1])
-    title = (f"Zetaris Lightning SQL in a live run  ·  example 01  ·  {ev['at'][:10]}  ·  committed log "
+    title = (f"Zetaris and Nightshift in one live run  ·  example 01  ·  {ev['at'][:10]}  ·  committed log "
              f"{cap['log'].rsplit('/', 2)[-2]}")
-    sub = ("Captured stdout of grep over the committed run.jsonl of the 22 Oct live seller audit (before Nightshift existed: "
-           "generator null): its run_start and the sql event of every query, each executed on Zetaris. Long lines show their first row (…).")
+    sub = ("Captured stdout of grep over the committed run.jsonl of the 24 Oct live seller audit: its run_start, the sql "
+           "event of every query, each executed on Zetaris, and the generate events, each a request through Meterless "
+           "Nightshift answered by NVIDIA Nemotron. Long lines show their first row (…).")
     term = LogTerm(items, title, sub, whole=[start] + sql, timed=False)
     wt = functools.partial(word_time, words)
-    anchors = [(start, lead + wt("log")), (sql[0], lead + wt("query")), (sql[-1], lead + wt("nineteen"))]
-    note = f"{len(sql)} queries, every one executor zetaris (Zetaris {ev['payload']['mounts']['zetaris_version']})"
-    return log_clip(ffmpeg, term, anchors, [start, sql[0], sql[-1]], note, lead + words[-1]["s"] + 0.6, duration,
-                    work, out, "zet")
+    anchors = [(start, lead + wt("log")), (sql[0], lead + wt("query")), (sql[-1], lead + wt("Zetaris", 2)),
+               (after_sql[0], lead + wt("generate")), (gen[-1], lead + wt("Nemotron"))]
+    note = (f"{len(sql)} queries, every one executor zetaris (Zetaris {ev['payload']['mounts']['zetaris_version']}); "
+            f"{len(gen)} requests through Nightshift")
+    return log_clip(ffmpeg, term, anchors, [start, sql[0], sql[-1], after_sql[0], gen[-1]], note,
+                    lead + words[-1]["s"] + 0.6, duration, work, out, "zet")
 
 
 # ---------------------------------------------------------------- viewer

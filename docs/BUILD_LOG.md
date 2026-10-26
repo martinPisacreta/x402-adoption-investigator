@@ -682,3 +682,17 @@ Entries are added here only for work actually done after 2026-10-22.
   `CACHE TABLE` failure appeared only in `zetaris.jsonl`). Run status rules unchanged.
 - **Tests:** 331 (1 new in `tests/test_zetaris_executor.py`). `python -m unittest discover -s tests`: OK, 0 skips.
 
+
+## 2026-10-26 — video part 10 shows Zetaris and Nightshift in one run
+
+- **Why:** a HackOS organizer's last check before the 27 Oct deadline asks that the demo video show the agent querying
+  Zetaris, Meterless at work and a real request through Nightshift. Until now the Zetaris part of the video used the
+  22 Oct run, which had no model, and the Nightshift part a run in which Zetaris was stopped.
+- **What:** `docs/pitch/video/zetaris-capture.json` is now the `grep` of the `run_start`, 13 `sql` and 5 `generate`
+  events of `examples/live-trace-zetaris-nightshift/nemotron-cloud/zetaris-nightshift-ex01-20261024/run.jsonl`
+  (captured with `capture_run.py --cmdline`); `build_video.py` checks those three event types against the committed
+  log, asserts every query ran on Zetaris and paces the part to the new narration of slide 10. Narration of slide 13
+  says "over three hundred thirty tests" to match the re-rendered slide (330). `demo.mp4` rebuilt with
+  `tts.ps1 -Rate 2` and `build_video.py`: 234.9 s; for the HackOS upload a two-pass 260 kbit/s copy of 9.6 MB.
+- **HackOS:** the 24 Oct video, deck and description were already on the form (ESTADO notes of 24 and 25 Oct); this
+  video replaces that one on 26 Oct.

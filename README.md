@@ -59,22 +59,23 @@ captures and the scripts that rebuild it):
   `local-runtime/nvidia-nvidia-nemotron-nano-9b-v2-q4-k-m`, kind `local`;
   [live-capture-local.json](docs/pitch/video/live-capture-local.json)). The Nightshift Console window itself is not
   shown; the ledger check stands in for it.
-- **Zetaris in a live run, from its committed log**: `grep` of the `run_start` and the 13 `sql` events of
-  `examples/live-trace/live-ex01-20261022/run.jsonl` (22 Oct, executor `zetaris`, generator `null`: that run had no
-  model; [zetaris-capture.json](docs/pitch/video/zetaris-capture.json)). No run in the video uses Zetaris and
-  Nightshift together. The six committed runs that do were made after the video's last commit (1b8dc92, 20:26 UTC
-  on 24 Oct), at 22:36-22:42 UTC ([examples/live-trace-zetaris-nightshift/](examples/live-trace-zetaris-nightshift/)).
+- **Zetaris and Nightshift in one live run, from its committed log**: `grep` of the `run_start`, the 13 `sql`
+  events and the 5 `generate` events of
+  `examples/live-trace-zetaris-nightshift/nemotron-cloud/zetaris-nightshift-ex01-20261024/run.jsonl` (24 Oct,
+  22:36 UTC: every query executor `zetaris`, every model request through Meterless Nightshift to NVIDIA Nemotron 3.5
+  Lightning; [zetaris-capture.json](docs/pitch/video/zetaris-capture.json)). This part was rebuilt on 26 Oct; before,
+  it showed the 22 Oct Zetaris run, which had no model.
 
 Slide deck: [docs/pitch/deck.pdf](docs/pitch/deck.pdf) (14 slides; slide 9 shows the five requests of the video's
 live run with their receipts, slide 14 what was unique and the future enhancements). Source:
 [docs/pitch/deck.html](docs/pitch/deck.html); slide images in [docs/pitch/slides/](docs/pitch/slides/); the video
-shows slides 1-8, 11 and 13. Deck, narration and video were submitted on HackOS on 22 Oct; the versions in this
-repository were rebuilt on 24 Oct for the Nightshift runs and have not replaced them on the HackOS form yet;
-docs/BUILD_LOG.md will record the date when they do. Slides 9, 10, 13 and 14 of the repository deck were updated
+shows slides 1-8, 11 and 13. Deck, narration and video were first submitted on HackOS on 22 Oct; the video was
+rebuilt on 24 Oct for the Nightshift runs and on 26 Oct for the run with Zetaris and Nightshift together, and
+docs/BUILD_LOG.md records each replacement on the HackOS form. Slides 9, 10, 13 and 14 of the repository deck were updated
 after the runs on Zetaris (24 Oct, after 22:42 UTC), and `deck.pdf` and their images in `slides/` were re-rendered.
-The video was not rebuilt: it does not show slides 9, 10 and 14, and the slide 13 it shows is the earlier one, with
-the test count of that day (324, which its narration says) and 32 and 5 Nemotron requests, the counts before the
-runs on Zetaris.
+The video was rebuilt on 26 Oct from these slide images: it shows the re-rendered slide 13, with the
+deck's test count, which its narration rounds to over three hundred thirty, and it still does not show slides 9, 10
+and 14.
 
 ## Overview
 

@@ -1,66 +1,86 @@
 {
- "cmdline": "grep -E '\"type\":\"(run_start|sql)\"' examples/live-trace/live-ex01-20261022/run.jsonl",
+ "cmdline": "grep -E '\"type\":\"(run_start|sql|generate)\"' examples/live-trace-zetaris-nightshift/nemotron-cloud/zetaris-nightshift-ex01-20261024/run.jsonl",
  "meta": {},
- "started_utc": "2026-10-24T19:00:03+00:00",
+ "started_utc": "2026-10-26T09:53:20+00:00",
  "rc": 0,
- "total_s": 0.0156,
+ "total_s": 0.0127,
  "stderr": "",
  "lines": [
   {
-   "t": 0.0145,
-   "line": "{\"seq\":2,\"at\":\"2026-10-22T03:37:58.293Z\",\"run_id\":\"live-ex01-20261022\",\"type\":\"run_start\",\"agent\":\"runner\",\"payload\":{\"mounts\":{\"mode\":\"live\",\"fetcher\":\"live+fixture-fallback\",\"executor\":\"zetaris\",\"generator\":\"null\",\"fixtures_captured_at\":\"2026-10-22T00:05:00Z\",\"zetaris_version\":\"2.4.3.1\",\"zetaris_source\":\"captured\"},\"input_sha256\":\"460f353bbe613207dbf9a81fcda3e13469b9c7018b5c46184a3c9694746e16d5\",\"budget\":{\"max_seconds\":180,\"max_fetches\":40,\"max_sql\":60,\"max_generator_calls\":12,\"max_critic_rounds\":2,\"max_tx_verifications\":5,\"bazaar_pages\":3},\"deadline_at\":\"2026-10-22T03:37:58.293Z\",\"version\":\"0.1.0\",\"engines\":{\"hmem\":true,\"world_model\":true}}}"
+   "t": 0.0116,
+   "line": "{\"seq\":1,\"at\":\"2026-10-24T22:36:45.978Z\",\"run_id\":\"zetaris-nightshift-ex01-20261024\",\"type\":\"run_start\",\"agent\":\"runner\",\"payload\":{\"mounts\":{\"mode\":\"live\",\"fetcher\":\"live+fixture-fallback\",\"executor\":\"zetaris\",\"generator\":\"nightshift:nvidia/nemotron-3.5-lightning-30b-a3b\",\"fixtures_captured_at\":\"2026-10-22T00:05:00Z\",\"zetaris_version\":\"2.4.3.1\",\"zetaris_source\":\"captured\"},\"input_sha256\":\"460f353bbe613207dbf9a81fcda3e13469b9c7018b5c46184a3c9694746e16d5\",\"budget\":{\"max_seconds\":180,\"max_fetches\":40,\"max_sql\":60,\"max_generator_calls\":12,\"max_critic_rounds\":2,\"max_tx_verifications\":5,\"bazaar_pages\":3},\"deadline_at\":\"2026-10-24T22:39:45.978Z\",\"version\":\"0.1.0\",\"engines\":{\"hmem\":true,\"world_model\":true},\"generator_mount\":{\"provider\":\"meterless\",\"base_url\":\"http://127.0.0.1:8088/v1\",\"routing_mode\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"found_by\":\"auto_detect\",\"models\":[\"meterless/auto\",\"meterless/fast\",\"meterless/deep\",\"meterless/cheap\",\"meterless/local\",\"meterless/fusion\",\"meterless/cluster\",\"meterless/text\",\"meterless/code\",\"meterless/vision\",\"meterless/perception\",\"meterless/image\",\"meterless/video\",\"meterless/speech\",\"meterless/transcribe\",\"meterless/music\",\"meterless/embed\",\"meterless/judge\"],\"timeout_s\":90.0,\"call_options\":{\"reasoning_effort\":\"none\",\"system_turn\":\"/no_think\"},\"token_source\":\"<stateDir>/proxy-token (default stateDir)\"}}}"
   },
   {
-   "t": 0.0145,
-   "line": "{\"seq\":42,\"at\":\"2026-10-22T03:38:09.774Z\",\"run_id\":\"live-ex01-20261022\",\"type\":\"sql\",\"agent\":\"analyst\",\"payload\":{\"query_id\":\"q01_sales_by_wallet_class\",\"executor\":\"zetaris\",\"sql_sha256\":\"78da86f00660fccf3e761e51e79568a5cea14c5ab2ef723edb35bb25ca219318\",\"params\":{},\"rowcount\":2,\"time_used_ms\":218}}"
+   "t": 0.0116,
+   "line": "{\"seq\":5,\"at\":\"2026-10-24T22:36:48.251Z\",\"run_id\":\"zetaris-nightshift-ex01-20261024\",\"type\":\"generate\",\"agent\":\"planner\",\"payload\":{\"prompt_id\":\"planner\",\"attempt\":1,\"generator\":\"nightshift:nvidia/nemotron-3.5-lightning-30b-a3b\",\"provider\":\"meterless\",\"requested_model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"recorded\":false,\"prompt_sha256\":\"be14e8121cf449aa59326256b368c8d60a51c595eb7fc7cbd914a8049bcc04b2\",\"response_sha256\":\"c4c736cb18d55588249a3ea361a6830b02793a1031fbc93a96b5845930f6f50e\",\"routing\":{\"source\":\"meterless_receipt\",\"schema\":\"meterless.compute_receipt.v1\",\"receipt_id\":\"rcpt_req_ontiekpl\",\"decision_id\":\"req_ontiekpl\",\"requested_model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"routed_model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"winning_route\":{\"model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"label\":\"Nemotron 3.5 Lightning 30B A3B\",\"provider\":\"nvidia\",\"kind\":\"cloud\",\"tier\":\"A\"},\"phases\":[{\"phase\":\"final_synthesis\",\"model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"ms\":2187}],\"latency_ms\":2187,\"usage\":{\"input_tokens\":777,\"output_tokens\":177,\"total_tokens\":954},\"cache\":\"miss\",\"from_cache\":false,\"privacy_path\":\"cloud-ok\",\"wall_ms\":2219}}}"
   },
   {
-   "t": 0.0145,
-   "line": "{\"seq\":43,\"at\":\"2026-10-22T03:38:10.045Z\",\"run_id\":\"live-ex01-20261022\",\"type\":\"sql\",\"agent\":\"analyst\",\"payload\":{\"query_id\":\"q02_external_payers\",\"executor\":\"zetaris\",\"sql_sha256\":\"af1c53c93fda7309e3d0c51ad9a87693f52f274e689d1d02fbc3b85d93208ecc\",\"params\":{},\"rowcount\":4,\"time_used_ms\":240}}"
+   "t": 0.0116,
+   "line": "{\"seq\":46,\"at\":\"2026-10-24T22:37:09.232Z\",\"run_id\":\"zetaris-nightshift-ex01-20261024\",\"type\":\"sql\",\"agent\":\"analyst\",\"payload\":{\"query_id\":\"q01_sales_by_wallet_class\",\"executor\":\"zetaris\",\"sql_sha256\":\"78da86f00660fccf3e761e51e79568a5cea14c5ab2ef723edb35bb25ca219318\",\"params\":{},\"rowcount\":2,\"time_used_ms\":629}}"
   },
   {
-   "t": 0.0146,
-   "line": "{\"seq\":44,\"at\":\"2026-10-22T03:38:10.236Z\",\"run_id\":\"live-ex01-20261022\",\"type\":\"sql\",\"agent\":\"analyst\",\"payload\":{\"query_id\":\"q03_repeat_external_payers\",\"executor\":\"zetaris\",\"sql_sha256\":\"dc5467b281c7753a91578bc125b67b0fa438d9b774d8fcf1c02f5747d8e6229d\",\"params\":{},\"rowcount\":1,\"time_used_ms\":162}}"
+   "t": 0.0116,
+   "line": "{\"seq\":47,\"at\":\"2026-10-24T22:37:09.809Z\",\"run_id\":\"zetaris-nightshift-ex01-20261024\",\"type\":\"sql\",\"agent\":\"analyst\",\"payload\":{\"query_id\":\"q02_external_payers\",\"executor\":\"zetaris\",\"sql_sha256\":\"af1c53c93fda7309e3d0c51ad9a87693f52f274e689d1d02fbc3b85d93208ecc\",\"params\":{},\"rowcount\":5,\"time_used_ms\":542}}"
   },
   {
-   "t": 0.0146,
-   "line": "{\"seq\":45,\"at\":\"2026-10-22T03:38:10.468Z\",\"run_id\":\"live-ex01-20261022\",\"type\":\"sql\",\"agent\":\"analyst\",\"payload\":{\"query_id\":\"q04_top_payer_share\",\"executor\":\"zetaris\",\"sql_sha256\":\"9b40ee7dbcad42ba71ddd5c24c625a9275912530db9a2f31fb524b9eb2abd910\",\"params\":{},\"rowcount\":1,\"time_used_ms\":204}}"
+   "t": 0.0116,
+   "line": "{\"seq\":48,\"at\":\"2026-10-24T22:37:10.139Z\",\"run_id\":\"zetaris-nightshift-ex01-20261024\",\"type\":\"sql\",\"agent\":\"analyst\",\"payload\":{\"query_id\":\"q03_repeat_external_payers\",\"executor\":\"zetaris\",\"sql_sha256\":\"dc5467b281c7753a91578bc125b67b0fa438d9b774d8fcf1c02f5747d8e6229d\",\"params\":{},\"rowcount\":1,\"time_used_ms\":300}}"
   },
   {
-   "t": 0.0146,
-   "line": "{\"seq\":46,\"at\":\"2026-10-22T03:38:10.676Z\",\"run_id\":\"live-ex01-20261022\",\"type\":\"sql\",\"agent\":\"analyst\",\"payload\":{\"query_id\":\"q05_external_sales_by_service\",\"executor\":\"zetaris\",\"sql_sha256\":\"566e3b5c519c9fc655dfafa4150432033722cd9d5866971f7e0eba6370524e60\",\"params\":{},\"rowcount\":17,\"time_used_ms\":189}}"
+   "t": 0.0116,
+   "line": "{\"seq\":49,\"at\":\"2026-10-24T22:37:10.505Z\",\"run_id\":\"zetaris-nightshift-ex01-20261024\",\"type\":\"sql\",\"agent\":\"analyst\",\"payload\":{\"query_id\":\"q04_top_payer_share\",\"executor\":\"zetaris\",\"sql_sha256\":\"9b40ee7dbcad42ba71ddd5c24c625a9275912530db9a2f31fb524b9eb2abd910\",\"params\":{},\"rowcount\":1,\"time_used_ms\":326}}"
   },
   {
-   "t": 0.0146,
-   "line": "{\"seq\":47,\"at\":\"2026-10-22T03:38:11.023Z\",\"run_id\":\"live-ex01-20261022\",\"type\":\"sql\",\"agent\":\"analyst\",\"payload\":{\"query_id\":\"q06_bazaar_host_listings\",\"executor\":\"zetaris\",\"sql_sha256\":\"db6f09d947dbc3619936f1df6808125f6edb184ad20eac06fe5ad5d41556df40\",\"params\":{\"host\":\"tienda.textokit.store\"},\"rowcount\":1,\"time_used_ms\":316}}"
+   "t": 0.0116,
+   "line": "{\"seq\":50,\"at\":\"2026-10-24T22:37:10.810Z\",\"run_id\":\"zetaris-nightshift-ex01-20261024\",\"type\":\"sql\",\"agent\":\"analyst\",\"payload\":{\"query_id\":\"q05_external_sales_by_service\",\"executor\":\"zetaris\",\"sql_sha256\":\"566e3b5c519c9fc655dfafa4150432033722cd9d5866971f7e0eba6370524e60\",\"params\":{},\"rowcount\":17,\"time_used_ms\":265}}"
   },
   {
-   "t": 0.0146,
-   "line": "{\"seq\":48,\"at\":\"2026-10-22T03:38:11.504Z\",\"run_id\":\"live-ex01-20261022\",\"type\":\"sql\",\"agent\":\"analyst\",\"payload\":{\"query_id\":\"q07_bazaar_payto_vs_receipts_seller\",\"executor\":\"zetaris\",\"sql_sha256\":\"793f72e8150563a571216e4caa4c5ee66adb356fdca8f8581c24ac0e5494c510\",\"params\":{\"host\":\"tienda.textokit.store\"},\"rowcount\":17,\"time_used_ms\":447}}"
+   "t": 0.0116,
+   "line": "{\"seq\":51,\"at\":\"2026-10-24T22:37:11.465Z\",\"run_id\":\"zetaris-nightshift-ex01-20261024\",\"type\":\"sql\",\"agent\":\"analyst\",\"payload\":{\"query_id\":\"q06_bazaar_host_listings\",\"executor\":\"zetaris\",\"sql_sha256\":\"db6f09d947dbc3619936f1df6808125f6edb184ad20eac06fe5ad5d41556df40\",\"params\":{\"host\":\"tienda.textokit.store\"},\"rowcount\":1,\"time_used_ms\":618}}"
   },
   {
-   "t": 0.0146,
-   "line": "{\"seq\":49,\"at\":\"2026-10-22T03:38:11.645Z\",\"run_id\":\"live-ex01-20261022\",\"type\":\"sql\",\"agent\":\"analyst\",\"payload\":{\"query_id\":\"q12_registry_count_openapi\",\"executor\":\"zetaris\",\"sql_sha256\":\"c9c6c473767bb9537e08761e2f163008728d3bf2c3f10cf0f1ab0771c397331f\",\"params\":{},\"rowcount\":1,\"time_used_ms\":119}}"
+   "t": 0.0116,
+   "line": "{\"seq\":52,\"at\":\"2026-10-24T22:37:12.218Z\",\"run_id\":\"zetaris-nightshift-ex01-20261024\",\"type\":\"sql\",\"agent\":\"analyst\",\"payload\":{\"query_id\":\"q07_bazaar_payto_vs_receipts_seller\",\"executor\":\"zetaris\",\"sql_sha256\":\"793f72e8150563a571216e4caa4c5ee66adb356fdca8f8581c24ac0e5494c510\",\"params\":{\"host\":\"tienda.textokit.store\"},\"rowcount\":17,\"time_used_ms\":713}}"
   },
   {
-   "t": 0.0146,
-   "line": "{\"seq\":50,\"at\":\"2026-10-22T03:38:11.779Z\",\"run_id\":\"live-ex01-20261022\",\"type\":\"sql\",\"agent\":\"analyst\",\"payload\":{\"query_id\":\"q13_registry_count_agent402\",\"executor\":\"zetaris\",\"sql_sha256\":\"c136b92d8bf6b6599d79e1b62d9544197d26de5946f68291e45e672bbf1c66c3\",\"params\":{},\"rowcount\":1,\"time_used_ms\":106}}"
+   "t": 0.0116,
+   "line": "{\"seq\":53,\"at\":\"2026-10-24T22:37:12.456Z\",\"run_id\":\"zetaris-nightshift-ex01-20261024\",\"type\":\"sql\",\"agent\":\"analyst\",\"payload\":{\"query_id\":\"q12_registry_count_openapi\",\"executor\":\"zetaris\",\"sql_sha256\":\"c9c6c473767bb9537e08761e2f163008728d3bf2c3f10cf0f1ab0771c397331f\",\"params\":{},\"rowcount\":1,\"time_used_ms\":205}}"
   },
   {
-   "t": 0.0146,
-   "line": "{\"seq\":51,\"at\":\"2026-10-22T03:38:11.943Z\",\"run_id\":\"live-ex01-20261022\",\"type\":\"sql\",\"agent\":\"analyst\",\"payload\":{\"query_id\":\"q14_registry_count_vet402\",\"executor\":\"zetaris\",\"sql_sha256\":\"058cc4214ba20f4e259db5d93d0eaf7839f177cadca1a2a3066f726d70e77378\",\"params\":{},\"rowcount\":1,\"time_used_ms\":145}}"
+   "t": 0.0116,
+   "line": "{\"seq\":54,\"at\":\"2026-10-24T22:37:12.681Z\",\"run_id\":\"zetaris-nightshift-ex01-20261024\",\"type\":\"sql\",\"agent\":\"analyst\",\"payload\":{\"query_id\":\"q13_registry_count_agent402\",\"executor\":\"zetaris\",\"sql_sha256\":\"c136b92d8bf6b6599d79e1b62d9544197d26de5946f68291e45e672bbf1c66c3\",\"params\":{},\"rowcount\":1,\"time_used_ms\":191}}"
   },
   {
-   "t": 0.0146,
-   "line": "{\"seq\":52,\"at\":\"2026-10-22T03:38:12.187Z\",\"run_id\":\"live-ex01-20261022\",\"type\":\"sql\",\"agent\":\"analyst\",\"payload\":{\"query_id\":\"q15_registry_count_trust_search\",\"executor\":\"zetaris\",\"sql_sha256\":\"37fc8c20c106e67a8fd197963593487b8422103679e1029d17e18e0e461c5686\",\"params\":{},\"rowcount\":1,\"time_used_ms\":213}}"
+   "t": 0.0116,
+   "line": "{\"seq\":55,\"at\":\"2026-10-24T22:37:12.975Z\",\"run_id\":\"zetaris-nightshift-ex01-20261024\",\"type\":\"sql\",\"agent\":\"analyst\",\"payload\":{\"query_id\":\"q14_registry_count_vet402\",\"executor\":\"zetaris\",\"sql_sha256\":\"058cc4214ba20f4e259db5d93d0eaf7839f177cadca1a2a3066f726d70e77378\",\"params\":{},\"rowcount\":1,\"time_used_ms\":259}}"
   },
   {
-   "t": 0.0146,
-   "line": "{\"seq\":53,\"at\":\"2026-10-22T03:38:12.470Z\",\"run_id\":\"live-ex01-20261022\",\"type\":\"sql\",\"agent\":\"analyst\",\"payload\":{\"query_id\":\"q16_settlements_vs_receipts\",\"executor\":\"zetaris\",\"sql_sha256\":\"82a4f8cbe2abce1bb339803cda230200231eeae43845ed91fc3c6e2261ef3815\",\"params\":{},\"rowcount\":4,\"time_used_ms\":244}}"
+   "t": 0.0116,
+   "line": "{\"seq\":56,\"at\":\"2026-10-24T22:37:13.336Z\",\"run_id\":\"zetaris-nightshift-ex01-20261024\",\"type\":\"sql\",\"agent\":\"analyst\",\"payload\":{\"query_id\":\"q15_registry_count_trust_search\",\"executor\":\"zetaris\",\"sql_sha256\":\"37fc8c20c106e67a8fd197963593487b8422103679e1029d17e18e0e461c5686\",\"params\":{},\"rowcount\":1,\"time_used_ms\":316}}"
   },
   {
-   "t": 0.0146,
-   "line": "{\"seq\":54,\"at\":\"2026-10-22T03:38:12.679Z\",\"run_id\":\"live-ex01-20261022\",\"type\":\"sql\",\"agent\":\"analyst\",\"payload\":{\"query_id\":\"q18_external_sales_by_day\",\"executor\":\"zetaris\",\"sql_sha256\":\"6e443de0aa36011d152ea0051bcdf3465357ac3b0268251bc08e358142d619ea\",\"params\":{},\"rowcount\":2,\"time_used_ms\":180}}"
+   "t": 0.0116,
+   "line": "{\"seq\":57,\"at\":\"2026-10-24T22:37:13.937Z\",\"run_id\":\"zetaris-nightshift-ex01-20261024\",\"type\":\"sql\",\"agent\":\"analyst\",\"payload\":{\"query_id\":\"q16_settlements_vs_receipts\",\"executor\":\"zetaris\",\"sql_sha256\":\"82a4f8cbe2abce1bb339803cda230200231eeae43845ed91fc3c6e2261ef3815\",\"params\":{},\"rowcount\":5,\"time_used_ms\":563}}"
+  },
+  {
+   "t": 0.0116,
+   "line": "{\"seq\":58,\"at\":\"2026-10-24T22:37:14.281Z\",\"run_id\":\"zetaris-nightshift-ex01-20261024\",\"type\":\"sql\",\"agent\":\"analyst\",\"payload\":{\"query_id\":\"q18_external_sales_by_day\",\"executor\":\"zetaris\",\"sql_sha256\":\"6e443de0aa36011d152ea0051bcdf3465357ac3b0268251bc08e358142d619ea\",\"params\":{},\"rowcount\":4,\"time_used_ms\":304}}"
+  },
+  {
+   "t": 0.0116,
+   "line": "{\"seq\":82,\"at\":\"2026-10-24T22:37:23.345Z\",\"run_id\":\"zetaris-nightshift-ex01-20261024\",\"type\":\"generate\",\"agent\":\"writer\",\"payload\":{\"prompt_id\":\"writer-r1\",\"attempt\":1,\"generator\":\"nightshift:nvidia/nemotron-3.5-lightning-30b-a3b\",\"provider\":\"meterless\",\"requested_model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"recorded\":false,\"prompt_sha256\":\"17598cd143bbf82d657e08bc5e598c83b3ea08aa287843ab6dd7d092523a24f6\",\"response_sha256\":\"f05bcb0cd730205cece7b497ad1fbe1a20bb0ab2a43763356721a8c4e3becfc9\",\"routing\":{\"source\":\"meterless_receipt\",\"schema\":\"meterless.compute_receipt.v1\",\"receipt_id\":\"rcpt_req_v7ob7i3s\",\"decision_id\":\"req_v7ob7i3s\",\"requested_model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"routed_model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"winning_route\":{\"model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"label\":\"Nemotron 3.5 Lightning 30B A3B\",\"provider\":\"nvidia\",\"kind\":\"cloud\",\"tier\":\"A\"},\"phases\":[{\"phase\":\"final_synthesis\",\"model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"ms\":9007}],\"latency_ms\":9007,\"usage\":{\"input_tokens\":3436,\"output_tokens\":604,\"total_tokens\":4040},\"cache\":\"miss\",\"from_cache\":false,\"privacy_path\":\"cloud-ok\",\"wall_ms\":9047}}}"
+  },
+  {
+   "t": 0.0116,
+   "line": "{\"seq\":129,\"at\":\"2026-10-24T22:37:28.129Z\",\"run_id\":\"zetaris-nightshift-ex01-20261024\",\"type\":\"generate\",\"agent\":\"critic\",\"payload\":{\"prompt_id\":\"critic-r1\",\"attempt\":1,\"generator\":\"nightshift:nvidia/nemotron-3.5-lightning-30b-a3b\",\"provider\":\"meterless\",\"requested_model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"recorded\":false,\"prompt_sha256\":\"ab77305173cca833f1dcdcb0b2a77788a29d26a4f1d4dc99b4ce0f2d5022d3e6\",\"response_sha256\":\"15a84ffc846f060061255f7e6466157f39a0cca4d529f4184d74a4083157ecd9\",\"routing\":{\"source\":\"meterless_receipt\",\"schema\":\"meterless.compute_receipt.v1\",\"receipt_id\":\"rcpt_req_k9c21z33\",\"decision_id\":\"req_k9c21z33\",\"requested_model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"routed_model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"winning_route\":{\"model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"label\":\"Nemotron 3.5 Lightning 30B A3B\",\"provider\":\"nvidia\",\"kind\":\"cloud\",\"tier\":\"A\"},\"phases\":[{\"phase\":\"final_synthesis\",\"model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"ms\":4433}],\"latency_ms\":4433,\"usage\":{\"input_tokens\":3218,\"output_tokens\":500,\"total_tokens\":3718},\"cache\":\"miss\",\"from_cache\":false,\"privacy_path\":\"cloud-ok\",\"wall_ms\":4469}}}"
+  },
+  {
+   "t": 0.0116,
+   "line": "{\"seq\":142,\"at\":\"2026-10-24T22:37:34.140Z\",\"run_id\":\"zetaris-nightshift-ex01-20261024\",\"type\":\"generate\",\"agent\":\"writer\",\"payload\":{\"prompt_id\":\"writer-r2\",\"attempt\":2,\"generator\":\"nightshift:nvidia/nemotron-3.5-lightning-30b-a3b\",\"provider\":\"meterless\",\"requested_model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"recorded\":false,\"prompt_sha256\":\"79f723645380db382b3b26647bd99979bc193c566b92b4ab0d21ddee3d7f5335\",\"response_sha256\":\"778ce76aaa787a8cf44bdac795bfb3641683ab16e2d7d8b81929dcd61bbd7aa0\",\"routing\":{\"source\":\"meterless_receipt\",\"schema\":\"meterless.compute_receipt.v1\",\"receipt_id\":\"rcpt_req_xnsi573n\",\"decision_id\":\"req_xnsi573n\",\"requested_model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"routed_model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"winning_route\":{\"model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"label\":\"Nemotron 3.5 Lightning 30B A3B\",\"provider\":\"nvidia\",\"kind\":\"cloud\",\"tier\":\"A\"},\"phases\":[{\"phase\":\"final_synthesis\",\"model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"ms\":5981}],\"latency_ms\":5981,\"usage\":{\"input_tokens\":4798,\"output_tokens\":700,\"total_tokens\":5498},\"cache\":\"miss\",\"from_cache\":false,\"privacy_path\":\"cloud-ok\",\"wall_ms\":6000}}}"
+  },
+  {
+   "t": 0.0116,
+   "line": "{\"seq\":175,\"at\":\"2026-10-24T22:37:38.803Z\",\"run_id\":\"zetaris-nightshift-ex01-20261024\",\"type\":\"generate\",\"agent\":\"critic\",\"payload\":{\"prompt_id\":\"critic-r2\",\"attempt\":2,\"generator\":\"nightshift:nvidia/nemotron-3.5-lightning-30b-a3b\",\"provider\":\"meterless\",\"requested_model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"recorded\":false,\"prompt_sha256\":\"6f15e4fd684b1ee25b97096824859ce96d747fbd75a44b296b903806766bf622\",\"response_sha256\":\"7b24608ad80c7bfa349963282548357ace329a975a7a82643ef931f34fe6eb6f\",\"routing\":{\"source\":\"meterless_receipt\",\"schema\":\"meterless.compute_receipt.v1\",\"receipt_id\":\"rcpt_req_9z5yna9n\",\"decision_id\":\"req_9z5yna9n\",\"requested_model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"routed_model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"winning_route\":{\"model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"label\":\"Nemotron 3.5 Lightning 30B A3B\",\"provider\":\"nvidia\",\"kind\":\"cloud\",\"tier\":\"A\"},\"phases\":[{\"phase\":\"final_synthesis\",\"model\":\"nvidia/nemotron-3.5-lightning-30b-a3b\",\"ms\":4637}],\"latency_ms\":4637,\"usage\":{\"input_tokens\":3311,\"output_tokens\":500,\"total_tokens\":3811},\"cache\":\"miss\",\"from_cache\":false,\"privacy_path\":\"cloud-ok\",\"wall_ms\":4672}}}"
   }
  ]
 }
